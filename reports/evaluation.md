@@ -1,6 +1,6 @@
 # Fineprint evaluation
 
-Backend: **fallback**. **Synthetic data only**. Generated 2026-11-14T19:02:35.337284+00:00.
+Backend: **fallback**. **Synthetic data only**. Generated 2026-11-14T19:22:54.439378+00:00.
 
 Parser matches pre-holdout freeze: **True**.
 
@@ -35,5 +35,5 @@ Methodology:
 - Discrepancy: any EOB patient-total difference per line in a nonconditional case. Ambiguous/missing-fact cases abstain and are excluded from labeled precision/recall.
 - Compilation failures remain in extraction recall, calculation and end-to-end denominators; positive failures count as false negatives. Negative failures abstain, not true negatives; FPR denominator is all gold-negative cases.
 - Traceability is valid spans / emitted rules; coverage also counts missing rules from failed policies.
-- End-to-end success requires exact extraction, exact calculations, complete evidence and correct discrepancy decision or justified conditional abstention.
+- End-to-end success requires exact extraction, exact calculations and final bill reconciliation, complete evidence and correct discrepancy decision or justified conditional abstention.
 - No live LLM measurement unless backend explicitly names a real configured provider. No LLM used for arithmetic.

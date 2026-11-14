@@ -70,3 +70,17 @@ class EvaluationTests(unittest.TestCase):
         self.assertEqual(g['end_to_end']['total'],10)
         self.assertEqual(g['evidence']['coverage_rate'],0)
         self.assertEqual(g['discrepancy']['recall'],0)
+
+
+class EndToEndOracleTests(unittest.TestCase):
+    def test_wrong_final_bill_cannot_pass_end_to_end(self):
+        from fineprint.service import analyze
+        def broken_bill(*args,**kwargs):
+            report=analyze(*args,**kwargs)
+            for comparison in report['comparisons']:
+                comparison['fineprint_remaining_cents']+=1
+            return report
+        with patch('fineprint.eval.analyze',side_effect=broken_bill):
+            report=run_evaluation(FallbackCompiler())
+        self.assertEqual(report['groups']['all']['calculation']['exact'],8)
+        self.assertEqual(report['groups']['all']['end_to_end']['success'],0)

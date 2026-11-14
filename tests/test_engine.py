@@ -179,3 +179,16 @@ class ComparisonTests(unittest.TestCase):
         c = case(p)
         report = compare(c, calculate(c)[0])
         self.assertEqual(report["potential_overpayment_cents"], 0)
+
+
+class IndependentCalculationTests(unittest.TestCase):
+    def test_changing_balanced_insurer_adjudication_does_not_change_fineprint(self):
+        p=payload()
+        expected=calculate(case(p))[0].patient_cents
+        # Replace the insurer answer with zero patient responsibility while
+        # preserving all accounting identities; evidence and contract are fixed.
+        p['claim']['lines'][0]['insurer'].update(deductible_cents=0,coinsurance_cents=0,insurer_paid_cents=20000)
+        p['bill']['lines'][0].update(insurance_paid_cents=20000,balance_due_cents=0)
+        result=analyze(case(p))
+        self.assertEqual(result['scenarios'][0]['patient_cents'],expected)
+        self.assertEqual(result['comparisons'][0]['eob_difference_cents'],-12000)

@@ -52,6 +52,30 @@ def outcome_signature(lines):
     return tuple(sorted((line['claim_line_id'],line['network'],*(line[f] for f in MONEY_FIELDS)) for line in lines))
 
 
+RECONCILIATION_FIELDS = ('fineprint_patient_cents','eob_patient_cents','bill_patient_cents',
+                         'already_paid_cents','bill_balance_due_cents','fineprint_remaining_cents',
+                         'potential_refund_cents','potential_overpayment_cents','eob_difference_cents','bill_eob_difference_cents')
+
+
+def gold_reconciliation(case, lines):
+    """Independent bill oracle from authored line liabilities and source payments."""
+    liabilities={line['claim_line_id']:line['patient_cents'] for line in lines}
+    supported=sum(liabilities.values())
+    eob=sum(line.insurer.patient_cents for line in case.claim.lines)
+    billed=sum(line.patient_paid_cents+line.balance_due_cents for line in case.bill.lines)
+    return dict(fineprint_patient_cents=supported,eob_patient_cents=eob,bill_patient_cents=billed,
+                already_paid_cents=sum(line.patient_paid_cents for line in case.bill.lines),
+                bill_balance_due_cents=sum(line.balance_due_cents for line in case.bill.lines),
+                fineprint_remaining_cents=sum(max(0,liabilities[line.claim_line_id]-line.patient_paid_cents) for line in case.bill.lines),
+                potential_refund_cents=sum(max(0,line.patient_paid_cents-liabilities[line.claim_line_id]) for line in case.bill.lines),
+                potential_overpayment_cents=max(0,billed-supported),eob_difference_cents=eob-supported,
+                bill_eob_difference_cents=billed-eob)
+
+
+def reconciliation_signature(comparison):
+    return tuple(comparison[field] for field in RECONCILIATION_FIELDS)
+
+
 def ratio(n,d):
     return n/d if d else None
 
@@ -140,8 +164,11 @@ def run_evaluation(compiler=None, root=BENCHMARK):
         if scenarios and not conditional:
             discrepancy=any(line['eob_difference_cents']!=0 for line in report['comparisons'][0]['lines'])
         decision_correct=(bool(scenarios) and conditional) if spec['gold_discrepancy'] is None else discrepancy is spec['gold_discrepancy']
-        success=exact and row['extraction_exact'] and row['traceable_rules']==row['gold_rules'] and decision_correct
-        case_rows.append(dict(id=spec['id'],policy=spec['policy'],split=row['split'],calculation_exact=exact,
+        actual_reconciliations={reconciliation_signature(c) for c in report['comparisons']} if report else set()
+        expected_reconciliations={reconciliation_signature(gold_reconciliation(original,lines)) for lines in spec['gold_outcomes']}
+        reconciliation_exact=bool(scenarios) and actual_reconciliations==expected_reconciliations
+        success=exact and reconciliation_exact and row['extraction_exact'] and row['traceable_rules']==row['gold_rules'] and decision_correct
+        case_rows.append(dict(id=spec['id'],policy=spec['policy'],split=row['split'],calculation_exact=exact,bill_reconciliation_exact=reconciliation_exact,
                               scenario_count=len(scenarios),gold_scenario_count=spec['gold_scenario_count'],
                               actual_patient_totals_cents=sorted({s['patient_cents'] for s in scenarios}),
                               gold_patient_totals_cents=sorted({sum(l['patient_cents'] for l in ls) for ls in spec['gold_outcomes']}),
@@ -164,7 +191,7 @@ def run_evaluation(compiler=None, root=BENCHMARK):
                     'Discrepancy: any EOB patient-total difference per line in a nonconditional case. Ambiguous/missing-fact cases abstain and are excluded from labeled precision/recall.',
                     'Compilation failures remain in extraction recall, calculation and end-to-end denominators; positive failures count as false negatives. Negative failures abstain, not true negatives; FPR denominator is all gold-negative cases.',
                     'Traceability is valid spans / emitted rules; coverage also counts missing rules from failed policies.',
-                    'End-to-end success requires exact extraction, exact calculations, complete evidence and correct discrepancy decision or justified conditional abstention.',
+                    'End-to-end success requires exact extraction, exact calculations and final bill reconciliation, complete evidence and correct discrepancy decision or justified conditional abstention.',
                     'No live LLM measurement unless backend explicitly names a real configured provider. No LLM used for arithmetic.'
                 ],groups=groups,policies=policy_rows,cases=case_rows)
 
