@@ -1,0 +1,423 @@
+{
+  "backend": "fallback",
+  "synthetic": true,
+  "generated_at": "2026-11-14T19:02:35.337284+00:00",
+  "revision": "32a4e79d22036b41633af975ae44d420d8bf1520",
+  "corpus_sha256": "cb6d8cd952b5d9ba0277b471290eed14cf7a1157ab7e947a9a00ee4a3d0eb3a7",
+  "parser_sha256": "bbaeedc3991d38c9a5bfcaeed6228c62b7f216b77b2ab6a55fd2a1ff3b4fed24",
+  "parser_matches_holdout_freeze": true,
+  "model": null,
+  "methodology": [
+    "Author-created format holdout; not blinded and not evidence of real-world performance.",
+    "Extraction micro precision/recall: financial fields per network and per code/network interpretation; each policy scored once; IDs/labels/order ignored.",
+    "Calculation exactness: all nine integer-cent fields on every line, network, complete distinct scenario outcome set, scenario count and conditional status.",
+    "Discrepancy: any EOB patient-total difference per line in a nonconditional case. Ambiguous/missing-fact cases abstain and are excluded from labeled precision/recall.",
+    "Compilation failures remain in extraction recall, calculation and end-to-end denominators; positive failures count as false negatives. Negative failures abstain, not true negatives; FPR denominator is all gold-negative cases.",
+    "Traceability is valid spans / emitted rules; coverage also counts missing rules from failed policies.",
+    "End-to-end success requires exact extraction, exact calculations, complete evidence and correct discrepancy decision or justified conditional abstention.",
+    "No live LLM measurement unless backend explicitly names a real configured provider. No LLM used for arithmetic."
+  ],
+  "groups": {
+    "seen": {
+      "policies": 3,
+      "cases": 6,
+      "extraction": {
+        "tp": 68,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0
+      },
+      "calculation": {
+        "exact": 6,
+        "total": 6,
+        "accuracy": 1.0
+      },
+      "discrepancy": {
+        "tp": 4,
+        "fp": 0,
+        "fn": 0,
+        "tn": 1,
+        "precision": 1.0,
+        "recall": 1.0,
+        "false_positive_rate": 0.0,
+        "labeled_cases": 5,
+        "resolved_labeled_cases": 5,
+        "abstentions": 1
+      },
+      "evidence": {
+        "valid_rules": 27,
+        "emitted_rules": 27,
+        "gold_rules": 27,
+        "traceability_rate": 1.0,
+        "coverage_rate": 1.0
+      },
+      "end_to_end": {
+        "success": 6,
+        "total": 6,
+        "rate": 1.0
+      }
+    },
+    "held_out": {
+      "policies": 2,
+      "cases": 4,
+      "extraction": {
+        "tp": 21,
+        "fp": 0,
+        "fn": 16,
+        "precision": 1.0,
+        "recall": 0.5675675675675675
+      },
+      "calculation": {
+        "exact": 2,
+        "total": 4,
+        "accuracy": 0.5
+      },
+      "discrepancy": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 1,
+        "tn": 1,
+        "precision": 1.0,
+        "recall": 0.5,
+        "false_positive_rate": 0.0,
+        "labeled_cases": 4,
+        "resolved_labeled_cases": 2,
+        "abstentions": 2
+      },
+      "evidence": {
+        "valid_rules": 9,
+        "emitted_rules": 9,
+        "gold_rules": 17,
+        "traceability_rate": 1.0,
+        "coverage_rate": 0.5294117647058824
+      },
+      "end_to_end": {
+        "success": 2,
+        "total": 4,
+        "rate": 0.5
+      }
+    },
+    "all": {
+      "policies": 5,
+      "cases": 10,
+      "extraction": {
+        "tp": 89,
+        "fp": 0,
+        "fn": 16,
+        "precision": 1.0,
+        "recall": 0.8476190476190476
+      },
+      "calculation": {
+        "exact": 8,
+        "total": 10,
+        "accuracy": 0.8
+      },
+      "discrepancy": {
+        "tp": 5,
+        "fp": 0,
+        "fn": 1,
+        "tn": 2,
+        "precision": 1.0,
+        "recall": 0.8333333333333334,
+        "false_positive_rate": 0.0,
+        "labeled_cases": 9,
+        "resolved_labeled_cases": 7,
+        "abstentions": 3
+      },
+      "evidence": {
+        "valid_rules": 36,
+        "emitted_rules": 36,
+        "gold_rules": 44,
+        "traceability_rate": 1.0,
+        "coverage_rate": 0.8181818181818182
+      },
+      "end_to_end": {
+        "success": 8,
+        "total": 10,
+        "rate": 0.8
+      }
+    }
+  },
+  "policies": [
+    {
+      "id": "aurora-imaging",
+      "split": "seen",
+      "insurer": "Aurora Mutual (fictional)",
+      "fields": {
+        "tp": 26,
+        "fp": 0,
+        "fn": 0
+      },
+      "extraction_exact": true,
+      "emitted_rules": 9,
+      "traceable_rules": 9,
+      "gold_rules": 9,
+      "error": null,
+      "unresolved": [],
+      "backend": "fallback"
+    },
+    {
+      "id": "mosaic-oop",
+      "split": "seen",
+      "insurer": "Mosaic Health (fictional)",
+      "fields": {
+        "tp": 21,
+        "fp": 0,
+        "fn": 0
+      },
+      "extraction_exact": true,
+      "emitted_rules": 9,
+      "traceable_rules": 9,
+      "gold_rules": 9,
+      "error": null,
+      "unresolved": [],
+      "backend": "fallback"
+    },
+    {
+      "id": "mosaic-therapy",
+      "split": "seen",
+      "insurer": "Mosaic Health (fictional)",
+      "fields": {
+        "tp": 21,
+        "fp": 0,
+        "fn": 0
+      },
+      "extraction_exact": true,
+      "emitted_rules": 9,
+      "traceable_rules": 9,
+      "gold_rules": 9,
+      "error": null,
+      "unresolved": [],
+      "backend": "fallback"
+    },
+    {
+      "id": "cedar",
+      "split": "held_out",
+      "insurer": "Cedar Assurance (fictional)",
+      "fields": {
+        "tp": 21,
+        "fp": 0,
+        "fn": 0
+      },
+      "extraction_exact": true,
+      "emitted_rules": 9,
+      "traceable_rules": 9,
+      "gold_rules": 9,
+      "error": null,
+      "unresolved": [],
+      "backend": "fallback"
+    },
+    {
+      "id": "harbor",
+      "split": "held_out",
+      "insurer": "Harbor Benefits Cooperative (fictional)",
+      "fields": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 16
+      },
+      "extraction_exact": false,
+      "emitted_rules": 0,
+      "traceable_rules": 0,
+      "gold_rules": 8,
+      "error": "Fallback could not establish both network deductibles, OOP caps and balance-billing rules",
+      "unresolved": [],
+      "backend": "fallback"
+    }
+  ],
+  "cases": [
+    {
+      "id": "aurora-imaging",
+      "policy": "aurora-imaging",
+      "split": "seen",
+      "calculation_exact": true,
+      "scenario_count": 1,
+      "gold_scenario_count": 1,
+      "actual_patient_totals_cents": [
+        38500
+      ],
+      "gold_patient_totals_cents": [
+        38500
+      ],
+      "conditional": false,
+      "predicted_discrepancy": true,
+      "gold_discrepancy": true,
+      "end_to_end_success": true,
+      "error": null
+    },
+    {
+      "id": "mosaic-oop",
+      "policy": "mosaic-oop",
+      "split": "seen",
+      "calculation_exact": true,
+      "scenario_count": 1,
+      "gold_scenario_count": 1,
+      "actual_patient_totals_cents": [
+        100000
+      ],
+      "gold_patient_totals_cents": [
+        100000
+      ],
+      "conditional": false,
+      "predicted_discrepancy": true,
+      "gold_discrepancy": true,
+      "end_to_end_success": true,
+      "error": null
+    },
+    {
+      "id": "mosaic-therapy",
+      "policy": "mosaic-therapy",
+      "split": "seen",
+      "calculation_exact": true,
+      "scenario_count": 32,
+      "gold_scenario_count": 32,
+      "actual_patient_totals_cents": [
+        0,
+        4000,
+        6000,
+        30000
+      ],
+      "gold_patient_totals_cents": [
+        0,
+        4000,
+        6000,
+        30000
+      ],
+      "conditional": true,
+      "predicted_discrepancy": null,
+      "gold_discrepancy": null,
+      "end_to_end_success": true,
+      "error": null
+    },
+    {
+      "id": "aurora-correct",
+      "policy": "aurora-imaging",
+      "split": "seen",
+      "calculation_exact": true,
+      "scenario_count": 1,
+      "gold_scenario_count": 1,
+      "actual_patient_totals_cents": [
+        2500
+      ],
+      "gold_patient_totals_cents": [
+        2500
+      ],
+      "conditional": false,
+      "predicted_discrepancy": false,
+      "gold_discrepancy": false,
+      "end_to_end_success": true,
+      "error": null
+    },
+    {
+      "id": "aurora-coinsurance-on-copay",
+      "policy": "aurora-imaging",
+      "split": "seen",
+      "calculation_exact": true,
+      "scenario_count": 1,
+      "gold_scenario_count": 1,
+      "actual_patient_totals_cents": [
+        2500
+      ],
+      "gold_patient_totals_cents": [
+        2500
+      ],
+      "conditional": false,
+      "predicted_discrepancy": true,
+      "gold_discrepancy": true,
+      "end_to_end_success": true,
+      "error": null
+    },
+    {
+      "id": "aurora-wrong-network",
+      "policy": "aurora-imaging",
+      "split": "seen",
+      "calculation_exact": true,
+      "scenario_count": 1,
+      "gold_scenario_count": 1,
+      "actual_patient_totals_cents": [
+        20000
+      ],
+      "gold_patient_totals_cents": [
+        20000
+      ],
+      "conditional": false,
+      "predicted_discrepancy": true,
+      "gold_discrepancy": true,
+      "end_to_end_success": true,
+      "error": null
+    },
+    {
+      "id": "cedar-preventive-charged",
+      "policy": "cedar",
+      "split": "held_out",
+      "calculation_exact": true,
+      "scenario_count": 1,
+      "gold_scenario_count": 1,
+      "actual_patient_totals_cents": [
+        0
+      ],
+      "gold_patient_totals_cents": [
+        0
+      ],
+      "conditional": false,
+      "predicted_discrepancy": true,
+      "gold_discrepancy": true,
+      "end_to_end_success": true,
+      "error": null
+    },
+    {
+      "id": "cedar-correct-specialist",
+      "policy": "cedar",
+      "split": "held_out",
+      "calculation_exact": true,
+      "scenario_count": 1,
+      "gold_scenario_count": 1,
+      "actual_patient_totals_cents": [
+        3500
+      ],
+      "gold_patient_totals_cents": [
+        3500
+      ],
+      "conditional": false,
+      "predicted_discrepancy": false,
+      "gold_discrepancy": false,
+      "end_to_end_success": true,
+      "error": null
+    },
+    {
+      "id": "harbor-oop-ignored",
+      "policy": "harbor",
+      "split": "held_out",
+      "calculation_exact": false,
+      "scenario_count": 0,
+      "gold_scenario_count": 1,
+      "actual_patient_totals_cents": [],
+      "gold_patient_totals_cents": [
+        5000
+      ],
+      "conditional": null,
+      "predicted_discrepancy": null,
+      "gold_discrepancy": true,
+      "end_to_end_success": false,
+      "error": "Fallback could not establish both network deductibles, OOP caps and balance-billing rules"
+    },
+    {
+      "id": "harbor-correct-office",
+      "policy": "harbor",
+      "split": "held_out",
+      "calculation_exact": false,
+      "scenario_count": 0,
+      "gold_scenario_count": 1,
+      "actual_patient_totals_cents": [],
+      "gold_patient_totals_cents": [
+        2000
+      ],
+      "conditional": null,
+      "predicted_discrepancy": null,
+      "gold_discrepancy": false,
+      "end_to_end_success": false,
+      "error": "Fallback could not establish both network deductibles, OOP caps and balance-billing rules"
+    }
+  ]
+}

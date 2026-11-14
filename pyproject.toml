@@ -16,4 +16,4 @@ fineprint = "fineprint.server:main"
 include = ["fineprint*"]
 
 [tool.setuptools.package-data]
-fineprint = ["static/*", "samples/*/*"]
+fineprint = ["static/*", "samples/*/*", "benchmark/*.json", "benchmark/*/*"]
