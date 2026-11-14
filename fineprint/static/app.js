@@ -54,12 +54,59 @@ function renderValidation() {
   $("#validation").innerHTML = `<details class="validation ${errors.length ? "has-errors" : issues.length ? "has-warnings" : ""}"><summary>${errors.length ? `${errors.length} consistency error(s) · calculation blocked` : issues.length ? `Documents linked · ${issues.length} item(s) to review` : "✓ All documents linked · consistency checks passed"}</summary>${issues.length ? `<ul>${issues.map((issue) => `<li><strong>${esc(issue.code)}</strong>: ${esc(issue.message)} <span class="issue-path">(${esc(issue.path)})</span></li>`).join("")}</ul>` : "Member, policy, claim, provider, date, code, line links and accounting totals agree. Policy evaluation may still reveal incorrect cost sharing."}</details>`;
 }
 
+function compilerPanel() {
+  const c = state.compilation;
+  const offline = c?.backend === "fallback";
+  return `<article class="card compiler-card"><div class="card-title"><div><h3>Policy text → executable rules</h3><p>${c ? `${c.output.rule_evidence.length} rules compiled from the original document · ${esc(c.backend)}${offline ? " · offline, no LLM" : " · live provider output, review source wording"}` : "Imported structured rules · no prose compilation or source spans supplied"}</p></div><span class="pill">${c ? esc(c.backend.toUpperCase()) : "STRUCTURED IMPORT"}</span></div>
+  <p class="form-help">Start with a fictional case, or paste/upload policy text for its EOB. The policy and member identifiers must match the selected case. Compilation replaces the rules used in the next two steps.</p>
+  <details><summary>Paste or upload a policy, then compile</summary><form id="policy-form"><label class="policy-upload" for="policy-file">Policy text (.txt or .md)</label><input id="policy-file" type="file" accept=".txt,.md,text/plain,text/markdown"><label class="policy-upload" for="policy-text">Original policy document</label><textarea id="policy-text" name="document" rows="12" required maxlength="500000">${esc(state.documents.policy || "")}</textarea><p class="form-help">Files stay in memory. The server uses its configured backend; the default fallback runs offline. A configured live provider receives the submitted policy text.</p><div class="form-actions"><button class="primary-button" type="submit">Compile policy & recalculate →</button>${c ? '<button class="secondary-button" type="button" id="export-rules">Export rules + evidence ↓</button>' : ""}</div></form></details>
+  ${c?.output.unresolved.length ? `<div class="source-note warning"><strong>Unsupported terms · calculation blocked</strong>${c.output.unresolved.map(esc).join("<br>")}</div>` : ""}
+  ${c ? `<details class="compiler-provenance"><summary>Compiler provenance and confidence</summary><p class="detail-meta">Source: ${esc(c.source_document_id)} · ${c.attempts} attempt(s)<br>SHA-256: <span class="source-hash">${esc(c.source_sha256)}</span></p><ul class="questions">${c.output.warnings.map(w => `<li>${esc(w)}</li>`).join("")}</ul><p class="form-help">Confidence describes parser coverage or a provider's self-assessment. It is not a measured probability of correctness. Every executable rule has validated source quotes.</p></details>` : ""}</article>`;
+}
+
+function clauseEvidence(clause) {
+  const rules = state.compilation?.output.rule_evidence || [];
+  const matches = [];
+  rules.forEach((rule, ri) => rule.evidence.forEach((e, ei) => {
+    if (e.quote === clause.text && !matches.some(m => m.start === e.start)) matches.push({ri,ei,start:e.start,e,rule});
+  }));
+  return matches.map(({ri,ei,e,rule}) => `<button class="citation evidence-link" data-evidence="${ri}:${ei}">Read quote in ${esc(e.source_document_id)} · characters ${e.start}–${e.end}</button><p class="detail-meta">Confidence ${(rule.confidence_bps / 100).toFixed(0)}% · ${esc(rule.ambiguity)}</p>`).join("");
+}
+
+function showEvidence(ri, ei) {
+  const e = state.compilation?.output.rule_evidence[ri]?.evidence[ei];
+  if (!e) return;
+  const text = state.documents.policy;
+  if (!text || text.slice(e.start,e.end) !== e.quote) return error("Source text no longer matches this evidence span.");
+  setStep("policy", true);
+  const viewer = $("#source-evidence"); viewer.hidden = false; viewer.open = true;
+  $("#source-location").textContent = `${e.source_document_id} · ${e.section} · characters ${e.start}–${e.end} (end exclusive)`;
+  $("#source-text").innerHTML = `${esc(text.slice(0,e.start))}<mark id="selected-source-quote" tabindex="-1">${esc(e.quote)}</mark>${esc(text.slice(e.end))}`;
+  $("#selected-source-quote").scrollIntoView({block:"center"}); $("#selected-source-quote").focus({preventScroll:true});
+}
+
+function discrepancyCallout() {
+  const compared = state.report.comparisons[selectedScenario];
+  const row = compared.lines.find(line => line.eob_difference_cents > 0);
+  if (!row) return "";
+  const result = state.report.scenarios[selectedScenario].lines.find(line => line.claim_line_id === row.claim_line_id);
+  const term = state.case.policy.networks[result.network];
+  const benefit = state.case.policy.benefits.find(b => b.id === result.benefit_id);
+  const mismatch = row.explanations.find(e => ["deductible_cents","copay_cents","coinsurance_cents","noncovered_cents","balance_cents"].includes(e.component) && e.difference_cents > 0);
+  let ref = benefit.clause_ids.find(id => id !== "ORDER");
+  if (result.closing_oop_cents === term.oop_max_cents) ref = term.oop_clause;
+  else if (mismatch?.component === "deductible_cents") ref = term.deductible_clause;
+  else if (mismatch?.component === "balance_cents") ref = term.network_clause;
+  const clause = state.case.policy.clauses.find(c => c.id === ref);
+  return `<div class="discrepancy-callout"><p class="eyebrow">${compared.conditional ? "CONDITIONAL DIFFERENCE" : "CONTRACTUAL DIFFERENCE"} · ${esc(row.claim_line_id)}</p><h3>Insurer: ${usd(row.eob_patient_cents)} · Fineprint: ${usd(row.fineprint_patient_cents)}</h3><p>${usd(row.eob_difference_cents)} more assigned to the patient on this line${compared.conditional ? " under this scenario's assumptions" : " under the supplied facts"}.</p>${clause ? `<blockquote>“${esc(clause.text)}”</blockquote>${refs([ref])}` : ""}</div>`;
+}
+
 function policyPanel() {
   const policy = state.case.policy;
-  return `<div class="two-col">${Object.entries(policy.networks).map(([network, terms]) => `<article class="card"><div class="card-title"><h3>${network === "in" ? "In-network" : "Out-of-network"}</h3><span class="pill">INDIVIDUAL / ANNUAL</span></div><div class="terms"><div><span class="term-label">Deductible</span><span class="term-value">${usd(terms.deductible_cents)}</span>${refs([terms.deductible_clause])}</div><div><span class="term-label">Out-of-pocket maximum</span><span class="term-value">${usd(terms.oop_max_cents)}</span>${refs([terms.oop_clause])}</div></div><p class="term-note">${terms.balance_billing ? "This fictional plan permits charges above the allowance to be billed to the member, outside the OOP cap." : "Covered charges above the allowance are a contractual write-off."} ${refs([terms.network_clause])}</p></article>`).join("")}</div>
+  return `${compilerPanel()}<div class="two-col">${Object.entries(policy.networks).map(([network, terms]) => `<article class="card"><div class="card-title"><h3>${network === "in" ? "In-network" : "Out-of-network"}</h3><span class="pill">INDIVIDUAL / ANNUAL</span></div><div class="terms"><div><span class="term-label">Deductible</span><span class="term-value">${usd(terms.deductible_cents)}</span>${refs([terms.deductible_clause])}</div><div><span class="term-label">Out-of-pocket maximum</span><span class="term-value">${usd(terms.oop_max_cents)}</span>${refs([terms.oop_clause])}</div></div><p class="term-note">${terms.balance_billing ? "This fictional plan permits charges above the allowance to be billed to the member, outside the OOP cap." : "Covered charges above the allowance are a contractual write-off."} ${refs([terms.network_clause])}</p></article>`).join("")}</div>
   <article class="card"><div class="card-title"><div><h3><span class="section-number">01 /</span>Your coverage, connected</h3><p>${esc(policy.name)} · ${esc(policy.effective_from)} to ${esc(policy.effective_to)}</p></div><span class="pill">CLAUSE-LINKED RULES</span></div>${policy.benefits.map((rule) => `<div class="benefit"><div><span class="benefit-title">${esc(rule.label)}</span><p>${esc(rule.codes.join(", "))} · ${rule.network}-network · ${rule.covered ? `${rule.deductible_applies ? "Deductible applies" : "Deductible waived"}; ${usd(rule.copay_cents)} copay; ${rule.coinsurance_bps / 100}% member coinsurance` : "Excluded: full charge outside the OOP cap"}${rule.ambiguity_group ? " · Ambiguous wording: compare interpretations" : ""}</p></div>${refs(rule.clause_ids)}</div>`).join("")}</article>
-  <div class="source-note"><strong>Terms are rules. Evidence supplies the facts.</strong>Fineprint uses the structured policy to recalculate cost sharing. Allowed amounts, network status and spending before this claim are separate inputs. The offline fallback reads curated JSON; it does not extract arbitrary prose or PDFs.</div>
-  <article class="card"><details id="clauses"><summary>Read the policy clauses & source locations</summary>${policy.clauses.map((clause) => `<div class="clause" id="clause-${esc(clause.id)}"><span class="clause-label">§ ${esc(clause.id)}</span> <small>${esc(clause.location)}</small><p>${esc(clause.text)}</p></div>`).join("")}</details></article>${sourceDoc("policy", "View original synthetic policy summary")}
+  <div class="source-note"><strong>Terms are rules. Evidence supplies the facts.</strong>Fineprint uses the structured policy to recalculate cost sharing. Allowed amounts, network status and spending before this claim are separate inputs. The default fallback compiles supported English prose and clause tables. Unsupported wording in recognized clauses blocks calculation. PDF/OCR is not supported.</div>
+  <article class="card"><details id="clauses"><summary>Read the policy clauses & source locations</summary>${policy.clauses.map((clause) => `<div class="clause" id="clause-${esc(clause.id)}"><span class="clause-label">§ ${esc(clause.id)}</span> <small>${esc(clause.location)}</small><p>${esc(clause.text)}</p>${clauseEvidence(clause)}</div>`).join("")}</details></article><details id="source-evidence" class="document" hidden><summary id="source-location">Source evidence</summary><pre id="source-text"></pre></details>${sourceDoc("policy", "View original synthetic policy summary")}
   <div class="next-row"><p>Next: follow each service through the insurer’s math.</p><button class="primary-button" data-next="claim">Review the claim →</button></div>`;
 }
 
@@ -96,7 +143,7 @@ function factForm() {
 
 function claimPanel() {
   const report = state.report;
-  return `${report.status === "blocked" ? blocked() : `${scenarioToolbar()}${assumptions()}<div class="metric-grid"><div class="metric"><label>INSURER’S PATIENT TOTAL</label><strong>${usd(report.comparisons[selectedScenario].eob_patient_cents)}</strong><small>Recorded on the EOB</small></div><div class="metric highlight"><label>FINEPRINT’S PATIENT TOTAL</label><strong>${usd(report.scenarios[selectedScenario].patient_cents)}</strong><small>${report.scenarios[selectedScenario].conditional ? "Subject to this scenario’s assumptions" : "Calculated from the structured policy"}</small></div><div class="metric"><label>EOB − FINEPRINT</label><strong>${usd(report.comparisons[selectedScenario].eob_difference_cents)}</strong><small>Positive: EOB assigns more to the patient</small></div></div><article class="card"><div class="card-title"><div><h3><span class="section-number">02 /</span>The math behind each service</h3><p>Expand a line to compare every component and inspect the calculation trace.</p></div></div>${report.scenarios[selectedScenario].lines.map(lineAudit).join("")}</article>`}${factForm()}${sourceDoc("claim", "View original synthetic insurer EOB")}<div class="next-row"><p>Next: connect this result to the hospital’s actual balance.</p><button class="primary-button" data-next="bill">Review the bill →</button></div>`;
+  return `${report.status === "blocked" ? blocked() : `${scenarioToolbar()}${assumptions()}<div class="metric-grid"><div class="metric"><label>INSURER’S PATIENT TOTAL</label><strong>${usd(report.comparisons[selectedScenario].eob_patient_cents)}</strong><small>Recorded on the EOB</small></div><div class="metric highlight"><label>FINEPRINT’S PATIENT TOTAL</label><strong>${usd(report.scenarios[selectedScenario].patient_cents)}</strong><small>${report.scenarios[selectedScenario].conditional ? "Subject to this scenario’s assumptions" : (state.compilation ? "Calculated from compiled policy rules" : "Calculated from supplied structured rules")}</small></div><div class="metric"><label>EOB − FINEPRINT</label><strong>${usd(report.comparisons[selectedScenario].eob_difference_cents)}</strong><small>Positive: EOB assigns more to the patient</small></div></div>${discrepancyCallout()}<article class="card"><div class="card-title"><div><h3><span class="section-number">02 /</span>The math behind each service</h3><p>Expand a line to compare every component and inspect the calculation trace.</p></div></div>${report.scenarios[selectedScenario].lines.map(lineAudit).join("")}</article>`}${factForm()}${sourceDoc("claim", "View original synthetic insurer EOB")}<div class="next-row"><p>Next: connect this result to the hospital’s actual balance.</p><button class="primary-button" data-next="bill">Review the bill →</button></div>`;
 }
 
 function billPanel() {
@@ -104,7 +151,7 @@ function billPanel() {
   if (report.status === "blocked") return blocked() + sourceDoc("bill", "View original bill");
   const comparison = report.comparisons[selectedScenario];
   const conditional = report.scenarios[selectedScenario].conditional;
-  return `${scenarioToolbar()}${assumptions()}<div class="bill-banner"><div><p class="eyebrow">${conditional ? "CONDITIONAL AMOUNT TO REVIEW" : "POTENTIAL EXCESS PATIENT RESPONSIBILITY"}</p><h3>${comparison.potential_overpayment_cents > 0 ? "An amount worth questioning." : "Check the balance against the policy."}</h3><p>Hospital patient payments + balance due, compared with Fineprint’s calculated total. ${conditional ? "This depends on unverified assumptions. Obtain the missing evidence before treating it as a correction." : "Use the clause references to request an explanation or corrected adjudication."}</p></div><span class="big-number">${usd(comparison.potential_overpayment_cents)}</span></div>
+  return `${scenarioToolbar()}${assumptions()}<div class="bill-banner"><div><p class="eyebrow">${conditional ? "CONDITIONAL AMOUNT TO REVIEW" : "POTENTIAL EXCESS PATIENT RESPONSIBILITY"}</p><h3>${comparison.potential_overpayment_cents > 0 ? `You may be overpaying ${usd(comparison.potential_overpayment_cents)}.` : "Check the balance against the policy."}</h3><p>Hospital patient payments + balance due, compared with Fineprint’s calculated total. ${conditional ? "This depends on unverified assumptions. Obtain the missing evidence before treating it as a correction." : "Use the clause references to request an explanation or corrected adjudication."}</p></div><span class="big-number">${usd(comparison.potential_overpayment_cents)}</span></div>
   <div class="metric-grid"><div class="metric"><label>HOSPITAL BALANCE DUE</label><strong>${usd(comparison.bill_balance_due_cents)}</strong><small>Patient already paid ${usd(comparison.already_paid_cents)}</small></div><div class="metric highlight"><label>FINEPRINT REMAINING</label><strong>${usd(comparison.fineprint_remaining_cents)}</strong><small>After prior payments, by service line</small></div><div class="metric"><label>POTENTIAL REFUND</label><strong>${usd(comparison.potential_refund_cents)}</strong><small>Payments above this scenario’s line liability</small></div></div>
   <article class="card"><div class="card-title"><div><h3><span class="section-number">03 /</span>Three documents. One view.</h3><p>Patient totals include amounts already paid. Remaining balances account for those payments.</p></div></div><div class="table-scroll"><table><thead><tr><th>Service</th><th class="number">Fineprint total</th><th class="number">EOB total</th><th class="number">Bill total</th><th class="number">Paid</th><th class="number">Bill due</th><th class="number">Fineprint remaining</th></tr></thead><tbody>${comparison.lines.map((line) => `<tr><td><span class="code">${esc(line.code)}</span>${esc(line.claim_line_id)}</td><td class="number">${usd(line.fineprint_patient_cents)}</td><td class="number">${usd(line.eob_patient_cents)}</td><td class="number ${line.potential_overpayment_cents ? "difference" : ""}">${usd(line.bill_patient_cents)}</td><td class="number">${usd(line.already_paid_cents)}</td><td class="number">${usd(line.bill_balance_due_cents)}</td><td class="number">${usd(line.fineprint_remaining_cents)}</td></tr>`).join("")}<tr class="total-row"><td>Total</td>${[comparison.fineprint_patient_cents, comparison.eob_patient_cents, comparison.bill_patient_cents, comparison.already_paid_cents, comparison.bill_balance_due_cents, comparison.fineprint_remaining_cents].map((n) => `<td class="number">${usd(n)}</td>`).join("")}</tr></tbody></table></div>${comparison.lines.flatMap((line) => line.explanations.filter((item) => item.kind.startsWith("bill_")).map((item) => `<div class="explanation"><strong>${esc(line.code)} · ${esc(line.claim_line_id)}</strong> — ${esc(item.message)} Difference: ${usd(item.difference_cents)}.${refs(item.clause_ids)}</div>`)).join("")}</article>
   <article class="card"><div class="card-title"><h3>Questions to bring to a review</h3></div><ol class="questions"><li>Ask the insurer for its line-by-line deductible, copay, coinsurance and OOP calculations. Compare the cited policy clauses in the Claim step.</li><li>Ask the provider to reconcile the EOB with all insurance credits, contractual adjustments and prior patient payments.</li>${conditional ? "<li>Confirm network participation, the contracted allowance, prior spending and which conflicting policy clause governs before relying on a scenario.</li>" : ""}<li>Keep the original policy, EOB and itemized bill with the exported case for a documented review. The results are an estimate under the supported rules.</li></ol></article>
@@ -150,6 +197,14 @@ function parseMoney(text) {
 document.addEventListener("click", (event) => {
   const button = event.target.closest("button");
   if (!button) return;
+  if (button.dataset.evidence) return void showEvidence(...button.dataset.evidence.split(":").map(Number));
+  if (button.id === "export-rules" && state.compilation) {
+    const data = {source_document:state.documents.policy,compilation:state.compilation};
+    const url = URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:"application/json"}));
+    const anchor = document.createElement("a"); anchor.href=url; anchor.download="fineprint-compiled-policy.json"; anchor.click();
+    setTimeout(() => URL.revokeObjectURL(url),1000); return;
+  }
+  if (button.id === "load-metrics") return void loadMetrics();
   if (button.dataset.case) return void loadCase(button.dataset.case);
   if (button.dataset.step) return void setStep(button.dataset.step);
   if (button.dataset.next) return void setStep(button.dataset.next, true);
@@ -174,12 +229,28 @@ document.addEventListener("change", (event) => {
 });
 
 document.addEventListener("submit", async (event) => {
+  if (event.target.id === "policy-form") {
+    event.preventDefault(); error("");
+    const ticket = ++requestNumber;
+    const button = event.target.querySelector('button[type="submit"]');
+    const document = new FormData(event.target).get("document");
+    button.disabled = true;
+    try {
+      const result = await api("/api/compile", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({document,document_id:"uploaded-policy",case:state.case})});
+      if (ticket !== requestNumber) return;
+      state = {...result,documents:{...state.documents,...result.documents}};
+      selectedScenario = 0; render(); announce("Policy compiled; claim and bill recalculated from the new rules");
+    } catch (err) { if (ticket === requestNumber) error(`Compilation failed: ${err.message}. Current results still refer to the previous policy.`); }
+    finally { button.disabled = false; }
+    return;
+  }
   if (event.target.id !== "facts-form") return;
   event.preventDefault(); error("");
   const button = event.target.querySelector("button[type=submit]");
   const ticket = ++requestNumber;
   try {
-    const data = new FormData(event.target), updated = structuredClone(state.case), documents = state.documents;
+    if (state.compilation?.output.unresolved.length) throw new Error("Resolve unsupported clauses by recompiling the policy before editing claim facts.");
+    const data = new FormData(event.target), updated = structuredClone(state.case), documents = state.documents, compilation = state.compilation;
     for (const [net, accum] of Object.entries(updated.claim.accumulators)) {
       accum.deductible_paid_cents = parseMoney(data.get(`ded:${net}`));
       accum.oop_paid_cents = parseMoney(data.get(`oop:${net}`));
@@ -194,7 +265,7 @@ document.addEventListener("submit", async (event) => {
     button.disabled = true;
     const result = await api("/api/analyze", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(updated)});
     if (ticket !== requestNumber) return;
-    state = {...result,documents}; selectedScenario = 0; render(); announce("Facts updated and case recalculated");
+    state = {...result,documents,compilation}; selectedScenario = 0; render(); announce("Facts updated and case recalculated");
   } catch (err) { if (ticket === requestNumber) error(err.message); }
   finally { button.disabled = false; }
 });
@@ -218,3 +289,26 @@ $("#import-file").addEventListener("change", async (event) => {
   try { catalog = await api("/api/cases"); renderCatalog(); if (catalog.length) await loadCase(catalog[0].id); }
   catch (err) { error(`Unable to load Fineprint: ${err.message}`); }
 })();
+
+
+document.addEventListener("change", async (event) => {
+  if (event.target.id !== "policy-file") return;
+  const file = event.target.files[0];
+  if (!file) return;
+  const ticket = requestNumber;
+  try {
+    if (file.size > 500000) throw new Error("Policy text must be at most 500 KB.");
+    const text = await file.text();
+    if (ticket === requestNumber && $("#policy-text")) { $("#policy-text").value = text; announce("Policy text loaded. Choose Compile policy to apply it."); }
+  } catch (err) { error(err.message); }
+});
+
+async function loadMetrics() {
+  const button = $("#load-metrics"); button.disabled = true;
+  try {
+    const report = await api("/api/evaluation");
+    const pct = value => value === null ? "n/a" : `${(value*100).toFixed(1)}%`;
+    $("#metrics-results").innerHTML = `<p class="detail-meta">Actually run ${esc(report.generated_at)} · ${esc(report.backend)} · synthetic data only · author-created format holdout, not blinded</p><div class="table-scroll"><table><thead><tr><th>Split</th><th>Exact / end-to-end</th><th>Extraction P / R</th><th>Discrepancy P / R</th><th>False positive rate</th></tr></thead><tbody>${Object.entries(report.groups).map(([name,g]) => `<tr><td>${esc(name)}</td><td>${g.calculation.exact}/${g.cases} · ${pct(g.end_to_end.rate)}</td><td>${pct(g.extraction.precision)} / ${pct(g.extraction.recall)}</td><td>${pct(g.discrepancy.precision)} / ${pct(g.discrepancy.recall)}</td><td>${pct(g.discrepancy.false_positive_rate)}</td></tr>`).join("")}</tbody></table></div><p class="form-help">Valid source spans: ${pct(report.groups.all.evidence.traceability_rate)} of emitted rules; ${pct(report.groups.all.evidence.coverage_rate)} coverage including failed policies. Ambiguous cases abstain; compilation failures stay in denominators.</p><ul class="questions">${report.policies.filter(p => p.error).map(p => `<li>${esc(p.insurer)}: ${esc(p.error)}</li>`).join("")}</ul>`;
+  } catch (err) { error(err.message); }
+  finally { button.disabled = false; }
+}

@@ -20,8 +20,8 @@
       <input id="import-file" type="file" accept=".json,application/json">
       <button id="download" class="sidebar-button" disabled>↓ Export normalized case</button>
     </div>
-    <div class="sidebar-note"><span class="offline-dot"></span> Offline by design<p>No API keys. No external requests.<br>Imported cases stay in memory.</p></div>
-    <p class="sidebar-footer">PHASE 01 / CONNECT THE DOTS<br><span>With a first look at independent recalculation.</span></p>
+    <div class="sidebar-note"><span class="offline-dot"></span> Offline by design<p>Default fallback: no API keys.<br>Uploaded text stays in memory.</p></div>
+    <p class="sidebar-footer">HEALTHCARE × PRACTICAL AI<br><span>Policy text to clause-backed calculations.</span></p>
   </aside>
   <div class="workspace">
     <header class="topbar"><span>POLICY <span class="muted">/</span> CLAIM <span class="muted">/</span> BILL</span><span id="data-badge" class="badge">SYNTHETIC DATA ONLY</span></header>
@@ -31,7 +31,7 @@
       <div class="intro"><div><p class="eyebrow">CLARITY AT EVERY STEP</p><h1>Follow the fine print<span>.</span></h1><p class="intro-copy">Understand your coverage. Check the math. Know what to question.</p></div><span class="edition">INDEPENDENT<br>BY DESIGN ↗</span></div>
       <section class="case-heading" aria-label="Current case"><div><p id="insurer" class="eyebrow">CASE EXPLORER</p><h2 id="case-title">Loading your case…</h2><p id="case-summary" class="muted"></p></div><button id="reset" class="text-button" disabled>Reset case ↺</button></section>
       <div class="steps" role="tablist" aria-label="Case workflow">
-        <button id="tab-policy" role="tab" aria-selected="true" aria-controls="panel-policy" data-step="policy"><span>01</span><div>Policy<small>What’s covered</small></div><b>↗</b></button>
+        <button id="tab-policy" role="tab" aria-selected="true" aria-controls="panel-policy" data-step="policy"><span>01</span><div>Policy<small>Compile & trace rules</small></div><b>↗</b></button>
         <button id="tab-claim" role="tab" aria-selected="false" aria-controls="panel-claim" tabindex="-1" data-step="claim"><span>02</span><div>Claim<small>Check the calculation</small></div><b>↗</b></button>
         <button id="tab-bill" role="tab" aria-selected="false" aria-controls="panel-bill" tabindex="-1" data-step="bill"><span>03</span><div>Bill<small>What you may owe</small></div><b>↗</b></button>
       </div>
@@ -39,6 +39,7 @@
       <section id="panel-policy" role="tabpanel" aria-labelledby="tab-policy"></section>
       <section id="panel-claim" role="tabpanel" aria-labelledby="tab-claim" hidden></section>
       <section id="panel-bill" role="tabpanel" aria-labelledby="tab-bill" hidden></section>
+      <section class="card" id="evaluation"><details><summary>Measured offline evaluation · synthetic benchmark</summary><p class="form-help">Run the frozen fallback against seen and held-out insurer documents, including unsupported formats. Results are measured locally.</p><button id="load-metrics" class="secondary-button">Run offline evaluation</button><div id="metrics-results"></div></details></section>
       <footer class="page-footer"><span>Fictional cases. Real questions worth asking.</span><span>A calculation aid, subject to the stated inputs and plan scope.</span></footer>
     </main>
   </div>

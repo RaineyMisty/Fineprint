@@ -75,6 +75,31 @@ try {
   assert.equal(await evaluate(`document.querySelectorAll('[role=tab]').length`), 3);
   await mkdir(artifacts, {recursive:true});
   await screenshot("desktop-policy.png");
+  assert.match(await evaluate(`document.querySelector('.compiler-card').textContent`), /fallback.*offline, no LLM/);
+  // Follow a clause to the exact Unicode character span in the original source.
+  await click('#panel-policy .citation');
+  await click('#clause-D-in .evidence-link');
+  assert.match(await evaluate(`document.querySelector('#selected-source-quote').textContent`), /deductible: \$1000\.00/);
+  assert.equal(await evaluate(`document.querySelector('#source-evidence').open`), true);
+  // Load an actual policy file, then change prose: the independent answer must change.
+  const uploadDom = await command("DOM.getDocument");
+  const policyFile = await command("DOM.querySelector", {nodeId:uploadDom.root.nodeId,selector:"#policy-file"});
+  await command("DOM.setFileInputFiles", {nodeId:policyFile.nodeId,files:[join(root,"fineprint/samples/aurora-imaging/policy.md")]});
+  await ready(`document.querySelector('#policy-text').value.includes('Out-of-network office')`, "policy text upload");
+  await evaluate(`document.querySelector('#policy-text').value=document.querySelector('#policy-text').value.replace('$25 copay','$30 copay');document.querySelector('#policy-form').requestSubmit()`);
+  await ready(`document.querySelector('#panel-claim').textContent.includes('$390.00')`, "prose recompile changes calculation");
+  await click('#reset');
+  await ready(`document.querySelector('#panel-claim').textContent.includes('$385.00')`, "reset compiled policy");
+  // Unknown benefit wording must block rather than retaining a curated rule.
+  await evaluate(`document.querySelector('#policy-text').value=document.querySelector('#policy-text').value.replace('deductible then 20% member coinsurance','subject to administrator discretion');document.querySelector('#policy-form').requestSubmit()`);
+  await ready(`document.querySelector('#panel-claim').textContent.includes('Recalculation is blocked')`, "unsupported prose blocks calculation");
+  await click('#reset');
+  await evaluate(`document.querySelector('#evaluation details').open=true`);
+  await click('#load-metrics');
+  await ready(`document.querySelector('#metrics-results').textContent.includes('held_out')`, "offline evaluation view");
+  assert.match(await evaluate(`document.querySelector('#metrics-results').textContent`), /8\/10/);
+  assert.match(await evaluate(`document.querySelector('#metrics-results').textContent`), /Harbor Benefits/);
+
   await click('#panel-policy [data-next="claim"]');
   assert.equal(await evaluate(`document.querySelector('#panel-claim').hidden`), false);
   assert.match(await evaluate(`document.querySelector('#panel-claim').textContent`), /\$385\.00/);
@@ -122,7 +147,7 @@ try {
   await screenshot("mobile-bill.png");
   assert.equal(exceptions.length, 0, JSON.stringify(exceptions));
   assert.ok(requests.every((url) => url.startsWith(base) || url === "about:blank"), "App must not make external requests");
-  console.log("Browser smoke passed: 3 cases, workflow, clause links, 32→2 scenarios, facts, export/import, keyboard, mobile, no JS exceptions or external requests.");
+  console.log("Browser smoke passed: prose upload/recompile, exact source spans, unsupported wording blocks, measured metrics, 3 cases, 32→2 scenarios, facts, JSON roundtrip, keyboard/mobile, no JS exceptions or external requests.");
   console.log(`Screenshots: ${artifacts}`);
 } finally {
   if (ws) ws.close();
