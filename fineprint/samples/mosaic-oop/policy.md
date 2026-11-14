@@ -28,7 +28,7 @@ Out-of-network charges above the allowed amount may be balance billed under this
 Covered in-network ambulatory procedure (29881): deductible then 20% coinsurance; subject to OOP maximum.
 
 ### 8. X1
-Elective cosmetic service (15820) is excluded at full billed charge; no deductible or OOP credit.
+In-network elective cosmetic service (15820) is excluded at full billed charge; no deductible or OOP credit.
 
 ### 9. B2
 Out-of-network nonemergency transport (A0428): deductible then 50% member coinsurance; permitted balance billing applies.

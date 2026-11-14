@@ -107,7 +107,7 @@ def main():
                 benefit("out", "Out-of-network office and imaging", ["99213", "70551"], "out", coins=4000, clause="B3")],
                [("B1", "In-network office visit (99213): $25 copay; deductible waived; no coinsurance."),
                 ("B2", "In-network diagnostic imaging (70551): deductible then 20% member coinsurance."),
-                ("B3", "Out-of-network office and imaging: deductible then 40% coinsurance, plus permitted balance billing.")])
+                ("B3", "Out-of-network office and imaging (99213, 70551): deductible then 40% coinsurance, plus permitted balance billing.")])
     make_case("aurora-imaging", "A deductible charged twice", "Office + MRI: verify remaining deductible, then reconcile a missing hospital credit.", p, "CLAIM-SYN-A01",
               {"in": {"deductible_paid_cents": 80000, "oop_paid_cents": 100000}, "out": {"deductible_paid_cents": 0, "oop_paid_cents": 0}},
               [line("A1", "99213", "Synthetic office visit", 24000, 15000, copay=2500, paid=12500, adjustment=9000),
@@ -120,7 +120,7 @@ def main():
                 benefit("excluded", "Elective cosmetic exclusion", ["15820"], covered=False, ded=False, coins=0, clause="X1"),
                 benefit("transport", "Nonemergency transport", ["A0428"], "out", coins=5000, clause="B2")],
                [("B1", "Covered in-network ambulatory procedure (29881): deductible then 20% coinsurance; subject to OOP maximum."),
-                ("X1", "Elective cosmetic service (15820) is excluded at full billed charge; no deductible or OOP credit."),
+                ("X1", "In-network elective cosmetic service (15820) is excluded at full billed charge; no deductible or OOP credit."),
                 ("B2", "Out-of-network nonemergency transport (A0428): deductible then 50% member coinsurance; permitted balance billing applies.")])
     make_case("mosaic-oop", "The out-of-pocket limit matters", "An OOP cap correction, an explicit exclusion, and a separate out-of-network pool.", p, "CLAIM-SYN-M01",
               {"in": {"deductible_paid_cents": 50000, "oop_paid_cents": 145000}, "out": {"deductible_paid_cents": 0, "oop_paid_cents": 0}},
@@ -135,7 +135,7 @@ def main():
                 benefit("therapy-copay", "Fixed $40 copay, deductible waived", ["97110"], ded=False, copay=4000, coins=0, clause="T2", group="therapy-wording"),
                 benefit("therapy-out", "Out-of-network therapy", ["97110"], "out", coins=5000, clause="T3")],
                [("T1", "Therapy schedule: in-network therapeutic exercise (97110) is subject to deductible then 20% coinsurance."),
-                ("T2", "Therapy endorsement: in-network therapeutic exercise (97110) has a $40 copay and waived deductible. The document does not state whether this endorsement supersedes T1: both interpretations require review."),
+                ("T2", "Therapy endorsement: in-network therapeutic exercise (97110) has a $40 copay and waived deductible; no coinsurance. The document does not state whether this endorsement supersedes T1: both interpretations require review."),
                 ("T3", "Out-of-network therapeutic exercise (97110): deductible then 50% coinsurance, plus permitted balance billing.")])
     make_case("mosaic-therapy", "When the policy needs clarification", "Compare conflicting therapy clauses; resolve unknown network, allowance and prior spending.", p, "CLAIM-SYN-M02",
               {"in": {"deductible_paid_cents": None, "oop_paid_cents": None}, "out": {"deductible_paid_cents": 0, "oop_paid_cents": 0}},

@@ -28,7 +28,7 @@ Out-of-network charges above the allowed amount may be balance billed under this
 Therapy schedule: in-network therapeutic exercise (97110) is subject to deductible then 20% coinsurance.
 
 ### 8. T2
-Therapy endorsement: in-network therapeutic exercise (97110) has a $40 copay and waived deductible. The document does not state whether this endorsement supersedes T1: both interpretations require review.
+Therapy endorsement: in-network therapeutic exercise (97110) has a $40 copay and waived deductible; no coinsurance. The document does not state whether this endorsement supersedes T1: both interpretations require review.
 
 ### 9. T3
 Out-of-network therapeutic exercise (97110): deductible then 50% coinsurance, plus permitted balance billing.
