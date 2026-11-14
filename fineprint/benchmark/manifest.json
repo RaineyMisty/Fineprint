@@ -1,0 +1,419 @@
+{
+  "synthetic": true,
+  "description": "Author-created format holdout, not blinded; all data fictional",
+  "parser_freeze_commit": "bd9f7ab",
+  "parser_sha256": "bbaeedc3991d38c9a5bfcaeed6228c62b7f216b77b2ab6a55fd2a1ff3b4fed24",
+  "policies": [
+    {
+      "id": "aurora-imaging",
+      "split": "seen",
+      "document": "../samples/aurora-imaging/policy.md",
+      "gold": "../samples/aurora-imaging/policy.json"
+    },
+    {
+      "id": "mosaic-oop",
+      "split": "seen",
+      "document": "../samples/mosaic-oop/policy.md",
+      "gold": "../samples/mosaic-oop/policy.json"
+    },
+    {
+      "id": "mosaic-therapy",
+      "split": "seen",
+      "document": "../samples/mosaic-therapy/policy.md",
+      "gold": "../samples/mosaic-therapy/policy.json"
+    },
+    {
+      "id": "cedar",
+      "split": "held_out",
+      "document": "policies/cedar.md",
+      "gold": "gold/cedar.json"
+    },
+    {
+      "id": "harbor",
+      "split": "held_out",
+      "document": "policies/harbor.md",
+      "gold": "gold/harbor.json"
+    }
+  ],
+  "cases": [
+    {
+      "id": "aurora-imaging",
+      "policy": "aurora-imaging",
+      "sample": "aurora-imaging",
+      "gold_outcomes": [
+        [
+          {
+            "claim_line_id": "A1",
+            "network": "in",
+            "allowed_cents": 15000,
+            "deductible_cents": 0,
+            "copay_cents": 2500,
+            "coinsurance_cents": 0,
+            "noncovered_cents": 0,
+            "balance_cents": 0,
+            "insurer_paid_cents": 12500,
+            "adjustment_cents": 9000,
+            "patient_cents": 2500
+          },
+          {
+            "claim_line_id": "A2",
+            "network": "in",
+            "allowed_cents": 100000,
+            "deductible_cents": 20000,
+            "copay_cents": 0,
+            "coinsurance_cents": 16000,
+            "noncovered_cents": 0,
+            "balance_cents": 0,
+            "insurer_paid_cents": 64000,
+            "adjustment_cents": 60000,
+            "patient_cents": 36000
+          }
+        ]
+      ],
+      "gold_scenario_count": 1,
+      "gold_discrepancy": true,
+      "gold_conditional": false
+    },
+    {
+      "id": "mosaic-oop",
+      "policy": "mosaic-oop",
+      "sample": "mosaic-oop",
+      "gold_outcomes": [
+        [
+          {
+            "claim_line_id": "M1",
+            "network": "in",
+            "allowed_cents": 100000,
+            "deductible_cents": 0,
+            "copay_cents": 0,
+            "coinsurance_cents": 5000,
+            "noncovered_cents": 0,
+            "balance_cents": 0,
+            "insurer_paid_cents": 95000,
+            "adjustment_cents": 80000,
+            "patient_cents": 5000
+          },
+          {
+            "claim_line_id": "M2",
+            "network": "in",
+            "allowed_cents": 0,
+            "deductible_cents": 0,
+            "copay_cents": 0,
+            "coinsurance_cents": 0,
+            "noncovered_cents": 30000,
+            "balance_cents": 0,
+            "insurer_paid_cents": 0,
+            "adjustment_cents": 0,
+            "patient_cents": 30000
+          },
+          {
+            "claim_line_id": "M3",
+            "network": "out",
+            "allowed_cents": 40000,
+            "deductible_cents": 40000,
+            "copay_cents": 0,
+            "coinsurance_cents": 0,
+            "noncovered_cents": 0,
+            "balance_cents": 25000,
+            "insurer_paid_cents": 0,
+            "adjustment_cents": 0,
+            "patient_cents": 65000
+          }
+        ]
+      ],
+      "gold_scenario_count": 1,
+      "gold_discrepancy": true,
+      "gold_conditional": false
+    },
+    {
+      "id": "mosaic-therapy",
+      "policy": "mosaic-therapy",
+      "sample": "mosaic-therapy",
+      "gold_outcomes": [
+        [
+          {
+            "claim_line_id": "T1",
+            "network": "in",
+            "allowed_cents": 0,
+            "deductible_cents": 0,
+            "copay_cents": 0,
+            "coinsurance_cents": 0,
+            "noncovered_cents": 0,
+            "balance_cents": 0,
+            "insurer_paid_cents": 0,
+            "adjustment_cents": 30000,
+            "patient_cents": 0
+          }
+        ],
+        [
+          {
+            "claim_line_id": "T1",
+            "network": "in",
+            "allowed_cents": 30000,
+            "deductible_cents": 30000,
+            "copay_cents": 0,
+            "coinsurance_cents": 0,
+            "noncovered_cents": 0,
+            "balance_cents": 0,
+            "insurer_paid_cents": 0,
+            "adjustment_cents": 0,
+            "patient_cents": 30000
+          }
+        ],
+        [
+          {
+            "claim_line_id": "T1",
+            "network": "in",
+            "allowed_cents": 30000,
+            "deductible_cents": 0,
+            "copay_cents": 0,
+            "coinsurance_cents": 0,
+            "noncovered_cents": 0,
+            "balance_cents": 0,
+            "insurer_paid_cents": 30000,
+            "adjustment_cents": 0,
+            "patient_cents": 0
+          }
+        ],
+        [
+          {
+            "claim_line_id": "T1",
+            "network": "in",
+            "allowed_cents": 30000,
+            "deductible_cents": 0,
+            "copay_cents": 0,
+            "coinsurance_cents": 6000,
+            "noncovered_cents": 0,
+            "balance_cents": 0,
+            "insurer_paid_cents": 24000,
+            "adjustment_cents": 0,
+            "patient_cents": 6000
+          }
+        ],
+        [
+          {
+            "claim_line_id": "T1",
+            "network": "in",
+            "allowed_cents": 30000,
+            "deductible_cents": 0,
+            "copay_cents": 4000,
+            "coinsurance_cents": 0,
+            "noncovered_cents": 0,
+            "balance_cents": 0,
+            "insurer_paid_cents": 26000,
+            "adjustment_cents": 0,
+            "patient_cents": 4000
+          }
+        ],
+        [
+          {
+            "claim_line_id": "T1",
+            "network": "out",
+            "allowed_cents": 0,
+            "deductible_cents": 0,
+            "copay_cents": 0,
+            "coinsurance_cents": 0,
+            "noncovered_cents": 0,
+            "balance_cents": 30000,
+            "insurer_paid_cents": 0,
+            "adjustment_cents": 0,
+            "patient_cents": 30000
+          }
+        ],
+        [
+          {
+            "claim_line_id": "T1",
+            "network": "out",
+            "allowed_cents": 30000,
+            "deductible_cents": 30000,
+            "copay_cents": 0,
+            "coinsurance_cents": 0,
+            "noncovered_cents": 0,
+            "balance_cents": 0,
+            "insurer_paid_cents": 0,
+            "adjustment_cents": 0,
+            "patient_cents": 30000
+          }
+        ]
+      ],
+      "gold_scenario_count": 32,
+      "gold_discrepancy": null,
+      "gold_conditional": true
+    },
+    {
+      "id": "aurora-correct",
+      "policy": "aurora-imaging",
+      "case": "cases/aurora-correct.json",
+      "gold_outcomes": [
+        [
+          {
+            "claim_line_id": "L1",
+            "network": "in",
+            "allowed_cents": 15000,
+            "deductible_cents": 0,
+            "copay_cents": 2500,
+            "coinsurance_cents": 0,
+            "noncovered_cents": 0,
+            "balance_cents": 0,
+            "insurer_paid_cents": 12500,
+            "adjustment_cents": 10000,
+            "patient_cents": 2500
+          }
+        ]
+      ],
+      "gold_scenario_count": 1,
+      "gold_discrepancy": false,
+      "gold_conditional": false
+    },
+    {
+      "id": "aurora-coinsurance-on-copay",
+      "policy": "aurora-imaging",
+      "case": "cases/aurora-coinsurance-on-copay.json",
+      "gold_outcomes": [
+        [
+          {
+            "claim_line_id": "L1",
+            "network": "in",
+            "allowed_cents": 15000,
+            "deductible_cents": 0,
+            "copay_cents": 2500,
+            "coinsurance_cents": 0,
+            "noncovered_cents": 0,
+            "balance_cents": 0,
+            "insurer_paid_cents": 12500,
+            "adjustment_cents": 10000,
+            "patient_cents": 2500
+          }
+        ]
+      ],
+      "gold_scenario_count": 1,
+      "gold_discrepancy": true,
+      "gold_conditional": false
+    },
+    {
+      "id": "aurora-wrong-network",
+      "policy": "aurora-imaging",
+      "case": "cases/aurora-wrong-network.json",
+      "gold_outcomes": [
+        [
+          {
+            "claim_line_id": "L1",
+            "network": "in",
+            "allowed_cents": 100000,
+            "deductible_cents": 0,
+            "copay_cents": 0,
+            "coinsurance_cents": 20000,
+            "noncovered_cents": 0,
+            "balance_cents": 0,
+            "insurer_paid_cents": 80000,
+            "adjustment_cents": 10000,
+            "patient_cents": 20000
+          }
+        ]
+      ],
+      "gold_scenario_count": 1,
+      "gold_discrepancy": true,
+      "gold_conditional": false
+    },
+    {
+      "id": "cedar-preventive-charged",
+      "policy": "cedar",
+      "case": "cases/cedar-preventive-charged.json",
+      "gold_outcomes": [
+        [
+          {
+            "claim_line_id": "L1",
+            "network": "in",
+            "allowed_cents": 20000,
+            "deductible_cents": 0,
+            "copay_cents": 0,
+            "coinsurance_cents": 0,
+            "noncovered_cents": 0,
+            "balance_cents": 0,
+            "insurer_paid_cents": 20000,
+            "adjustment_cents": 10000,
+            "patient_cents": 0
+          }
+        ]
+      ],
+      "gold_scenario_count": 1,
+      "gold_discrepancy": true,
+      "gold_conditional": false
+    },
+    {
+      "id": "cedar-correct-specialist",
+      "policy": "cedar",
+      "case": "cases/cedar-correct-specialist.json",
+      "gold_outcomes": [
+        [
+          {
+            "claim_line_id": "L1",
+            "network": "in",
+            "allowed_cents": 20000,
+            "deductible_cents": 0,
+            "copay_cents": 3500,
+            "coinsurance_cents": 0,
+            "noncovered_cents": 0,
+            "balance_cents": 0,
+            "insurer_paid_cents": 16500,
+            "adjustment_cents": 10000,
+            "patient_cents": 3500
+          }
+        ]
+      ],
+      "gold_scenario_count": 1,
+      "gold_discrepancy": false,
+      "gold_conditional": false
+    },
+    {
+      "id": "harbor-oop-ignored",
+      "policy": "harbor",
+      "case": "cases/harbor-oop-ignored.json",
+      "gold_outcomes": [
+        [
+          {
+            "claim_line_id": "L1",
+            "network": "in",
+            "allowed_cents": 100000,
+            "deductible_cents": 0,
+            "copay_cents": 0,
+            "coinsurance_cents": 5000,
+            "noncovered_cents": 0,
+            "balance_cents": 0,
+            "insurer_paid_cents": 95000,
+            "adjustment_cents": 10000,
+            "patient_cents": 5000
+          }
+        ]
+      ],
+      "gold_scenario_count": 1,
+      "gold_discrepancy": true,
+      "gold_conditional": false
+    },
+    {
+      "id": "harbor-correct-office",
+      "policy": "harbor",
+      "case": "cases/harbor-correct-office.json",
+      "gold_outcomes": [
+        [
+          {
+            "claim_line_id": "L1",
+            "network": "in",
+            "allowed_cents": 15000,
+            "deductible_cents": 0,
+            "copay_cents": 2000,
+            "coinsurance_cents": 0,
+            "noncovered_cents": 0,
+            "balance_cents": 0,
+            "insurer_paid_cents": 13000,
+            "adjustment_cents": 10000,
+            "patient_cents": 2000
+          }
+        ]
+      ],
+      "gold_scenario_count": 1,
+      "gold_discrepancy": false,
+      "gold_conditional": false
+    }
+  ]
+}

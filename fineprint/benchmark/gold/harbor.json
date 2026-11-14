@@ -1,0 +1,110 @@
+{
+  "id": "POL-SYN-H01",
+  "insurer": "Harbor Benefits Cooperative (fictional)",
+  "name": "Synthetic Matrix Plan",
+  "member_id": "MEMBER-SYN-H01",
+  "effective_from": "2026-01-01",
+  "effective_to": "2026-12-31",
+  "currency": "USD",
+  "networks": {
+    "in": {
+      "deductible_cents": 50000,
+      "oop_max_cents": 150000,
+      "balance_billing": false,
+      "deductible_clause": "D-in",
+      "oop_clause": "O-in",
+      "network_clause": "N-in"
+    },
+    "out": {
+      "deductible_cents": 100000,
+      "oop_max_cents": 300000,
+      "balance_billing": true,
+      "deductible_clause": "D-out",
+      "oop_clause": "O-out",
+      "network_clause": "N-out"
+    }
+  },
+  "benefits": [
+    {
+      "id": "H1",
+      "label": "Synthetic 70551 in",
+      "codes": [
+        "70551"
+      ],
+      "network": "in",
+      "covered": true,
+      "deductible_applies": true,
+      "copay_cents": 0,
+      "coinsurance_bps": 2000,
+      "clause_ids": [
+        "H1",
+        "ORDER"
+      ],
+      "ambiguity_group": ""
+    },
+    {
+      "id": "H2",
+      "label": "Synthetic 99213 in",
+      "codes": [
+        "99213"
+      ],
+      "network": "in",
+      "covered": true,
+      "deductible_applies": false,
+      "copay_cents": 2000,
+      "coinsurance_bps": 0,
+      "clause_ids": [
+        "H2",
+        "ORDER"
+      ],
+      "ambiguity_group": ""
+    }
+  ],
+  "clauses": [
+    {
+      "id": "D-in",
+      "text": "Individual annual in-network deductible: $500.00. Apply to covered allowance before copay and coinsurance unless the benefit explicitly waives it.",
+      "location": "Synthetic SBC \u00a7D-in"
+    },
+    {
+      "id": "O-in",
+      "text": "Individual annual in-network OOP maximum: $1500.00. Cap covered deductible, copay and coinsurance together. Exclusions and permitted balance bills do not count. Network pools are separate.",
+      "location": "Synthetic SBC \u00a7O-in"
+    },
+    {
+      "id": "N-in",
+      "text": "Covered participating-provider charges above the allowed amount must be written off; no balance billing.",
+      "location": "Synthetic SBC \u00a7N-in"
+    },
+    {
+      "id": "D-out",
+      "text": "Individual annual out-network deductible: $1000.00. Apply to covered allowance before copay and coinsurance unless the benefit explicitly waives it.",
+      "location": "Synthetic SBC \u00a7D-out"
+    },
+    {
+      "id": "O-out",
+      "text": "Individual annual out-network OOP maximum: $3000.00. Cap covered deductible, copay and coinsurance together. Exclusions and permitted balance bills do not count. Network pools are separate.",
+      "location": "Synthetic SBC \u00a7O-out"
+    },
+    {
+      "id": "N-out",
+      "text": "Out-of-network charges above the allowed amount may be balance billed under this fictional plan; outside OOP.",
+      "location": "Synthetic SBC \u00a7N-out"
+    },
+    {
+      "id": "H1",
+      "text": "Diagnostic imaging (70551): deductible then 20% member coinsurance in network.",
+      "location": "Benefits matrix"
+    },
+    {
+      "id": "H2",
+      "text": "Office visit (99213): $20 copay; deductible waived; no coinsurance in network.",
+      "location": "Benefits matrix"
+    },
+    {
+      "id": "ORDER",
+      "text": "One visit/unit per line. Apply deductible, then copay, then member coinsurance on the remaining allowance. Round coinsurance half up to cents. Apply OOP cap in that order. Process by service date, then line ID. Excluded services are member liability at full charge. This is an illustrative individual USD plan only.",
+      "location": "Synthetic SBC \u00a7ORDER"
+    }
+  ]
+}

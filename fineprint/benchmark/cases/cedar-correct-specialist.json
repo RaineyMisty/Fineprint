@@ -1,0 +1,200 @@
+{
+  "schema_version": "1.0",
+  "id": "cedar-correct-specialist",
+  "title": "SYNTHETIC cedar-correct-specialist",
+  "synthetic": true,
+  "policy": {
+    "id": "POL-SYN-C01",
+    "insurer": "Cedar Assurance (fictional)",
+    "name": "Synthetic Everyday PPO",
+    "member_id": "MEMBER-SYN-C01",
+    "effective_from": "2026-01-01",
+    "effective_to": "2026-12-31",
+    "currency": "USD",
+    "networks": {
+      "in": {
+        "deductible_cents": 50000,
+        "oop_max_cents": 150000,
+        "balance_billing": false,
+        "deductible_clause": "D-in",
+        "oop_clause": "O-in",
+        "network_clause": "N-in"
+      },
+      "out": {
+        "deductible_cents": 100000,
+        "oop_max_cents": 300000,
+        "balance_billing": true,
+        "deductible_clause": "D-out",
+        "oop_clause": "O-out",
+        "network_clause": "N-out"
+      }
+    },
+    "benefits": [
+      {
+        "id": "P1",
+        "label": "Synthetic 99395 in",
+        "codes": [
+          "99395"
+        ],
+        "network": "in",
+        "covered": true,
+        "deductible_applies": false,
+        "copay_cents": 0,
+        "coinsurance_bps": 0,
+        "clause_ids": [
+          "P1",
+          "ORDER"
+        ],
+        "ambiguity_group": ""
+      },
+      {
+        "id": "S1",
+        "label": "Synthetic 99214 in",
+        "codes": [
+          "99214"
+        ],
+        "network": "in",
+        "covered": true,
+        "deductible_applies": false,
+        "copay_cents": 3500,
+        "coinsurance_bps": 0,
+        "clause_ids": [
+          "S1",
+          "ORDER"
+        ],
+        "ambiguity_group": ""
+      },
+      {
+        "id": "S2",
+        "label": "Synthetic 99214 out",
+        "codes": [
+          "99214"
+        ],
+        "network": "out",
+        "covered": true,
+        "deductible_applies": true,
+        "copay_cents": 0,
+        "coinsurance_bps": 5000,
+        "clause_ids": [
+          "S2",
+          "ORDER"
+        ],
+        "ambiguity_group": ""
+      }
+    ],
+    "clauses": [
+      {
+        "id": "D-in",
+        "text": "Individual annual in-network deductible: $500.00. Apply to covered allowance before copay and coinsurance unless the benefit explicitly waives it.",
+        "location": "Synthetic SBC \u00a7D-in"
+      },
+      {
+        "id": "O-in",
+        "text": "Individual annual in-network OOP maximum: $1500.00. Cap covered deductible, copay and coinsurance together. Exclusions and permitted balance bills do not count. Network pools are separate.",
+        "location": "Synthetic SBC \u00a7O-in"
+      },
+      {
+        "id": "N-in",
+        "text": "Covered participating-provider charges above the allowed amount must be written off; no balance billing.",
+        "location": "Synthetic SBC \u00a7N-in"
+      },
+      {
+        "id": "D-out",
+        "text": "Individual annual out-network deductible: $1000.00. Apply to covered allowance before copay and coinsurance unless the benefit explicitly waives it.",
+        "location": "Synthetic SBC \u00a7D-out"
+      },
+      {
+        "id": "O-out",
+        "text": "Individual annual out-network OOP maximum: $3000.00. Cap covered deductible, copay and coinsurance together. Exclusions and permitted balance bills do not count. Network pools are separate.",
+        "location": "Synthetic SBC \u00a7O-out"
+      },
+      {
+        "id": "N-out",
+        "text": "Out-of-network charges above the allowed amount may be balance billed under this fictional plan; outside OOP.",
+        "location": "Synthetic SBC \u00a7N-out"
+      },
+      {
+        "id": "P1",
+        "text": "In-network preventive examination (99395): no charge; deductible does not apply.",
+        "location": "Schedule P1"
+      },
+      {
+        "id": "S1",
+        "text": "In-network specialist consultation (99214): $35 copay only; deductible waived; no coinsurance.",
+        "location": "Schedule S1"
+      },
+      {
+        "id": "S2",
+        "text": "Out-of-network specialist consultation (99214): deductible then 50% member coinsurance.",
+        "location": "Schedule S2"
+      },
+      {
+        "id": "ORDER",
+        "text": "One visit/unit per line. Apply deductible, then copay, then member coinsurance on the remaining allowance. Round coinsurance half up to cents. Apply OOP cap in that order. Process by service date, then line ID. Excluded services are member liability at full charge. This is an illustrative individual USD plan only.",
+        "location": "Synthetic SBC \u00a7ORDER"
+      }
+    ]
+  },
+  "claim": {
+    "id": "CLAIM-cedar-correct-specialist",
+    "policy_id": "POL-SYN-C01",
+    "member_id": "MEMBER-SYN-C01",
+    "accumulators": {
+      "in": {
+        "deductible_paid_cents": 0,
+        "oop_paid_cents": 0
+      },
+      "out": {
+        "deductible_paid_cents": 0,
+        "oop_paid_cents": 0
+      }
+    },
+    "lines": [
+      {
+        "id": "L1",
+        "provider_id": "PROVIDER-SYN-BENCH",
+        "service_date": "2026-06-01",
+        "code": "99214",
+        "description": "SYNTHETIC benchmark service",
+        "network": "in",
+        "billed_cents": 30000,
+        "insurer": {
+          "allowed_cents": 20000,
+          "deductible_cents": 0,
+          "copay_cents": 3500,
+          "coinsurance_cents": 0,
+          "noncovered_cents": 0,
+          "balance_cents": 0,
+          "insurer_paid_cents": 16500,
+          "adjustment_cents": 10000
+        }
+      }
+    ]
+  },
+  "bill": {
+    "id": "BILL-cedar-correct-specialist",
+    "claim_id": "CLAIM-cedar-correct-specialist",
+    "member_id": "MEMBER-SYN-C01",
+    "lines": [
+      {
+        "id": "BL1",
+        "claim_line_id": "L1",
+        "provider_id": "PROVIDER-SYN-BENCH",
+        "service_date": "2026-06-01",
+        "code": "99214",
+        "charged_cents": 30000,
+        "insurance_paid_cents": 16500,
+        "adjustment_cents": 10000,
+        "patient_paid_cents": 0,
+        "balance_due_cents": 3500
+      }
+    ]
+  },
+  "allowed_evidence": {
+    "L1": {
+      "allowed_cents": 20000,
+      "source": "contract",
+      "reference": "SYNTHETIC independently supplied rate exhibit"
+    }
+  }
+}
