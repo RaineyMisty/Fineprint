@@ -5,7 +5,7 @@
 - Python 3.11+ standard library: dataclasses, integer arithmetic, JSON/CSV and a threaded local HTTP server. No database, framework, model SDK or account prerequisite.
 - Browser-native HTML/CSS/JavaScript: no build pipeline, CDN fonts, analytics or external requests.
 - Presentation differences stop at adapters. The engine never branches on insurer names or layout.
-- Curated rules provide the offline baseline. Natural-language extraction is a separate boundary. Repository ingestion refuses unreviewed provider output.
+- The default repository compiles original natural-language policy documents. Curated policy JSON is independent gold and an explicit legacy import option. No gold rules are passed to the compiler.
 - Schema `1.0` rejects unknown fields rather than ignoring them. Add explicit migrations when extending the contract.
 - Changes remain local commits; deployment is outside this run.
 
@@ -15,7 +15,7 @@
 | --- | --- |
 | `Case` | Version, identity/title, synthetic flag, policy, claim, bill and allowance evidence. |
 | `Policy` | Policy/member IDs, insurer, effective period, USD, network terms, benefits and clauses. |
-| `Clause` | Citation ID, original text and source location. Fixture locations are curated; actual PDF spans are future work. |
+| `Clause` | Citation ID, original text and source location. `Compilation.output.rule_evidence` adds document ID, exact quote, character offsets and confidence/ambiguity for every executable rule. |
 | `NetworkTerms` | Individual deductible/OOP maximum, excess-charge balance-billing rule, citations. Separate in/out pools. |
 | `Benefit` | Codes, network, coverage/exclusion, deductible applicability, copay, member coinsurance basis points, clauses and optional ambiguity group. |
 | `Claim` / `ClaimLine` | Identity links, pre-claim accumulators, provider/date/code/line identifiers, network and charge. `Adjudication` preserves insurer observations. |
@@ -91,28 +91,34 @@ Remaining amounts/refunds sum per line, without silently offsetting credits acro
 
 ## Provider and insurer extension points
 
-`PolicyExtractor.extract(document: str)` returns `ExtractionResult`. Example integration boundary:
+`compiler.get_compiler(provider=None).compile(document, document_id)` is the new common interface. It returns `Compilation`: backend, attempt count, document ID/hash, strict `Policy`, evidence, warnings and unresolved clauses. `RuleEvidence.rule_path` identifies each network financial field or benefit rule. `Evidence.start/end` use Unicode character offsets, with an exclusive end. Exact quote validation runs on deterministic and provider outputs alike.
 
-```python
-from fineprint.extraction import ProviderPolicyExtractor
+`FallbackCompiler` parses bounded English patterns from clause grids, numbered Markdown sections and tagged paragraphs. It reads no insurer names for dispatch and never opens curated gold. It requires documented calculation order, network terms, plan metadata and explicit service codes. Unsupported recognized clauses remain unresolved; missing core terms fail compilation. Text outside recognized clause blocks and arbitrary natural-language exceptions are not reliably understood. This is a bounded parser, not a general contract-understanding system.
 
-def chosen_provider(document: str) -> dict:
-    # Add transport, credentials, schema-constrained output and source evidence.
-    # Return exactly the Policy dataclass fields.
-    raise NotImplementedError("Choose and configure a provider explicitly")
+`OUTPUT_SCHEMA` is generated from the compiler/domain dataclasses. Its supported vocabulary is closed objects, required fields, arrays, primitive types, enums, numeric bounds and unions. The dependency-free local validator checks that exact schema vocabulary; it is not a general-purpose JSON Schema library. The decoder additionally validates dates/nonempty strings. Semantic checks require evidence for all rule paths, source/quote/span integrity, existing clause references, supported exclusions and explicit ambiguity groups for overlaps. Source validity does not establish semantic correctness; a quoted clause could still be misinterpreted.
 
-extractor = ProviderPolicyExtractor(chosen_provider, "chosen-provider")
-# result = extractor.extract(policy_text)
-# result.review_required is True. Review clauses, then save verified JSON
-# for the curated offline ingestion pipeline.
-```
+`providers.LLMCompiler` selects OpenAI, Anthropic or Amazon Bedrock through `FINEPRINT_LLM_PROVIDER`. OpenAI uses [Chat Completions JSON-schema output](https://developers.openai.com/api/reference/resources/chat/subresources/completions/methods/create), Anthropic uses [Messages structured output](https://platform.claude.com/docs/en/api/messages/create), and Bedrock uses [Converse forced tools](https://docs.aws.amazon.com/boto3/latest/reference/services/bedrock-runtime/client/converse.html). HTTPS transports for OpenAI/Anthropic use the standard library. Optional boto3 handles AWS credentials/SigV4. Set an enabled Bedrock model/profile supporting forced tools. See `.env.example` for environment configuration.
 
-The callable interface works and is tested with a fake provider; no live service/SDK is bundled. Provider failures surface rather than silently manufacturing rules. Schema validity is not proof of source fidelity. Production needs durable review states, document hashes, page/spans and clause-to-rule approval evidence; that lifecycle is not implemented.
+Every attempt validates JSON Schema and source fidelity; failures trigger bounded retries/backoff, then surface without silently replacing output. Test transports are test doubles only, not LLM measurements. Live transports are implemented but have not been credential-tested. The UI labels live provider output as requiring source review. No durable human approval workflow is implemented.
 
-An insurer adapter implements `ClaimAdapter`: source string + context dictionary → strictly decoded `Claim`. Register it in `CLAIM_ADAPTERS`; add a distinct-format fixture and manually checked normalization/calculation expectations. Engine/UI should need no insurer-specific code. A new policy layout can use another extractor.
+`extraction.PolicyExtractor` remains a legacy structured-import extension. `StructuredPolicyExtractor` explicitly reads curated JSON; injected `ProviderPolicyExtractor` output still requires review before legacy fixture ingestion. This legacy boundary is not the prose compiler used by the demo/evaluation.
+
+An insurer adapter implements `ClaimAdapter`: source string + context dictionary → strictly decoded `Claim`. Register it in `CLAIM_ADAPTERS`; add a distinct-format fixture and manually checked normalization/calculation expectations. Engine/UI should need no insurer-specific code. A new policy layout can use a new compiler backend/parser version, evaluated on a new untouched holdout.
 
 ## Application/API boundary
 
 `service.analyze` returns validation, links, scenarios, traces, comparisons, summary and limitations. Errors or too many scenarios yield `status="blocked"`, a reason, empty scenario/comparison lists and no summary total. Structural failures return HTTP 400; semantic blocked reports return HTTP 200 for UI inspection.
 
 The server uses an explicit static allowlist and validated case IDs, a 1 MiB JSON limit, same-origin assets, restrictive CSP, no CORS opt-in, cross-site browser request rejection and no case-content logging. Imports are not persisted. Export is an intentional browser download. The standard-library server and these measures do not replace production hosting, authentication, secure durable storage or health-data governance.
+
+## End-to-end synthetic evaluation
+
+`python3 -m fineprint.eval --provider fallback` runs compilation → strict validation → independent calculation → EOB comparison → final bill reconciliation. The compiler receives only source text and document ID. Independent gold is loaded afterward for scoring; the case's policy is replaced completely by compiled output before `analyze` runs.
+
+The manifest identifies three seen policy documents and two held-out insurers, with ten cases. The fallback was committed at `bd9f7ab` before authoring held-out Cedar/Harbor documents; a stored SHA-256 verifies the frozen compiler. This is an author-created format holdout, not blind external validation. Cedar parses; Harbor's transposed matrix fails closed. Both Harbor cases stay in metric denominators. Do not tune the frozen parser on Harbor and continue calling it held out.
+
+Extraction scores a multiset of semantic financial fields, ignoring cosmetic IDs/labels; policies are counted once even when multiple claims share them. Exact calculation compares all line monetary fields, networks, complete distinct outcomes, scenario count and conditional status. Conditional cases abstain from binary discrepancy classification. Failed positive compilations count as false negatives; failed negatives abstain rather than becoming true negatives. FPR divides false positives by all gold negatives, with resolved coverage reported separately.
+
+Traceability divides valid spans by emitted rules; evidence coverage also includes missing rules from compilation failures. End-to-end success requires exact extraction/calculation, independent final-bill reconciliation against gold line liabilities, complete evidence and a correct discrepancy/ambiguity decision. Report JSON includes raw counts and per-policy/per-case failures; Markdown and both READMEs show measured split results. Unit tests inject wrong fields, final balances, false positives and total compilation failure to check that metrics do not hide errors.
+
+`POST /api/compile` compiles text alone or accepts an attached normalized case for recalculation; unresolved clauses block execution. `GET /api/cases/{id}` compiles its original policy document. `GET /api/evaluation` explicitly runs the offline fallback regardless of server provider settings. Normalized JSON imports do not inherit invented compiler evidence; source text must be compiled again to create it.

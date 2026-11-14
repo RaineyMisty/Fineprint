@@ -4,7 +4,6 @@ Held-out formats were authored after the compiler freeze commit bd9f7ab. Gold is
 written from explicit contractual terms and hand-worked cents, never engine output.
 This is an author-created format holdout, not a blinded evaluation.
 """
-import hashlib
 import json
 from copy import deepcopy
 from pathlib import Path
@@ -12,6 +11,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 DEST = ROOT / 'fineprint' / 'benchmark'
 SAMPLES = ROOT / 'fineprint' / 'samples'
+# Immutable digest from bd9f7ab; regeneration must not bless a retuned parser.
+FROZEN_PARSER_SHA256 = 'bbaeedc3991d38c9a5bfcaeed6228c62b7f216b77b2ab6a55fd2a1ff3b4fed24'
 
 
 def write(path, data):
@@ -124,7 +125,7 @@ def main():
         gold=line_gold('L1','in',allowed,copay=correct if code=='99213' else 0,coin=correct if code=='70551' else 0,insurer=allowed-correct,adjustment=10000)
         cases.append(dict(id=id,policy='harbor',case=f'cases/{id}.json',gold_outcomes=[[gold]],gold_scenario_count=1,gold_discrepancy=patient!=correct,gold_conditional=False))
     write(DEST/'manifest.json',dict(synthetic=True,description='Author-created format holdout, not blinded; all data fictional',
-          parser_freeze_commit='bd9f7ab',parser_sha256=hashlib.sha256((ROOT/'fineprint/compiler.py').read_bytes()).hexdigest(),policies=policies,cases=cases))
+          parser_freeze_commit='bd9f7ab',parser_sha256=FROZEN_PARSER_SHA256,policies=policies,cases=cases))
 
 
 if __name__=='__main__': main()

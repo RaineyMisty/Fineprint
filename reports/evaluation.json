@@ -1,8 +1,8 @@
 {
   "backend": "fallback",
   "synthetic": true,
-  "generated_at": "2026-11-14T19:22:54.439378+00:00",
-  "revision": "84173cbd77668e67f6af85ad4b452cdaca449252",
+  "generated_at": "2026-11-14T19:27:24.311038+00:00",
+  "revision": "d3297a74fc6224721f9cc2e41ba25fab3317b222",
   "corpus_sha256": "cb6d8cd952b5d9ba0277b471290eed14cf7a1157ab7e947a9a00ee4a3d0eb3a7",
   "parser_sha256": "bbaeedc3991d38c9a5bfcaeed6228c62b7f216b77b2ab6a55fd2a1ff3b4fed24",
   "parser_matches_holdout_freeze": true,

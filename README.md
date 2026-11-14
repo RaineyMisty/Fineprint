@@ -2,135 +2,142 @@
 
 **The fine print, finally on your side.** [中文](README_zh.md)
 
-Fineprint connects **Policy → Claim (EOB) → Medical Bill** in one interactive case. It independently evaluates structured policy rules, compares its result with the insurer’s explanation of benefits and the hospital’s bill, and identifies amounts worth questioning with policy citations. A favorable scenario is a documented question to review, not a guarantee of savings or an instruction to withhold payment.
+Fineprint helps **patients, caregivers and benefits advocates** check an insurer’s patient-responsibility calculation against the actual insurance contract, then reconcile the hospital bill. Built for **HackPrinceton Fall 2026 · Healthcare** and **Amazon Best Practical AI Innovation**.
 
-The foundation runs locally without API keys, third-party runtime packages, or external requests. **Every bundled person, insurer, provider, policy, claim, rate and bill is synthetic/fictional. There is no real personal data.** The UI is English; both READMEs cover the same content.
+**Policy text → evidence-linked executable rules → independent claim calculation → clause-specific dollar difference → final bill.** The insurer’s EOB is an observation to compare, never the answer Fineprint reuses. Arithmetic runs in a deterministic engine; an optional LLM compiles policy language, not dollar calculations.
 
-## Two phases
+**All bundled insurers, members, providers, policies, negotiated rates, EOBs and bills are synthetic/fictional. No real personal data.** The default demo, tests and evaluation run fully offline, without keys or runtime dependencies. No live LLM results have been measured.
 
-| Phase | Goal | Delivered here |
-| --- | --- | --- |
-| 1 — Connect documents | Make coverage, adjudication and payment understandable across insurers. | Versioned unified model, two insurer adapters, three complete document sets, cross-document validation, interactive UI, JSON import/export, tests. |
-| 2 — Independently challenge calculations | Extract executable rules and recalculate the lowest reasonable patient responsibility supported by policy and evidence. | Working deterministic engine, three-way comparison, clause-linked explanations, ambiguity/missing-fact scenarios, pluggable extraction interface. Automated arbitrary prose/PDF extraction remains future work. |
+## Run locally
 
-Fineprint does not reuse insurer-calculated cost sharing as its own answer. Allowed amounts and pre-claim spending are required evidence. An EOB-derived allowance explicitly makes the result a **conditional cost-sharing audit**, rather than an independently verified rate calculation. The lowest illustrated scenario is never silently promoted to a confirmed amount owed.
-
-## Install, test and launch
-
-Requires **Python 3.11+**. From the repository root:
-
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install -e .
-python -m unittest discover -s tests -v
-fineprint
-```
-
-Open **http://127.0.0.1:8765**. Stop with Ctrl+C; use `fineprint --port 9000` to change ports. Installation may fetch build tooling; there are no runtime dependencies. A completely offline source checkout needs no installation:
+Requires **Python 3.11+**. No installation is needed from this checkout:
 
 ```bash
 python3 -m unittest discover -s tests -v
+python3 -m fineprint.eval --provider fallback
 python3 -m fineprint.server --port 8765
 ```
 
-The standard-library test suite has **56 passing tests**, including HTTP integration and manually worked fixture expectations. It needs no live model, account or network.
+Open **http://127.0.0.1:8765**. Stop with Ctrl+C. Optional installation: `python3 -m pip install -e .`, then `fineprint`. Installation may download build tooling; running from source does not.
 
-Optional browser verification requires Node.js 22+ and Chrome, without npm packages:
+**80 tests pass**, covering strict schemas, source-span integrity, retries/provider request contracts with test doubles, synthetic fixtures, calculation independence, evaluation denominators and HTTP integration. Live provider calls are unverified. Optional Chrome verification, using Node.js 22+ and Chrome without npm packages:
 
 ```bash
 node scripts/browser_smoke.mjs
-# Optional executable overrides: CHROME_BIN=/path/to/chrome PYTHON_BIN=python3
+# Optional: CHROME_BIN=/path/to/chrome PYTHON_BIN=python3
 ```
 
-This starts/stops disposable server/browser processes and checks all cases, workflow tabs, clause links, scenarios, fact editing, JSON export/import, keyboard navigation, mobile layout, JavaScript errors and external requests. Screenshots go to ignored `artifacts/browser/`.
+The browser check exercises prose upload/recompilation, clickable source spans, unsupported-wording blocking, metrics, all three demo cases, scenarios, fact edits, JSON roundtrip, keyboard/mobile layout and absence of external requests. Screenshots go to ignored `artifacts/browser/`.
 
-## Explore a case
+## A judge-ready hero case
 
-1. Select a fictional case. **Policy** shows network terms, executable benefits and source clauses.
-2. Open **Claim** and expand a service to compare recorded insurer components with Fineprint’s allowance, deductible, copay, coinsurance, exclusions, balance billing, insurer payment and write-off. Expand the calculation trace for clause citations and accumulator changes.
-3. Choose a scenario when wording or facts are uncertain. Edit network status, documented allowance and pre-claim spending, then recalculate.
-4. Open **Bill** to compare patient totals, previous payments, current balance due, Fineprint’s remaining amount and potential refunds. Follow discrepancies back to clauses.
-5. Export normalized case JSON and import it again with **Open case JSON**. Semantic errors appear in validation and block calculation. Reset restores the selected/imported original. Imports and edits stay in memory; the app neither stores uploads nor sends documents to a model.
+1. Select **A deductible charged twice** (Aurora). The Policy step compiles the original SBC-style prose/table, showing **fallback · offline, no LLM**. Expand the editor to paste or upload `.txt`/`.md`, then compile. Matching policy/member IDs are required to analyze the selected EOB.
+2. Inspect compiled deductible, OOP and benefit rules. Click a clause, then **Read quote** to highlight the exact source text. Each rule includes document ID, section, verbatim quote, Unicode character span, confidence and ambiguity. Export rules with their source/evidence separately from normalized case JSON.
+3. Open **Claim**: insurer **$465**, Fineprint **$385**. Office visit: **$25**. MRI: **$200 remaining deductible + 20% × $800 = $360**. Clause **D-in** sets the annual deductible at $1,000; documented prior deductible spending is $800. The EOB instead applied $300 deductible and $140 coinsurance, assigning **$80 too much** on this line.
+4. Open **Bill**: the hospital assigns **$505**, including another **$40 bill/EOB difference**. Fineprint flags **“You may be overpaying $120.”** With $100 already paid, its supported remaining amount is **$285**. All figures are synthetic case results, not real savings measurements.
+5. Try Mosaic’s OOP case (**$150 difference**) or therapy ambiguity (**32 conditional scenarios**, illustrated totals **$0–$300**). Confirm network, allowance and prior spending to reduce therapy to two policy interpretations. Missing-fact endpoints do not exhaust possible outcomes; the lowest scenario is not a confirmed amount owed.
 
-The local server binds to loopback by default. It is a development/demo server without authentication or persistent case storage. Production use and real health information require additional infrastructure.
+The evaluation panel runs the offline benchmark and exposes held-out failures. Case JSON import/export and fact edits remain in memory. Imported structured JSON has no compiler provenance unless the original policy text is compiled again. A favorable result is a documented question to review, not guaranteed savings or an instruction to withhold payment.
 
-## Synthetic cases
-
-Identities, line links and accounting totals are internally consistent. Deliberate adjudication errors and bill/EOB differences demonstrate that balanced arithmetic does not prove policy compliance.
-
-| Case | Source formats | Independent result | Comparison |
-| --- | --- | --- | --- |
-| Aurora: deductible charged twice | SBC-like grid, dollar EOB CSV, itemized bill CSV | Office $25 + MRI ($200 remaining deductible + 20% × $800) = **$385** | EOB $465; hospital total $505; **$120 potentially excessive**. $100 already paid; Fineprint remaining $285. |
-| Mosaic: OOP limit matters | Narrative booklet, nested JSON EOB ledger, itemized bill CSV | Procedure capped at $50 + exclusion $300 + out-of-network transport $650 = **$1,000** | EOB and hospital $1,150; **$150 potentially excessive**. Exclusions and balance bills stay outside the cap. |
-| Mosaic: therapy ambiguity | Conflicting narrative clauses, nested JSON EOB ledger, itemized bill CSV | **32 conditional scenarios**, illustrated patient totals $0–$300 | EOB and bill $40. Network, allowance and pre-claim spending are unknown. Endpoints do not exhaust possible outcomes. Supplying those facts leaves two policy interpretations. |
-
-Each set includes a readable policy, curated policy JSON, source EOB, bill and manifest with links/rate evidence. Rebuild with `python3 scripts/generate_samples.py`; authored fixture numbers do not depend on the engine.
-
-## Architecture and calculation contract
+## Policy-to-Rules Compiler
 
 ```mermaid
 flowchart LR
-    S[Policy / EOB / Bill] --> X[Extractor and insurer adapters]
-    X --> M[Unified schema v1.0]
-    M --> V[Identity, line and accounting validation]
-    V --> E[Deterministic policy engine]
-    E --> C[Three-way comparison per scenario]
-    C --> U[Local API and interactive UI]
+    P[Natural-language policy text] --> I[One compiler interface]
+    I --> F[Offline pattern / table parser]
+    I --> L[OpenAI / Bedrock / Anthropic]
+    F --> V[Closed JSON Schema + source-span validation]
+    L --> V
+    V --> R[Executable rules + evidence + ambiguity]
+    R --> E[Deterministic cents-based engine]
+    X[Documented allowance, network and prior spending] --> E
+    E --> C[Compare insurer EOB and final bill]
+    C --> U[Clause-specific dollar differences / conditional scenarios]
 ```
 
-Python dataclasses and a strict decoder reject unknown/missing fields, float money, invalid dates and out-of-range values. Money is integer **USD cents**; member coinsurance is integer **basis points**. Documents preserve their own observations, linked by member/policy/claim IDs and explicit service-line links checked against provider/date/CPT or HCPCS code. Separate evidence supplies allowance and provenance.
+`get_compiler().compile(text, document_id)` returns a policy plus evidence for every network financial rule and benefit rule. All providers share the same closed JSON Schema. Validation rejects missing/unknown fields, wrong types, floats/bools used as integer money, invalid dates/ranges, fabricated source spans, missing evidence and unmarked overlaps. Evidence quotes must equal the exact original `text[start:end]`; document SHA-256 identifies the source version. Schema/span validity does **not** prove the extracted interpretation is correct.
 
-Supported order: **deductible → copay → coinsurance on remaining allowance → OOP cap**. Coinsurance rounds half up to cents. Actual covered cost sharing updates the network’s OOP pool; the deductible portion also updates its deductible pool. Excess participating-provider charges are written off when terms prohibit balance billing. Permitted out-of-network balance bills and full-charge exclusions stay outside both pools. Lines run in service-date/line-ID order from pre-claim accumulators.
+The **fallback is an actual deterministic natural-language parser**, not mocked model output or a lookup of gold JSON. It supports clause grids, numbered narrative sections and tagged paragraphs using bounded English cost-sharing patterns, explicit CPT/HCPCS codes, plan metadata and calculation-order language. It retains overlapping benefits as alternatives. Recognized clauses with unsupported wording remain unresolved and block calculation; missing core terms fail compilation. Arbitrary layouts, prose outside recognized clause blocks, complex exceptions and PDF/OCR are not reliably understood. The default demo does not read curated gold policy JSON; a regression test deletes that file and still runs the audit.
 
-The contract supports individual annual, separate in/out pools and one visit/unit per line. Every code/network needs an explicit coverage or exclusion rule; unknown coverage blocks calculation. Conflicting rules require an explicit ambiguity group with a consistent interpretation across affected lines. Unknown network branches to both networks. Missing allowances/spending generate labeled illustrative endpoints. More than 256 scenarios blocks without silently dropping alternatives. Assumptions and EOB-derived allowances keep results conditional.
+Confidence is an uncalibrated coverage/self-assessment field, not measured correctness probability. Conflicting clauses retain ambiguity instead of silently choosing the cheapest interpretation.
 
-`PolicyExtractor` is a protocol. The working offline `StructuredPolicyExtractor` reads curated JSON and does **not** extract arbitrary prose/PDFs. `ProviderPolicyExtractor` accepts an injected callable for an LLM/document service and strictly checks output. It marks output as requiring source review; fixture ingestion refuses unreviewed provider output. After review, save verified clauses/rules as curated JSON. No SDK, API key or automatic external call is bundled.
+```bash
+python3 -m fineprint.compiler fineprint/samples/aurora-imaging/policy.md \
+  --provider fallback > compiled-policy.json
+```
+
+## Optional live providers
+
+Set environment variables before starting the server/compiler/evaluation. Default: `FINEPRINT_LLM_PROVIDER=fallback`. There is **no automatic switch to an LLM when a key exists**, and no silent fallback when a selected provider fails.
+
+| Provider | Configuration | Transport |
+| --- | --- | --- |
+| `openai` | `OPENAI_API_KEY`; optional `FINEPRINT_LLM_MODEL` | HTTPS Chat Completions with strict JSON-schema output. |
+| `anthropic` | `ANTHROPIC_API_KEY`; optional `FINEPRINT_LLM_MODEL` | HTTPS Messages with JSON-schema output. |
+| `bedrock` | `FINEPRINT_LLM_MODEL` = enabled model/inference profile; `AWS_REGION` or `AWS_DEFAULT_REGION`; usual AWS credential chain | Amazon Bedrock Converse with a forced schema-described tool; local strict validation. Requires a model supporting forced tools. |
+
+Bedrock’s optional SDK: `python3 -m pip install -e '.[bedrock]'`. OpenAI and Anthropic use standard-library HTTPS. `FINEPRINT_LLM_ATTEMPTS` defaults to 3 (allowed 1–5), with bounded backoff, transport timeouts and schema/source validation on every attempt. Credentials and provider response bodies are excluded from errors. [.env.example](.env.example) documents variables; `.env` files are not loaded automatically. Never commit keys.
+
+```bash
+export FINEPRINT_LLM_PROVIDER=openai
+# Set OPENAI_API_KEY securely in your environment.
+python3 -m fineprint.compiler fineprint/samples/aurora-imaging/policy.md
+# Explicitly use fallback for the offline benchmark regardless of server settings:
+python3 -m fineprint.eval --provider fallback
+```
+
+A live provider receives submitted policy text; only choose one intentionally. The integration code and request contracts are implemented, but **no credentials were available and no live provider was run**. Provider test doubles are confined to tests and never counted as LLM evaluation results. Bedrock is the implemented Amazon integration path, not a claimed measured deployment.
+
+## Measured evaluation — offline fallback on synthetic data
+
+Run `python3 -m fineprint.eval` (default environment) or explicitly `python3 -m fineprint.eval --provider fallback`. It compiles text, substitutes only the compiled policy into each case, calculates every scenario, compares the EOB and reconciles the final bill. It writes [JSON results](reports/evaluation.json) and a [Markdown report](reports/evaluation.md); use `--output-dir PATH` to choose a directory. Reports identify backend, model, timestamp, revision and corpus/parser hashes.
+
+The following numbers were **actually produced by the offline fallback** on **5 synthetic policy documents / 10 cases / 4 fictional insurers**:
+
+| Split | Policies / cases | Extraction precision / recall | Exact calculation | Discrepancy precision / recall | False positive rate | Traceability / evidence coverage | End-to-end |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Seen | 3 / 6 | 100.0% / 100.0% | 6/6 (100.0%) | 100.0% / 100.0% | 0.0% | 100.0% / 100.0% | 6/6 (100.0%) |
+| Held-out | 2 / 4 | 100.0% / 56.8% | 2/4 (50.0%) | 100.0% / 50.0% | 0.0% | 100.0% / 52.9% | 2/4 (50.0%) |
+| All | 5 / 10 | 100.0% / 84.8% | 8/10 (80.0%) | 100.0% / 83.3% | 0.0% | 100.0% / 81.8% | 8/10 (80.0%) |
+
+**Held-out protocol:** compiler freeze commit `bd9f7ab` precedes creation of **Cedar Assurance** (tagged reference cards) and **Harbor Benefits Cooperative** (transposed SBC matrix). A hash check confirms the parser is unchanged. Cedar parses; Harbor fails to establish network terms and both Harbor cases remain blocked. This is an **author-created format holdout, not a blinded external benchmark**. The author knows the grammar. No parser tuning used these held-out results. See [protocol](docs/benchmark-protocol.md).
+
+Metrics are deliberately explicit:
+
+- **Extraction:** micro field precision/recall against separately authored gold; 89 correct fields, 0 spurious, 16 missing. Each policy scored once. Score network deductible/OOP/balance billing and per-code/network coverage, deductible applicability, copay, coinsurance and ambiguity. Cosmetic IDs, labels and ordering are ignored.
+- **Calculation:** exact integer-cent match for all nine monetary fields on every line, networks, the complete distinct scenario-outcome set, scenario count and conditional status. Equal patient totals cannot hide incorrect components.
+- **Discrepancy:** any EOB-versus-Fineprint patient-total difference per line in a nonconditional case. Five true positives, zero false positives, one false negative; two resolved true negatives. Therapy correctly abstains. A failed positive counts as a false negative; Harbor’s correct case is an abstention, not a true negative. FPR is 0/3 gold-negative cases, only two of which were resolved.
+- **Evidence:** 36/36 emitted rules have valid source spans (**100%**); including eight missing Harbor rules, coverage is 36/44 (**81.8%**).
+- **End-to-end:** exact extraction, exact claim and final bill reconciliation, complete evidence, and correct discrepancy decision or justified ambiguity abstention. Failed compilations remain in denominators.
+
+Gold fixtures cover duplicate deductible, wrong network tier, preventive-care charges, ignored OOP cap, coinsurance on a copay benefit, correct adjudications and ambiguous/missing facts. These small synthetic results do not establish real-world accuracy, financial savings, or LLM quality. Rebuild authored data with `python3 scripts/generate_samples.py` and `python3 scripts/generate_benchmark.py`; neither generator imports the calculation engine or compiler. New parser development requires a new untouched holdout, not retuning against Harbor while keeping its held-out label.
+
+## Calculation contract and API
+
+Money is integer **USD cents**, member coinsurance is integer **basis points**. Supported order: **deductible → copay → coinsurance on remaining allowance → OOP cap**, with half-up cent rounding. Actual covered sharing updates separate annual individual in/out-network pools; full-charge exclusions and permitted balance bills stay outside the cap. Lines run by service date/ID, one visit/unit per line. Unknown coverage blocks. Above 256 scenarios blocks without truncation.
+
+Allowed amounts, verified participation and pre-claim spending are separate evidence. An EOB-derived allowance makes the result a **conditional cost-sharing audit**, not independent verification of the negotiated rate. Missing-fact endpoints and favorable scenarios are never promoted to confirmed liability. Family pools, multiple claims/reversals, benefit limits, clinical/authorization decisions and legal billing protections are not implemented.
 
 | API | Purpose |
 | --- | --- |
-| `GET /api/cases` | List synthetic cases. |
-| `GET /api/cases/{id}` | Normalized case, source documents, validation, links, scenarios and comparisons. |
-| `POST /api/analyze` | Analyze schema-v1.0 case JSON in memory, up to 1 MiB. Structural errors return HTTP 400; semantic errors return HTTP 200 with `report.status = "blocked"` and no calculations. |
+| `GET /api/cases`, `GET /api/cases/{id}` | Three guided synthetic cases; case details compile original prose. |
+| `POST /api/compile` | `{document, document_id?}` → compilation; add `case` to recalculate against that EOB/bill. |
+| `POST /api/analyze` | Analyze normalized schema-v1.0 case JSON; structured imports carry no inferred compiler provenance. |
+| `GET /api/evaluation` | Run the offline fallback benchmark, regardless of live-provider configuration. |
 
-See [architecture and extension notes](docs/architecture.md) for boundaries, formulas, invariants and provider integration.
+HTTP 400 reports structural/compilation errors. HTTP 200 with `report.status="blocked"` and no calculations reports semantic/unresolved-policy errors. JSON bodies are limited to 1 MiB. The server binds to loopback, stores no uploads and has no authentication or durable case storage. Production handling of real health information needs additional infrastructure.
 
-## Structure
+## Code and next steps
 
-```text
-fineprint/
-  models.py          # strict schema and integer money
-  validation.py      # document consistency and links
-  extraction.py      # offline and pluggable providers
-  adapters.py        # fictional EOB formats and bill CSV
-  engine.py          # rules, accumulators and scenarios
-  comparison.py      # three-way comparison, refunds, citations
-  service.py         # shared analysis/report boundary
-  repository.py      # synthetic fixture loading
-  server.py          # standard-library HTTP API
-  static/            # responsive HTML/CSS/JavaScript UI
-  samples/           # three fictional document sets
-tests/               # models, validation, engine, providers, fixtures, HTTP
-scripts/             # fixture generation and optional browser checks
-docs/                # architecture, decisions and public data sources
-```
+| Location | Purpose |
+| --- | --- |
+| `compiler.py`, `providers.py` | Prose parser, shared schema/span validation and opt-in LLM transports. |
+| `models.py`, `validation.py` | Strict case schema and cross-document checks. |
+| `engine.py`, `comparison.py`, `service.py` | Independent arithmetic, reconciliation and analysis boundary. |
+| `eval.py`, `benchmark/`, `samples/` | Measured evaluation, independent gold and fictional source documents. |
+| `server.py`, `static/` | Local API and guided offline UI. |
+| `tests/`, `scripts/`, `docs/` | Verification, fixture authoring, browser checks and architecture. |
 
-## Public data to collect later
+Paths above are under `fineprint/` unless otherwise stated. See [architecture](docs/architecture.md) and [future public-data collection](docs/data-sources.md).
 
-Checked **2026-11-14**; collection candidates, not bundled real data or matched patient cases:
-
-- [CMS SBC template PDF](https://www.cms.gov/CCIIO/Resources/Forms-Reports-and-Other-Resources/Downloads/SBC-Template-Accessible-Format-01-2020.pdf): canonical summary fields and coverage examples.
-- [UnitedHealthcare public SBC page and sample PDF](https://www.uhc.com/understanding-health-insurance/how-does-health-insurance-work/summary-of-benefits-and-coverage): real insurer presentation and public sample terms. Collect other insurers’ plan-year SBCs and complete policy documents too.
-- [CMS Hospital Price Transparency](https://www.cms.gov/priorities/key-initiatives/hospital-price-transparency/hospitals): hospital standard-charge files, including payer-specific negotiated charges.
-- [CMS Transparency in Coverage public-data guidance](https://www.cms.gov/initiatives/healthplan-price-transparency/overview/public-data): payer machine-readable rates and out-of-network allowed amounts.
-
-SBCs and public price files are not a matched policy/EOB/bill trio and do not automatically establish a specific service’s rate. Separately collect permissioned, de-identified matched cases. Preserve URL, retrieval date, plan year, network, clause location and document version; retain ambiguity and held-out insurer examples. See [collection notes](docs/data-sources.md).
-
-## Roadmap / TODO
-
-- **Phase 1:** more insurer adapters, document ingestion, uncertain line matching, persistent reviewed cases and a larger cross-insurer benchmark. Current import is normalized JSON, not PDF/OCR.
-- **Phase 2 extraction:** selected provider transport, PDF/OCR, clause span provenance, durable review/approval, extraction accuracy tests and rule migrations. No real LLM service is configured yet.
-- **Phase 2 calculation:** family/embedded deductibles, shared/tiered pools, multiple claims/reversals, units/modifiers, benefit limits, authorization/medical necessity, coordination of benefits and applicable billing protections. This demo does not decide legal balance-billing liability or clinical coverage.
-- **Evaluation/operation:** consented, de-identified, reviewed real cases; held-out insurer tests; verified rates/history; authentication, secure storage, access controls and production hosting before real health information handling.
-
-This run creates local commits only. Nothing is pushed or deployed.
+Remaining priorities: real credential-backed provider smoke tests; a broader parser/LLM evaluation on a **new** untouched holdout; PDF/OCR and varied SBC layouts; durable human review; consented de-identified real cases and verified rate/history evidence; family/shared pools and richer benefits. Existing Harbor failures remain documented. This round creates local commits only; the operator handles pushing. No deployment or git configuration changes.

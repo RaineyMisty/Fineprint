@@ -18,3 +18,12 @@ compilations from denominators. Report seen, held-out and pooled counts. Repeate
 claims share a policy; extraction must be scored once per policy, not once per claim.
 LLM provider evaluations require real credentials and must name the selected backend;
 transport stubs belong exclusively to unit tests. Default evaluation is offline.
+
+Implemented corpus: 3 seen documents (Aurora and Mosaic) and 2 held-out documents
+(Cedar and Harbor), with 10 independently authored cases. The compiler freeze is
+commit `bd9f7ab`; the immutable digest is recorded in `benchmark/manifest.json` and
+the authoring script. Regenerating fixtures does not update that digest.
+Cedar's tagged reference cards succeed; Harbor's transposed SBC matrix fails.
+Both Harbor cases remain blocked and in denominators. The actual offline fallback
+run produced 8/10 end-to-end successes; see `reports/evaluation.md` for raw results
+and metric definitions. Future parser changes need a new untouched holdout.

@@ -1,6 +1,6 @@
 # Fineprint evaluation
 
-Backend: **fallback**. **Synthetic data only**. Generated 2026-11-14T19:22:54.439378+00:00.
+Backend: **fallback**. **Synthetic data only**. Generated 2026-11-14T19:27:24.311038+00:00.
 
 Parser matches pre-holdout freeze: **True**.
 
