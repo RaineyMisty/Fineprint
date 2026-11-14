@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f4ee">
+  <meta name="description" content="Fineprint — synthetic policy, claim and bill reconciliation demo.">
+  <title>Fineprint · Follow the evidence</title>
+  <link rel="preload" href="data.json" as="fetch" crossorigin>
+  <link rel="stylesheet" href="style.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="topbar"><a class="wordmark" href="#overview">fineprint<span>✳</span></a><nav aria-label="Main"><a href="#overview">Overview</a><a href="#explorer">Case explorer</a><a href="#evaluation">Evaluation</a></nav><span class="badge">Synthetic data · offline fallback</span></header>
+  <main>
+    <section id="overview" class="screen">
+      <div class="hero"><div><p class="eyebrow">POLICY → RULES → RECONCILIATION</p><h1>Every cent.<br>Every clause.</h1><a class="button" href="#explorer">Explore the evidence <span>↗</span></a></div><div class="video-slot" aria-label="Demo video placeholder"><span class="play" aria-hidden="true">▷</span><span>Demo video</span><span class="muted">Coming soon</span></div></div>
+      <div id="headlines" class="stats" aria-live="polite"></div>
+      <div class="section-heading"><h2>The case files</h2><span class="muted">Synthetic claims</span></div>
+      <div id="case-list" class="case-list"></div>
+    </section>
+    <section id="explorer" class="screen" hidden><div class="section-heading"><h1>Case explorer</h1></div><div id="explorer-content"></div></section>
+    <section id="evaluation" class="screen" hidden><div class="section-heading"><h1>Evaluation</h1><span class="badge">Synthetic data · offline fallback</span></div><div id="evaluation-content"></div></section>
+    <p id="status" role="status">Loading synthetic cases…</p>
+    <noscript>Enable JavaScript to explore the synthetic cases.</noscript>
+  </main>
+  <footer><span>fineprint ✳</span><span>Synthetic data · offline fallback</span><a href="data.json">Case data ↗</a><a href="evaluation.json">Evaluation data ↗</a></footer>
+</body>
+</html>
