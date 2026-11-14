@@ -77,3 +77,17 @@ class SampleTests(unittest.TestCase):
         extractor = ProviderPolicyExtractor(lambda doc: to_dict(c.policy), "stub-provider")
         with self.assertRaisesRegex(ModelError, "requires review"):
             load_case("aurora-imaging", extractor=extractor)
+
+
+class ProseRepositoryTests(unittest.TestCase):
+    def test_demo_loading_does_not_read_gold_policy_json(self):
+        from tempfile import TemporaryDirectory
+        from pathlib import Path
+        from shutil import copytree
+        from fineprint.repository import SAMPLES
+        with TemporaryDirectory() as directory:
+            target=Path(directory)
+            copytree(SAMPLES/"aurora-imaging",target/"aurora-imaging")
+            (target/"aurora-imaging/policy.json").unlink()
+            loaded,_=load_case("aurora-imaging",root=target)
+            self.assertEqual(analyze(loaded)["scenarios"][0]["patient_cents"],38500)

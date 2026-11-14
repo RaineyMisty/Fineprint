@@ -12,6 +12,16 @@ def compare(case: Case, scenario: Scenario) -> dict:
         eob = claim.insurer
         refs = sorted({ref for step in result.trace for ref in step.clause_ids})
         explanations = []
+        terms = case.policy.networks[result.network]
+        benefit = next(b for b in case.policy.benefits if b.id == result.benefit_id)
+        component_refs = {
+            "deductible_cents": [terms.deductible_clause, *benefit.clause_ids, terms.oop_clause],
+            "copay_cents": [*benefit.clause_ids, terms.oop_clause],
+            "coinsurance_cents": [*benefit.clause_ids, terms.deductible_clause, terms.oop_clause],
+            "noncovered_cents": benefit.clause_ids,
+            "balance_cents": [terms.network_clause],
+            "adjustment_cents": [terms.network_clause, *benefit.clause_ids],
+        }
         for field, label in (("allowed_cents", "allowed amount"), ("deductible_cents", "deductible"),
                              ("copay_cents", "copay"), ("coinsurance_cents", "coinsurance"),
                              ("noncovered_cents", "exclusion"), ("balance_cents", "balance billing"),
@@ -21,7 +31,7 @@ def compare(case: Case, scenario: Scenario) -> dict:
                 explanations.append({"kind": "eob_vs_fineprint", "component": field,
                                      "difference_cents": actual - expected,
                                      "message": f"EOB {label} is {actual} cents; policy evaluation gives {expected} cents under this scenario.",
-                                     "clause_ids": refs})
+                                     "clause_ids": list(dict.fromkeys(component_refs.get(field, refs)))})
         if bill.patient_total_cents != eob.patient_cents:
             explanations.append({"kind": "bill_vs_eob", "component": "patient_cents",
                                  "difference_cents": bill.patient_total_cents - eob.patient_cents,

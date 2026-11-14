@@ -75,3 +75,37 @@ class ServerTests(unittest.TestCase):
 
     def test_cross_site_browser_requests_rejected(self):
         self.assertEqual(self.request("POST", "/api/analyze", "{}", {"Content-Type": "application/json", "Sec-Fetch-Site": "cross-site"})[0], 403)
+
+
+class CompilerServerTests(unittest.TestCase):
+    setUpClass = classmethod(ServerTests.setUpClass.__func__)
+    tearDownClass = classmethod(ServerTests.tearDownClass.__func__)
+    request = ServerTests.request
+    def test_compile_text_standalone_and_into_case(self):
+        data=self.request("GET","/api/cases/aurora-imaging")[2]
+        self.assertEqual(data["compilation"]["backend"],"fallback")
+        document=data["documents"]["policy"].replace("$25 copay","$30 copay")
+        status,_,standalone=self.request("POST","/api/compile",json.dumps({"document":document}),{"Content-Type":"application/json"})
+        self.assertEqual(status,200)
+        self.assertEqual(standalone["compilation"]["output"]["policy"]["benefits"][0]["copay_cents"],3000)
+        status,_,result=self.request("POST","/api/compile",json.dumps({"document":document,"case":data["case"]}),{"Content-Type":"application/json"})
+        self.assertEqual(status,200)
+        self.assertEqual(result["report"]["summary"]["illustrated_min_patient_cents"],39000)
+
+    def test_unsupported_clause_and_mismatched_policy_block_calculation(self):
+        data=self.request("GET","/api/cases/aurora-imaging")[2]
+        for old,new in [("deductible then 20% member coinsurance","subject to administrator discretion"),
+                        ("POL-SYN-A01","OTHER-POLICY")]:
+            document=data["documents"]["policy"].replace(old,new)
+            status,_,result=self.request("POST","/api/compile",json.dumps({"document":document,"case":data["case"]}),{"Content-Type":"application/json"})
+            self.assertEqual(status,200)
+            self.assertEqual(result["report"]["status"],"blocked")
+            self.assertFalse(result["report"]["scenarios"])
+
+    def test_compile_request_schema_and_offline_metrics(self):
+        for payload in ({"document":True},{"document":""},{"document":"text","unknown":1}):
+            self.assertEqual(self.request("POST","/api/compile",json.dumps(payload),{"Content-Type":"application/json"})[0],400)
+        status,_,report=self.request("GET","/api/evaluation")
+        self.assertEqual(status,200)
+        self.assertEqual(report["backend"],"fallback")
+        self.assertEqual(report["groups"]["all"]["calculation"]["exact"],8)
