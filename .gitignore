@@ -16,3 +16,7 @@ coverage/
 playwright-report/
 test-results/
 artifacts/
+site/data.json
+site/evaluation.json
+site/evaluation.md
+site/sw.js
