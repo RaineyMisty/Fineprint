@@ -9,6 +9,9 @@ description = "Offline policy, EOB and medical bill reconciliation with determin
 requires-python = ">=3.11"
 dependencies = []
 
+[project.optional-dependencies]
+bedrock = ["boto3"]
+
 [project.scripts]
 fineprint = "fineprint.server:main"
 
