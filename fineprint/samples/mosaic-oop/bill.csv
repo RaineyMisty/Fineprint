@@ -1,0 +1,4 @@
+synthetic,id,claim_line_id,provider_id,service_date,code,charged,insurance_paid,adjustment,patient_paid,balance_due
+"SYNTHETIC / FICTIONAL DEMONSTRATION ONLY. No real people, insurers, providers or claims.",BL-M1,M1,PROVIDER-SYN-002,2026-05-10,29881,1800.00,800.00,800.00,0.00,200.00
+"SYNTHETIC / FICTIONAL DEMONSTRATION ONLY. No real people, insurers, providers or claims.",BL-M2,M2,PROVIDER-SYN-002,2026-05-10,15820,300.00,0.00,0.00,0.00,300.00
+"SYNTHETIC / FICTIONAL DEMONSTRATION ONLY. No real people, insurers, providers or claims.",BL-M3,M3,PROVIDER-SYN-003,2026-05-10,A0428,650.00,0.00,0.00,0.00,650.00

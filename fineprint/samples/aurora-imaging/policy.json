@@ -1,0 +1,133 @@
+{
+  "id": "POL-SYN-A01",
+  "insurer": "Aurora Mutual (fictional)",
+  "name": "Synthetic Clear PPO",
+  "member_id": "MEMBER-SYN-A01",
+  "effective_from": "2026-01-01",
+  "effective_to": "2026-12-31",
+  "currency": "USD",
+  "networks": {
+    "in": {
+      "deductible_cents": 100000,
+      "oop_max_cents": 300000,
+      "balance_billing": false,
+      "deductible_clause": "D-in",
+      "oop_clause": "O-in",
+      "network_clause": "N-in"
+    },
+    "out": {
+      "deductible_cents": 200000,
+      "oop_max_cents": 600000,
+      "balance_billing": true,
+      "deductible_clause": "D-out",
+      "oop_clause": "O-out",
+      "network_clause": "N-out"
+    }
+  },
+  "benefits": [
+    {
+      "id": "office",
+      "label": "Office copay",
+      "codes": [
+        "99213"
+      ],
+      "network": "in",
+      "covered": true,
+      "deductible_applies": false,
+      "copay_cents": 2500,
+      "coinsurance_bps": 0,
+      "clause_ids": [
+        "B1",
+        "ORDER"
+      ],
+      "ambiguity_group": ""
+    },
+    {
+      "id": "imaging",
+      "label": "Diagnostic imaging",
+      "codes": [
+        "70551"
+      ],
+      "network": "in",
+      "covered": true,
+      "deductible_applies": true,
+      "copay_cents": 0,
+      "coinsurance_bps": 2000,
+      "clause_ids": [
+        "B2",
+        "ORDER"
+      ],
+      "ambiguity_group": ""
+    },
+    {
+      "id": "out",
+      "label": "Out-of-network office and imaging",
+      "codes": [
+        "99213",
+        "70551"
+      ],
+      "network": "out",
+      "covered": true,
+      "deductible_applies": true,
+      "copay_cents": 0,
+      "coinsurance_bps": 4000,
+      "clause_ids": [
+        "B3",
+        "ORDER"
+      ],
+      "ambiguity_group": ""
+    }
+  ],
+  "clauses": [
+    {
+      "id": "D-in",
+      "text": "Individual annual in-network deductible: $1000.00. Apply to covered allowance before copay and coinsurance unless the benefit explicitly waives it.",
+      "location": "Synthetic SBC §D-in"
+    },
+    {
+      "id": "O-in",
+      "text": "Individual annual in-network OOP maximum: $3000.00. Cap covered deductible, copay and coinsurance together. Exclusions and permitted balance bills do not count. Network pools are separate.",
+      "location": "Synthetic SBC §O-in"
+    },
+    {
+      "id": "N-in",
+      "text": "Covered participating-provider charges above the allowed amount must be written off; no balance billing.",
+      "location": "Synthetic SBC §N-in"
+    },
+    {
+      "id": "D-out",
+      "text": "Individual annual out-network deductible: $2000.00. Apply to covered allowance before copay and coinsurance unless the benefit explicitly waives it.",
+      "location": "Synthetic SBC §D-out"
+    },
+    {
+      "id": "O-out",
+      "text": "Individual annual out-network OOP maximum: $6000.00. Cap covered deductible, copay and coinsurance together. Exclusions and permitted balance bills do not count. Network pools are separate.",
+      "location": "Synthetic SBC §O-out"
+    },
+    {
+      "id": "N-out",
+      "text": "Out-of-network charges above the allowed amount may be balance billed under this fictional plan; outside OOP.",
+      "location": "Synthetic SBC §N-out"
+    },
+    {
+      "id": "B1",
+      "text": "In-network office visit (99213): $25 copay; deductible waived; no coinsurance.",
+      "location": "Synthetic SBC §B1"
+    },
+    {
+      "id": "B2",
+      "text": "In-network diagnostic imaging (70551): deductible then 20% member coinsurance.",
+      "location": "Synthetic SBC §B2"
+    },
+    {
+      "id": "B3",
+      "text": "Out-of-network office and imaging: deductible then 40% coinsurance, plus permitted balance billing.",
+      "location": "Synthetic SBC §B3"
+    },
+    {
+      "id": "ORDER",
+      "text": "One visit/unit per line. Apply deductible, then copay, then member coinsurance on the remaining allowance. Round coinsurance half up to cents. Apply OOP cap in that order. Process by service date, then line ID. Excluded services are member liability at full charge. This is an illustrative individual USD plan only.",
+      "location": "Synthetic SBC §ORDER"
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "id": "mosaic-oop",
+  "title": "The out-of-pocket limit matters",
+  "summary": "An OOP cap correction, an explicit exclusion, and a separate out-of-network pool.",
+  "insurer": "Mosaic Health (fictional)",
+  "synthetic": true,
+  "policy_rules": "policy.json",
+  "policy_document": "policy.md",
+  "claim_document": "eob-ledger.json",
+  "claim_format": "mosaic-ledger-v1",
+  "claim_context": {
+    "id": "CLAIM-SYN-M01",
+    "policy_id": "POL-SYN-M01",
+    "member_id": "MEMBER-SYN-M01",
+    "accumulators": {
+      "in": {
+        "deductible_paid_cents": 50000,
+        "oop_paid_cents": 145000
+      },
+      "out": {
+        "deductible_paid_cents": 0,
+        "oop_paid_cents": 0
+      }
+    }
+  },
+  "bill_document": "bill.csv",
+  "bill_context": {
+    "id": "BILL-CLAIM-SYN-M01",
+    "claim_id": "CLAIM-SYN-M01",
+    "member_id": "MEMBER-SYN-M01"
+  },
+  "allowed_evidence": {
+    "M1": {
+      "allowed_cents": 100000,
+      "source": "contract",
+      "reference": "Synthetic negotiated-rate exhibit RATE-M1: 29881 allowance $1000.00"
+    },
+    "M2": {
+      "allowed_cents": 0,
+      "source": "contract",
+      "reference": "Synthetic negotiated-rate exhibit RATE-M2: 15820 allowance $0.00"
+    },
+    "M3": {
+      "allowed_cents": 40000,
+      "source": "contract",
+      "reference": "Synthetic negotiated-rate exhibit RATE-M3: A0428 allowance $400.00"
+    }
+  }
+}

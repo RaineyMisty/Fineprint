@@ -1,0 +1,76 @@
+{
+  "synthetic": true,
+  "notice": "SYNTHETIC / FICTIONAL DEMONSTRATION ONLY. No real people, insurers, providers or claims.",
+  "claimReference": "CLAIM-SYN-M01",
+  "planRef": "POL-SYN-M01",
+  "subscriberRef": "MEMBER-SYN-M01",
+  "priorSpend": {
+    "in": {
+      "deductible_paid_cents": 50000,
+      "oop_paid_cents": 145000
+    },
+    "out": {
+      "deductible_paid_cents": 0,
+      "oop_paid_cents": 0
+    }
+  },
+  "services": [
+    {
+      "ref": "M1",
+      "facility": "PROVIDER-SYN-002",
+      "date": "2026-05-10",
+      "procedure": "29881",
+      "label": "Synthetic ambulatory procedure",
+      "participation": "in",
+      "submittedCents": 180000,
+      "recognizedCents": 100000,
+      "memberShare": {
+        "deductible": 0,
+        "fixed": 0,
+        "percentage": 20000,
+        "excluded": 0,
+        "excess": 0
+      },
+      "planRemittanceCents": 80000,
+      "writeOffCents": 80000
+    },
+    {
+      "ref": "M2",
+      "facility": "PROVIDER-SYN-002",
+      "date": "2026-05-10",
+      "procedure": "15820",
+      "label": "Synthetic excluded cosmetic service",
+      "participation": "in",
+      "submittedCents": 30000,
+      "recognizedCents": 0,
+      "memberShare": {
+        "deductible": 0,
+        "fixed": 0,
+        "percentage": 0,
+        "excluded": 30000,
+        "excess": 0
+      },
+      "planRemittanceCents": 0,
+      "writeOffCents": 0
+    },
+    {
+      "ref": "M3",
+      "facility": "PROVIDER-SYN-003",
+      "date": "2026-05-10",
+      "procedure": "A0428",
+      "label": "Synthetic nonemergency transport",
+      "participation": "out",
+      "submittedCents": 65000,
+      "recognizedCents": 40000,
+      "memberShare": {
+        "deductible": 40000,
+        "fixed": 0,
+        "percentage": 0,
+        "excluded": 0,
+        "excess": 25000
+      },
+      "planRemittanceCents": 0,
+      "writeOffCents": 0
+    }
+  ]
+}

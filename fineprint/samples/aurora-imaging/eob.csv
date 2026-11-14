@@ -1,0 +1,3 @@
+synthetic,line_ref,provider,service_day,cpt_hcpcs,description,network,charge,allowed,deductible,copay,coinsurance,noncovered,balance,plan_paid,adjustment
+"SYNTHETIC / FICTIONAL DEMONSTRATION ONLY. No real people, insurers, providers or claims.",A1,PROVIDER-SYN-001,2026-05-10,99213,Synthetic office visit,in,240.00,150.00,0.00,25.00,0.00,0.00,0.00,125.00,90.00
+"SYNTHETIC / FICTIONAL DEMONSTRATION ONLY. No real people, insurers, providers or claims.",A2,PROVIDER-SYN-001,2026-05-10,70551,Synthetic diagnostic MRI,in,1600.00,1000.00,300.00,0.00,140.00,0.00,0.00,560.00,600.00

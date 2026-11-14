@@ -1,0 +1,44 @@
+{
+  "id": "aurora-imaging",
+  "title": "A deductible charged twice",
+  "summary": "Office + MRI: verify remaining deductible, then reconcile a missing hospital credit.",
+  "insurer": "Aurora Mutual (fictional)",
+  "synthetic": true,
+  "policy_rules": "policy.json",
+  "policy_document": "policy.md",
+  "claim_document": "eob.csv",
+  "claim_format": "aurora-csv-v1",
+  "claim_context": {
+    "id": "CLAIM-SYN-A01",
+    "policy_id": "POL-SYN-A01",
+    "member_id": "MEMBER-SYN-A01",
+    "accumulators": {
+      "in": {
+        "deductible_paid_cents": 80000,
+        "oop_paid_cents": 100000
+      },
+      "out": {
+        "deductible_paid_cents": 0,
+        "oop_paid_cents": 0
+      }
+    }
+  },
+  "bill_document": "bill.csv",
+  "bill_context": {
+    "id": "BILL-CLAIM-SYN-A01",
+    "claim_id": "CLAIM-SYN-A01",
+    "member_id": "MEMBER-SYN-A01"
+  },
+  "allowed_evidence": {
+    "A1": {
+      "allowed_cents": 15000,
+      "source": "contract",
+      "reference": "Synthetic negotiated-rate exhibit RATE-A1: 99213 allowance $150.00"
+    },
+    "A2": {
+      "allowed_cents": 100000,
+      "source": "contract",
+      "reference": "Synthetic negotiated-rate exhibit RATE-A2: 70551 allowance $1000.00"
+    }
+  }
+}

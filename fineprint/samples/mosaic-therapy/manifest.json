@@ -1,0 +1,39 @@
+{
+  "id": "mosaic-therapy",
+  "title": "When the policy needs clarification",
+  "summary": "Compare conflicting therapy clauses; resolve unknown network, allowance and prior spending.",
+  "insurer": "Mosaic Health (fictional)",
+  "synthetic": true,
+  "policy_rules": "policy.json",
+  "policy_document": "policy.md",
+  "claim_document": "eob-ledger.json",
+  "claim_format": "mosaic-ledger-v1",
+  "claim_context": {
+    "id": "CLAIM-SYN-M02",
+    "policy_id": "POL-SYN-M02",
+    "member_id": "MEMBER-SYN-M02",
+    "accumulators": {
+      "in": {
+        "deductible_paid_cents": null,
+        "oop_paid_cents": null
+      },
+      "out": {
+        "deductible_paid_cents": 0,
+        "oop_paid_cents": 0
+      }
+    }
+  },
+  "bill_document": "bill.csv",
+  "bill_context": {
+    "id": "BILL-CLAIM-SYN-M02",
+    "claim_id": "CLAIM-SYN-M02",
+    "member_id": "MEMBER-SYN-M02"
+  },
+  "allowed_evidence": {
+    "T1": {
+      "allowed_cents": null,
+      "source": "unknown",
+      "reference": "Synthetic contract not supplied; EOB allowance not independently verified"
+    }
+  }
+}

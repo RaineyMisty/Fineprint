@@ -1,0 +1,86 @@
+"""Local, read-only sample server plus stateless JSON analysis. No upload storage."""
+
+import argparse
+import json
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
+from urllib.parse import urlsplit
+
+from .models import ModelError, case_from_dict, to_dict
+from .repository import list_cases, load_case
+from .service import analyze
+
+STATIC = Path(__file__).parent / "static"
+MAX_BODY = 1024 * 1024
+
+
+class Handler(BaseHTTPRequestHandler):
+    def log_message(self, format, *args):
+        # Avoid putting case contents or identifiers into application logs.
+        pass
+
+    def reply(self, status, body, content_type="application/json; charset=utf-8"):
+        if content_type.startswith("application/json"):
+            body = json.dumps(body, ensure_ascii=False).encode("utf-8")
+        self.send_response(status)
+        self.send_header("Content-Type", content_type)
+        self.send_header("Content-Length", str(len(body)))
+        self.send_header("Cache-Control", "no-store")
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("Content-Security-Policy", "default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'")
+        self.end_headers()
+        self.wfile.write(body)
+
+    def do_GET(self):
+        path = urlsplit(self.path).path
+        try:
+            if path == "/api/cases":
+                return self.reply(200, list_cases())
+            if path.startswith("/api/cases/"):
+                case, documents = load_case(path.removeprefix("/api/cases/"))
+                return self.reply(200, {"case": to_dict(case), "documents": documents, "report": analyze(case)})
+            files = {"/": ("index.html", "text/html; charset=utf-8"),
+                     "/app.js": ("app.js", "text/javascript; charset=utf-8"),
+                     "/styles.css": ("styles.css", "text/css; charset=utf-8")}
+            if path in files:
+                filename, content_type = files[path]
+                return self.reply(200, (STATIC / filename).read_bytes(), content_type)
+            return self.reply(404, {"error": "Not found"})
+        except FileNotFoundError:
+            return self.reply(404, {"error": "Unknown case"})
+
+    def do_POST(self):
+        if urlsplit(self.path).path != "/api/analyze":
+            return self.reply(404, {"error": "Not found"})
+        # Reject cross-origin browser requests; this endpoint has no CORS opt-in.
+        if self.headers.get("Sec-Fetch-Site") == "cross-site":
+            return self.reply(403, {"error": "Cross-site requests are not supported"})
+        if self.headers.get("Content-Type", "").split(";")[0].strip() != "application/json":
+            return self.reply(415, {"error": "Send application/json"})
+        try:
+            length = int(self.headers.get("Content-Length", "0"))
+            if not 0 < length <= MAX_BODY:
+                return self.reply(413, {"error": "JSON body must be between 1 byte and 1 MiB"})
+            case = case_from_dict(json.loads(self.rfile.read(length)))
+            return self.reply(200, {"case": to_dict(case), "documents": {}, "report": analyze(case)})
+        except (ModelError, ValueError, TypeError, RecursionError) as exc:
+            return self.reply(400, {"error": str(exc)})
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Fineprint offline case explorer")
+    parser.add_argument("--host", default="127.0.0.1")
+    parser.add_argument("--port", default=8765, type=int)
+    args = parser.parse_args()
+    server = ThreadingHTTPServer((args.host, args.port), Handler)
+    print(f"Fineprint: http://{args.host}:{server.server_port} (Ctrl+C to stop)", flush=True)
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        pass
+    finally:
+        server.server_close()
+
+
+if __name__ == "__main__":
+    main()

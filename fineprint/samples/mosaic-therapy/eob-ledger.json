@@ -1,0 +1,38 @@
+{
+  "synthetic": true,
+  "notice": "SYNTHETIC / FICTIONAL DEMONSTRATION ONLY. No real people, insurers, providers or claims.",
+  "claimReference": "CLAIM-SYN-M02",
+  "planRef": "POL-SYN-M02",
+  "subscriberRef": "MEMBER-SYN-M02",
+  "priorSpend": {
+    "in": {
+      "deductible_paid_cents": null,
+      "oop_paid_cents": null
+    },
+    "out": {
+      "deductible_paid_cents": 0,
+      "oop_paid_cents": 0
+    }
+  },
+  "services": [
+    {
+      "ref": "T1",
+      "facility": "PROVIDER-SYN-004",
+      "date": "2026-05-10",
+      "procedure": "97110",
+      "label": "Synthetic therapeutic exercise (one unit)",
+      "participation": "unknown",
+      "submittedCents": 30000,
+      "recognizedCents": 20000,
+      "memberShare": {
+        "deductible": 0,
+        "fixed": 0,
+        "percentage": 4000,
+        "excluded": 0,
+        "excess": 0
+      },
+      "planRemittanceCents": 16000,
+      "writeOffCents": 10000
+    }
+  ]
+}
