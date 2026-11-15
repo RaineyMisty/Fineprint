@@ -32,12 +32,12 @@
       </div>
       <form id="doc-form" novalidate>
         <div class="docs">
-          <div class="doc"><div class="doc-head"><label for="in-policy">Insurance policy</label><label class="file" for="file-policy">Upload<input id="file-policy" type="file" accept=".txt,.md,text/plain,text/markdown" data-target="in-policy"></label></div>
-            <textarea id="in-policy" spellcheck="false" placeholder="Paste the plan’s benefits text here…" aria-describedby="hint-policy"></textarea><p id="hint-policy" class="hint">Text or Markdown. <span class="count" data-count="in-policy"></span></p></div>
-          <div class="doc"><div class="doc-head"><label for="in-eob">Insurer statement (EOB)</label><label class="file" for="file-eob">Upload<input id="file-eob" type="file" accept=".csv,.json,.txt,text/csv,application/json,text/plain" data-target="in-eob"></label></div>
-            <textarea id="in-eob" spellcheck="false" placeholder="Paste the claim statement (CSV or JSON)…" aria-describedby="hint-eob"></textarea><p id="hint-eob" class="hint">CSV or JSON. <span class="count" data-count="in-eob"></span></p></div>
-          <div class="doc"><div class="doc-head"><label for="in-bill">Provider bill</label><label class="file" for="file-bill">Upload<input id="file-bill" type="file" accept=".csv,.txt,text/csv,text/plain" data-target="in-bill"></label></div>
-            <textarea id="in-bill" spellcheck="false" placeholder="Paste the itemized bill (CSV)…" aria-describedby="hint-bill"></textarea><p id="hint-bill" class="hint">CSV. <span class="count" data-count="in-bill"></span></p></div>
+          <div class="doc" data-kind="policy"><div class="doc-head"><label for="in-policy">Insurance policy</label><label class="file" for="file-policy">Upload<input id="file-policy" type="file" accept=".pdf,.txt,.md,application/pdf,text/plain,text/markdown" data-target="in-policy"></label></div>
+            <textarea id="in-policy" spellcheck="false" placeholder="Paste the plan’s benefits text, or drop a file here…" aria-describedby="hint-policy status-policy"></textarea><p id="hint-policy" class="hint">PDF, text or Markdown. <span class="count" data-count="in-policy"></span></p><p id="status-policy" class="file-status" role="status" aria-live="polite"></p></div>
+          <div class="doc" data-kind="eob"><div class="doc-head"><label for="in-eob">Insurer statement (EOB)</label><label class="file" for="file-eob">Upload<input id="file-eob" type="file" accept=".pdf,.csv,.json,.txt,application/pdf,text/csv,application/json,text/plain" data-target="in-eob"></label></div>
+            <textarea id="in-eob" spellcheck="false" placeholder="Paste the claim statement (CSV or JSON), or drop a file here…" aria-describedby="hint-eob status-eob"></textarea><p id="hint-eob" class="hint">PDF, CSV or JSON. <span class="count" data-count="in-eob"></span></p><p id="status-eob" class="file-status" role="status" aria-live="polite"></p></div>
+          <div class="doc" data-kind="bill"><div class="doc-head"><label for="in-bill">Provider bill</label><label class="file" for="file-bill">Upload<input id="file-bill" type="file" accept=".pdf,.csv,.txt,application/pdf,text/csv,text/plain" data-target="in-bill"></label></div>
+            <textarea id="in-bill" spellcheck="false" placeholder="Paste the itemized bill (CSV), or drop a file here…" aria-describedby="hint-bill status-bill"></textarea><p id="hint-bill" class="hint">PDF or CSV. <span class="count" data-count="in-bill"></span></p><p id="status-bill" class="file-status" role="status" aria-live="polite"></p></div>
         </div>
         <details class="facts">
           <summary>Claim facts &amp; format <span class="muted">(filled in for samples)</span></summary>
@@ -50,7 +50,7 @@
         <div class="actions">
           <button class="btn primary" type="submit" id="check-btn">Check my bill</button>
           <button class="btn ghost" type="button" id="clear-btn">Clear</button>
-          <p class="privacy">Nothing is stored. Documents are sent only to this local server.</p>
+          <p class="privacy" id="privacy-note">Documents are processed in memory and not stored.</p>
         </div>
       </form>
       <div class="samples" aria-labelledby="samples-title">
@@ -68,7 +68,8 @@
     <section id="step-2" class="step" hidden aria-labelledby="h2-title">
       <div class="step-head">
         <div><h1 id="h2-title">What we read in your policy</h1>
-          <p class="lede">Each rule below was taken from a passage of your policy. Select a rule to see exactly where.</p></div>
+          <p class="lede">Each rule below was taken from a passage of your policy. Select a rule to see exactly where.</p>
+          <p id="pdf-note" class="pdf-note" hidden></p></div>
         <div id="backend-card" class="backend"></div>
       </div>
       <div id="unresolved" class="unresolved" hidden></div>

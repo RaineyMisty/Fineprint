@@ -1,7 +1,8 @@
 "use strict";
 (() => {
   const $ = (id) => document.getElementById(id);
-  const S = {step: 1, samples: [], sample: null, data: null, active: null, scenario: 0, lastRequest: null};
+  const S = {step: 1, samples: [], sample: null, data: null, active: null, scenario: 0, lastRequest: null,
+             pdf: {}, pdfRun: [], reading: new Set(), token: {}, seq: 0};
 
   /* ---------- helpers ---------- */
   function h(tag, attrs, ...kids) {
@@ -87,11 +88,104 @@
     return {policy: $("in-policy").value, eob, bill: $("in-bill").value, claim_format: $("in-format").value, ...facts,
             synthetic: !!S.sample};
   }
+  /* ---------- file upload & drop (PDFs are extracted by /api/extract) ---------- */
+  const KINDS = ["policy", "eob", "bill"];
+  const MAX_PDF = 11 * 1024 * 1024, MAX_TEXT = 900000;
+  const DOC_NAME = {policy: "policy", eob: "insurer statement", bill: "provider bill"};
+  const isPdf = (f) => f.type === "application/pdf" || /\.pdf$/i.test(f.name);
+  const plural = (n, w) => `${(+n || 0).toLocaleString("en-US")} ${w}${+n === 1 ? "" : "s"}`;
+  function setStatus(kind, cls, ...kids) {
+    const el = $("status-" + kind);
+    el.className = "file-status" + (cls ? " " + cls : "");
+    el.replaceChildren(...kids.flat());
+  }
+  // res = the /api/extract response while the box holds PDF-extracted text, else null.
+  function setPdf(kind, res) {
+    S.pdf[kind] = res;
+    $("in-" + kind).closest(".doc").classList.toggle("from-pdf", !!res);
+    if (!res) return setStatus(kind, "");
+    const what = res.status === "structured" ? plural(res.rows, kind === "bill" ? "bill line" : "claim line") + " found" : "text extracted";
+    const notice = res.notice || "extracted from PDF — please check";
+    setStatus(kind, "pdf",
+      h("span", {}, h("b", {}, res.filename), ` · ${plural(res.pages, "page")} · ${what}`),
+      h("span", {class: "file-check"}, notice.charAt(0).toUpperCase() + notice.slice(1)),
+      (res.warnings || []).map((w) => h("span", {class: "file-warn"}, String(w))));
+  }
+  const syncBusy = () => { $("check-btn").disabled = S.reading.size > 0; };
+  function resetFiles() { // Clear / sample: forget PDF provenance and ignore any extraction still in flight
+    for (const k of KINDS) { S.token[k] = ++S.seq; setPdf(k, null); }
+    S.reading.clear(); syncBusy();
+  }
+  const readBase64 = (file) => new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => { const s = String(r.result); resolve(s.slice(s.indexOf(",") + 1)); };
+    r.onerror = () => reject({message: "Couldn’t read that file."});
+    r.onabort = () => reject({message: "File reading was cancelled."});
+    r.readAsDataURL(file);
+  });
+  async function loadFile(kind, file) {
+    const input = $("file-" + kind), token = S.token[kind] = ++S.seq;
+    S.reading.delete(kind); syncBusy();
+    const types = input.accept.split(",").map((t) => t.trim().toLowerCase()), name = file.name.toLowerCase();
+    if (!types.some((t) => (t.startsWith(".") ? name.endsWith(t) : t === file.type))) {
+      const exts = types.filter((t) => t.startsWith("."));
+      return setStatus(kind, "error", `Choose a ${exts.slice(0, -1).join(", ")} or ${exts.at(-1)} file.`);
+    }
+    if (!isPdf(file)) {
+      if (file.size > MAX_TEXT) return setStatus(kind, "error", "That file is too large (limit about 900 KB).");
+      S.reading.add(kind); syncBusy();
+      setStatus(kind, "busy", `Reading ${file.name}…`);
+      try {
+        const text = await file.text();
+        if (S.token[kind] !== token) return;
+        $("in-" + kind).value = text;
+        if (kind === "eob") $("in-format").value = text.trim().startsWith("{") ? "mosaic-ledger-v1" : "aurora-csv-v1";
+        setPdf(kind, null); setStatus(kind, "", `${file.name} · text loaded`);
+        updateCounts(); S.sample = null;
+      } catch {
+        if (S.token[kind] === token) setStatus(kind, "error", "Couldn’t read that file.");
+      } finally {
+        if (S.token[kind] === token) { S.reading.delete(kind); syncBusy(); }
+      }
+      return;
+    }
+    if (!file.size) return setStatus(kind, "error", "This PDF is empty.");
+    if (file.size > MAX_PDF) return setStatus(kind, "error", "PDF is larger than 11 MB");
+    S.reading.add(kind); syncBusy();
+    setStatus(kind, "busy", `Reading ${file.name}…`);
+    try {
+      const content_base64 = await readBase64(file);
+      if (S.token[kind] !== token) return;
+      const res = await api("/api/extract", {method: "POST", headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({kind, filename: file.name, content_base64})});
+      if (S.token[kind] !== token) return;
+      if (!res || typeof res.text !== "string" || !res.text.trim()) throw {message: "No text came back from this PDF."};
+      $("in-" + kind).value = res.text;
+      if (kind === "eob" && res.format === "aurora-csv-v1") $("in-format").value = "aurora-csv-v1";
+      setPdf(kind, {...res, filename: res.filename || file.name});
+      updateCounts(); S.sample = null;
+    } catch (e) {
+      // Fail closed: show why, leave the textarea as it was.
+      if (S.token[kind] === token) setStatus(kind, "error", (e && e.message) || "Couldn’t read that PDF.");
+    } finally {
+      if (S.token[kind] === token) { S.reading.delete(kind); syncBusy(); }
+    }
+  }
+  function renderPdfNote() {
+    const from = S.pdfRun, parts = [];
+    if (from.includes("policy")) parts.push("Policy text was extracted from your PDF — please check the cited passages against the original.");
+    const rest = from.filter((k) => k !== "policy").map((k) => DOC_NAME[k]);
+    if (rest.length) parts.push(`The ${rest.join(" and ")} ${rest.length > 1 ? "were" : "was"} extracted from PDF — please check the amounts against the original${rest.length > 1 ? "s" : ""}.`);
+    $("pdf-note").textContent = parts.join(" ");
+    $("pdf-note").hidden = !parts.length;
+  }
+
   async function loadSample(id) {
     unbanner();
     try {
       const sample = await api("/api/samples/" + encodeURIComponent(id));
       S.sample = sample;
+      resetFiles();
       fillInputs(sample.inputs);
       $("doc-form").scrollIntoView({block: "start", behavior: "smooth"});
       $("doc-form").classList.add("filled");
@@ -104,15 +198,17 @@
   }
   async function run(text) {
     unbanner();
+    if (S.reading.size) { show(1); banner("Still reading your PDF — check again once it’s done.", "input"); return; }
     let payload;
     try { payload = collect(); } catch (e) { show(1); banner(e.message, e.kind); return; }
     if (!payload.policy.trim() || !payload.eob.trim() || !payload.bill.trim()) {
       show(1); banner("Add all three documents, or try a sample case.", "input"); return;
     }
+    const fromPdf = KINDS.filter((k) => S.pdf[k]);
     loading(text || "Reading your policy…");
     try {
       S.data = await api("/api/check", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(payload)});
-      S.active = null; S.scenario = 0;
+      S.active = null; S.scenario = 0; S.pdfRun = fromPdf;
       renderRules(); renderResult(); show(2);
     } catch (e) { show(1); banner(e.message, e.kind, () => run()); }
   }
@@ -185,6 +281,7 @@
       const ev = evidenceFor("benefits." + b.id);
       box.append(ruleCard("ben:" + b.id, (/network/i.test(b.label) ? b.label : `${b.label} (${netName[b.network] || b.network})`), ruleDescription(b), null, ev ? [ev] : [], b));
     }
+    renderPdfNote();
     renderSource();
   }
   function ruleCard(id, title, desc, _net, evs, benefit) {
@@ -341,6 +438,7 @@
     lines.push("# Fineprint summary", "", `**${v.title}**`, "", v.text, "");
     lines.push(`Policy reader: ${c.backend === "fallback" ? "offline rule reader (no AI)" : "AI provider " + c.backend}`);
     if (S.data.case.synthetic) lines.push("Data: synthetic demo case, not a real claim.");
+    if (S.pdfRun.length) lines.push(`Extracted from PDF (please check against the original): ${S.pdfRun.map((k) => DOC_NAME[k]).join(", ")}.`);
     if (r.status !== "blocked") {
       const s = r.summary;
       lines.push("", `- Hospital bill: ${money(s.bill_patient_cents)}`, `- Insurer statement: ${money(s.eob_patient_cents)}`,
@@ -369,15 +467,41 @@
     document.querySelectorAll("#steps button").forEach((b) => b.addEventListener("click", () => show(+b.dataset.step)));
     document.querySelectorAll("[data-go]").forEach((b) => b.addEventListener("click", () => show(+b.dataset.go)));
     $("doc-form").addEventListener("submit", (e) => { e.preventDefault(); run(); });
-    $("clear-btn").addEventListener("click", () => { for (const id of ["in-policy", "in-eob", "in-bill", "in-facts"]) $(id).value = ""; S.sample = null; updateCounts(); unbanner(); });
-    document.querySelectorAll("textarea").forEach((t) => t.addEventListener("input", () => { updateCounts(); S.sample = null; }));
-    document.querySelectorAll("input[type=file]").forEach((f) => f.addEventListener("change", async () => {
-      const file = f.files[0]; if (!file) return;
-      if (file.size > 900000) { banner("That file is too large (limit about 900 KB).", "input"); return; }
-      const text = await file.text(); $(f.dataset.target).value = text;
-      if (f.dataset.target === "in-eob") $("in-format").value = text.trim().startsWith("{") ? "mosaic-ledger-v1" : "aurora-csv-v1";
-      updateCounts(); f.value = ""; S.sample = null;
+    $("clear-btn").addEventListener("click", () => { for (const id of ["in-policy", "in-eob", "in-bill", "in-facts"]) $(id).value = ""; S.sample = null; resetFiles(); updateCounts(); unbanner(); });
+    document.querySelectorAll("textarea").forEach((t) => t.addEventListener("input", () => {
+      updateCounts(); S.sample = null;
+      const kind = t.closest(".doc")?.dataset.kind;
+      if (!kind) return;
+      if (S.reading.has(kind)) {
+        // A user's edit wins over any upload response still in flight.
+        S.token[kind] = ++S.seq; S.reading.delete(kind); syncBusy();
+        setPdf(kind, S.pdf[kind] || null);
+      }
+      if (!t.value.trim()) setPdf(kind, null); // emptied: no longer PDF text
+      else if ($("status-" + kind).classList.contains("error")) setPdf(kind, S.pdf[kind] || null); // edits keep the "please check" marker
     }));
+    document.querySelectorAll("input[type=file]").forEach((f) => f.addEventListener("change", () => {
+      const file = f.files[0]; f.value = "";
+      if (file) loadFile(f.dataset.target.slice(3), file);
+    }));
+    // Drag & drop: a file dropped on a document box loads like Upload; anywhere else it is ignored (never navigates away).
+    const hasFiles = (e) => !!e.dataTransfer && [...e.dataTransfer.types].includes("Files");
+    const boxOf = (e) => (e.target instanceof Element ? e.target.closest(".doc") : null);
+    const highlight = (box) => document.querySelectorAll(".doc").forEach((d) => d.classList.toggle("drag", d === box));
+    for (const type of ["dragenter", "dragover"]) document.addEventListener(type, (e) => {
+      if (!hasFiles(e)) return;
+      e.preventDefault();
+      const box = boxOf(e);
+      e.dataTransfer.dropEffect = box ? "copy" : "none";
+      highlight(box);
+    });
+    document.addEventListener("dragleave", (e) => { if (!e.relatedTarget) highlight(null); });
+    document.addEventListener("drop", (e) => {
+      if (!hasFiles(e)) return;
+      e.preventDefault(); highlight(null);
+      const box = boxOf(e), file = e.dataTransfer.files[0];
+      if (box && file) loadFile(box.dataset.kind, file);
+    });
     $("copy-btn").addEventListener("click", async () => {
       try { await navigator.clipboard.writeText(summaryText()); $("copy-status").textContent = "Summary copied."; }
       catch { $("copy-status").textContent = "Couldn’t copy automatically — use Download instead."; }
@@ -392,6 +516,7 @@
       b.textContent = st.offline ? "Offline reader" : "AI reader: " + st.provider;
       b.classList.toggle("llm", !st.offline);
       b.title = st.offline ? "Policies are read by the built-in offline parser." : "Policies are read by an external AI provider.";
+      if (!st.offline) $("privacy-note").textContent += ` Policy text is sent to the AI policy reader (${st.provider}) to extract rules.`;
     }).catch(() => {});
     try {
       S.samples = await api("/api/samples");
