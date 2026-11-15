@@ -129,17 +129,10 @@ def _normalized_text(text):
     return " ".join(text.split())
 
 
-def _balance_supported(value, quotes):
+def _balance_supported(value, quotes, network=None):
     """Require explicit billing language, not an inferred network protection."""
-    for quote in quotes:
-        text = _normalized_text(quote).lower().replace("balance-bill", "balance bill")
-        negative = bool(re.search(r"\b(?:no|not|never|cannot|can't)\b.{0,60}\bbalance bill", text)
-                        or re.search(r"balance billing.{0,40}(?:not permitted|prohibited)", text))
-        if value is False and negative:
-            return True
-        if value is True and not negative and re.search(r"\b(?:may|can|permitted|allowed)\b.{0,150}\bbalance bill", text):
-            return True
-    return False
+    from .billing_language import explicit_balance_values
+    return explicit_balance_values(quotes, network) == {value}
 
 
 def _selector_supported(benefit, quotes):
@@ -210,6 +203,14 @@ def recover_evidence(value, document, document_id):
     value = deepcopy(value)
     if type(value) is not dict:
         raise ModelError("output: expected object")
+    policy = value.get("policy")
+    if isinstance(policy, dict) and (policy.get("name") is None or
+                                    isinstance(policy.get("name"), str) and not policy["name"].strip()):
+        # A missing display name must not discard otherwise sourced financial
+        # rules. Use source metadata only; money and coverage remain strict.
+        heading = re.search(r"(?m)^\s*(?:#+\s*)?(?:plan name|policy name|plan):\s*(\S[^\n]*)", document, re.I)
+        first_line = next((line.strip().lstrip("# ") for line in document.splitlines() if line.strip()), document_id)
+        policy["name"] = heading[1].strip() if heading else first_line
     compact = isinstance(value.get("policy"), dict) and "clauses" not in value["policy"]
     # Preserve strict schema checking (including unknown fields), but offsets
     # supplied by old clients are deliberately discarded before checking types.
@@ -364,7 +365,7 @@ def recover_evidence(value, document, document_id):
                 terms["network_clause"] = None
                 merged.pop(path, None)
             elif (ref not in clauses or clauses[ref]["text"] not in quotes
-                    or not _balance_supported(terms["balance_billing"], quotes)):
+                    or not _balance_supported(terms["balance_billing"], quotes, net)):
                 terms["balance_billing"], terms["network_clause"] = None, None
                 merged.pop(path, None)
                 dropped.append(path)
@@ -497,7 +498,7 @@ def validate_output(value, document, document_id):
                     [e.quote for e in evidence_by_path[f"networks.{net}.{field}"].evidence], allow_waiver=field == "deductible_cents"):
                 raise ModelError("Network amount is not present in its source evidence")
             if field == "balance_billing" and not _balance_supported(terms.balance_billing,
-                    [e.quote for e in evidence_by_path[f"networks.{net}.{field}"].evidence]):
+                    [e.quote for e in evidence_by_path[f"networks.{net}.{field}"].evidence], net):
                 raise ModelError("Balance billing requires explicit source billing language")
     groups = {}
     for b in p.benefits:
