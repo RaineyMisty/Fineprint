@@ -166,6 +166,10 @@ class CompilerTests(unittest.TestCase):
         result = LLMCompiler('deepseek', transport=lambda *_:good).compile(DOC)
         self.assertEqual(len(result.policy.benefits), 2)
         self.assertTrue(any('code' in warning for warning in result.output.unresolved))
+        good['policy']['benefits'][0]['codes'] = []
+        result = LLMCompiler('deepseek', transport=lambda *_:good).compile(DOC)
+        self.assertEqual(len(result.policy.benefits), 2)
+        self.assertTrue(result.output.unresolved)
 
     def test_explicit_policy_id_is_validated_from_source_not_claim_or_gold(self):
         good = to_dict(FallbackCompiler().compile(DOC).output)

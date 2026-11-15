@@ -226,7 +226,8 @@ def recover_evidence(value, document, document_id):
         path = "benefits." + benefit["id"]
         rule = merged.get(path)
         quotes = {e["quote"] for e in rule["evidence"]} if rule else set()
-        if (benefit["network"] not in value["policy"]["networks"] or not rule or not benefit["clause_ids"] or any(
+        if (not benefit["codes"] or any(not re.fullmatch(r"(?:\d{5}|[A-Z]\d{4})", code) for code in benefit["codes"])
+                or benefit["network"] not in value["policy"]["networks"] or not rule or not benefit["clause_ids"] or any(
                 ref not in clauses or clauses[ref]["text"] not in quotes for ref in benefit["clause_ids"]) or any(
                 not any(re.search(r"(?<!\w)" + re.escape(code) + r"(?!\w)", quote) for quote in quotes)
                 for code in benefit["codes"])):
