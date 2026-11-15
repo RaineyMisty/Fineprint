@@ -8,7 +8,7 @@ Fineprint helps **patients, caregivers and benefits advocates** check an insurer
 
 **Policy text → evidence-linked executable rules → independent claim calculation → clause-specific dollar difference → final bill.** The insurer’s EOB is an observation to compare, never the answer Fineprint reuses. Arithmetic runs in a deterministic engine; an optional LLM compiles policy language, not dollar calculations.
 
-**All bundled insurers, members, providers, policies, negotiated rates, EOBs and bills are synthetic/fictional. No real personal data.** The default demo, tests and evaluation run fully offline, without keys or runtime dependencies. Real DeepSeek API measurements on this synthetic benchmark are reported below.
+**All bundled demo insurers, members, providers, policies, negotiated rates, EOBs and bills are synthetic/fictional. No real personal data.** The default demo, tests and evaluation run fully offline, without keys or runtime dependencies. Real DeepSeek API measurements on this synthetic benchmark and separate local insurer-document tests are reported below.
 
 ## Run locally
 
@@ -22,7 +22,7 @@ python3 -m fineprint.server --port 8765
 
 Open **http://127.0.0.1:8765**. Stop with Ctrl+C. Optional installation: `python3 -m pip install -e .`, then `fineprint`. Installation may download build tooling; running from source does not.
 
-**95 tests pass**, covering strict schemas, source-span integrity, retries/provider request contracts with test doubles, synthetic fixtures, calculation independence, evaluation denominators and HTTP integration. DeepSeek was also evaluated with real API calls; other live providers remain unverified. Optional Chrome verification, using Node.js 22+ and Chrome without npm packages:
+**104 tests pass**, covering strict schemas, source-span integrity, retries/provider request contracts with test doubles, synthetic fixtures, calculation independence, evaluation denominators, private-corpus protection, rounded SBC comparisons and HTTP integration. DeepSeek was also evaluated with real API calls; other live providers remain unverified. Optional Chrome verification, using Node.js 22+ and Chrome without npm packages:
 
 ```bash
 node scripts/browser_smoke.mjs
@@ -138,6 +138,23 @@ Neither model produced a validated policy: evidence coverage **0/44 (0%)**, trac
 Final errors: v4-pro had four incomplete rule-evidence mappings and one source-span mismatch; flash had three span mismatches, one transport/timeout failure and one malformed JSON response.
 
 Reports: [v4-pro JSON](reports/evaluation-deepseek-v4-pro.json) / [Markdown](reports/evaluation-deepseek-v4-pro.md); [flash JSON](reports/evaluation-deepseek-flash.json) / [Markdown](reports/evaluation-deepseek-flash.md). The committed offline fallback measurement above is dated **2026-11-14**.
+
+## Real insurer documents — local testing only
+
+Official sources: [Kaiser CA Gold 80 HMO 2026 SBC](https://healthy.kaiserpermanente.org/content/dam/kporg/final/documents/health-plan-documents/summary-of-benefits/ca/individual-family/2026/40513CA0380002-01-en-2026.pdf) / [EOC](https://healthy.kaiserpermanente.org/content/dam/kporg/final/documents/health-plan-documents/eoc/ca/individual-family/2026/on-gold-80-ca-en.pdf), [Cigna IN Connect Gold SBC](https://www.cigna.com/static/www-cigna-com/docs/ifp/m-26-sbc-in-g-94419in0010008-00-01.pdf), and [Highmark PA Together Blue Gold SBC](https://shop.highmark.com/content/sbcs/2026/WPA/Individual/I_79279PA0130005-01_20260101_SBC.pdf). The local corpus contains 28 PDFs and their extracts in gitignored `data/real_private/`. **No redistribution license; PDFs and full extracted policy text are not in this repo.** Only [source metadata/hashes](data/real_manifest.csv), [numeric labels](data/real_coverage_example_labels.csv), short evidence excerpts and measured reports are committed.
+
+**Measured 2026-11-15:** fallback and `deepseek-v4-pro` each produced **0/4 validated compilations** from the three raw SBCs and Kaiser EOC. DeepSeek used three attempts per document; failures remain recorded, with no substitute rules. [Real-SBC evaluation](reports/evaluation-real-sbc.md) retains **18 Peg/Joe/Mia labels across six insurers: 0 independently recalculated, 9 blocked, 9 not attempted; accuracy unavailable**. All 18 published component sums check out; this is transcription validation, not a patient-cost prediction. SBC episode totals omit service-level quantities/prices; the local CMS timelines still need a reviewed mapping to plan benefits. The comparison uses an explicitly conservative **$200 total rounding tolerance** for four rounded components, not cent-level claims accuracy; no prediction was available to apply it to.
+
+Import already-downloaded files without network requests, then reproduce the reports:
+
+```sh
+python3 scripts/import_real_corpus.py /path/to/real-insurer-research
+python3 scripts/compile_real_policies.py            # fallback only
+python3 scripts/compile_real_policies.py --deepseek # opt in to API; requires DEEPSEEK_API_KEY
+python3 -m fineprint.real_sbc                       # offline; uses saved compilation reports
+```
+
+The existing samples/benchmark and local `SYNTHETIC_kaiser_demo_replay.json` remain **SYNTHETIC**, separate from the published examples. The replay's injected overcharge is constructed, not an observed insurer error. There is no public matched policy → adjudicated claim → hospital bill chain. Public CI skips the private-text smoke test when those files are absent; it checks saved reports without keys or downloads.
 
 ## Calculation contract and API
 

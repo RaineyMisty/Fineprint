@@ -20,3 +20,9 @@ The local `SYNTHETIC_kaiser_demo_replay.json` is a constructed overcharge demo,
 with historical Northwest sample prices, not verified California negotiated rates.
 It is not an actual error, claim or bill and is excluded from real-label evaluation.
 No public matched policy → adjudicated claim → hospital bill chain is available.
+
+[Measured compilation reports](../reports/real-kaiser-rules.md) retain raw-format
+fallback failures and real DeepSeek validation failures; no executable rule was
+substituted. [Real-label evaluation](../reports/evaluation-real-sbc.md) keeps all
+18 rounded labels visible: 0 recalculated, 9 blocked, 9 outside this run. Accuracy
+is unavailable. Component-sum checks validate transcription, not adjudication.

@@ -8,7 +8,7 @@ Fineprint 面向 **患者、照护者及医保权益协助人员**：根据保�
 
 **自然语言保单 → 带原文证据的可执行规则 → 独立理赔核算 → 精确条款与金额差异 → 最终账单核对。** EOB 是待比较的观察值，不是 Fineprint 复用的答案。计算由确定性引擎完成；可选 LLM 用于编译保单语言，不负责金额运算。
 
-**所有内置保险公司、会员、医疗机构、保单、协议价格、EOB 和账单均为合成／虚构数据，不含真实个人信息。** 默认演示、测试和评估完全离线，无需密钥或运行时依赖。下文另列该合成基准上的真实 DeepSeek API 实测结果。
+**所有内置演示的保险公司、会员、医疗机构、保单、协议价格、EOB 和账单均为合成／虚构数据，不含真实个人信息。** 默认演示、测试和评估完全离线，无需密钥或运行时依赖。下文分别列出该合成基准上的真实 DeepSeek API 实测结果，以及真实保险文件的本地测试结果。
 
 ## 本地运行
 
@@ -22,7 +22,7 @@ python3 -m fineprint.server --port 8765
 
 打开 **http://127.0.0.1:8765**，Ctrl+C 停止。可选安装：`python3 -m pip install -e .`，然后运行 `fineprint`。安装可能下载构建工具；直接运行源码无需下载。
 
-**95 项测试通过**，涵盖严格模式验证、原文跨度、重试及服务请求契约（使用测试替身）、合成样例、计算独立性、评估分母和 HTTP 集成。另已通过真实 API 调用评估 DeepSeek；其他在线后端尚未实测。可选浏览器检查需要 Node.js 22+ 和 Chrome，无需 npm 包：
+**104 项测试通过**，涵盖严格模式验证、原文跨度、重试及服务请求契约（使用测试替身）、合成样例、计算独立性、评估分母、私有语料保护、SBC 舍入比较和 HTTP 集成。另已通过真实 API 调用评估 DeepSeek；其他在线后端尚未实测。可选浏览器检查需要 Node.js 22+ 和 Chrome，无需 npm 包：
 
 ```bash
 node scripts/browser_smoke.mjs
@@ -138,6 +138,23 @@ Fallback 指标明细：
 最终错误：v4-pro 为 4 份规则证据映射不完整、1 份原文跨度不匹配；flash 为 3 份跨度不匹配、1 份传输／超时、1 份响应 JSON 格式错误。
 
 报告：[v4-pro JSON](reports/evaluation-deepseek-v4-pro.json) / [Markdown](reports/evaluation-deepseek-v4-pro.md)；[flash JSON](reports/evaluation-deepseek-flash.json) / [Markdown](reports/evaluation-deepseek-flash.md)。上述离线 fallback 表的已提交测量日期为 **2026-11-14**。
+
+## 真实保险文件：仅限本地测试
+
+官方来源：[Kaiser CA Gold 80 HMO 2026 SBC](https://healthy.kaiserpermanente.org/content/dam/kporg/final/documents/health-plan-documents/summary-of-benefits/ca/individual-family/2026/40513CA0380002-01-en-2026.pdf)／[EOC](https://healthy.kaiserpermanente.org/content/dam/kporg/final/documents/health-plan-documents/eoc/ca/individual-family/2026/on-gold-80-ca-en.pdf)、[Cigna IN Connect Gold SBC](https://www.cigna.com/static/www-cigna-com/docs/ifp/m-26-sbc-in-g-94419in0010008-00-01.pdf)、[Highmark PA Together Blue Gold SBC](https://shop.highmark.com/content/sbcs/2026/WPA/Individual/I_79279PA0130005-01_20260101_SBC.pdf)。本地语料的 28 份 PDF 及提取文本存放在 git 忽略的 `data/real_private/`。**未获得再分发许可，仓库不包含 PDF 或完整保单提取文本。** 仅提交[来源、哈希等元数据](data/real_manifest.csv)、[数值标签](data/real_coverage_example_labels.csv)、少量原文引用和实测报告。
+
+**2026-11-15 实测：** 对三份原始 SBC 和 Kaiser EOC，fallback 与 `deepseek-v4-pro` 均为 **0/4 份编译通过验证**。DeepSeek 每份尝试三次，保留失败，没有补入人工规则。[真实 SBC 评估](reports/evaluation-real-sbc.md)保留六家保险公司的 **18 个 Peg／Joe／Mia 标签：0 个独立重算，9 个阻止计算，9 个未尝试；准确率不可用**。18 个已公布分项之和均与总额相符，但这只是转录检查，不是患者自付预测。SBC 的整个疗程总额无法替代逐项服务数量和允许金额；本地 CMS 时间线尚缺经审核的保单保障映射。比较采用明确标注的保守 **200 美元总额舍入容差**，涵盖四个舍入分项，不代表精确到分的理赔准确率；本次没有可用于比较的预测值。
+
+导入已有下载文件，不发送网络请求，然后复现报告：
+
+```sh
+python3 scripts/import_real_corpus.py /path/to/real-insurer-research
+python3 scripts/compile_real_policies.py            # 仅 fallback
+python3 scripts/compile_real_policies.py --deepseek # 主动调用 API，需 DEEPSEEK_API_KEY
+python3 -m fineprint.real_sbc                       # 离线，读取已保存编译报告
+```
+
+现有样例／基准和本地 `SYNTHETIC_kaiser_demo_replay.json` 继续明确标为 **SYNTHETIC（合成）**，与官方公布示例分开。重放中的多收费是人工注入，不是真实保险错误。目前没有公开匹配的“保单 → 已裁定理赔 → 医院账单”链条。公开 CI 缺少私有文件时跳过真实文本冒烟测试，仍会检查已保存报告，无需密钥或下载。
 
 ## 计算约定与 API
 
