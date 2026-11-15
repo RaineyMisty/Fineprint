@@ -1,15 +1,17 @@
 # Real published SBC examples (rounded)
 
-Measured 2026-11-15T03:32:32.404713+00:00.
+Measured 2026-11-15T09:35:52.393330+00:00.
 
 **18 labels / 6 insurers; 9 examples targeted; 0 independently recalculated, 9 blocked, 9 not attempted.**
 Confirmed matches: 0; numeric misses: 0. Accuracy and mean error: **unavailable** (no predictions).
 
 These are published illustrations, not matched real claims. There is no public matched policy → adjudicated claim → hospital bill chain.
 
-The existing compilers were run on raw text. See [Kaiser SBC](real-kaiser-rules.md), [Kaiser EOC](real-kaiser-eoc-rules.md), [Cigna](real-cigna-rules.md), and [Highmark](real-highmark-rules.md) for measured outcomes.
+The provider reviewed selected source sections, with quotes validated against the full source. Partial financial-rule validation does not establish a claim-ready policy. See [Kaiser SBC](real-kaiser-rules.md), [Kaiser EOC](real-kaiser-eoc-rules.md), [Cigna](real-cigna-rules.md), and [Highmark](real-highmark-rules.md).
 
 SBCs do not itemize episode service quantities/allowed prices. The private CMS workbook contains generic timelines, but mapping those services to these plans' categories, deductible exceptions, visits/admissions and limits is unimplemented. Its cached outcomes are not plan-configured predictions. A published episode total cannot replace that work.
+
+Source-page input audit: each targeted SBC publishes episode costs of $12,700 (Peg), $5,600 (Joe) and $2,800 (Mia), plus service category names. None supplies the quantities and allowed-price breakdown needed to apply category-specific copays/coinsurance independently. The patient deductible/copay/coinsurance rows are published answers, excluded from prediction inputs. [Numeric audit and source hashes](../data/real_coverage_example_input_audit.json).
 
 **Rounding:** Analyst-selected conservative $200 absolute total envelope: four published components, each rounded by at most $50. CMS instructions p. 4 round costs above $100 to $100 and below $100 to $10, with OOP-cap adjustment. This envelope alone cannot establish component accuracy or exact adjudication. No predictions were available to apply it to in this run. [Official CMS instructions, physical PDF p. 4](https://www.cms.gov/files/document/coverage-examples-calculator-instructions-060723.pdf).
 
@@ -35,5 +37,20 @@ Transcription-only check: 18/18 published component sums equal the published tot
 | Oscar | Peg childbirth | $4,200 | — | not_attempted |
 | Oscar | Joe diabetes | $4,800 | — | not_attempted |
 | Oscar | Mia fracture | $1,800 | — | not_attempted |
+
+Source compilation measurements (dev and held-out SBCs separated; earlier EOC measurements are historical):
+
+- **dev · fallback / offline**: 0/2 documents retained validated rules; 0/2 have conditionally executable services; 0/2 need no additional billing evidence; 2 failed, 0 skipped.
+  - [kaiser](real-kaiser-rules.md): failed, 0 rules (0 service rules), 0 validated quote spans; claim-ready False.
+  - [highmark](real-highmark-rules.md): failed, 0 rules (0 service rules), 0 validated quote spans; claim-ready False.
+- **dev · deepseek / deepseek-v4-pro**: 2/2 documents retained validated rules; 1/2 have conditionally executable services; 0/2 need no additional billing evidence; 0 failed, 0 skipped.
+  - [kaiser](real-kaiser-rules.md): validated, 8 rules (6 service rules), 46 validated quote spans; claim-ready False.
+  - [highmark](real-highmark-rules.md): validated, 8 rules (6 service rules), 26 validated quote spans; claim-ready False.
+- **historical · fallback / offline**: 0/2 documents retained validated rules; 0/2 have conditionally executable services; 0/2 need no additional billing evidence; 2 failed, 0 skipped.
+  - [cigna](real-cigna-rules.md): failed, 0 rules (0 service rules), 0 validated quote spans; claim-ready False.
+  - [kaiser-eoc](real-kaiser-eoc-rules.md): failed, 0 rules (0 service rules), 0 validated quote spans; claim-ready False.
+- **historical · deepseek / deepseek-v4-pro**: 2/2 documents retained validated rules; 0/2 have conditionally executable services; 0/2 need no additional billing evidence; 0 failed, 0 skipped.
+  - [cigna](real-cigna-rules.md): validated, 2 rules (0 service rules), 0 validated quote spans; claim-ready False.
+  - [kaiser-eoc](real-kaiser-eoc-rules.md): validated, 2 rules (0 service rules), 0 validated quote spans; claim-ready False.
 
 Numeric labels and official source links: [CSV](../data/real_coverage_example_labels.csv). [Manifest and redistribution limits](../data/README.md). No PDFs or full policy extracts included. Synthetic demo replay and synthetic benchmark cases remain separate.
