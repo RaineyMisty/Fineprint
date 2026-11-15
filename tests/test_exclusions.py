@@ -73,3 +73,18 @@ class ExclusionContractTests(unittest.TestCase):
         self.assertIn('Do not turn the identity of the selected service into an additional condition', prompts[0])
         self.assertIn('Explicit exclusions and not-covered services are executable benefits too', prompts[0])
         self.assertIn('referral', prompts[0])
+
+    def test_an_actual_conditional_exclusion_still_requires_confirmation(self):
+        document, value = self.provider_value('Not covered when performed outside the approved study; full billed charge.')
+        value['policy']['benefits'][0]['conditions'] = ['Performed outside the approved study']
+        compiler = LLMCompiler('deepseek', transport=lambda *_: deepcopy(value), retries=1)
+        case, _ = load_case('aurora-imaging')
+        raw = to_dict(case)
+        raw['claim']['lines'][0]['code'] = '76543'
+        raw['bill']['lines'][0]['code'] = '76543'
+        from fineprint.models import case_from_dict
+        result = analyze_policy_text(case_from_dict(raw), document, 'uploaded-policy', compiler=compiler)
+        self.assertEqual(result['report']['status'], 'blocked')
+        raw['claim']['lines'][0]['confirmed_conditions'] = ['Performed outside the approved study']
+        result = analyze_policy_text(case_from_dict(raw), document, 'uploaded-policy', compiler=compiler)
+        self.assertEqual(result['report']['status'], 'ready')
