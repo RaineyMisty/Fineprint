@@ -34,6 +34,10 @@ def analyze(case: Case, *, unresolved=()) -> dict:
                          "bill_patient_cents": comparisons[0]["bill_patient_cents"],
                          "potential_overpayment_min_cents": min(c["potential_overpayment_cents"] for c in comparisons),
                          "potential_overpayment_max_cents": max(c["potential_overpayment_cents"] for c in comparisons)}
+    summary = report["summary"]
+    summary["bill_status"] = "overcharge" if summary["bill_patient_cents"] > max(totals) else "consistent"
+    summary["unconfirmed_facts"] = list(dict.fromkeys(i.message for i in issues if i.code in
+        ("missing_allowed", "missing_accumulator", "unknown_network")))
     return report
 
 

@@ -121,7 +121,7 @@ def validate(case: Case) -> list[Issue]:
             add("eob_arithmetic", path, "EOB patient + insurer + adjustment does not equal charge.")
         fact = case.allowed_evidence.get(line.id)
         if fact is None or fact.allowed_cents is None:
-            add("missing_allowed", path, "Allowed amount missing: show illustrative $0 and full-charge endpoints.", "warning")
+            add("missing_allowed", path, "The contracted price is not independently confirmed; use the insurer statement's allowed price and recorded payments to constrain the check.", "warning")
         elif fact.allowed_cents > line.billed_cents:
             add("allowed_exceeds_charge", f"allowed_evidence.{line.id}", "Evidence allowed amount exceeds charge.")
         if fact and fact.source == "unknown" and fact.allowed_cents is not None:

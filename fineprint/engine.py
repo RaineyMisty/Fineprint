@@ -43,6 +43,8 @@ class LineResult:
     closing_deductible_cents: int
     closing_oop_cents: int
     trace: list[Step]
+    policy_patient_cents: int = 0
+    policy_insurer_paid_cents: int = 0
 
 
 @dataclass(frozen=True)
@@ -88,11 +90,12 @@ def _dimensions(case: Case):
             dims.append((f"net:{line.id}", [(net, f"Line {line.id}: assume {net}-network") for net in ("in", "out")]))
         evidence = case.allowed_evidence.get(line.id)
         if evidence is None or evidence.allowed_cents is None:
-            dims.append((f"allowed:{line.id}", [(val, f"Line {line.id}: allowed ${val / 100:.2f} (illustrative endpoint, obtain contracted rate)") for val in sorted({0, line.billed_cents})]))
+            dims.append((f"allowed:{line.id}", [(line.insurer.allowed_cents,
+                f"Line {line.id}: using the insurer statement's allowed price ${line.insurer.allowed_cents / 100:.2f}; the contracted price is not independently confirmed.")]))
     return dims
 
 
-def _line(line, rule: Benefit, terms, allowed, ded_paid, oop_paid):
+def _line(line, rule: Benefit, terms, allowed, ded_paid, oop_paid, bill):
     refs = rule.clause_ids
     steps = [Step("Allowance supplied as evidence; it is not derived from policy cost-sharing rules.", allowed, refs)]
     ded = copay = coin = noncovered = balance = 0
@@ -119,10 +122,29 @@ def _line(line, rule: Benefit, terms, allowed, ded_paid, oop_paid):
         steps.append(Step("Network rule: excess charge is patient balance billing if permitted; otherwise a contractual write-off.", balance, [terms.network_clause] if terms.network_clause else []))
     patient = ded + copay + coin + noncovered + balance
     insurer = allowed - ded - copay - coin if rule.covered else 0
+    policy_patient, policy_insurer = patient, insurer
+    # The posted ledger is a ceiling, not a new policy formula. Patient payments
+    # are included once in total responsibility; remaining due subtracts them later.
+    paid = max(line.insurer.insurer_paid_cents, bill.insurance_paid_cents)
+    ceiling = min(line.billed_cents, bill.charged_cents, bill.patient_total_cents,
+                  max(0, bill.charged_cents - paid - bill.adjustment_cents))
+    if rule.covered and rule.network == "in":
+        ceiling = min(ceiling, max(0, allowed - paid))
+    if patient > ceiling:
+        excess = patient - ceiling
+        parts = [balance, noncovered, coin, copay, ded]
+        for i, value in enumerate(parts):
+            removed = min(value, excess)
+            parts[i] -= removed
+            excess -= removed
+        balance, noncovered, coin, copay, ded = parts
+        patient = ded + copay + coin + noncovered + balance
+        insurer = allowed - ded - copay - coin if rule.covered else 0
+        steps.append(Step("Patient amount limited by the recorded bill, insurer payments and credits; the uncapped policy calculation is retained for review.", patient, refs))
     adjustment = line.billed_cents - patient - insurer
     return LineResult(line.id, rule.network, rule.id, allowed, ded, copay, coin,
                       noncovered, balance, patient, insurer, adjustment, ded_paid, oop_paid,
-                      ded_paid + ded, oop_paid + ded + copay + coin, steps)
+                      ded_paid + ded, oop_paid + ded + copay + coin, steps, policy_patient, policy_insurer)
 
 
 def calculate(case: Case, *, max_scenarios=256) -> list[Scenario]:
@@ -155,13 +177,28 @@ def calculate(case: Case, *, max_scenarios=256) -> list[Scenario]:
                 assumptions.append(f"Line {line.id}: balance-billing treatment comes from independent contract evidence ({evidence.reference}), not the SBC.")
             if line.service_category:
                 assumptions.append(f"Line {line.id}: reviewer assigned category {line.service_category}; confirmed conditions: {', '.join(line.confirmed_conditions) or 'none'}.")
-            result = _line(line, candidates[0], terms, allowed, *accs[net])
+            bill = next(b for b in case.bill.lines if b.claim_line_id == line.id)
+            result = _line(line, candidates[0], terms, allowed, *accs[net], bill)
             accs[net] = [result.closing_deductible_cents, result.closing_oop_cents]
             results.append(result)
         scenarios.append(Scenario(f"scenario-{n}", assumptions, bool(assumptions), results,
                                   sum(r.patient_cents for r in results), sum(r.insurer_paid_cents for r in results),
                                   {net: {"deductible_paid_cents": v[0], "oop_paid_cents": v[1]} for net, v in accs.items()}))
-    return scenarios
+    uncertain = {line.id for line in case.claim.lines if line.network == "unknown"
+                 or case.allowed_evidence.get(line.id) is None
+                 or case.allowed_evidence[line.id].allowed_cents is None}
+    if uncertain:
+        # Infer only missing facts. A supplied contract is still audited against
+        # the insurer rather than replaced by the insurer's asserted cost share.
+        consistent = [s for s in scenarios if all(
+            r.claim_line_id not in uncertain or
+            r.policy_insurer_paid_cents == next(l.insurer.insurer_paid_cents for l in case.claim.lines if l.id == r.claim_line_id)
+            == next(b.insurance_paid_cents for b in case.bill.lines if b.claim_line_id == r.claim_line_id)
+            for r in s.lines)]
+        if consistent:
+            scenarios = [replace(s, assumptions=[*s.assumptions,
+                "Missing facts were narrowed using the allowed price and insurance payment recorded on the insurer statement and bill."]) for s in consistent]
+    return [replace(s, id=f"scenario-{i}") for i, s in enumerate(scenarios, 1)]
 
 
 def scenario_dict(scenario: Scenario):

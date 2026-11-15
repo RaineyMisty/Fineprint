@@ -390,11 +390,11 @@
     if (r.status === "blocked") return {kind: "ask", k: "Needs clarification", title: "We can’t give you an answer yet",
       text: r.blocked_reason + " Fix the policy text or the claim facts and check again."};
     const s = r.summary, min = s.potential_overpayment_min_cents, max = s.potential_overpayment_max_cents;
-    const refund = Math.max(...r.comparisons.map((c) => c.lines.reduce((a, l) => a + l.potential_refund_cents, 0)));
+    const refund = Math.min(...r.comparisons.map((c) => c.lines.reduce((a, l) => a + l.potential_refund_cents, 0)));
     if (min > 0) return {kind: "over", k: "Possible overcharge", title: s.conditional ? `You may be overcharged at least ${money(min)}` : `You may be overcharged ${money(min)}`,
-      text: `The bill asks for ${money(s.bill_patient_cents)}. Your policy supports ${s.conditional ? "as little as " : ""}${money(s.bill_patient_cents - min)}. Ask the billing office to explain the difference.`};
-    if (max > 0) return {kind: "ask", k: "Needs clarification", title: `You could be overcharged up to ${money(max)}`,
-      text: `It depends on facts we couldn’t confirm (such as network, contracted price or what you’ve already paid). ${s.scenario_count} possible readings fit your documents; some match your bill.`};
+      text: `The bill asks for ${money(s.bill_patient_cents)}. Even the largest plausible patient amount is ${money(s.illustrated_max_patient_cents)}. Ask the billing office to explain the difference.`};
+    if (s.conditional || max > 0) return {kind: "ask", k: "Bill is consistent", title: "Your bill fits the known facts",
+      text: `We can’t confirm an overcharge. ${s.illustrated_min_patient_cents === s.illustrated_max_patient_cents ? "The supported readings give the same patient amount." : "The bill falls within the plausible patient range."} ${(s.unconfirmed_facts || []).join(" ")}`};
     if (refund > 0) return {kind: "over", k: "Possible refund", title: `You may have overpaid ${money(refund)}`,
       text: "You’ve already paid more than your policy supports. Ask for a credit or refund."};
     const diffs = r.comparisons.some((c) => c.lines.some((l) => l.explanations.some((e) => e.kind !== "match")));
