@@ -56,10 +56,11 @@ class ExclusionContractTests(unittest.TestCase):
 
     def test_exclusion_without_exclusion_evidence_is_not_retained(self):
         document, value = self.provider_value('A fee must be confirmed with the plan.')
-        rule = next(r for r in value['rule_evidence'] if r['rule_path'] == 'benefits.B1')
+        benefit_id = value['policy']['benefits'][0]['id']
+        rule = next(r for r in value['rule_evidence'] if r['rule_path'] == 'benefits.' + benefit_id)
         rule['evidence'] = [e for e in rule['evidence'] if '76543' in e['quote']]
         compiled = LLMCompiler('deepseek', transport=lambda *_: value, retries=1).compile(document)
-        self.assertNotIn('B1', {b.id for b in compiled.policy.benefits})
+        self.assertNotIn(benefit_id, {b.id for b in compiled.policy.benefits})
         self.assertTrue(compiled.output.coverage_gaps)
 
     def test_prompt_distinguishes_service_identity_from_eligibility(self):
