@@ -30,3 +30,14 @@ class PolicySectionsTests(unittest.TestCase):
         selected, manifest = select_sections(source, budget=12000)
         self.assertLessEqual(manifest['selected_characters'], 12000)
         self.assertTrue(manifest['omitted'])
+
+    def test_cost_share_summary_beats_dollar_dense_appendix(self):
+        identity = 'Plan identity'
+        summary = ('Cost Share Summary\nDeductibles and Out-of-Pocket Maximums\n'
+                   'Plan deductible None. Plan OOPM $9000.')
+        appendix = ('Appendix prices $500 $600 $700 $800 $900 ' * 10)
+        source = '\f'.join([identity, appendix, summary])
+        selected, manifest = select_sections(source, threshold=100, budget=len(identity) + len(summary))
+        self.assertIn(summary, selected)
+        self.assertNotIn(appendix, selected)
+        self.assertTrue(manifest['omitted'])

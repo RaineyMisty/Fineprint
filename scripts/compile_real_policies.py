@@ -56,6 +56,7 @@ def compile_document(slug, stem, *, deepseek=False, output=ROOT / "reports"):
                   revision=subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip(),
                   compiler_sha256=hashlib.sha256((ROOT / "fineprint/compiler.py").read_bytes()).hexdigest(),
                   providers_sha256=hashlib.sha256((ROOT / "fineprint/providers.py").read_bytes()).hexdigest(),
+                  selection_sha256=hashlib.sha256((Path(__file__).resolve().parents[1] / "fineprint/policy_sections.py").read_bytes()).hexdigest(),
                   input="Original pdftotext -layout text; provider input uses ranked source sections with evidence checked against the full source.",
                   input_excerpts=source_excerpts(document),
                   excerpt_note="Input samples only, not validated executable rule evidence. No full policy text redistributed.",
@@ -120,11 +121,13 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--deepseek", action="store_true")
     parser.add_argument("--output-dir", type=Path, default=ROOT / "reports")
+    parser.add_argument("--documents", nargs="+", choices=list(DOCUMENTS), default=list(DOCUMENTS),
+                        help="Run only these documents when retrying a source-selection fix")
     args = parser.parse_args()
     # Independent provider requests, bounded to the four known documents.
     with ThreadPoolExecutor(max_workers=4) as pool:
-        futures = [pool.submit(compile_document, slug, stem, deepseek=args.deepseek, output=args.output_dir)
-                   for slug, stem in DOCUMENTS.items()]
+        futures = [pool.submit(compile_document, slug, DOCUMENTS[slug], deepseek=args.deepseek, output=args.output_dir)
+                   for slug in args.documents]
         for future in futures:
             print(future.result(), flush=True)
 

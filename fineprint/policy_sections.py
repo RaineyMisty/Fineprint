@@ -25,7 +25,9 @@ def select_sections(document, *, threshold=24000, budget=60000):
                 illustration = any(term in lower for term in (
                     "about these coverage examples", "about these coverage", "managing joe", "peg is having", "mia's simple"))
                 score = (100 * bool(re.search(r"important\s+questions|common\s+medical\s+event", lower))
-                         + 60 * bool(re.search(r"(?:summary|schedule) of (?:benefits|cost sharing)|cost sharing summary", lower))
+                         + 120 * bool(re.search(r"(?:summary|schedule)\s+of\s+(?:benefits|cost\s+sharing)|cost\s+shar(?:e|ing)\s+summary", lower))
+                         + 80 * bool(re.search(r"deductibles\s+and\s+out-of-pocket\s+maximums", lower))
+                         + 40 * bool(re.search(r"balance\s+billing|participating\s+providers|plan\s+providers", lower))
                          + 8 * sum(term in lower for term in ("deductible", "out-of-pocket", "network", "balance bill"))
                          + min(30, 3 * len(re.findall(r"\$\s*[\d,]+", text))))
                 # Contents/index pages cannot establish executable terms.
