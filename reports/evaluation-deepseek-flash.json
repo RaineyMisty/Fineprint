@@ -1,0 +1,423 @@
+{
+  "backend": "deepseek",
+  "synthetic": true,
+  "generated_at": "2026-11-15T02:57:42.561256+00:00",
+  "revision": "4d4760fc35032e06d48f56b52483d1c42b3b0817",
+  "corpus_sha256": "cb6d8cd952b5d9ba0277b471290eed14cf7a1157ab7e947a9a00ee4a3d0eb3a7",
+  "parser_sha256": "bbaeedc3991d38c9a5bfcaeed6228c62b7f216b77b2ab6a55fd2a1ff3b4fed24",
+  "parser_matches_holdout_freeze": true,
+  "model": "deepseek-flash",
+  "provider_sha256": "6f235df2cb86225b278ee749b3b6ecf3b254ef785ad9bf0ed62616ccf65f66cc",
+  "request_config": {
+    "response_format": "json_object",
+    "max_tokens": 16384,
+    "thinking": "disabled",
+    "timeout_seconds": 60,
+    "attempt_limit": 3
+  },
+  "methodology": [
+    "Author-created format holdout; not blinded and not evidence of real-world performance.",
+    "Extraction micro precision/recall: financial fields per network and per code/network interpretation; each policy scored once; IDs/labels/order ignored.",
+    "Calculation exactness: all nine integer-cent fields on every line, network, complete distinct scenario outcome set, scenario count and conditional status.",
+    "Discrepancy: any EOB patient-total difference per line in a nonconditional case. Ambiguous/missing-fact cases abstain and are excluded from labeled precision/recall.",
+    "Compilation failures remain in extraction recall, calculation and end-to-end denominators; positive failures count as false negatives. Negative failures abstain, not true negatives; FPR denominator is all gold-negative cases.",
+    "Traceability is valid spans / emitted rules; coverage also counts missing rules from failed policies.",
+    "End-to-end success requires exact extraction, exact calculations and final bill reconciliation, complete evidence and correct discrepancy decision or justified conditional abstention.",
+    "No live LLM measurement unless backend explicitly names a real configured provider. No LLM used for arithmetic.",
+    "The shared LLM prompt was not tuned on held-out insurers or their gold answers; validation retries use local validation errors only."
+  ],
+  "groups": {
+    "seen": {
+      "policies": 3,
+      "cases": 6,
+      "extraction": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 68,
+        "precision": null,
+        "recall": 0.0
+      },
+      "calculation": {
+        "exact": 0,
+        "total": 6,
+        "accuracy": 0.0
+      },
+      "discrepancy": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 4,
+        "tn": 0,
+        "precision": null,
+        "recall": 0.0,
+        "false_positive_rate": 0.0,
+        "labeled_cases": 5,
+        "resolved_labeled_cases": 0,
+        "abstentions": 6
+      },
+      "evidence": {
+        "valid_rules": 0,
+        "emitted_rules": 0,
+        "gold_rules": 27,
+        "traceability_rate": null,
+        "coverage_rate": 0.0
+      },
+      "end_to_end": {
+        "success": 0,
+        "total": 6,
+        "rate": 0.0
+      }
+    },
+    "held_out": {
+      "policies": 2,
+      "cases": 4,
+      "extraction": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 37,
+        "precision": null,
+        "recall": 0.0
+      },
+      "calculation": {
+        "exact": 0,
+        "total": 4,
+        "accuracy": 0.0
+      },
+      "discrepancy": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 2,
+        "tn": 0,
+        "precision": null,
+        "recall": 0.0,
+        "false_positive_rate": 0.0,
+        "labeled_cases": 4,
+        "resolved_labeled_cases": 0,
+        "abstentions": 4
+      },
+      "evidence": {
+        "valid_rules": 0,
+        "emitted_rules": 0,
+        "gold_rules": 17,
+        "traceability_rate": null,
+        "coverage_rate": 0.0
+      },
+      "end_to_end": {
+        "success": 0,
+        "total": 4,
+        "rate": 0.0
+      }
+    },
+    "all": {
+      "policies": 5,
+      "cases": 10,
+      "extraction": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 105,
+        "precision": null,
+        "recall": 0.0
+      },
+      "calculation": {
+        "exact": 0,
+        "total": 10,
+        "accuracy": 0.0
+      },
+      "discrepancy": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 6,
+        "tn": 0,
+        "precision": null,
+        "recall": 0.0,
+        "false_positive_rate": 0.0,
+        "labeled_cases": 9,
+        "resolved_labeled_cases": 0,
+        "abstentions": 10
+      },
+      "evidence": {
+        "valid_rules": 0,
+        "emitted_rules": 0,
+        "gold_rules": 44,
+        "traceability_rate": null,
+        "coverage_rate": 0.0
+      },
+      "end_to_end": {
+        "success": 0,
+        "total": 10,
+        "rate": 0.0
+      }
+    }
+  },
+  "policies": [
+    {
+      "id": "aurora-imaging",
+      "split": "seen",
+      "insurer": "Aurora Mutual (fictional)",
+      "fields": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 26
+      },
+      "extraction_exact": false,
+      "emitted_rules": 0,
+      "traceable_rules": 0,
+      "gold_rules": 9,
+      "error": "deepseek compilation failed after 3 attempts: Evidence quote/span does not match the source document. No fallback was substituted.",
+      "unresolved": [],
+      "backend": "deepseek"
+    },
+    {
+      "id": "mosaic-oop",
+      "split": "seen",
+      "insurer": "Mosaic Health (fictional)",
+      "fields": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 21
+      },
+      "extraction_exact": false,
+      "emitted_rules": 0,
+      "traceable_rules": 0,
+      "gold_rules": 9,
+      "error": "deepseek compilation failed after 3 attempts: Provider transport failed or timed out. No fallback was substituted.",
+      "unresolved": [],
+      "backend": "deepseek"
+    },
+    {
+      "id": "mosaic-therapy",
+      "split": "seen",
+      "insurer": "Mosaic Health (fictional)",
+      "fields": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 21
+      },
+      "extraction_exact": false,
+      "emitted_rules": 0,
+      "traceable_rules": 0,
+      "gold_rules": 9,
+      "error": "deepseek compilation failed after 3 attempts: Evidence quote/span does not match the source document. No fallback was substituted.",
+      "unresolved": [],
+      "backend": "deepseek"
+    },
+    {
+      "id": "cedar",
+      "split": "held_out",
+      "insurer": "Cedar Assurance (fictional)",
+      "fields": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 21
+      },
+      "extraction_exact": false,
+      "emitted_rules": 0,
+      "traceable_rules": 0,
+      "gold_rules": 9,
+      "error": "deepseek compilation failed after 3 attempts: Malformed provider JSON response. No fallback was substituted.",
+      "unresolved": [],
+      "backend": "deepseek"
+    },
+    {
+      "id": "harbor",
+      "split": "held_out",
+      "insurer": "Harbor Benefits Cooperative (fictional)",
+      "fields": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 16
+      },
+      "extraction_exact": false,
+      "emitted_rules": 0,
+      "traceable_rules": 0,
+      "gold_rules": 8,
+      "error": "deepseek compilation failed after 3 attempts: Evidence quote/span does not match the source document. No fallback was substituted.",
+      "unresolved": [],
+      "backend": "deepseek"
+    }
+  ],
+  "cases": [
+    {
+      "id": "aurora-imaging",
+      "policy": "aurora-imaging",
+      "split": "seen",
+      "calculation_exact": false,
+      "bill_reconciliation_exact": false,
+      "scenario_count": 0,
+      "gold_scenario_count": 1,
+      "actual_patient_totals_cents": [],
+      "gold_patient_totals_cents": [
+        38500
+      ],
+      "conditional": null,
+      "predicted_discrepancy": null,
+      "gold_discrepancy": true,
+      "end_to_end_success": false,
+      "error": "deepseek compilation failed after 3 attempts: Evidence quote/span does not match the source document. No fallback was substituted."
+    },
+    {
+      "id": "mosaic-oop",
+      "policy": "mosaic-oop",
+      "split": "seen",
+      "calculation_exact": false,
+      "bill_reconciliation_exact": false,
+      "scenario_count": 0,
+      "gold_scenario_count": 1,
+      "actual_patient_totals_cents": [],
+      "gold_patient_totals_cents": [
+        100000
+      ],
+      "conditional": null,
+      "predicted_discrepancy": null,
+      "gold_discrepancy": true,
+      "end_to_end_success": false,
+      "error": "deepseek compilation failed after 3 attempts: Provider transport failed or timed out. No fallback was substituted."
+    },
+    {
+      "id": "mosaic-therapy",
+      "policy": "mosaic-therapy",
+      "split": "seen",
+      "calculation_exact": false,
+      "bill_reconciliation_exact": false,
+      "scenario_count": 0,
+      "gold_scenario_count": 32,
+      "actual_patient_totals_cents": [],
+      "gold_patient_totals_cents": [
+        0,
+        4000,
+        6000,
+        30000
+      ],
+      "conditional": null,
+      "predicted_discrepancy": null,
+      "gold_discrepancy": null,
+      "end_to_end_success": false,
+      "error": "deepseek compilation failed after 3 attempts: Evidence quote/span does not match the source document. No fallback was substituted."
+    },
+    {
+      "id": "aurora-correct",
+      "policy": "aurora-imaging",
+      "split": "seen",
+      "calculation_exact": false,
+      "bill_reconciliation_exact": false,
+      "scenario_count": 0,
+      "gold_scenario_count": 1,
+      "actual_patient_totals_cents": [],
+      "gold_patient_totals_cents": [
+        2500
+      ],
+      "conditional": null,
+      "predicted_discrepancy": null,
+      "gold_discrepancy": false,
+      "end_to_end_success": false,
+      "error": "deepseek compilation failed after 3 attempts: Evidence quote/span does not match the source document. No fallback was substituted."
+    },
+    {
+      "id": "aurora-coinsurance-on-copay",
+      "policy": "aurora-imaging",
+      "split": "seen",
+      "calculation_exact": false,
+      "bill_reconciliation_exact": false,
+      "scenario_count": 0,
+      "gold_scenario_count": 1,
+      "actual_patient_totals_cents": [],
+      "gold_patient_totals_cents": [
+        2500
+      ],
+      "conditional": null,
+      "predicted_discrepancy": null,
+      "gold_discrepancy": true,
+      "end_to_end_success": false,
+      "error": "deepseek compilation failed after 3 attempts: Evidence quote/span does not match the source document. No fallback was substituted."
+    },
+    {
+      "id": "aurora-wrong-network",
+      "policy": "aurora-imaging",
+      "split": "seen",
+      "calculation_exact": false,
+      "bill_reconciliation_exact": false,
+      "scenario_count": 0,
+      "gold_scenario_count": 1,
+      "actual_patient_totals_cents": [],
+      "gold_patient_totals_cents": [
+        20000
+      ],
+      "conditional": null,
+      "predicted_discrepancy": null,
+      "gold_discrepancy": true,
+      "end_to_end_success": false,
+      "error": "deepseek compilation failed after 3 attempts: Evidence quote/span does not match the source document. No fallback was substituted."
+    },
+    {
+      "id": "cedar-preventive-charged",
+      "policy": "cedar",
+      "split": "held_out",
+      "calculation_exact": false,
+      "bill_reconciliation_exact": false,
+      "scenario_count": 0,
+      "gold_scenario_count": 1,
+      "actual_patient_totals_cents": [],
+      "gold_patient_totals_cents": [
+        0
+      ],
+      "conditional": null,
+      "predicted_discrepancy": null,
+      "gold_discrepancy": true,
+      "end_to_end_success": false,
+      "error": "deepseek compilation failed after 3 attempts: Malformed provider JSON response. No fallback was substituted."
+    },
+    {
+      "id": "cedar-correct-specialist",
+      "policy": "cedar",
+      "split": "held_out",
+      "calculation_exact": false,
+      "bill_reconciliation_exact": false,
+      "scenario_count": 0,
+      "gold_scenario_count": 1,
+      "actual_patient_totals_cents": [],
+      "gold_patient_totals_cents": [
+        3500
+      ],
+      "conditional": null,
+      "predicted_discrepancy": null,
+      "gold_discrepancy": false,
+      "end_to_end_success": false,
+      "error": "deepseek compilation failed after 3 attempts: Malformed provider JSON response. No fallback was substituted."
+    },
+    {
+      "id": "harbor-oop-ignored",
+      "policy": "harbor",
+      "split": "held_out",
+      "calculation_exact": false,
+      "bill_reconciliation_exact": false,
+      "scenario_count": 0,
+      "gold_scenario_count": 1,
+      "actual_patient_totals_cents": [],
+      "gold_patient_totals_cents": [
+        5000
+      ],
+      "conditional": null,
+      "predicted_discrepancy": null,
+      "gold_discrepancy": true,
+      "end_to_end_success": false,
+      "error": "deepseek compilation failed after 3 attempts: Evidence quote/span does not match the source document. No fallback was substituted."
+    },
+    {
+      "id": "harbor-correct-office",
+      "policy": "harbor",
+      "split": "held_out",
+      "calculation_exact": false,
+      "bill_reconciliation_exact": false,
+      "scenario_count": 0,
+      "gold_scenario_count": 1,
+      "actual_patient_totals_cents": [],
+      "gold_patient_totals_cents": [
+        2000
+      ],
+      "conditional": null,
+      "predicted_discrepancy": null,
+      "gold_discrepancy": false,
+      "end_to_end_success": false,
+      "error": "deepseek compilation failed after 3 attempts: Evidence quote/span does not match the source document. No fallback was substituted."
+    }
+  ]
+}
