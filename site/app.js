@@ -5,12 +5,17 @@ const money = cents => Number.isSafeInteger(cents) ? new Intl.NumberFormat('en-U
 const percent = value => typeof value === 'number' ? new Intl.NumberFormat('en-US',{style:'percent',maximumFractionDigits:1}).format(value) : '—';
 const splitLabel = value => value === 'held_out' ? 'Held-out' : 'Seen';
 let data;
+let evaluation;
 function route() {
   const page = location.hash.slice(1).split('/')[0] || 'overview';
   const current = ['overview','explorer','evaluation'].includes(page) ? page : 'overview';
   document.querySelectorAll('.screen').forEach(el => { el.hidden = el.id !== current; });
   document.querySelectorAll('nav a').forEach(el => { if (el.hash === `#${current}`) el.setAttribute('aria-current','page'); else el.removeAttribute('aria-current'); });
   if (data && current === 'explorer') renderExplorer();
+  if (current === 'evaluation') {
+    if (evaluation) renderEvaluation();
+    else if (!$('#evaluation-content').textContent) $('#evaluation-content').textContent = 'Loading evaluation…';
+  }
 }
 function renderOverview() {
   const cases = data.cases;
@@ -116,7 +121,32 @@ function renderExplorer() {
   }
 }
 let activeScenario = {};
+function renderEvaluation() {
+  const groups = [['seen','Seen'],['held_out','Held-out'],['all','All']];
+  const metrics = [
+    ['Extraction P',g => g.extraction.precision,g => `${g.extraction.tp} / ${g.extraction.tp + g.extraction.fp}`],
+    ['Extraction R',g => g.extraction.recall,g => `${g.extraction.tp} / ${g.extraction.tp + g.extraction.fn}`],
+    ['Calc exact',g => g.calculation.accuracy,g => `${g.calculation.exact} / ${g.calculation.total}`],
+    ['Discrepancy P',g => g.discrepancy.precision,g => `${g.discrepancy.tp} / ${g.discrepancy.tp + g.discrepancy.fp}`],
+    ['Discrepancy R',g => g.discrepancy.recall,g => `${g.discrepancy.tp} / ${g.discrepancy.tp + g.discrepancy.fn}`],
+    ['FPR',g => g.discrepancy.false_positive_rate,g => `${g.discrepancy.fp} / ${g.discrepancy.labeled_cases - g.discrepancy.tp - g.discrepancy.fn}`],
+    ['Traceability',g => g.evidence.traceability_rate,g => `${g.evidence.valid_rules} / ${g.evidence.emitted_rules}`],
+    ['Evidence coverage',g => g.evidence.coverage_rate,g => `${g.evidence.valid_rules} / ${g.evidence.gold_rules}`],
+    ['End-to-end',g => g.end_to_end.rate,g => `${g.end_to_end.success} / ${g.end_to_end.total}`]
+  ];
+  $('#evaluation-content').innerHTML = `<div class="evaluation-legend"><span class="legend-key seen">Seen</span><span class="legend-key held-out">Held-out</span><span class="muted">Author-created holdout · Not blinded</span></div>
+    <div class="panel table-scroll" tabindex="0" role="region" aria-label="Evaluation metrics"><table class="metrics"><thead><tr><th scope="col">Metric</th>${groups.map(([,title]) => `<th scope="col">${title}</th>`).join('')}</tr></thead><tbody>
+    ${metrics.map(([title,value,count]) => `<tr><th scope="row">${title}</th>${groups.map(([key]) => {
+      const g = evaluation.groups[key], rate = value(g);
+      const valid = typeof rate === 'number' && Number.isFinite(rate);
+      return `<td><strong>${percent(rate)}</strong><div class="metric-bar ${key}" ${valid ? `role="meter" aria-label="${escapeHTML(title)} · ${key === 'all' ? 'All' : splitLabel(key)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${rate * 100}" aria-valuetext="${percent(rate)}"` : ''}><span style="width:${valid ? Math.max(0,Math.min(1,rate)) * 100 : 0}%"></span></div><small class="muted">${escapeHTML(count(g))}</small></td>`;
+    }).join('')}</tr>`).join('')}
+    ${[['Policies',g => g.policies],['Cases',g => g.cases],['Labeled cases',g => g.discrepancy.labeled_cases],['Resolved labeled cases',g => g.discrepancy.resolved_labeled_cases],['Abstentions',g => g.discrepancy.abstentions]].map(([title,value]) => `<tr><th scope="row">${title}</th>${groups.map(([key]) => `<td>${escapeHTML(value(evaluation.groups[key]))}</td>`).join('')}</tr>`).join('')}
+    </tbody></table></div>`;
+}
 async function loadJSON(path) { const response = await fetch(path); if (!response.ok) throw new Error(`${path}: ${response.status}`); return response.json(); }
 window.addEventListener('hashchange',route);
 route();
 loadJSON('data.json').then(payload => { data = payload; renderOverview(); $('#status').hidden = true; route(); }).catch(() => { $('#status').textContent = 'Data unavailable · reload to retry'; });
+
+loadJSON('evaluation.json').then(payload => { evaluation = payload; renderEvaluation(); }).catch(() => { $('#evaluation-content').textContent = 'Evaluation unavailable · reload to retry'; });
