@@ -21,3 +21,9 @@ site/evaluation.json
 site/evaluation.md
 site/evaluation-deepseek-*.json
 site/sw.js
+
+# Local insurer research has no redistribution license. Never publish originals/extracts.
+data/real_private/
+data/*_private/
+site/evaluation-real-sbc.json
+site/evaluation-real-sbc.md
