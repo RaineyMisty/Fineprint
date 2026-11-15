@@ -89,6 +89,7 @@ class LLMCompiler:
             "unresolved MUST be [] when nothing is unresolved; never put 'no unresolved issues', confirmations, or status messages in that array. "
             "Preserve actual uncertainties. Synthetic-data notices belong in warnings, not unresolved. "
             "For a plan-level SBC/EOC, set member_id to null; set absent effective dates to null, never invent member identifiers or dates. "
+            "All non-null dates MUST use YYYY-MM-DD (never slash-formatted dates). "
             "For a member-level policy with an explicit Member/Period header, copy that member identifier and the stated effective dates. "
             "policy.id MUST copy an explicit 'Policy:' identifier from the document when present. "
             "DOCUMENT_ID is the evidence source identifier, not the policy identifier. "
@@ -108,6 +109,7 @@ class LLMCompiler:
             "Do not combine a copied heading with invented qualifiers in service_category. Put qualifiers in label and conditions. "
             "conditions is a list of declarative facts about THIS CLAIM that MUST be confirmed before applying this benefit. "
             "For example, use 'Not admitted as inpatient', NEVER 'Copay waived if admitted' (that is a policy formula, not a fact about this claim). "
+            "For a drug copay with free contraceptives, the condition must be 'Medication is not a contraceptive', NOT the policy sentence 'Contraceptives are no charge'. "
             "Include no inpatient admission for an ER copay waived on admission, "
             "retail supply within the stated days and non-exempt medication for a drug copay, referral where required, non-mental-health treatment where a copay exemption applies. "
             "Select the exact source row and limitations as evidence for each condition. Conditions must describe eligibility facts, NEVER assumed rates or calculation semantics. "
@@ -154,17 +156,20 @@ class LLMCompiler:
                     raise ModelError("unresolved must contain actual missing/unsupported terms only. Put affirmative status messages in warnings and use [] when nothing is unresolved.")
                 audit.update(validated_rules=len(output.rule_evidence), validated_quote_spans=sum(len(r.evidence) for r in output.rule_evidence))
                 dropped = [message for message in output.warnings if message.startswith("Dropped rule ")]
-                if dropped or output.unresolved:
+                if dropped or output.unresolved or not output.policy.benefits:
                     if best_partial is None or (not output.unresolved, len(output.rule_evidence)) > (not best_partial.unresolved, len(best_partial.rule_evidence)):
                         best_partial, partial_attempt = output, attempt
                     last = ("Local source validation rejected these rules; correct their evidence or omit unsupported rules: " + " ".join(dropped)
                             + " Unresolved: " + "; ".join(output.unresolved)
+                            + (" You returned no executable benefits; compile the simple in-network service rows when present, with their source lines. " if not output.policy.benefits else "")
                             + " Keep only supported numeric rules. Missing billing terms and omitted rows belong in coverage_gaps, not unresolved. "
                             + "For split diagnostic rows use the literal subheadings for distinct categories; never apply the lab price to x-rays. "
                             + "Separate repeated service headings by claim context in conditions, or omit conflicting rules.")
                     if attempt < self.attempt_limit:
                         self.sleep(min(2 ** (attempt - 1), 4))
                     continue
+                if best_partial is not None and (not best_partial.unresolved, len(best_partial.rule_evidence)) > (not output.unresolved, len(output.rule_evidence)):
+                    output = best_partial
                 return Compilation(output, self.name, document_id, hashlib.sha256(document.encode()).hexdigest(), attempt)
             except (ModelError, ValueError, KeyError, IndexError, TypeError) as exc:
                 if isinstance(exc, json.JSONDecodeError):
