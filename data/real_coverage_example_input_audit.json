@@ -1,0 +1,122 @@
+{
+  "kind": "source_input_sufficiency_audit",
+  "synthetic": false,
+  "audited_at": "2026-11-15T07:29:42.131333+00:00",
+  "method": "Source-page review of the nine coverage examples in the three locally supplied SBCs. Numeric episode costs transcribed from Total Example Cost; these are not service-level allowed prices.",
+  "patient_component_role": "Published deductible, copayment, coinsurance and limits/exclusions amounts are patient outcomes. They are comparison labels, never prediction inputs.",
+  "missing_inputs": [
+    "Service quantities and visit/admission counts",
+    "Allowed prices allocated to each service category",
+    "Reviewed source-code/benefit mappings and applicable limits"
+  ],
+  "examples": [
+    {
+      "insurer": "Kaiser Permanente",
+      "document": "kaiser",
+      "example": "Peg childbirth",
+      "source_url": "https://healthy.kaiserpermanente.org/content/dam/kporg/final/documents/health-plan-documents/summary-of-benefits/ca/individual-family/2026/40513CA0380002-01-en-2026.pdf",
+      "pdf_page": 6,
+      "source_sha256": "53d9f1b2e5417de48c663972c0794ae6308bb8460f2011a995487d83485ca949",
+      "published_total_example_cost_cents": 1270000,
+      "per_service_allowed_prices_available": false,
+      "service_quantities_available": false,
+      "independent_recalculation_possible_from_sbc_alone": false
+    },
+    {
+      "insurer": "Kaiser Permanente",
+      "document": "kaiser",
+      "example": "Joe diabetes",
+      "source_url": "https://healthy.kaiserpermanente.org/content/dam/kporg/final/documents/health-plan-documents/summary-of-benefits/ca/individual-family/2026/40513CA0380002-01-en-2026.pdf",
+      "pdf_page": 6,
+      "source_sha256": "53d9f1b2e5417de48c663972c0794ae6308bb8460f2011a995487d83485ca949",
+      "published_total_example_cost_cents": 560000,
+      "per_service_allowed_prices_available": false,
+      "service_quantities_available": false,
+      "independent_recalculation_possible_from_sbc_alone": false
+    },
+    {
+      "insurer": "Kaiser Permanente",
+      "document": "kaiser",
+      "example": "Mia fracture",
+      "source_url": "https://healthy.kaiserpermanente.org/content/dam/kporg/final/documents/health-plan-documents/summary-of-benefits/ca/individual-family/2026/40513CA0380002-01-en-2026.pdf",
+      "pdf_page": 6,
+      "source_sha256": "53d9f1b2e5417de48c663972c0794ae6308bb8460f2011a995487d83485ca949",
+      "published_total_example_cost_cents": 280000,
+      "per_service_allowed_prices_available": false,
+      "service_quantities_available": false,
+      "independent_recalculation_possible_from_sbc_alone": false
+    },
+    {
+      "insurer": "Cigna",
+      "document": "cigna",
+      "example": "Peg childbirth",
+      "source_url": "https://www.cigna.com/static/www-cigna-com/docs/ifp/m-26-sbc-in-g-94419in0010008-00-01.pdf",
+      "pdf_page": 6,
+      "source_sha256": "cdf6bdd874bd75974e2d877d3aa448701dc43dfef299c530e4a6373baa310169",
+      "published_total_example_cost_cents": 1270000,
+      "per_service_allowed_prices_available": false,
+      "service_quantities_available": false,
+      "independent_recalculation_possible_from_sbc_alone": false
+    },
+    {
+      "insurer": "Cigna",
+      "document": "cigna",
+      "example": "Joe diabetes",
+      "source_url": "https://www.cigna.com/static/www-cigna-com/docs/ifp/m-26-sbc-in-g-94419in0010008-00-01.pdf",
+      "pdf_page": 6,
+      "source_sha256": "cdf6bdd874bd75974e2d877d3aa448701dc43dfef299c530e4a6373baa310169",
+      "published_total_example_cost_cents": 560000,
+      "per_service_allowed_prices_available": false,
+      "service_quantities_available": false,
+      "independent_recalculation_possible_from_sbc_alone": false
+    },
+    {
+      "insurer": "Cigna",
+      "document": "cigna",
+      "example": "Mia fracture",
+      "source_url": "https://www.cigna.com/static/www-cigna-com/docs/ifp/m-26-sbc-in-g-94419in0010008-00-01.pdf",
+      "pdf_page": 6,
+      "source_sha256": "cdf6bdd874bd75974e2d877d3aa448701dc43dfef299c530e4a6373baa310169",
+      "published_total_example_cost_cents": 280000,
+      "per_service_allowed_prices_available": false,
+      "service_quantities_available": false,
+      "independent_recalculation_possible_from_sbc_alone": false
+    },
+    {
+      "insurer": "Highmark",
+      "document": "highmark",
+      "example": "Peg childbirth",
+      "source_url": "https://shop.highmark.com/content/sbcs/2026/WPA/Individual/I_79279PA0130005-01_20260101_SBC.pdf",
+      "pdf_page": 7,
+      "source_sha256": "ef62c3deba0feaf22959c655a99b54a058a2330b18f93b17a8f017cbfd99af6a",
+      "published_total_example_cost_cents": 1270000,
+      "per_service_allowed_prices_available": false,
+      "service_quantities_available": false,
+      "independent_recalculation_possible_from_sbc_alone": false
+    },
+    {
+      "insurer": "Highmark",
+      "document": "highmark",
+      "example": "Joe diabetes",
+      "source_url": "https://shop.highmark.com/content/sbcs/2026/WPA/Individual/I_79279PA0130005-01_20260101_SBC.pdf",
+      "pdf_page": 7,
+      "source_sha256": "ef62c3deba0feaf22959c655a99b54a058a2330b18f93b17a8f017cbfd99af6a",
+      "published_total_example_cost_cents": 560000,
+      "per_service_allowed_prices_available": false,
+      "service_quantities_available": false,
+      "independent_recalculation_possible_from_sbc_alone": false
+    },
+    {
+      "insurer": "Highmark",
+      "document": "highmark",
+      "example": "Mia fracture",
+      "source_url": "https://shop.highmark.com/content/sbcs/2026/WPA/Individual/I_79279PA0130005-01_20260101_SBC.pdf",
+      "pdf_page": 7,
+      "source_sha256": "ef62c3deba0feaf22959c655a99b54a058a2330b18f93b17a8f017cbfd99af6a",
+      "published_total_example_cost_cents": 280000,
+      "per_service_allowed_prices_available": false,
+      "service_quantities_available": false,
+      "independent_recalculation_possible_from_sbc_alone": false
+    }
+  ]
+}

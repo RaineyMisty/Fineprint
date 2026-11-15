@@ -38,9 +38,12 @@ def compare_total(predicted_cents, published_cents, tolerance_cents=ROUNDING_TOL
                 within_tolerance=error <= tolerance_cents)
 
 
-def evaluate(labels_path=ROOT / "data/real_coverage_example_labels.csv", reports_dir=ROOT / "reports"):
+def evaluate(labels_path=ROOT / "data/real_coverage_example_labels.csv", reports_dir=ROOT / "reports",
+             audit_path=ROOT / "data/real_coverage_example_input_audit.json"):
     with labels_path.open(newline="", encoding="utf-8") as stream:
         labels = list(csv.DictReader(stream))
+    audit = json.loads(audit_path.read_text(encoding="utf-8"))
+    input_audits = {(row["document"], row["example"]): row for row in audit["examples"]}
     rows = []
     compilation_counts = {}
     for label in labels:
@@ -49,6 +52,7 @@ def evaluate(labels_path=ROOT / "data/real_coverage_example_labels.csv", reports
         slug = TARGETS.get(Path(label["local_file"]).name)
         reasons = []
         provider_runs = []
+        input_audit = input_audits.get((slug, label["example"]))
         if slug:
             path = reports_dir / f"real-{slug}-rules.json"
             if not path.is_file():
@@ -58,12 +62,19 @@ def evaluate(labels_path=ROOT / "data/real_coverage_example_labels.csv", reports
                 for run in compilation_report["runs"]:
                     provider_runs.append(dict(provider=run["provider"], model=run["model"],
                                               status=run["status"], error=run["error"],
+                                              claim_ready=run.get("claim_ready", False),
+                                              validated_rules=run.get("validated_rules", 0),
                                               report=path.name))
                     compilation_counts[(slug, run["provider"])] = run["status"]
                 if not any(run["status"] == "validated" for run in compilation_report["runs"]):
                     reasons.append("No validated executable policy from the measured compilers")
+                elif not any(run.get("claim_ready") for run in compilation_report["runs"]):
+                    reasons.append("Only partial financial rules validated; no claim-ready service policy")
+                if input_audit and input_audit["source_sha256"] != compilation_report["source_sha256"]:
+                    raise ValueError("Coverage-example input audit does not match the compiled source")
             reasons += ["SBC episode totals are not service-level allowed amounts or service counts",
                         "Local CMS timelines exist, but no reviewed service/code-to-plan-benefit mapping or complete scenario replay is implemented; cached workbook outcomes are not insurer predictions"]
+            reasons.append("Published patient cost-sharing components are outputs, not independent allowed-cost inputs; adding them would reuse the answer")
         else:
             reasons.append("Insurer outside this compilation run (Kaiser, Cigna and Highmark only)")
         rows.append(dict(insurer=label["insurer"], plan=label["plan"], plan_year=int(label["plan_year"]),
@@ -72,6 +83,7 @@ def evaluate(labels_path=ROOT / "data/real_coverage_example_labels.csv", reports
                          published_patient_cents=published,
                          label_components_sum_correctly=sum(components.values()) == published,
                          status="blocked" if slug else "not_attempted", reasons=reasons,
+                         input_audit=input_audit,
                          compiler_runs=provider_runs,
                          **compare_total(None, published)))
     recalculated = [row for row in rows if row["predicted_patient_cents"] is not None]
@@ -79,6 +91,8 @@ def evaluate(labels_path=ROOT / "data/real_coverage_example_labels.csv", reports
                 title="real published SBC examples (rounded)",
                 generated_at=datetime.now(timezone.utc).isoformat(),
                 labels_sha256=hashlib.sha256(labels_path.read_bytes()).hexdigest(),
+                input_audit_sha256=hashlib.sha256(audit_path.read_bytes()).hexdigest(),
+                input_audit_method=audit["method"],
                 currency="USD", rounding_tolerance_cents=ROUNDING_TOLERANCE_CENTS,
                 rounding_note="Analyst-selected conservative $200 absolute total envelope: four published components, each rounded by at most $50. CMS instructions p. 4 round costs above $100 to $100 and below $100 to $10, with OOP-cap adjustment. This envelope alone cannot establish component accuracy or exact adjudication. No predictions were available to apply it to in this run.",
                 rounding_source_url="https://www.cms.gov/files/document/coverage-examples-calculator-instructions-060723.pdf",
@@ -86,6 +100,7 @@ def evaluate(labels_path=ROOT / "data/real_coverage_example_labels.csv", reports
                              "All 18 published labels retained; compilation attempted for nine examples across three insurers; other nine explicitly not attempted.",
                              "Compiler failures and missing scenario inputs block calculation; no manual gold policy, invented CPT codes, inferred service counts or episode-price substitution.",
                              "Published component addition checks transcription only; it is never counted as independent patient-cost recalculation.",
+                             "Nine SBC example pages were reviewed for input sufficiency: published episode costs are available, but service quantities and per-service allowed prices are absent. Patient cost-sharing outputs are excluded from prediction inputs.",
                              "Kaiser EOC compilation is reported separately; no merger with the SBC was attempted.",
                              "Accuracy and mean absolute error are null when no scenario can be independently recalculated.",
                              "SYNTHETIC_kaiser_demo_replay.json and all bundled synthetic benchmarks are excluded."],
@@ -111,8 +126,9 @@ def render_markdown(report):
              f"{summary['recalculated']} independently recalculated, {summary['blocked']} blocked, {summary['not_attempted']} not attempted.**",
              f"Confirmed matches: {summary['matches_within_tolerance']}; numeric misses: {summary['misses']}. Accuracy and mean error: **unavailable** (no predictions).", "",
              "These are published illustrations, not matched real claims. There is no public matched policy → adjudicated claim → hospital bill chain.", "",
-             "The existing compilers were run on raw text. See [Kaiser SBC](real-kaiser-rules.md), [Kaiser EOC](real-kaiser-eoc-rules.md), [Cigna](real-cigna-rules.md), and [Highmark](real-highmark-rules.md) for measured outcomes.", "",
+             "The provider reviewed selected source sections, with quotes validated against the full source. Partial financial-rule validation does not establish a claim-ready policy. See [Kaiser SBC](real-kaiser-rules.md), [Kaiser EOC](real-kaiser-eoc-rules.md), [Cigna](real-cigna-rules.md), and [Highmark](real-highmark-rules.md).", "",
              "SBCs do not itemize episode service quantities/allowed prices. The private CMS workbook contains generic timelines, but mapping those services to these plans' categories, deductible exceptions, visits/admissions and limits is unimplemented. Its cached outcomes are not plan-configured predictions. A published episode total cannot replace that work.", "",
+             "Source-page input audit: each targeted SBC publishes episode costs of $12,700 (Peg), $5,600 (Joe) and $2,800 (Mia), plus service category names. None supplies the quantities and allowed-price breakdown needed to apply category-specific copays/coinsurance independently. The patient deductible/copay/coinsurance rows are published answers, excluded from prediction inputs. [Numeric audit and source hashes](../data/real_coverage_example_input_audit.json).", "",
              f"**Rounding:** {report['rounding_note']} [Official CMS instructions, physical PDF p. 4]({report['rounding_source_url']}).", "",
              f"Transcription-only check: {summary['label_arithmetic_checks_passed']}/{summary['published_labels']} published component sums equal the published totals. **This is not recalculation accuracy.**", "",
              "| Insurer | Example | Published patient total | Predicted | Result |", "|---|---|---:|---:|---|"]

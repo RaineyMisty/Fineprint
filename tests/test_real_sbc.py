@@ -2,6 +2,8 @@ import csv
 import json
 from pathlib import Path
 import unittest
+import tempfile
+from unittest.mock import patch
 
 from fineprint.real_sbc import compare_total, evaluate, render_markdown, ROUNDING_TOLERANCE_CENTS
 
@@ -51,3 +53,24 @@ class RealSbcEvaluationTests(unittest.TestCase):
             labels = list(csv.DictReader(stream))
         self.assertEqual([int(row["patient_total"]) * 100 for row in labels],
                          [row["published_patient_cents"] for row in fresh["examples"]])
+
+    def test_published_patient_answers_never_become_prediction_inputs(self):
+        with (ROOT / "data/real_coverage_example_labels.csv").open(newline="", encoding="utf-8") as stream:
+            reader = csv.DictReader(stream)
+            fields, labels = reader.fieldnames, list(reader)
+        for label in labels:
+            label['patient_total'] = '9999999'
+        with tempfile.TemporaryDirectory(dir=ROOT) as directory:
+            path = Path(directory) / 'changed-labels.csv'
+            with path.open('w', newline='') as stream:
+                writer = csv.DictWriter(stream, fields)
+                writer.writeheader(); writer.writerows(labels)
+            with patch('urllib.request.urlopen', side_effect=AssertionError('Must stay offline')):
+                report = evaluate(labels_path=path)
+        self.assertEqual(report['summary']['recalculated'], 0)
+        self.assertIsNone(report['summary']['accuracy'])
+        for row in report['examples']:
+            self.assertIsNone(row['predicted_patient_cents'])
+            if row['input_audit']:
+                self.assertFalse(row['input_audit']['per_service_allowed_prices_available'])
+                self.assertNotEqual(row['input_audit']['published_total_example_cost_cents'], row['published_patient_cents'])
