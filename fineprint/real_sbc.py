@@ -18,6 +18,7 @@ TARGETS = {
     "cigna_2026_in_connect_gold_sbc.pdf": "cigna",
     "highmark_2026_pa_together_blue_gold_sbc.pdf": "highmark",
 }
+COMPILATION_DOCUMENTS = ("kaiser", "highmark", "cigna", "ambetter", "kaiser-eoc")
 # A conservative comparison envelope, not an official exact-match criterion:
 # four separately rounded components, each with at most $50 rounding error.
 ROUNDING_TOLERANCE_CENTS = 20_000
@@ -36,6 +37,42 @@ def compare_total(predicted_cents, published_cents, tolerance_cents=ROUNDING_TOL
     error = abs(predicted_cents - published_cents)
     return dict(predicted_patient_cents=predicted_cents, absolute_error_cents=error,
                 within_tolerance=error <= tolerance_cents)
+
+
+def compilation_summary(reports_dir):
+    """Count retained financial rules separately from claim-ready policies.
+
+    Include the EOC even though it has no separate coverage-example labels.
+    Missing/skipped measurements never enter the attempted denominator.
+    """
+    groups = {}
+    for slug in COMPILATION_DOCUMENTS:
+        path = reports_dir / f"real-{slug}-rules.json"
+        if not path.is_file():
+            continue
+        source = json.loads(path.read_text(encoding="utf-8"))
+        for run in source["runs"]:
+            key = (run["provider"], run["model"], source.get("split", "historical"))
+            group = groups.setdefault(key, dict(provider=key[0], model=key[1], split=key[2],
+                                                attempted=0, validated=0, claim_ready=0,
+                                                failed=0, skipped=0, conditionally_executable=0, documents=[]))
+            status = run["status"]
+            validated = status == "validated" and run.get("compilation") is not None
+            ready = validated and run.get("claim_ready") is True
+            group["attempted"] += status in ("validated", "failed")
+            group["validated"] += validated
+            group["claim_ready"] += ready
+            group["conditionally_executable"] += validated and run.get("conditionally_executable", False)
+            group["failed"] += status == "failed"
+            group["skipped"] += status == "skipped"
+            group["documents"].append(dict(document=slug, status=status,
+                                           validated_rules=run.get("validated_rules", 0) if validated else 0,
+                                           benefit_rules=run.get("benefit_rules", 0),
+                                           validated_quote_spans=run.get("validated_quote_spans", 0),
+                                           conditionally_executable=run.get("conditionally_executable", False),
+                                           not_compiled=run.get("not_compiled", []),
+                                           claim_ready=ready, report=path.name))
+    return list(groups.values())
 
 
 def evaluate(labels_path=ROOT / "data/real_coverage_example_labels.csv", reports_dir=ROOT / "reports",
@@ -116,6 +153,7 @@ def evaluate(labels_path=ROOT / "data/real_coverage_example_labels.csv", reports
                              label_arithmetic_checks_passed=sum(row["label_components_sum_correctly"] for row in rows)),
                 compilation_measurements=[dict(insurer=slug, provider=provider, status=status)
                                           for (slug, provider), status in sorted(compilation_counts.items())],
+                policy_compilation_summary=compilation_summary(reports_dir),
                 examples=rows)
 
 
@@ -134,6 +172,15 @@ def render_markdown(report):
              "| Insurer | Example | Published patient total | Predicted | Result |", "|---|---|---:|---:|---|"]
     for row in report["examples"]:
         lines.append(f"| {row['insurer']} | {row['example']} | ${row['published_patient_cents'] / 100:,.0f} | — | {row['status']} |")
+    lines += ["", "Source compilation measurements (dev and held-out SBCs separated; earlier EOC measurements are historical):", ""]
+    for group in report["policy_compilation_summary"]:
+        lines += [f"- **{group['split']} · {group['provider']} / {group['model'] or 'offline'}**: "
+                  f"{group['validated']}/{group['attempted']} documents retained validated rules; "
+                  f"{group['conditionally_executable']}/{group['attempted']} have conditionally executable services; {group['claim_ready']}/{group['attempted']} need no additional billing evidence; "
+                  f"{group['failed']} failed, {group['skipped']} skipped."]
+        for document in group["documents"]:
+            lines += [f"  - [{document['document']}]({document['report'].replace('.json', '.md')}): "
+                      f"{document['status']}, {document['validated_rules']} rules ({document['benefit_rules']} service rules), {document['validated_quote_spans']} validated quote spans; claim-ready {document['claim_ready']}."]
     lines += ["", "Numeric labels and official source links: [CSV](../data/real_coverage_example_labels.csv). "
               "[Manifest and redistribution limits](../data/README.md). No PDFs or full policy extracts included. "
               "Synthetic demo replay and synthetic benchmark cases remain separate."]

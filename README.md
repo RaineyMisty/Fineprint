@@ -70,7 +70,7 @@ python3 -m fineprint.compiler fineprint/samples/aurora-imaging/policy.md \
 
 ## Optional live providers
 
-Set environment variables before starting the server/compiler/evaluation. Default: `FINEPRINT_LLM_PROVIDER=fallback`. There is **no automatic switch to an LLM when a key exists**, and no silent fallback when a selected provider fails.
+The server/compiler select DeepSeek automatically when `DEEPSEEK_API_KEY` is present at runtime; otherwise they use the offline reader. `FINEPRINT_LLM_PROVIDER` explicitly overrides this choice. A selected provider failure never silently falls back. The real-policy demo uses an uploaded real SBC with clearly labeled synthetic claim/bill and contract facts; category assignments are explicit, not inferred from CPT codes.
 
 | Provider | Configuration | Transport |
 | --- | --- | --- |

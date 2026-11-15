@@ -26,7 +26,11 @@ DOCUMENTS = {
     "kaiser-eoc": "kaiser_2026_ca_gold80_eoc",
     "cigna": "cigna_2026_in_connect_gold_sbc",
     "highmark": "highmark_2026_pa_together_blue_gold_sbc",
+    "ambetter": "ambetter_2026_ca_gold80_hmo_sbc",
 }
+
+DEV = ("kaiser", "highmark")
+HELD_OUT = ("cigna", "ambetter")
 
 
 def source_excerpts(document):
@@ -47,9 +51,13 @@ def source_excerpts(document):
 
 
 def compile_document(slug, stem, *, deepseek=False, output=ROOT / "reports"):
+    split = "dev" if slug in DEV else "held_out" if slug in HELD_OUT else "historical"
+    existing = output / f"real-{slug}-rules.json"
+    if split == "held_out" and existing.is_file() and json.loads(existing.read_text()).get("split") == "held_out":
+        raise ValueError("Held-out measurement already recorded; refusing to read or rerun the source")
     path = ROOT / "data/real_private/docs" / (stem + ".txt")
     document = path.read_bytes().decode("utf-8")
-    report = dict(schema_version=1, synthetic=False, document_id=stem,
+    report = dict(schema_version=2, synthetic=False, document_id=stem, split=split,
                   local_text_path=path.relative_to(ROOT).as_posix(),
                   source_sha256=hashlib.sha256(document.encode()).hexdigest(),
                   generated_at=datetime.now(timezone.utc).isoformat(),
@@ -63,7 +71,11 @@ def compile_document(slug, stem, *, deepseek=False, output=ROOT / "reports"):
                   runs=[])
     compilers = [FallbackCompiler()]
     if deepseek:
-        compilers.append(LLMCompiler("deepseek"))
+        live = LLMCompiler("deepseek", retries=1 if split == "held_out" else None)
+        live.model = "deepseek-v4-pro"
+        if split == "held_out":
+            live.transport_attempt_limit = 1
+        compilers.append(live)
     for compiler in compilers:
         run = dict(provider=compiler.name, model=getattr(compiler, "model", None),
                    attempt_limit=getattr(compiler, "attempt_limit", 1), compilation=None,
@@ -75,7 +87,17 @@ def compile_document(slug, stem, *, deepseek=False, output=ROOT / "reports"):
             try:
                 compiled = compiler.compile(document, stem)
                 run.update(status="validated", error=None, compilation=compiled.as_dict())
-                run["claim_ready"] = bool(compiled.policy.benefits and not compiled.output.unresolved)
+                run["claim_ready"] = bool(compiled.policy.benefits and not compiled.output.unresolved
+                                          and all(t.balance_billing is not None for t in compiled.policy.networks.values()))
+                run["conditionally_executable"] = bool(compiled.policy.benefits and not compiled.output.unresolved)
+                run["benefit_rules"] = len(compiled.policy.benefits)
+                run["validated_quote_spans"] = sum(len(r.evidence) for r in compiled.output.rule_evidence)
+                run["distinct_source_spans"] = len({(e.start, e.end) for r in compiled.output.rule_evidence for e in r.evidence})
+                run["quote_validation"] = "Every retained quote equals the full source slice at its saved offsets; whitespace alone may be normalized during location. Numeric occurrence and selector support checked locally; table interpretation is not a semantic proof."
+                run["compiled_rows"] = [dict(label=b.label, service_category=b.service_category, codes=b.codes,
+                                              network=b.network, conditions=b.conditions) for b in compiled.policy.benefits]
+                run["not_compiled"] = compiled.output.coverage_gaps + compiled.output.unresolved
+                run["row_inventory_note"] = "Compiled rows are measured retained rules. Omitted rows/reasons are the compiler's reported coverage gaps, not an independently exhaustive row-recall score."
                 run["validated_rules"] = len(compiled.output.rule_evidence)
                 run["unresolved"] = compiled.output.unresolved
                 run["evidence_pages"] = [dict(rule_path=r.rule_path, pages=[
@@ -92,10 +114,11 @@ def compile_document(slug, stem, *, deepseek=False, output=ROOT / "reports"):
             if compiler.name == "deepseek":
                 run["request_config"] = compiler.request_config
                 run["input_selection"] = getattr(compiler, "input_selection", None)
+                run["attempt_audit"] = getattr(compiler, "attempt_audit", [])
         report["runs"].append(run)
     output.mkdir(parents=True, exist_ok=True)
     (output / f"real-{slug}-rules.json").write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n")
-    lines = [f"# Real {slug} policy compilation", "", f"Source: `{report['local_text_path']}` (private).",
+    lines = [f"# Real {slug} policy compilation", "", f"Split: **{split}**. Held-out documents use one provider request with no validation or transport retries.", "", f"Source: `{report['local_text_path']}` (private).",
              f"Text SHA256: `{report['source_sha256']}`.", "",
              "LLM input uses locally ranked cost-sharing source sections; evidence is located and validated against the complete original source. No manual gold rules or invented member IDs.", ""]
     for run in report["runs"]:
@@ -103,7 +126,15 @@ def compile_document(slug, stem, *, deepseek=False, output=ROOT / "reports"):
                   + (run['error'] or f"Validated after {run['compilation']['attempts']} attempt(s).")]
         if run["status"] == "validated":
             lines += [f"  Validated rules: {run['validated_rules']}; claim-ready: **{run['claim_ready']}**."]
-            lines += [f"  Unresolved: {item}" for item in run["unresolved"]]
+            lines += [f"  Service rules: {run['benefit_rules']}; validated quote spans: {run['validated_quote_spans']}; distinct spans: {run['distinct_source_spans']}.",
+                      f"  Conditionally executable subset: **{run['conditionally_executable']}**. Missing billing terms need independent contract evidence; categories/conditions need reviewer assignment.",
+                      "", "  Compiled services:"]
+            lines += [f"  - {row['label']} ({row['network']}); category `{row['service_category']}`; conditions: {', '.join(row['conditions']) or 'none'}." for row in run["compiled_rows"]]
+            lines += ["", "  Not compiled / limitations (provider-reported, not an exhaustive recall score):"]
+            lines += [f"  - {item}" for item in run["not_compiled"]]
+            lines += ["", "  Source-backed rule values:"]
+            for rule in run["compilation"]["output"]["rule_evidence"]:
+                lines += [f"  - `{rule['rule_path']}`: " + " | ".join(f"[{e['start']}:{e['end']}] “{' '.join(e['quote'].split())}”" for e in rule["evidence"])]
         if run.get("input_selection"):
             selection = run["input_selection"]
             lines += [f"  Source selection: {selection['selected_characters']}/{selection['source_characters']} characters; omitted sections: {selection['omitted']}.",
@@ -121,7 +152,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--deepseek", action="store_true")
     parser.add_argument("--output-dir", type=Path, default=ROOT / "reports")
-    parser.add_argument("--documents", nargs="+", choices=list(DOCUMENTS), default=list(DOCUMENTS),
+    parser.add_argument("--documents", nargs="+", choices=list(DOCUMENTS), default=list(DEV),
                         help="Run only these documents when retrying a source-selection fix")
     args = parser.parse_args()
     # Independent provider requests, bounded to the four known documents.

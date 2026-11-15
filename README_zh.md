@@ -70,7 +70,7 @@ python3 -m fineprint.compiler fineprint/samples/aurora-imaging/policy.md \
 
 ## 可选在线后端
 
-启动服务器、编译器或评估前设置环境变量。默认 `FINEPRINT_LLM_PROVIDER=fallback`；存在密钥不会自动启用 LLM，选定后端失败也不会偷偷切回 fallback。
+服务器和编译器在运行时检测到 `DEEPSEEK_API_KEY` 时自动选择 DeepSeek，否则使用离线解析器；`FINEPRINT_LLM_PROVIDER` 可显式覆盖。选定后端失败不会自动切回离线模式。真实保单演示使用上传的真实 SBC，理赔、账单和合同数据明确标为合成数据；服务类别须明确指定，不从 CPT 代码推断。
 
 | 后端 | 配置 | 传输 |
 | --- | --- | --- |
