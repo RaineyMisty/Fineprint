@@ -116,6 +116,19 @@ def _normalized_text(text):
     return " ".join(text.split())
 
 
+def _balance_supported(value, quotes):
+    """Require explicit billing language, not an inferred network protection."""
+    for quote in quotes:
+        text = _normalized_text(quote).lower().replace("balance-bill", "balance bill")
+        negative = bool(re.search(r"\b(?:no|not|never|cannot|can't)\b.{0,60}\bbalance bill", text)
+                        or re.search(r"balance billing.{0,40}(?:not permitted|prohibited)", text))
+        if value is False and negative:
+            return True
+        if value is True and not negative and re.search(r"\b(?:may|can|permitted|allowed)\b.{0,150}\bbalance bill", text):
+            return True
+    return False
+
+
 def recover_evidence(value, document, document_id):
     """Locate supplied quotes; never correct words, numbers or punctuation.
 
@@ -209,8 +222,7 @@ def recover_evidence(value, document, document_id):
                     clause["text"] = evidence["quote"]
     for net, terms in list(value["policy"]["networks"].items()):
         supported = True
-        for field, ref_field in (("deductible_cents", "deductible_clause"),
-                                 ("oop_max_cents", "oop_clause"), ("balance_billing", "network_clause")):
+        for field, ref_field in (("deductible_cents", "deductible_clause"), ("oop_max_cents", "oop_clause")):
             rule = merged.get(f"networks.{net}.{field}")
             ref = terms[ref_field]
             if not rule or ref not in clauses or clauses[ref]["text"] not in {e["quote"] for e in rule["evidence"]}:
@@ -221,13 +233,25 @@ def recover_evidence(value, document, document_id):
                 path = f"networks.{net}.{field}"
                 merged.pop(path, None)
                 dropped.append(path)
+        else:
+            path = f"networks.{net}.balance_billing"
+            rule = merged.get(path)
+            quotes = {e["quote"] for e in rule["evidence"]} if rule else set()
+            ref = terms["network_clause"]
+            if (ref not in clauses or clauses[ref]["text"] not in quotes
+                    or not _balance_supported(terms["balance_billing"], quotes)):
+                terms["balance_billing"], terms["network_clause"] = None, None
+                merged.pop(path, None)
+                dropped.append(path)
     retained = []
     for benefit in value["policy"]["benefits"]:
         path = "benefits." + benefit["id"]
         rule = merged.get(path)
         quotes = {e["quote"] for e in rule["evidence"]} if rule else set()
         if (not benefit["codes"] or any(not re.fullmatch(r"(?:\d{5}|[A-Z]\d{4})", code) for code in benefit["codes"])
-                or benefit["network"] not in value["policy"]["networks"] or not rule or not benefit["clause_ids"] or any(
+                or benefit["network"] not in value["policy"]["networks"]
+                or value["policy"]["networks"].get(benefit["network"], {}).get("balance_billing") is None
+                or not rule or not benefit["clause_ids"] or any(
                 ref not in clauses or clauses[ref]["text"] not in quotes for ref in benefit["clause_ids"]) or any(
                 not any(re.search(r"(?<!\w)" + re.escape(code) + r"(?!\w)", quote) for quote in quotes)
                 for code in benefit["codes"])):
@@ -275,7 +299,8 @@ def validate_schema(value, schema=OUTPUT_SCHEMA, path="output"):
 
 def rule_paths(policy):
     return {f"networks.{net}.{field}" for net in policy.networks
-            for field in ("deductible_cents", "oop_max_cents", "balance_billing")} | {f"benefits.{b.id}" for b in policy.benefits}
+            for field in ("deductible_cents", "oop_max_cents", "balance_billing")
+            if getattr(policy.networks[net], field) is not None} | {f"benefits.{b.id}" for b in policy.benefits}
 
 
 def validate_output(value, document, document_id):
@@ -305,8 +330,15 @@ def validate_output(value, document, document_id):
         if terms.deductible_cents > terms.oop_max_cents:
             raise ModelError("Unsupported deductible greater than OOP maximum")
         for field, ref in (("deductible_cents", terms.deductible_clause), ("oop_max_cents", terms.oop_clause), ("balance_billing", terms.network_clause)):
+            if getattr(terms, field) is None:
+                if ref is not None:
+                    raise ModelError("Unknown network term must not have an executable clause reference")
+                continue
             if ref not in clauses or clauses[ref].text not in [e.quote for e in evidence_by_path[f"networks.{net}.{field}"].evidence]:
                 raise ModelError("Network clause must match its rule evidence")
+            if field == "balance_billing" and not _balance_supported(terms.balance_billing,
+                    [e.quote for e in evidence_by_path[f"networks.{net}.{field}"].evidence]):
+                raise ModelError("Balance billing requires explicit source billing language")
     groups = {}
     for b in p.benefits:
         if not b.codes or any(not re.fullmatch(r"(?:\d{5}|[A-Z]\d{4})", c) for c in b.codes):

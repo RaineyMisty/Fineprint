@@ -184,6 +184,36 @@ class CompilerTests(unittest.TestCase):
         self.assertEqual(result.attempts, 2)
         self.assertIn('policy.id must copy the explicit Policy:', calls[1])
 
+    def test_generic_quote_cannot_establish_balance_billing_and_claim_is_blocked(self):
+        from dataclasses import replace
+        from fineprint.repository import load_case
+        from fineprint.service import analyze
+        value = to_dict(FallbackCompiler().compile(DOC).output)
+        del value['policy']['clauses']
+        for terms in value['policy']['networks'].values():
+            for key in ('deductible_clause', 'oop_clause', 'network_clause'):
+                del terms[key]
+        for benefit in value['policy']['benefits']:
+            del benefit['clause_ids']
+        for rule in value['rule_evidence']:
+            for evidence in rule['evidence']:
+                del evidence['start']; del evidence['end']
+                if rule['rule_path'] == 'networks.in.balance_billing':
+                    evidence['quote'] = 'Individual annual in-network deductible: $1000.00.'
+        result = LLMCompiler('deepseek', transport=lambda *_:value).compile(DOC)
+        self.assertIsNone(result.policy.networks['in'].balance_billing)
+        self.assertIsNone(result.policy.networks['in'].network_clause)
+        paths = {r.rule_path for r in result.output.rule_evidence}
+        self.assertIn('networks.in.deductible_cents', paths)
+        self.assertIn('networks.in.oop_max_cents', paths)
+        self.assertNotIn('networks.in.balance_billing', paths)
+        self.assertTrue(result.output.unresolved)
+        original, _ = load_case('aurora-imaging')
+        report = analyze(replace(original, policy=result.policy))
+        self.assertEqual(report['status'], 'blocked')
+        self.assertFalse(report['scenarios'])
+        self.assertIn('incomplete_network', {issue['code'] for issue in report['validation']})
+
     def test_live_request_payload_contracts_with_test_http(self):
         good = to_dict(FallbackCompiler().compile(DOC).output)
         for provider in ('openai', 'anthropic'):

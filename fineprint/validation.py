@@ -53,6 +53,8 @@ def validate(case: Case) -> list[Issue]:
 
     for net, terms in p.networks.items():
         references([terms.deductible_clause, terms.oop_clause, terms.network_clause], f"policy.networks.{net}")
+        if terms.balance_billing is None:
+            add("incomplete_network", f"policy.networks.{net}.balance_billing", "Balance-billing terms are unknown; claim calculation is blocked.")
         if terms.deductible_cents > terms.oop_max_cents:
             add("unsupported_plan", f"policy.networks.{net}", "This engine requires deductible <= OOP maximum.")
         a = c.accumulators.get(net)

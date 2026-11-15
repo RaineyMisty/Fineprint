@@ -23,10 +23,10 @@ class Clause:
 class NetworkTerms:
     deductible_cents: int
     oop_max_cents: int
-    balance_billing: bool
+    balance_billing: bool | None
     deductible_clause: str
     oop_clause: str
-    network_clause: str
+    network_clause: str | None
 
 
 @dataclass(frozen=True)
