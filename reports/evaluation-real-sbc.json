@@ -1,0 +1,671 @@
+{
+  "schema_version": 1,
+  "kind": "real_published_sbc_examples",
+  "synthetic": false,
+  "title": "real published SBC examples (rounded)",
+  "generated_at": "2026-11-15T03:32:32.404713+00:00",
+  "labels_sha256": "ba60a9454f5e87da2b02e6d35ae0bf2e33372366572158fda9413481eb2db179",
+  "currency": "USD",
+  "rounding_tolerance_cents": 20000,
+  "rounding_note": "Analyst-selected conservative $200 absolute total envelope: four published components, each rounded by at most $50. CMS instructions p. 4 round costs above $100 to $100 and below $100 to $10, with OOP-cap adjustment. This envelope alone cannot establish component accuracy or exact adjudication. No predictions were available to apply it to in this run.",
+  "rounding_source_url": "https://www.cms.gov/files/document/coverage-examples-calculator-instructions-060723.pdf",
+  "methodology": [
+    "Official rounded illustrations, not actual adjudicated claims, bills, or savings measurements.",
+    "All 18 published labels retained; compilation attempted for nine examples across three insurers; other nine explicitly not attempted.",
+    "Compiler failures and missing scenario inputs block calculation; no manual gold policy, invented CPT codes, inferred service counts or episode-price substitution.",
+    "Published component addition checks transcription only; it is never counted as independent patient-cost recalculation.",
+    "Kaiser EOC compilation is reported separately; no merger with the SBC was attempted.",
+    "Accuracy and mean absolute error are null when no scenario can be independently recalculated.",
+    "SYNTHETIC_kaiser_demo_replay.json and all bundled synthetic benchmarks are excluded."
+  ],
+  "summary": {
+    "published_labels": 18,
+    "insurers": 6,
+    "compilation_targeted_examples": 9,
+    "blocked": 9,
+    "not_attempted": 9,
+    "recalculated": 0,
+    "matches_within_tolerance": 0,
+    "misses": 0,
+    "accuracy": null,
+    "mean_absolute_error_cents": null,
+    "label_arithmetic_checks_passed": 18
+  },
+  "compilation_measurements": [
+    {
+      "insurer": "cigna",
+      "provider": "deepseek",
+      "status": "failed"
+    },
+    {
+      "insurer": "cigna",
+      "provider": "fallback",
+      "status": "failed"
+    },
+    {
+      "insurer": "highmark",
+      "provider": "deepseek",
+      "status": "failed"
+    },
+    {
+      "insurer": "highmark",
+      "provider": "fallback",
+      "status": "failed"
+    },
+    {
+      "insurer": "kaiser",
+      "provider": "deepseek",
+      "status": "failed"
+    },
+    {
+      "insurer": "kaiser",
+      "provider": "fallback",
+      "status": "failed"
+    }
+  ],
+  "examples": [
+    {
+      "insurer": "Kaiser Permanente",
+      "plan": "CA Covered California Gold 80 HMO",
+      "plan_year": 2026,
+      "example": "Peg childbirth",
+      "source_url": "https://healthy.kaiserpermanente.org/content/dam/kporg/final/documents/health-plan-documents/summary-of-benefits/ca/individual-family/2026/40513CA0380002-01-en-2026.pdf",
+      "pdf_page": 6,
+      "label_status": "Published rounded SBC example; not actual claim",
+      "published_components_cents": {
+        "deductibles": 0,
+        "copayments": 70000,
+        "coinsurance": 0,
+        "limits_exclusions": 5000
+      },
+      "published_patient_cents": 75000,
+      "label_components_sum_correctly": true,
+      "status": "blocked",
+      "reasons": [
+        "No validated executable policy from the measured compilers",
+        "SBC episode totals are not service-level allowed amounts or service counts",
+        "Local CMS timelines exist, but no reviewed service/code-to-plan-benefit mapping or complete scenario replay is implemented; cached workbook outcomes are not insurer predictions"
+      ],
+      "compiler_runs": [
+        {
+          "provider": "fallback",
+          "model": null,
+          "status": "failed",
+          "error": "Fallback requires a '# Insurer — Plan' title and Policy/Member/Period/USD header; other formats need a provider or transcription",
+          "report": "real-kaiser-rules.json"
+        },
+        {
+          "provider": "deepseek",
+          "model": "deepseek-v4-pro",
+          "status": "failed",
+          "error": "deepseek compilation failed after 3 attempts: DeepSeek did not complete a JSON response. No fallback was substituted.",
+          "report": "real-kaiser-rules.json"
+        }
+      ],
+      "predicted_patient_cents": null,
+      "absolute_error_cents": null,
+      "within_tolerance": null
+    },
+    {
+      "insurer": "Kaiser Permanente",
+      "plan": "CA Covered California Gold 80 HMO",
+      "plan_year": 2026,
+      "example": "Joe diabetes",
+      "source_url": "https://healthy.kaiserpermanente.org/content/dam/kporg/final/documents/health-plan-documents/summary-of-benefits/ca/individual-family/2026/40513CA0380002-01-en-2026.pdf",
+      "pdf_page": 6,
+      "label_status": "Published rounded SBC example; not actual claim",
+      "published_components_cents": {
+        "deductibles": 0,
+        "copayments": 100000,
+        "coinsurance": 10000,
+        "limits_exclusions": 0
+      },
+      "published_patient_cents": 110000,
+      "label_components_sum_correctly": true,
+      "status": "blocked",
+      "reasons": [
+        "No validated executable policy from the measured compilers",
+        "SBC episode totals are not service-level allowed amounts or service counts",
+        "Local CMS timelines exist, but no reviewed service/code-to-plan-benefit mapping or complete scenario replay is implemented; cached workbook outcomes are not insurer predictions"
+      ],
+      "compiler_runs": [
+        {
+          "provider": "fallback",
+          "model": null,
+          "status": "failed",
+          "error": "Fallback requires a '# Insurer — Plan' title and Policy/Member/Period/USD header; other formats need a provider or transcription",
+          "report": "real-kaiser-rules.json"
+        },
+        {
+          "provider": "deepseek",
+          "model": "deepseek-v4-pro",
+          "status": "failed",
+          "error": "deepseek compilation failed after 3 attempts: DeepSeek did not complete a JSON response. No fallback was substituted.",
+          "report": "real-kaiser-rules.json"
+        }
+      ],
+      "predicted_patient_cents": null,
+      "absolute_error_cents": null,
+      "within_tolerance": null
+    },
+    {
+      "insurer": "Kaiser Permanente",
+      "plan": "CA Covered California Gold 80 HMO",
+      "plan_year": 2026,
+      "example": "Mia fracture",
+      "source_url": "https://healthy.kaiserpermanente.org/content/dam/kporg/final/documents/health-plan-documents/summary-of-benefits/ca/individual-family/2026/40513CA0380002-01-en-2026.pdf",
+      "pdf_page": 6,
+      "label_status": "Published rounded SBC example; not actual claim",
+      "published_components_cents": {
+        "deductibles": 0,
+        "copayments": 100000,
+        "coinsurance": 0,
+        "limits_exclusions": 0
+      },
+      "published_patient_cents": 100000,
+      "label_components_sum_correctly": true,
+      "status": "blocked",
+      "reasons": [
+        "No validated executable policy from the measured compilers",
+        "SBC episode totals are not service-level allowed amounts or service counts",
+        "Local CMS timelines exist, but no reviewed service/code-to-plan-benefit mapping or complete scenario replay is implemented; cached workbook outcomes are not insurer predictions"
+      ],
+      "compiler_runs": [
+        {
+          "provider": "fallback",
+          "model": null,
+          "status": "failed",
+          "error": "Fallback requires a '# Insurer — Plan' title and Policy/Member/Period/USD header; other formats need a provider or transcription",
+          "report": "real-kaiser-rules.json"
+        },
+        {
+          "provider": "deepseek",
+          "model": "deepseek-v4-pro",
+          "status": "failed",
+          "error": "deepseek compilation failed after 3 attempts: DeepSeek did not complete a JSON response. No fallback was substituted.",
+          "report": "real-kaiser-rules.json"
+        }
+      ],
+      "predicted_patient_cents": null,
+      "absolute_error_cents": null,
+      "within_tolerance": null
+    },
+    {
+      "insurer": "Cigna",
+      "plan": "IN Connect Gold CMS Standard 94419IN0010008-00/01",
+      "plan_year": 2026,
+      "example": "Peg childbirth",
+      "source_url": "https://www.cigna.com/static/www-cigna-com/docs/ifp/m-26-sbc-in-g-94419in0010008-00-01.pdf",
+      "pdf_page": 6,
+      "label_status": "Published rounded SBC example; not actual claim",
+      "published_components_cents": {
+        "deductibles": 200000,
+        "copayments": 1000,
+        "coinsurance": 260000,
+        "limits_exclusions": 6000
+      },
+      "published_patient_cents": 467000,
+      "label_components_sum_correctly": true,
+      "status": "blocked",
+      "reasons": [
+        "No validated executable policy from the measured compilers",
+        "SBC episode totals are not service-level allowed amounts or service counts",
+        "Local CMS timelines exist, but no reviewed service/code-to-plan-benefit mapping or complete scenario replay is implemented; cached workbook outcomes are not insurer predictions"
+      ],
+      "compiler_runs": [
+        {
+          "provider": "fallback",
+          "model": null,
+          "status": "failed",
+          "error": "Fallback requires a '# Insurer — Plan' title and Policy/Member/Period/USD header; other formats need a provider or transcription",
+          "report": "real-cigna-rules.json"
+        },
+        {
+          "provider": "deepseek",
+          "model": "deepseek-v4-pro",
+          "status": "failed",
+          "error": "deepseek compilation failed after 3 attempts: DeepSeek did not complete a JSON response. No fallback was substituted.",
+          "report": "real-cigna-rules.json"
+        }
+      ],
+      "predicted_patient_cents": null,
+      "absolute_error_cents": null,
+      "within_tolerance": null
+    },
+    {
+      "insurer": "Cigna",
+      "plan": "IN Connect Gold CMS Standard 94419IN0010008-00/01",
+      "plan_year": 2026,
+      "example": "Joe diabetes",
+      "source_url": "https://www.cigna.com/static/www-cigna-com/docs/ifp/m-26-sbc-in-g-94419in0010008-00-01.pdf",
+      "pdf_page": 6,
+      "label_status": "Published rounded SBC example; not actual claim",
+      "published_components_cents": {
+        "deductibles": 90000,
+        "copayments": 80000,
+        "coinsurance": 0,
+        "limits_exclusions": 2000
+      },
+      "published_patient_cents": 172000,
+      "label_components_sum_correctly": true,
+      "status": "blocked",
+      "reasons": [
+        "No validated executable policy from the measured compilers",
+        "SBC episode totals are not service-level allowed amounts or service counts",
+        "Local CMS timelines exist, but no reviewed service/code-to-plan-benefit mapping or complete scenario replay is implemented; cached workbook outcomes are not insurer predictions"
+      ],
+      "compiler_runs": [
+        {
+          "provider": "fallback",
+          "model": null,
+          "status": "failed",
+          "error": "Fallback requires a '# Insurer — Plan' title and Policy/Member/Period/USD header; other formats need a provider or transcription",
+          "report": "real-cigna-rules.json"
+        },
+        {
+          "provider": "deepseek",
+          "model": "deepseek-v4-pro",
+          "status": "failed",
+          "error": "deepseek compilation failed after 3 attempts: DeepSeek did not complete a JSON response. No fallback was substituted.",
+          "report": "real-cigna-rules.json"
+        }
+      ],
+      "predicted_patient_cents": null,
+      "absolute_error_cents": null,
+      "within_tolerance": null
+    },
+    {
+      "insurer": "Cigna",
+      "plan": "IN Connect Gold CMS Standard 94419IN0010008-00/01",
+      "plan_year": 2026,
+      "example": "Mia fracture",
+      "source_url": "https://www.cigna.com/static/www-cigna-com/docs/ifp/m-26-sbc-in-g-94419in0010008-00-01.pdf",
+      "pdf_page": 6,
+      "label_status": "Published rounded SBC example; not actual claim",
+      "published_components_cents": {
+        "deductibles": 170000,
+        "copayments": 30000,
+        "coinsurance": 0,
+        "limits_exclusions": 0
+      },
+      "published_patient_cents": 200000,
+      "label_components_sum_correctly": true,
+      "status": "blocked",
+      "reasons": [
+        "No validated executable policy from the measured compilers",
+        "SBC episode totals are not service-level allowed amounts or service counts",
+        "Local CMS timelines exist, but no reviewed service/code-to-plan-benefit mapping or complete scenario replay is implemented; cached workbook outcomes are not insurer predictions"
+      ],
+      "compiler_runs": [
+        {
+          "provider": "fallback",
+          "model": null,
+          "status": "failed",
+          "error": "Fallback requires a '# Insurer — Plan' title and Policy/Member/Period/USD header; other formats need a provider or transcription",
+          "report": "real-cigna-rules.json"
+        },
+        {
+          "provider": "deepseek",
+          "model": "deepseek-v4-pro",
+          "status": "failed",
+          "error": "deepseek compilation failed after 3 attempts: DeepSeek did not complete a JSON response. No fallback was substituted.",
+          "report": "real-cigna-rules.json"
+        }
+      ],
+      "predicted_patient_cents": null,
+      "absolute_error_cents": null,
+      "within_tolerance": null
+    },
+    {
+      "insurer": "Highmark",
+      "plan": "PA Together Blue EPO Gold 0 + Adult Dental and Vision 79279PA0130005-01",
+      "plan_year": 2026,
+      "example": "Peg childbirth",
+      "source_url": "https://shop.highmark.com/content/sbcs/2026/WPA/Individual/I_79279PA0130005-01_20260101_SBC.pdf",
+      "pdf_page": 7,
+      "label_status": "Published rounded SBC example; not actual claim",
+      "published_components_cents": {
+        "deductibles": 0,
+        "copayments": 120000,
+        "coinsurance": 0,
+        "limits_exclusions": 6000
+      },
+      "published_patient_cents": 126000,
+      "label_components_sum_correctly": true,
+      "status": "blocked",
+      "reasons": [
+        "No validated executable policy from the measured compilers",
+        "SBC episode totals are not service-level allowed amounts or service counts",
+        "Local CMS timelines exist, but no reviewed service/code-to-plan-benefit mapping or complete scenario replay is implemented; cached workbook outcomes are not insurer predictions"
+      ],
+      "compiler_runs": [
+        {
+          "provider": "fallback",
+          "model": null,
+          "status": "failed",
+          "error": "Fallback requires a '# Insurer — Plan' title and Policy/Member/Period/USD header; other formats need a provider or transcription",
+          "report": "real-highmark-rules.json"
+        },
+        {
+          "provider": "deepseek",
+          "model": "deepseek-v4-pro",
+          "status": "failed",
+          "error": "deepseek compilation failed after 3 attempts: output.policy.member_id: expected string. No fallback was substituted.",
+          "report": "real-highmark-rules.json"
+        }
+      ],
+      "predicted_patient_cents": null,
+      "absolute_error_cents": null,
+      "within_tolerance": null
+    },
+    {
+      "insurer": "Highmark",
+      "plan": "PA Together Blue EPO Gold 0 + Adult Dental and Vision 79279PA0130005-01",
+      "plan_year": 2026,
+      "example": "Joe diabetes",
+      "source_url": "https://shop.highmark.com/content/sbcs/2026/WPA/Individual/I_79279PA0130005-01_20260101_SBC.pdf",
+      "pdf_page": 7,
+      "label_status": "Published rounded SBC example; not actual claim",
+      "published_components_cents": {
+        "deductibles": 0,
+        "copayments": 70000,
+        "coinsurance": 20000,
+        "limits_exclusions": 2000
+      },
+      "published_patient_cents": 92000,
+      "label_components_sum_correctly": true,
+      "status": "blocked",
+      "reasons": [
+        "No validated executable policy from the measured compilers",
+        "SBC episode totals are not service-level allowed amounts or service counts",
+        "Local CMS timelines exist, but no reviewed service/code-to-plan-benefit mapping or complete scenario replay is implemented; cached workbook outcomes are not insurer predictions"
+      ],
+      "compiler_runs": [
+        {
+          "provider": "fallback",
+          "model": null,
+          "status": "failed",
+          "error": "Fallback requires a '# Insurer — Plan' title and Policy/Member/Period/USD header; other formats need a provider or transcription",
+          "report": "real-highmark-rules.json"
+        },
+        {
+          "provider": "deepseek",
+          "model": "deepseek-v4-pro",
+          "status": "failed",
+          "error": "deepseek compilation failed after 3 attempts: output.policy.member_id: expected string. No fallback was substituted.",
+          "report": "real-highmark-rules.json"
+        }
+      ],
+      "predicted_patient_cents": null,
+      "absolute_error_cents": null,
+      "within_tolerance": null
+    },
+    {
+      "insurer": "Highmark",
+      "plan": "PA Together Blue EPO Gold 0 + Adult Dental and Vision 79279PA0130005-01",
+      "plan_year": 2026,
+      "example": "Mia fracture",
+      "source_url": "https://shop.highmark.com/content/sbcs/2026/WPA/Individual/I_79279PA0130005-01_20260101_SBC.pdf",
+      "pdf_page": 7,
+      "label_status": "Published rounded SBC example; not actual claim",
+      "published_components_cents": {
+        "deductibles": 0,
+        "copayments": 60000,
+        "coinsurance": 40000,
+        "limits_exclusions": 0
+      },
+      "published_patient_cents": 100000,
+      "label_components_sum_correctly": true,
+      "status": "blocked",
+      "reasons": [
+        "No validated executable policy from the measured compilers",
+        "SBC episode totals are not service-level allowed amounts or service counts",
+        "Local CMS timelines exist, but no reviewed service/code-to-plan-benefit mapping or complete scenario replay is implemented; cached workbook outcomes are not insurer predictions"
+      ],
+      "compiler_runs": [
+        {
+          "provider": "fallback",
+          "model": null,
+          "status": "failed",
+          "error": "Fallback requires a '# Insurer — Plan' title and Policy/Member/Period/USD header; other formats need a provider or transcription",
+          "report": "real-highmark-rules.json"
+        },
+        {
+          "provider": "deepseek",
+          "model": "deepseek-v4-pro",
+          "status": "failed",
+          "error": "deepseek compilation failed after 3 attempts: output.policy.member_id: expected string. No fallback was substituted.",
+          "report": "real-highmark-rules.json"
+        }
+      ],
+      "predicted_patient_cents": null,
+      "absolute_error_cents": null,
+      "within_tolerance": null
+    },
+    {
+      "insurer": "Ambetter/Health Net",
+      "plan": "CA Covered California Gold 80 Ambetter HMO",
+      "plan_year": 2026,
+      "example": "Peg childbirth",
+      "source_url": "https://www.ambetterhealth.com/content/dam/centene/healthnet/pdfs/general/ca/ifp/sbc/2026/ca-iex-gold-80-ambetter-hmo-sbc-2026.pdf",
+      "pdf_page": 7,
+      "label_status": "Published rounded SBC example; not actual claim",
+      "published_components_cents": {
+        "deductibles": 0,
+        "copayments": 100000,
+        "coinsurance": 0,
+        "limits_exclusions": 6000
+      },
+      "published_patient_cents": 106000,
+      "label_components_sum_correctly": true,
+      "status": "not_attempted",
+      "reasons": [
+        "Insurer outside this compilation run (Kaiser, Cigna and Highmark only)"
+      ],
+      "compiler_runs": [],
+      "predicted_patient_cents": null,
+      "absolute_error_cents": null,
+      "within_tolerance": null
+    },
+    {
+      "insurer": "Ambetter/Health Net",
+      "plan": "CA Covered California Gold 80 Ambetter HMO",
+      "plan_year": 2026,
+      "example": "Joe diabetes",
+      "source_url": "https://www.ambetterhealth.com/content/dam/centene/healthnet/pdfs/general/ca/ifp/sbc/2026/ca-iex-gold-80-ambetter-hmo-sbc-2026.pdf",
+      "pdf_page": 7,
+      "label_status": "Published rounded SBC example; not actual claim",
+      "published_components_cents": {
+        "deductibles": 0,
+        "copayments": 140000,
+        "coinsurance": 20000,
+        "limits_exclusions": 2000
+      },
+      "published_patient_cents": 162000,
+      "label_components_sum_correctly": true,
+      "status": "not_attempted",
+      "reasons": [
+        "Insurer outside this compilation run (Kaiser, Cigna and Highmark only)"
+      ],
+      "compiler_runs": [],
+      "predicted_patient_cents": null,
+      "absolute_error_cents": null,
+      "within_tolerance": null
+    },
+    {
+      "insurer": "Ambetter/Health Net",
+      "plan": "CA Covered California Gold 80 Ambetter HMO",
+      "plan_year": 2026,
+      "example": "Mia fracture",
+      "source_url": "https://www.ambetterhealth.com/content/dam/centene/healthnet/pdfs/general/ca/ifp/sbc/2026/ca-iex-gold-80-ambetter-hmo-sbc-2026.pdf",
+      "pdf_page": 7,
+      "label_status": "Published rounded SBC example; not actual claim",
+      "published_components_cents": {
+        "deductibles": 0,
+        "copayments": 130000,
+        "coinsurance": 5000,
+        "limits_exclusions": 0
+      },
+      "published_patient_cents": 135000,
+      "label_components_sum_correctly": true,
+      "status": "not_attempted",
+      "reasons": [
+        "Insurer outside this compilation run (Kaiser, Cigna and Highmark only)"
+      ],
+      "compiler_runs": [],
+      "predicted_patient_cents": null,
+      "absolute_error_cents": null,
+      "within_tolerance": null
+    },
+    {
+      "insurer": "Aetna",
+      "plan": "FEHB Aetna Direct Code N6 Open Choice PPO",
+      "plan_year": 2026,
+      "example": "Peg childbirth",
+      "source_url": "https://www.aetnafeds.com/pdf/2026/2026SBC_AetnaDirect.pdf",
+      "pdf_page": 6,
+      "label_status": "Published rounded SBC example; not actual claim",
+      "published_components_cents": {
+        "deductibles": 160000,
+        "copayments": 1000,
+        "coinsurance": 170000,
+        "limits_exclusions": 6000
+      },
+      "published_patient_cents": 337000,
+      "label_components_sum_correctly": true,
+      "status": "not_attempted",
+      "reasons": [
+        "Insurer outside this compilation run (Kaiser, Cigna and Highmark only)"
+      ],
+      "compiler_runs": [],
+      "predicted_patient_cents": null,
+      "absolute_error_cents": null,
+      "within_tolerance": null
+    },
+    {
+      "insurer": "Aetna",
+      "plan": "FEHB Aetna Direct Code N6 Open Choice PPO",
+      "plan_year": 2026,
+      "example": "Joe diabetes",
+      "source_url": "https://www.aetnafeds.com/pdf/2026/2026SBC_AetnaDirect.pdf",
+      "pdf_page": 6,
+      "label_status": "Published rounded SBC example; not actual claim",
+      "published_components_cents": {
+        "deductibles": 160000,
+        "copayments": 280000,
+        "coinsurance": 10000,
+        "limits_exclusions": 2000
+      },
+      "published_patient_cents": 452000,
+      "label_components_sum_correctly": true,
+      "status": "not_attempted",
+      "reasons": [
+        "Insurer outside this compilation run (Kaiser, Cigna and Highmark only)"
+      ],
+      "compiler_runs": [],
+      "predicted_patient_cents": null,
+      "absolute_error_cents": null,
+      "within_tolerance": null
+    },
+    {
+      "insurer": "Aetna",
+      "plan": "FEHB Aetna Direct Code N6 Open Choice PPO",
+      "plan_year": 2026,
+      "example": "Mia fracture",
+      "source_url": "https://www.aetnafeds.com/pdf/2026/2026SBC_AetnaDirect.pdf",
+      "pdf_page": 6,
+      "label_status": "Published rounded SBC example; not actual claim",
+      "published_components_cents": {
+        "deductibles": 160000,
+        "copayments": 0,
+        "coinsurance": 20000,
+        "limits_exclusions": 0
+      },
+      "published_patient_cents": 180000,
+      "label_components_sum_correctly": true,
+      "status": "not_attempted",
+      "reasons": [
+        "Insurer outside this compilation run (Kaiser, Cigna and Highmark only)"
+      ],
+      "compiler_runs": [],
+      "predicted_patient_cents": null,
+      "absolute_error_cents": null,
+      "within_tolerance": null
+    },
+    {
+      "insurer": "Oscar",
+      "plan": "TX Bronze Elite + PCP Saver Plus 20069TX0100005-01",
+      "plan_year": 2026,
+      "example": "Peg childbirth",
+      "source_url": "https://d3ul0st9g52g6o.cloudfront.net/2026/TX/sbc/2026_20069TX010000501.pdf",
+      "pdf_page": 8,
+      "label_status": "Published rounded SBC example; not actual claim",
+      "published_components_cents": {
+        "deductibles": 0,
+        "copayments": 420000,
+        "coinsurance": 0,
+        "limits_exclusions": 0
+      },
+      "published_patient_cents": 420000,
+      "label_components_sum_correctly": true,
+      "status": "not_attempted",
+      "reasons": [
+        "Insurer outside this compilation run (Kaiser, Cigna and Highmark only)"
+      ],
+      "compiler_runs": [],
+      "predicted_patient_cents": null,
+      "absolute_error_cents": null,
+      "within_tolerance": null
+    },
+    {
+      "insurer": "Oscar",
+      "plan": "TX Bronze Elite + PCP Saver Plus 20069TX0100005-01",
+      "plan_year": 2026,
+      "example": "Joe diabetes",
+      "source_url": "https://d3ul0st9g52g6o.cloudfront.net/2026/TX/sbc/2026_20069TX010000501.pdf",
+      "pdf_page": 8,
+      "label_status": "Published rounded SBC example; not actual claim",
+      "published_components_cents": {
+        "deductibles": 420000,
+        "copayments": 60000,
+        "coinsurance": 0,
+        "limits_exclusions": 0
+      },
+      "published_patient_cents": 480000,
+      "label_components_sum_correctly": true,
+      "status": "not_attempted",
+      "reasons": [
+        "Insurer outside this compilation run (Kaiser, Cigna and Highmark only)"
+      ],
+      "compiler_runs": [],
+      "predicted_patient_cents": null,
+      "absolute_error_cents": null,
+      "within_tolerance": null
+    },
+    {
+      "insurer": "Oscar",
+      "plan": "TX Bronze Elite + PCP Saver Plus 20069TX0100005-01",
+      "plan_year": 2026,
+      "example": "Mia fracture",
+      "source_url": "https://d3ul0st9g52g6o.cloudfront.net/2026/TX/sbc/2026_20069TX010000501.pdf",
+      "pdf_page": 8,
+      "label_status": "Published rounded SBC example; not actual claim",
+      "published_components_cents": {
+        "deductibles": 0,
+        "copayments": 120000,
+        "coinsurance": 60000,
+        "limits_exclusions": 0
+      },
+      "published_patient_cents": 180000,
+      "label_components_sum_correctly": true,
+      "status": "not_attempted",
+      "reasons": [
+        "Insurer outside this compilation run (Kaiser, Cigna and Highmark only)"
+      ],
+      "compiler_runs": [],
+      "predicted_patient_cents": null,
+      "absolute_error_cents": null,
+      "within_tolerance": null
+    }
+  ]
+}

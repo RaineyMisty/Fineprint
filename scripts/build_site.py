@@ -72,6 +72,19 @@ def load_llm_evaluations(reports: Path, corpus_sha256: str):
     return results
 
 
+def load_real_evaluation(reports: Path):
+    """Include only a saved rounded-label measurement; never read private sources."""
+    path = reports / "evaluation-real-sbc.json"
+    if not path.is_file():
+        return None
+    report = json.loads(path.read_text(encoding="utf-8"))
+    if (report.get("kind") != "real_published_sbc_examples" or report.get("synthetic") is not False
+            or report.get("title") != "real published SBC examples (rounded)"
+            or not report.get("generated_at")):
+        raise ValueError("Invalid saved real SBC evaluation")
+    return report
+
+
 def build(output: Path):
     output.mkdir(parents=True, exist_ok=True)
     # Invoke the same documented CLI judges can run; explicitly ignore live-provider env settings.
@@ -81,8 +94,15 @@ def build(output: Path):
     saved = load_llm_evaluations(ROOT / "reports", evaluation["corpus_sha256"])
     for filename, report in saved:
         (output / filename).write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+    real_evaluation = load_real_evaluation(ROOT / "reports")
+    if real_evaluation is not None:
+        (output / "evaluation-real-sbc.json").write_text(json.dumps(real_evaluation, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+        markdown = ROOT / "reports/evaluation-real-sbc.md"
+        if markdown.is_file():
+            (output / markdown.name).write_bytes(markdown.read_bytes())
     payload = dict(schema_version=1, synthetic=True, backend="fallback", cases=collect_cases(),
-                   evaluation=evaluation, llm_evaluations=[report for _, report in saved])
+                   evaluation=evaluation, llm_evaluations=[report for _, report in saved],
+                   real_evaluation=real_evaluation)
     (output / "data.json").write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     (output / ".nojekyll").touch()
     return payload

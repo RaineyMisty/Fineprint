@@ -319,6 +319,7 @@ function renderEvaluation() {
       <div style="display:grid;gap:22px"><section class="panel"><h3>Discrepancy detection</h3><div id="eval-conf"></div></section>
       <section class="panel"><h3>Cases</h3><div class="tiles">${evaluation.cases.map(c => { const [cls, text] = outcome(c); return `<a class="tile ${cls}" href="#explorer/${encodeURIComponent(c.id)}"><b>${escapeHTML(titles.get(c.id) || c.id)}</b><span class="chip ${cls === 'pass' ? 'ok' : cls === 'miss' ? 'flag' : 'abstain'}">${text}</span><span class="muted">${splitLabel(c.split)}</span></a>`; }).join('')}</div></section></div></div>
     <div class="prov"><span>Backend <b>${escapeHTML(evaluation.backend)}</b></span><span>Revision <b>${escapeHTML(String(evaluation.revision || '').slice(0, 7))}</b></span><span>Corpus <b>${escapeHTML(String(evaluation.corpus_sha256 || '').slice(0, 10))}</b></span><span>Generated <b>${escapeHTML(String(evaluation.generated_at || '').slice(0, 10))}</b></span><span>Synthetic data · offline fallback</span></div>`;
+  if (data?.real_evaluation) $('#evaluation-content').insertAdjacentHTML('afterbegin', '<p class="caveat"><a href="evaluation-real-sbc.json">real published SBC examples (rounded)</a> · Saved results and calculation blockers</p>');
   $('.seg').addEventListener('change', event => { if (event.target.name === 'grp') { evalGroup = event.target.value; renderGroup(); } });
   renderGroup();
 }

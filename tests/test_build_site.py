@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 from fineprint.models import case_from_dict
 from fineprint.service import analyze
-from scripts.build_site import build, collect_cases, load_llm_evaluations
+from scripts.build_site import build, collect_cases, load_llm_evaluations, load_real_evaluation
 
 
 class SiteBuildTests(unittest.TestCase):
@@ -35,6 +35,25 @@ class SiteBuildTests(unittest.TestCase):
         self.assertEqual(self.data['llm_evaluations'],[json.loads(p.read_text()) for p in paths])
         for path in paths:
             self.assertEqual(json.loads((self.output/path.name).read_text()),json.loads(path.read_text()))
+
+    def test_saved_real_report_is_included_without_private_sources_or_live_calls(self):
+        path = Path(__file__).resolve().parents[1] / "reports/evaluation-real-sbc.json"
+        report = json.loads(path.read_text())
+        self.assertEqual(self.data["real_evaluation"], report)
+        self.assertEqual(json.loads((self.output / path.name).read_text()), report)
+        self.assertTrue((self.output / "evaluation-real-sbc.md").is_file())
+        self.assertEqual(report["title"], "real published SBC examples (rounded)")
+        self.assertIsNone(report["summary"]["accuracy"])
+
+    def test_saved_real_report_loader_rejects_synthetic_or_mislabeled_reports(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            self.assertIsNone(load_real_evaluation(root))
+            path = root / "evaluation-real-sbc.json"
+            for report in ({"synthetic": True}, {"kind": "real_published_sbc_examples", "synthetic": False}):
+                path.write_text(json.dumps(report))
+                with self.assertRaises(ValueError):
+                    load_real_evaluation(root)
 
     def test_saved_report_loader_handles_absent_and_incompatible_reports(self):
         with tempfile.TemporaryDirectory() as directory:
