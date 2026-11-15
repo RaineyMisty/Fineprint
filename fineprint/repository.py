@@ -140,6 +140,8 @@ def input_metadata(inputs):
     for field in fields:
         actual, original = inputs.get(field, {}), expected.get(field, {})
         if field == "claim_context" and sample.get("requires_policy_upload"):
+            if not isinstance(actual, dict):
+                raise ModelError("Selected demo claim_context must match the bundled facts")
             actual = {k: v for k, v in actual.items() if k != "policy_id"}
             original = {k: v for k, v in original.items() if k != "policy_id"}
         if actual != original:

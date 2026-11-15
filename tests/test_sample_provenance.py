@@ -68,3 +68,6 @@ class SampleProvenanceTests(unittest.TestCase):
         inputs['claim_context']['accumulators']['in']['oop_paid_cents'] += 1
         with self.assertRaises(ModelError):
             input_metadata(inputs)
+        inputs['claim_context'] = None
+        with self.assertRaises(ModelError):
+            input_metadata(inputs)

@@ -549,6 +549,7 @@
     document.querySelectorAll("#steps button").forEach((b) => b.addEventListener("click", () => show(+b.dataset.step)));
     document.querySelectorAll("[data-go]").forEach((b) => b.addEventListener("click", () => show(+b.dataset.go)));
     $("doc-form").addEventListener("submit", (e) => { e.preventDefault(); run(); });
+    $("in-format").addEventListener("change", () => { S.sample = null; });
     $("clear-btn").addEventListener("click", () => { for (const id of ["in-policy", "in-eob", "in-bill", "in-facts"]) $(id).value = ""; S.sample = null; resetFiles(); updateCounts(); unbanner(); });
     document.querySelectorAll("textarea").forEach((t) => t.addEventListener("input", () => {
       updateCounts();
