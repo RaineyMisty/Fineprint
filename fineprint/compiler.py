@@ -79,7 +79,7 @@ def json_schema(cls):
     if origin is dict:
         # Policy network keys are fixed by the supported engine contract.
         return {"type": "object", "properties": {n: json_schema(args[1]) for n in ("in", "out")},
-                "required": ["in", "out"], "additionalProperties": False}
+                "required": [], "additionalProperties": False}
     return {"type": {str: "string", int: "integer", bool: "boolean", type(None): "null"}[cls]}
 
 
@@ -103,7 +103,7 @@ def recover_evidence(value, document, document_id):
 
     Whitespace alone may differ after PDF extraction. Saved quotes always equal
     the exact source slice. Unsupported benefits are removed and made unresolved;
-    missing shared network terms still fail the whole compilation closed.
+    an incomplete network is removed together with its dependent benefits.
     """
     value = deepcopy(value)
     # Preserve strict schema checking (including unknown fields), but offsets
@@ -118,7 +118,7 @@ def recover_evidence(value, document, document_id):
     starts, ends = [], []
     for token in tokens:
         if starts:
-            starts.append(tokens[0].start())  # spaces are never match endpoints
+            starts.append(token.start())  # spaces are never match endpoints
             ends.append(token.start())
         starts.extend(range(token.start(), token.end()))
         ends.extend(range(token.start() + 1, token.end() + 1))
@@ -151,12 +151,26 @@ def recover_evidence(value, document, document_id):
             for clause in clauses.values():
                 if _normalized_text(clause["text"]) == _normalized_text(evidence["quote"]):
                     clause["text"] = evidence["quote"]
+    for net, terms in list(value["policy"]["networks"].items()):
+        supported = True
+        for field, ref_field in (("deductible_cents", "deductible_clause"),
+                                 ("oop_max_cents", "oop_clause"), ("balance_billing", "network_clause")):
+            rule = merged.get(f"networks.{net}.{field}")
+            ref = terms[ref_field]
+            if not rule or ref not in clauses or clauses[ref]["text"] not in {e["quote"] for e in rule["evidence"]}:
+                supported = False
+        if not supported:
+            del value["policy"]["networks"][net]
+            for field in ("deductible_cents", "oop_max_cents", "balance_billing"):
+                path = f"networks.{net}.{field}"
+                merged.pop(path, None)
+                dropped.append(path)
     retained = []
     for benefit in value["policy"]["benefits"]:
         path = "benefits." + benefit["id"]
         rule = merged.get(path)
         quotes = {e["quote"] for e in rule["evidence"]} if rule else set()
-        if (not rule or not benefit["clause_ids"] or any(
+        if (benefit["network"] not in value["policy"]["networks"] or not rule or not benefit["clause_ids"] or any(
                 ref not in clauses or clauses[ref]["text"] not in quotes for ref in benefit["clause_ids"])):
             merged.pop(path, None)
             dropped.append(path)
@@ -189,7 +203,7 @@ def validate_schema(value, schema=OUTPUT_SCHEMA, path="output"):
         raise ModelError(f"{path}: outside enum")
     if kind == "object":
         props = schema["properties"]
-        if set(value) != set(props):
+        if set(value) - set(props) or set(schema["required"]) - set(value):
             raise ModelError(f"{path}: missing or unknown fields")
         for key in value:
             validate_schema(value[key], props[key], f"{path}.{key}")
@@ -209,12 +223,14 @@ def validate_output(value, document, document_id):
     validate_schema(value)
     output = decode(CompilerOutput, value, "output")
     p = output.policy
-    if p.effective_from > p.effective_to:
+    if p.effective_from and p.effective_to and p.effective_from > p.effective_to:
         raise ModelError("Policy dates are reversed")
     clauses = {c.id: c for c in p.clauses}
     if len(clauses) != len(p.clauses) or len({b.id for b in p.benefits}) != len(p.benefits):
         raise ModelError("Duplicate clause or benefit IDs")
     paths = rule_paths(p)
+    if not paths:
+        raise ModelError("No supported executable rules found")
     if {r.rule_path for r in output.rule_evidence} != paths or len(output.rule_evidence) != len(paths):
         raise ModelError("Every executable rule must have exactly one evidence entry")
     for r in output.rule_evidence:

@@ -31,12 +31,14 @@ def validate(case: Case) -> list[Issue]:
     for path, items in (("policy.clauses", p.clauses), ("policy.benefits", p.benefits),
                         ("claim.lines", c.lines), ("bill.lines", b.lines)):
         unique(items, path)
-    if p.effective_from > p.effective_to:
+    if p.effective_from and p.effective_to and p.effective_from > p.effective_to:
         add("policy_dates", "policy", "Policy end precedes policy start.")
-    for path, actual, expected in (("claim.member_id", c.member_id, p.member_id),
-                                   ("bill.member_id", b.member_id, p.member_id),
+    identities = [("bill.member_id", b.member_id, c.member_id),
                                    ("claim.policy_id", c.policy_id, p.id),
-                                   ("bill.claim_id", b.claim_id, c.id)):
+                                   ("bill.claim_id", b.claim_id, c.id)]
+    if p.member_id is not None:
+        identities.append(("claim.member_id", c.member_id, p.member_id))
+    for path, actual, expected in identities:
         if actual != expected:
             add("identity_mismatch", path, f"{actual!r} does not match {expected!r}.")
     if set(p.networks) != {"in", "out"}:
@@ -92,7 +94,8 @@ def validate(case: Case) -> list[Issue]:
         path = f"claim.lines.{line.id}"
         if not re.fullmatch(r"(?:\d{5}|[A-Z]\d{4})", line.code):
             add("service_code", path, "Expected a five-digit CPT or letter + four-digit HCPCS code.")
-        if not p.effective_from <= line.service_date <= p.effective_to:
+        if ((p.effective_from is not None and line.service_date < p.effective_from)
+                or (p.effective_to is not None and line.service_date > p.effective_to)):
             add("outside_policy", path, "Service date falls outside the policy period.")
         nets = [line.network] if line.network != "unknown" else ["in", "out"]
         for net in nets:

@@ -185,9 +185,7 @@ def run_evaluation(compiler=None, root=BENCHMARK):
                 parser_matches_holdout_freeze=digest==manifest['parser_sha256'],
                 model=getattr(compiler,'model',None) if compiler.name!='fallback' else None,
                 provider_sha256=hashlib.sha256(Path(__file__).with_name('providers.py').read_bytes()).hexdigest(),
-                request_config=(dict(response_format='json_object',max_tokens=16384,thinking='disabled',
-                                     timeout_seconds=60,attempt_limit=compiler.attempt_limit)
-                                if compiler.name=='deepseek' else None),
+                request_config=compiler.request_config if compiler.name=='deepseek' else None,
                 methodology=[
                     'Author-created format holdout; not blinded and not evidence of real-world performance.',
                     'Extraction micro precision/recall: financial fields per network and per code/network interpretation; each policy scored once; IDs/labels/order ignored.',

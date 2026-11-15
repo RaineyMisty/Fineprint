@@ -41,6 +41,18 @@ class ValidationTests(unittest.TestCase):
         for document, key in (("claim", "member_id"), ("bill", "member_id"), ("claim", "policy_id"), ("bill", "claim_id")):
             self.assert_issue(lambda p: p[document].update({key: "wrong"}), "identity_mismatch")
 
+    def test_plan_level_metadata_may_be_null_but_claim_bill_must_match(self):
+        p = payload()
+        p['policy'].update(member_id=None, effective_from=None, effective_to=None)
+        self.assertEqual(validate(case(p)), [])
+        p['bill']['member_id'] = 'different-person'
+        self.assertIn('identity_mismatch', {i.code for i in validate(case(p))})
+
+    def test_known_period_endpoint_is_still_enforced(self):
+        p = payload()
+        p['policy'].update(member_id=None, effective_from=None, effective_to='2026-01-01')
+        self.assertIn('outside_policy', {i.code for i in validate(case(p))})
+
     def test_line_consistency(self):
         for field, val in (("provider_id", "wrong"), ("code", "99214"), ("service_date", "2026-06-02")):
             self.assert_issue(lambda p: p["bill"]["lines"][0].update({field: val}), "line_mismatch")

@@ -56,7 +56,7 @@ def compile_document(slug, stem, *, deepseek=False, output=ROOT / "reports"):
                   revision=subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip(),
                   compiler_sha256=hashlib.sha256((ROOT / "fineprint/compiler.py").read_bytes()).hexdigest(),
                   providers_sha256=hashlib.sha256((ROOT / "fineprint/providers.py").read_bytes()).hexdigest(),
-                  input="Unmodified complete pdftotext -layout text; form feeds delimit physical PDF pages.",
+                  input="Original pdftotext -layout text; provider input uses ranked source sections with evidence checked against the full source.",
                   input_excerpts=source_excerpts(document),
                   excerpt_note="Input samples only, not validated executable rule evidence. No full policy text redistributed.",
                   runs=[])
@@ -65,7 +65,8 @@ def compile_document(slug, stem, *, deepseek=False, output=ROOT / "reports"):
         compilers.append(LLMCompiler("deepseek"))
     for compiler in compilers:
         run = dict(provider=compiler.name, model=getattr(compiler, "model", None),
-                   attempt_limit=getattr(compiler, "attempt_limit", 1), compilation=None)
+                   attempt_limit=getattr(compiler, "attempt_limit", 1), compilation=None,
+                   request_config=compiler.request_config if compiler.name == "deepseek" else None)
         if compiler.name == "deepseek" and not os.getenv("DEEPSEEK_API_KEY"):
             run.update(status="skipped", error="DEEPSEEK_API_KEY absent; no request made.", elapsed_seconds=0)
         else:
@@ -73,6 +74,9 @@ def compile_document(slug, stem, *, deepseek=False, output=ROOT / "reports"):
             try:
                 compiled = compiler.compile(document, stem)
                 run.update(status="validated", error=None, compilation=compiled.as_dict())
+                run["claim_ready"] = bool(compiled.policy.benefits and not compiled.output.unresolved)
+                run["validated_rules"] = len(compiled.output.rule_evidence)
+                run["unresolved"] = compiled.output.unresolved
                 run["evidence_pages"] = [dict(rule_path=r.rule_path, pages=[
                     document[:e.start].count("\f") + 1 for e in r.evidence])
                     for r in compiled.output.rule_evidence]
@@ -84,15 +88,25 @@ def compile_document(slug, stem, *, deepseek=False, output=ROOT / "reports"):
                     error = error.replace(secret, "[REDACTED]")
                 run.update(status="failed", error=error[:600])
             run["elapsed_seconds"] = round(time.monotonic() - started, 3)
+            if compiler.name == "deepseek":
+                run["request_config"] = compiler.request_config
+                run["input_selection"] = getattr(compiler, "input_selection", None)
         report["runs"].append(run)
     output.mkdir(parents=True, exist_ok=True)
     (output / f"real-{slug}-rules.json").write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n")
     lines = [f"# Real {slug} policy compilation", "", f"Source: `{report['local_text_path']}` (private).",
              f"Text SHA256: `{report['source_sha256']}`.", "",
-             "Existing compiler and shared provider prompt unchanged. Input is complete raw text; no manual transcription or gold rules.", ""]
+             "LLM input uses locally ranked cost-sharing source sections; evidence is located and validated against the complete original source. No manual gold rules or invented member IDs.", ""]
     for run in report["runs"]:
         lines += [f"- **{run['provider']}** / {run['model'] or 'no model'}: **{run['status']}**. "
                   + (run['error'] or f"Validated after {run['compilation']['attempts']} attempt(s).")]
+        if run["status"] == "validated":
+            lines += [f"  Validated rules: {run['validated_rules']}; claim-ready: **{run['claim_ready']}**."]
+            lines += [f"  Unresolved: {item}" for item in run["unresolved"]]
+        if run.get("input_selection"):
+            selection = run["input_selection"]
+            lines += [f"  Source selection: {selection['selected_characters']}/{selection['source_characters']} characters; omitted sections: {selection['omitted']}.",
+                      f"  Request configuration: `{json.dumps(run['request_config'])}`."]
     lines += ["", "Only validated compilations contain executable rules and clause evidence. A failure has `compilation: null`; no rule or patient total is inferred.",
               "", "Input excerpts (physical PDF pages; these are not compiled rules):", ""]
     for item in report["input_excerpts"]:

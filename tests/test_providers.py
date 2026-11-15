@@ -41,7 +41,10 @@ class ProviderTransportTests(unittest.TestCase):
 
     def test_deepseek_rejects_invalid_outputs_without_patching(self):
         good=to_dict(FallbackCompiler().compile(DOC).output)
-        forged=deepcopy(good);forged['rule_evidence'][0]['evidence'][0]['quote']='invented quote'
+        forged=deepcopy(good)
+        for rule in forged['rule_evidence']:
+            for evidence in rule['evidence']:
+                evidence['quote']='invented quote'
         unknown=deepcopy(good);unknown['invented']=True
         float_money=deepcopy(good);float_money['policy']['networks']['in']['deductible_cents']=1.5
         for invalid in ({},forged,unknown,float_money,'   ','{broken'):

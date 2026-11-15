@@ -115,6 +115,19 @@ class CompilerTests(unittest.TestCase):
         self.assertTrue(any(benefit_rule['rule_path'] in warning for warning in result.output.unresolved))
         self.assertNotIn(benefit_rule['rule_path'], {r.rule_path for r in result.output.rule_evidence})
 
+    def test_plan_level_null_metadata_and_partial_network_remain_explicit(self):
+        good = to_dict(FallbackCompiler().compile(DOC).output)
+        good['policy'].update(member_id=None, effective_from=None, effective_to=None)
+        for rule in good['rule_evidence']:
+            if rule['rule_path'] == 'networks.out.oop_max_cents':
+                rule['evidence'][0]['quote'] = 'An invented out-of-network cap.'
+        result = LLMCompiler('deepseek', transport=lambda *_:good).compile(DOC)
+        self.assertIsNone(result.policy.member_id)
+        self.assertIsNone(result.policy.effective_from)
+        self.assertEqual(set(result.policy.networks), {'in'})
+        self.assertTrue(all(b.network == 'in' for b in result.policy.benefits))
+        self.assertTrue(any('networks.out' in issue for issue in result.output.unresolved))
+
     def test_live_request_payload_contracts_with_test_http(self):
         good = to_dict(FallbackCompiler().compile(DOC).output)
         for provider in ('openai', 'anthropic'):

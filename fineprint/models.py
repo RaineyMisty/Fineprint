@@ -49,9 +49,9 @@ class Policy:
     id: str
     insurer: str
     name: str
-    member_id: str
-    effective_from: str
-    effective_to: str
+    member_id: str | None
+    effective_from: str | None
+    effective_to: str | None
     currency: Literal["USD"]
     networks: dict[str, NetworkTerms]
     benefits: list[Benefit]
@@ -180,7 +180,7 @@ def decode(cls, value, path="case"):
                 raise ModelError(f"{path}.{key}: cents must be between 0 and 10^12")
             if key == "coinsurance_bps" and not 0 <= item <= 10000:
                 raise ModelError(f"{path}.{key}: basis points must be between 0 and 10000")
-            if key in ("service_date", "effective_from", "effective_to"):
+            if key in ("service_date", "effective_from", "effective_to") and item is not None:
                 try:
                     if date.fromisoformat(item).isoformat() != item:
                         raise ValueError()
