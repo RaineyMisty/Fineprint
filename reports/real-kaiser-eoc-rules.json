@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "synthetic": false,
+  "document_id": "kaiser_2026_ca_gold80_eoc",
+  "local_text_path": "data/real_private/docs/kaiser_2026_ca_gold80_eoc.txt",
+  "source_sha256": "052a607ec9f0ce6263c9a81c834f09ea4132b357ff19be0795cebbb37372c82d",
+  "generated_at": "2026-11-15T03:28:50.320776+00:00",
+  "revision": "f136700627ccc6410d3018eb7bfea842e6300d70",
+  "compiler_sha256": "bbaeedc3991d38c9a5bfcaeed6228c62b7f216b77b2ab6a55fd2a1ff3b4fed24",
+  "providers_sha256": "6f235df2cb86225b278ee749b3b6ecf3b254ef785ad9bf0ed62616ccf65f66cc",
+  "input": "Unmodified complete pdftotext -layout text; form feeds delimit physical PDF pages.",
+  "input_excerpts": [
+    {
+      "quote": "Plan Out-of-Pocket Maximum (“OOPM”)                   $9,200                    $9,200                      $18,400",
+      "start": 26622,
+      "end": 26737,
+      "pdf_page": 6
+    },
+    {
+      "quote": "Individual mental health evaluation and treatment          $40 per visit                                 ✔",
+      "start": 38956,
+      "end": 39062,
+      "pdf_page": 10
+    }
+  ],
+  "excerpt_note": "Input samples only, not validated executable rule evidence. No full policy text redistributed.",
+  "runs": [
+    {
+      "provider": "fallback",
+      "model": null,
+      "attempt_limit": 1,
+      "compilation": null,
+      "status": "failed",
+      "error": "Fallback requires a '# Insurer — Plan' title and Policy/Member/Period/USD header; other formats need a provider or transcription",
+      "elapsed_seconds": 0.003
+    },
+    {
+      "provider": "deepseek",
+      "model": "deepseek-v4-pro",
+      "attempt_limit": 3,
+      "compilation": null,
+      "status": "failed",
+      "error": "deepseek compilation failed after 3 attempts: output.policy.member_id: text must not be empty. No fallback was substituted.",
+      "elapsed_seconds": 189.628
+    }
+  ]
+}

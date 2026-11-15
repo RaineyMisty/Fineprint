@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "synthetic": false,
+  "document_id": "highmark_2026_pa_together_blue_gold_sbc",
+  "local_text_path": "data/real_private/docs/highmark_2026_pa_together_blue_gold_sbc.txt",
+  "source_sha256": "ef62c3deba0feaf22959c655a99b54a058a2330b18f93b17a8f017cbfd99af6a",
+  "generated_at": "2026-11-15T03:28:50.320596+00:00",
+  "revision": "f136700627ccc6410d3018eb7bfea842e6300d70",
+  "compiler_sha256": "bbaeedc3991d38c9a5bfcaeed6228c62b7f216b77b2ab6a55fd2a1ff3b4fed24",
+  "providers_sha256": "6f235df2cb86225b278ee749b3b6ecf3b254ef785ad9bf0ed62616ccf65f66cc",
+  "input": "Unmodified complete pdftotext -layout text; form feeds delimit physical PDF pages.",
+  "input_excerpts": [
+    {
+      "quote": "What is the overall               $0 individual/$0 family network.                   See the Common Medical Events chart below for your costs for services this",
+      "start": 1168,
+      "end": 1327,
+      "pdf_page": 1
+    },
+    {
+      "quote": "What is the out-of-pocket limit $7,500 individual/$15,000 family network.            The out-of-pocket limit is the most you could pay in a year for covered",
+      "start": 2384,
+      "end": 2540,
+      "pdf_page": 1
+    }
+  ],
+  "excerpt_note": "Input samples only, not validated executable rule evidence. No full policy text redistributed.",
+  "runs": [
+    {
+      "provider": "fallback",
+      "model": null,
+      "attempt_limit": 1,
+      "compilation": null,
+      "status": "failed",
+      "error": "Fallback requires a '# Insurer — Plan' title and Policy/Member/Period/USD header; other formats need a provider or transcription",
+      "elapsed_seconds": 0.0
+    },
+    {
+      "provider": "deepseek",
+      "model": "deepseek-v4-pro",
+      "attempt_limit": 3,
+      "compilation": null,
+      "status": "failed",
+      "error": "deepseek compilation failed after 3 attempts: output.policy.member_id: expected string. No fallback was substituted.",
+      "elapsed_seconds": 155.108
+    }
+  ]
+}

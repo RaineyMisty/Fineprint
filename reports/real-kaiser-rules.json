@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "synthetic": false,
+  "document_id": "kaiser_2026_ca_gold80_sbc",
+  "local_text_path": "data/real_private/docs/kaiser_2026_ca_gold80_sbc.txt",
+  "source_sha256": "53d9f1b2e5417de48c663972c0794ae6308bb8460f2011a995487d83485ca949",
+  "generated_at": "2026-11-15T03:28:50.316209+00:00",
+  "revision": "f136700627ccc6410d3018eb7bfea842e6300d70",
+  "compiler_sha256": "bbaeedc3991d38c9a5bfcaeed6228c62b7f216b77b2ab6a55fd2a1ff3b4fed24",
+  "providers_sha256": "6f235df2cb86225b278ee749b3b6ecf3b254ef785ad9bf0ed62616ccf65f66cc",
+  "input": "Unmodified complete pdftotext -layout text; form feeds delimit physical PDF pages.",
+  "input_excerpts": [
+    {
+      "quote": "What is the out-of-pocket $9,200 Individual / $18,400 Family                                                                                          The out-of",
+      "start": 3570,
+      "end": 3730,
+      "pdf_page": 1
+    },
+    {
+      "quote": "If you need mental                          $40 / individual visit. No charge                                 Mental / Behavioral health: $20 / group visit",
+      "start": 13580,
+      "end": 13735,
+      "pdf_page": 3
+    }
+  ],
+  "excerpt_note": "Input samples only, not validated executable rule evidence. No full policy text redistributed.",
+  "runs": [
+    {
+      "provider": "fallback",
+      "model": null,
+      "attempt_limit": 1,
+      "compilation": null,
+      "status": "failed",
+      "error": "Fallback requires a '# Insurer — Plan' title and Policy/Member/Period/USD header; other formats need a provider or transcription",
+      "elapsed_seconds": 0.0
+    },
+    {
+      "provider": "deepseek",
+      "model": "deepseek-v4-pro",
+      "attempt_limit": 3,
+      "compilation": null,
+      "status": "failed",
+      "error": "deepseek compilation failed after 3 attempts: DeepSeek did not complete a JSON response. No fallback was substituted.",
+      "elapsed_seconds": 211.543
+    }
+  ]
+}
