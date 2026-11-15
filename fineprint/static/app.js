@@ -1,314 +1,397 @@
 "use strict";
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const S = {step: 1, samples: [], sample: null, data: null, active: null, scenario: 0, lastRequest: null};
 
-const $ = (selector) => document.querySelector(selector);
-const esc = (value) => String(value ?? "").replace(/[&<>"']/g, (char) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char]));
-const usd = (cents) => new Intl.NumberFormat("en-US", {style:"currency",currency:"USD"}).format(cents / 100);
-const decimal = (cents) => cents === null || cents === undefined ? "" : `${Math.floor(cents / 100)}.${String(cents % 100).padStart(2,"0")}`;
-const refs = (ids) => `<span class="citations">${[...new Set(ids)].map((id) => `<button class="citation" data-clause="${esc(id)}" aria-label="Read policy clause ${esc(id)}">§ ${esc(id)}</button>`).join("")}</span>`;
-const sourceDoc = (kind, title) => `<details class="document"><summary>${esc(title)}</summary><pre>${esc(state.documents[kind] || "Normalized JSON import: export this case to inspect the supplied data. Original source documents were not included.")}</pre></details>`;
-let state = null, original = null, selectedScenario = 0, activeStep = "policy", catalog = [], requestNumber = 0;
-
-async function api(url, options) {
-  const response = await fetch(url, options);
-  const data = await response.json();
-  if (!response.ok) throw new Error(data.error || `Request failed (${response.status})`);
-  return data;
-}
-
-function error(message) {
-  $("#error").textContent = message;
-  $("#error").hidden = !message;
-}
-
-function announce(message) { $("#status").textContent = message; }
-
-function setStep(step, focus = false) {
-  activeStep = step;
-  for (const name of ["policy", "claim", "bill"]) {
-    const active = name === step;
-    $(`#panel-${name}`).hidden = !active;
-    $(`#tab-${name}`).setAttribute("aria-selected", String(active));
-    $(`#tab-${name}`).tabIndex = active ? 0 : -1;
-  }
-  if (focus) $(`#tab-${step}`).focus();
-}
-
-function renderCatalog() {
-  $("#case-list").innerHTML = catalog.map((item, index) => `<button class="case-button" data-case="${esc(item.id)}" aria-current="${state?.case.id === item.id}"><small>CASE 0${index + 1}</small>${esc(item.title)}<small>${esc(item.insurer)}</small></button>`).join("");
-}
-
-async function loadCase(id) {
-  const ticket = ++requestNumber;
-  error(""); announce("Loading case");
-  try {
-    const data = await api(`/api/cases/${encodeURIComponent(id)}`);
-    if (ticket !== requestNumber) return;
-    state = data; original = structuredClone(data); selectedScenario = 0; activeStep = "policy";
-    render(); announce("Case loaded. Start with the policy.");
-  } catch (err) { if (ticket === requestNumber) error(err.message); }
-}
-
-function renderValidation() {
-  const issues = state.report.validation;
-  const errors = issues.filter((issue) => issue.severity === "error");
-  $("#validation").innerHTML = `<details class="validation ${errors.length ? "has-errors" : issues.length ? "has-warnings" : ""}"><summary>${errors.length ? `${errors.length} consistency error(s) · calculation blocked` : issues.length ? `Documents linked · ${issues.length} item(s) to review` : "✓ All documents linked · consistency checks passed"}</summary>${issues.length ? `<ul>${issues.map((issue) => `<li><strong>${esc(issue.code)}</strong>: ${esc(issue.message)} <span class="issue-path">(${esc(issue.path)})</span></li>`).join("")}</ul>` : "Member, policy, claim, provider, date, code, line links and accounting totals agree. Policy evaluation may still reveal incorrect cost sharing."}</details>`;
-}
-
-function compilerPanel() {
-  const c = state.compilation;
-  const offline = c?.backend === "fallback";
-  return `<article class="card compiler-card"><div class="card-title"><div><h3>Policy text → executable rules</h3><p>${c ? `${c.output.rule_evidence.length} rules compiled from the original document · ${esc(c.backend)}${offline ? " · offline, no LLM" : " · live provider output, review source wording"}` : "Imported structured rules · no prose compilation or source spans supplied"}</p></div><span class="pill">${c ? esc(c.backend.toUpperCase()) : "STRUCTURED IMPORT"}</span></div>
-  <p class="form-help">Start with a fictional case, or paste/upload policy text for its EOB. The policy and member identifiers must match the selected case. Compilation replaces the rules used in the next two steps.</p>
-  <details><summary>Paste or upload a policy, then compile</summary><form id="policy-form"><label class="policy-upload" for="policy-file">Policy text (.txt or .md)</label><input id="policy-file" type="file" accept=".txt,.md,text/plain,text/markdown"><label class="policy-upload" for="policy-text">Original policy document</label><textarea id="policy-text" name="document" rows="12" required maxlength="500000">${esc(state.documents.policy || "")}</textarea><p class="form-help">Files stay in memory. The server uses its configured backend; the default fallback runs offline. A configured live provider receives the submitted policy text.</p><div class="form-actions"><button class="primary-button" type="submit">Compile policy & recalculate →</button>${c ? '<button class="secondary-button" type="button" id="export-rules">Export rules + evidence ↓</button>' : ""}</div></form></details>
-  ${c?.output.unresolved.length ? `<div class="source-note warning"><strong>Unsupported terms · calculation blocked</strong>${c.output.unresolved.map(esc).join("<br>")}</div>` : ""}
-  ${c ? `<details class="compiler-provenance"><summary>Compiler provenance and confidence</summary><p class="detail-meta">Source: ${esc(c.source_document_id)} · ${c.attempts} attempt(s)<br>SHA-256: <span class="source-hash">${esc(c.source_sha256)}</span></p><ul class="questions">${c.output.warnings.map(w => `<li>${esc(w)}</li>`).join("")}</ul><p class="form-help">Confidence describes parser coverage or a provider's self-assessment. It is not a measured probability of correctness. Every executable rule has validated source quotes.</p></details>` : ""}</article>`;
-}
-
-function clauseEvidence(clause) {
-  const rules = state.compilation?.output.rule_evidence || [];
-  const matches = [];
-  rules.forEach((rule, ri) => rule.evidence.forEach((e, ei) => {
-    if (e.quote === clause.text && !matches.some(m => m.start === e.start)) matches.push({ri,ei,start:e.start,e,rule});
-  }));
-  return matches.map(({ri,ei,e,rule}) => `<button class="citation evidence-link" data-evidence="${ri}:${ei}">Read quote in ${esc(e.source_document_id)} · characters ${e.start}–${e.end}</button><p class="detail-meta">Confidence ${(rule.confidence_bps / 100).toFixed(0)}% · ${esc(rule.ambiguity)}</p>`).join("");
-}
-
-function showEvidence(ri, ei) {
-  const e = state.compilation?.output.rule_evidence[ri]?.evidence[ei];
-  if (!e) return;
-  const text = state.documents.policy;
-  if (!text || text.slice(e.start,e.end) !== e.quote) return error("Source text no longer matches this evidence span.");
-  setStep("policy", true);
-  const viewer = $("#source-evidence"); viewer.hidden = false; viewer.open = true;
-  $("#source-location").textContent = `${e.source_document_id} · ${e.section} · characters ${e.start}–${e.end} (end exclusive)`;
-  $("#source-text").innerHTML = `${esc(text.slice(0,e.start))}<mark id="selected-source-quote" tabindex="-1">${esc(e.quote)}</mark>${esc(text.slice(e.end))}`;
-  $("#selected-source-quote").scrollIntoView({block:"center"}); $("#selected-source-quote").focus({preventScroll:true});
-}
-
-function discrepancyCallout() {
-  const compared = state.report.comparisons[selectedScenario];
-  const row = compared.lines.find(line => line.eob_difference_cents > 0);
-  if (!row) return "";
-  const result = state.report.scenarios[selectedScenario].lines.find(line => line.claim_line_id === row.claim_line_id);
-  const term = state.case.policy.networks[result.network];
-  const benefit = state.case.policy.benefits.find(b => b.id === result.benefit_id);
-  const mismatch = row.explanations.find(e => ["deductible_cents","copay_cents","coinsurance_cents","noncovered_cents","balance_cents"].includes(e.component) && e.difference_cents > 0);
-  let ref = benefit.clause_ids.find(id => id !== "ORDER");
-  if (result.closing_oop_cents === term.oop_max_cents) ref = term.oop_clause;
-  else if (mismatch?.component === "deductible_cents") ref = term.deductible_clause;
-  else if (mismatch?.component === "balance_cents") ref = term.network_clause;
-  const clause = state.case.policy.clauses.find(c => c.id === ref);
-  return `<div class="discrepancy-callout"><p class="eyebrow">${compared.conditional ? "CONDITIONAL DIFFERENCE" : "CONTRACTUAL DIFFERENCE"} · ${esc(row.claim_line_id)}</p><h3>Insurer: ${usd(row.eob_patient_cents)} · Fineprint: ${usd(row.fineprint_patient_cents)}</h3><p>${usd(row.eob_difference_cents)} more assigned to the patient on this line${compared.conditional ? " under this scenario's assumptions" : " under the supplied facts"}.</p>${clause ? `<blockquote>“${esc(clause.text)}”</blockquote>${refs([ref])}` : ""}</div>`;
-}
-
-function policyPanel() {
-  const policy = state.case.policy;
-  return `${compilerPanel()}<div class="two-col">${Object.entries(policy.networks).map(([network, terms]) => `<article class="card"><div class="card-title"><h3>${network === "in" ? "In-network" : "Out-of-network"}</h3><span class="pill">INDIVIDUAL / ANNUAL</span></div><div class="terms"><div><span class="term-label">Deductible</span><span class="term-value">${usd(terms.deductible_cents)}</span>${refs([terms.deductible_clause])}</div><div><span class="term-label">Out-of-pocket maximum</span><span class="term-value">${usd(terms.oop_max_cents)}</span>${refs([terms.oop_clause])}</div></div><p class="term-note">${terms.balance_billing ? "This fictional plan permits charges above the allowance to be billed to the member, outside the OOP cap." : "Covered charges above the allowance are a contractual write-off."} ${refs([terms.network_clause])}</p></article>`).join("")}</div>
-  <article class="card"><div class="card-title"><div><h3><span class="section-number">01 /</span>Your coverage, connected</h3><p>${esc(policy.name)} · ${esc(policy.effective_from)} to ${esc(policy.effective_to)}</p></div><span class="pill">CLAUSE-LINKED RULES</span></div>${policy.benefits.map((rule) => `<div class="benefit"><div><span class="benefit-title">${esc(rule.label)}</span><p>${esc(rule.codes.join(", "))} · ${rule.network}-network · ${rule.covered ? `${rule.deductible_applies ? "Deductible applies" : "Deductible waived"}; ${usd(rule.copay_cents)} copay; ${rule.coinsurance_bps / 100}% member coinsurance` : "Excluded: full charge outside the OOP cap"}${rule.ambiguity_group ? " · Ambiguous wording: compare interpretations" : ""}</p></div>${refs(rule.clause_ids)}</div>`).join("")}</article>
-  <div class="source-note"><strong>Terms are rules. Evidence supplies the facts.</strong>Fineprint uses the structured policy to recalculate cost sharing. Allowed amounts, network status and spending before this claim are separate inputs. The default fallback compiles supported English prose and clause tables. Unsupported wording in recognized clauses blocks calculation. PDF/OCR is not supported.</div>
-  <article class="card"><details id="clauses"><summary>Read the policy clauses & source locations</summary>${policy.clauses.map((clause) => `<div class="clause" id="clause-${esc(clause.id)}"><span class="clause-label">§ ${esc(clause.id)}</span> <small>${esc(clause.location)}</small><p>${esc(clause.text)}</p>${clauseEvidence(clause)}</div>`).join("")}</details></article><details id="source-evidence" class="document" hidden><summary id="source-location">Source evidence</summary><pre id="source-text"></pre></details>${sourceDoc("policy", "View original synthetic policy summary")}
-  <div class="next-row"><p>Next: follow each service through the insurer’s math.</p><button class="primary-button" data-next="claim">Review the claim →</button></div>`;
-}
-
-function scenarioToolbar() {
-  if (!state.report.scenarios.length) return "";
-  const summary = state.report.summary;
-  return `<div class="scenario-toolbar"><label for="scenario-${activeStep}">${summary.scenario_count === 1 ? "CALCULATION SCENARIO" : `${summary.scenario_count} EXPLICIT SCENARIOS`}</label><select class="scenario-select" id="scenario-${activeStep}" aria-label="Choose calculation scenario">${state.report.scenarios.map((scenario, i) => `<option value="${i}" ${i === selectedScenario ? "selected" : ""}>${i + 1}. ${usd(scenario.patient_cents)} patient total${scenario.conditional ? " · conditional" : " · supported inputs"}</option>`).join("")}</select></div>`;
-}
-
-function assumptions() {
-  const scenario = state.report.scenarios[selectedScenario];
-  const summary = state.report.summary;
-  return scenario.conditional ? `<div class="source-note warning"><strong>Conditional result · resolve the assumptions before drawing a conclusion</strong><ul class="assumptions">${scenario.assumptions.map((item) => `<li>${esc(item)}</li>`).join("")}</ul><p>The scenarios shown span ${usd(summary.illustrated_min_patient_cents)}–${usd(summary.illustrated_max_patient_cents)}. Missing-fact endpoints illustrate possibilities; they are not a complete set of outcomes or guaranteed savings.</p></div>` : `<div class="source-note"><strong>Independent policy evaluation</strong>The contractual allowance and opening spending are supplied as supporting evidence. Fineprint calculates cost sharing from policy rules, separately from EOB amounts. This remains a demonstration of the supported plan rules.</div>`;
-}
-
-function blocked() {
-  return `<div class="source-note warning"><strong>Recalculation is blocked</strong>${esc(state.report.blocked_reason)} Correct the normalized JSON or update the supporting facts below.</div>`;
-}
-
-function lineAudit(result, index) {
-  const claim = state.case.claim.lines.find((line) => line.id === result.claim_line_id);
-  const compared = state.report.comparisons[selectedScenario].lines.find((line) => line.claim_line_id === claim.id);
-  const evidence = state.case.allowed_evidence[claim.id];
-  const components = [["allowed_cents","Allowed amount (evidence)"],["deductible_cents","Deductible"],["copay_cents","Copay"],["coinsurance_cents","Coinsurance"],["noncovered_cents","Excluded charges"],["balance_cents","Balance billing"],["insurer_paid_cents","Insurer payment"],["adjustment_cents","Contractual write-off"]];
-  return `<details class="audit-line" ${index === 0 ? "open" : ""}><summary><span class="line-heading"><span><span class="code">${esc(claim.code)}</span><strong>${esc(claim.description)}</strong></span><span class="${compared.eob_difference_cents > 0 ? "amount-warning" : "muted"}">${compared.eob_difference_cents > 0 ? `${usd(compared.eob_difference_cents)} EOB amount to review` : compared.eob_difference_cents < 0 ? "EOB is lower in this scenario" : "EOB cost sharing matches"}</span></span></summary>
-  <p class="detail-meta">${esc(claim.id)} · ${esc(claim.service_date)} · ${esc(claim.provider_id)} · evaluated ${esc(result.network)}-network<br>Allowance evidence: ${esc(evidence?.source || "unknown")} — ${esc(evidence?.reference || "Not supplied")}</p><div class="table-scroll"><table><thead><tr><th>Component</th><th class="number">Insurer EOB</th><th class="number">Fineprint</th><th class="number">EOB − Fineprint</th></tr></thead><tbody>${components.map(([key,label]) => `<tr><td>${label}</td><td class="number">${usd(claim.insurer[key])}</td><td class="number">${usd(result[key])}</td><td class="number ${claim.insurer[key] !== result[key] ? "difference" : "muted"}">${usd(claim.insurer[key] - result[key])}</td></tr>`).join("")}<tr class="total-row"><td>Patient responsibility</td><td class="number">${usd(compared.eob_patient_cents)}</td><td class="number">${usd(result.patient_cents)}</td><td class="number">${usd(compared.eob_difference_cents)}</td></tr></tbody></table></div>
-  <details class="audit-trace"><summary>How Fineprint computed this line · policy citations</summary><ol class="trace-list">${result.trace.map((step) => `<li>${esc(step.explanation)} <span class="trace-amount">${usd(step.amount_cents)}</span>${refs(step.clause_ids)}</li>`).join("")}</ol><p class="detail-meta">Deductible spending: ${usd(result.opening_deductible_cents)} → ${usd(result.closing_deductible_cents)} · OOP spending: ${usd(result.opening_oop_cents)} → ${usd(result.closing_oop_cents)}</p></details>
-  ${compared.explanations.filter((item) => item.kind === "eob_vs_fineprint" || item.kind === "match").map((item) => `<div class="explanation">${esc(item.message)}${refs(item.clause_ids)}</div>`).join("")}</details>`;
-}
-
-function factForm() {
-  return `<article class="card"><details><summary>Resolve missing facts or try a different scenario</summary><p class="form-help">Enter documented amounts in USD, with at most two decimal places. Blank amounts mean unknown. Opening spending is immediately before this claim. Updates are temporary; export JSON to keep them.</p><form id="facts-form" class="evidence-form">${Object.entries(state.case.claim.accumulators).map(([net, accum]) => `<fieldset><legend>${net === "in" ? "In-network" : "Out-of-network"} spending before this claim</legend><div class="field-grid"><label>Deductible already satisfied (USD)<input inputmode="decimal" name="ded:${net}" value="${decimal(accum.deductible_paid_cents)}" placeholder="Unknown"></label><label>OOP already satisfied (USD)<input inputmode="decimal" name="oop:${net}" value="${decimal(accum.oop_paid_cents)}" placeholder="Unknown"></label></div></fieldset>`).join("")}${state.case.claim.lines.map((line, index) => {const fact = state.case.allowed_evidence[line.id];return `<fieldset><legend>${esc(line.code)} · ${esc(line.id)} · ${esc(line.description)}</legend><div class="field-grid"><label>Provider network<select name="net:${index}">${["in","out","unknown"].map((net) => `<option value="${net}" ${line.network === net ? "selected" : ""}>${esc(net)}</option>`).join("")}</select></label><label>Supporting allowance (USD)<input inputmode="decimal" name="allowed:${index}" value="${decimal(fact?.allowed_cents)}" placeholder="Unknown"></label><label>Allowance source<select name="source:${index}">${["contract","eob","unknown"].map((source) => `<option value="${source}" ${(fact?.source || "unknown") === source ? "selected" : ""}>${esc(source)}</option>`).join("")}</select></label><label>Source reference<input name="ref:${index}" value="${esc(fact?.reference || "Not supplied")}" required maxlength="500"></label></div></fieldset>`;}).join("")}<div class="form-actions"><button class="primary-button" type="submit">Recalculate with these facts ↗</button><span>Rules and EOB observations stay separate from your supporting inputs.</span></div></form></details></article>`;
-}
-
-function claimPanel() {
-  const report = state.report;
-  return `${report.status === "blocked" ? blocked() : `${scenarioToolbar()}${assumptions()}<div class="metric-grid"><div class="metric"><label>INSURER’S PATIENT TOTAL</label><strong>${usd(report.comparisons[selectedScenario].eob_patient_cents)}</strong><small>Recorded on the EOB</small></div><div class="metric highlight"><label>FINEPRINT’S PATIENT TOTAL</label><strong>${usd(report.scenarios[selectedScenario].patient_cents)}</strong><small>${report.scenarios[selectedScenario].conditional ? "Subject to this scenario’s assumptions" : (state.compilation ? "Calculated from compiled policy rules" : "Calculated from supplied structured rules")}</small></div><div class="metric"><label>EOB − FINEPRINT</label><strong>${usd(report.comparisons[selectedScenario].eob_difference_cents)}</strong><small>Positive: EOB assigns more to the patient</small></div></div>${discrepancyCallout()}<article class="card"><div class="card-title"><div><h3><span class="section-number">02 /</span>The math behind each service</h3><p>Expand a line to compare every component and inspect the calculation trace.</p></div></div>${report.scenarios[selectedScenario].lines.map(lineAudit).join("")}</article>`}${factForm()}${sourceDoc("claim", "View original synthetic insurer EOB")}<div class="next-row"><p>Next: connect this result to the hospital’s actual balance.</p><button class="primary-button" data-next="bill">Review the bill →</button></div>`;
-}
-
-function billPanel() {
-  const report = state.report;
-  if (report.status === "blocked") return blocked() + sourceDoc("bill", "View original bill");
-  const comparison = report.comparisons[selectedScenario];
-  const conditional = report.scenarios[selectedScenario].conditional;
-  return `${scenarioToolbar()}${assumptions()}<div class="bill-banner"><div><p class="eyebrow">${conditional ? "CONDITIONAL AMOUNT TO REVIEW" : "POTENTIAL EXCESS PATIENT RESPONSIBILITY"}</p><h3>${comparison.potential_overpayment_cents > 0 ? `You may be overpaying ${usd(comparison.potential_overpayment_cents)}.` : "Check the balance against the policy."}</h3><p>Hospital patient payments + balance due, compared with Fineprint’s calculated total. ${conditional ? "This depends on unverified assumptions. Obtain the missing evidence before treating it as a correction." : "Use the clause references to request an explanation or corrected adjudication."}</p></div><span class="big-number">${usd(comparison.potential_overpayment_cents)}</span></div>
-  <div class="metric-grid"><div class="metric"><label>HOSPITAL BALANCE DUE</label><strong>${usd(comparison.bill_balance_due_cents)}</strong><small>Patient already paid ${usd(comparison.already_paid_cents)}</small></div><div class="metric highlight"><label>FINEPRINT REMAINING</label><strong>${usd(comparison.fineprint_remaining_cents)}</strong><small>After prior payments, by service line</small></div><div class="metric"><label>POTENTIAL REFUND</label><strong>${usd(comparison.potential_refund_cents)}</strong><small>Payments above this scenario’s line liability</small></div></div>
-  <article class="card"><div class="card-title"><div><h3><span class="section-number">03 /</span>Three documents. One view.</h3><p>Patient totals include amounts already paid. Remaining balances account for those payments.</p></div></div><div class="table-scroll"><table><thead><tr><th>Service</th><th class="number">Fineprint total</th><th class="number">EOB total</th><th class="number">Bill total</th><th class="number">Paid</th><th class="number">Bill due</th><th class="number">Fineprint remaining</th></tr></thead><tbody>${comparison.lines.map((line) => `<tr><td><span class="code">${esc(line.code)}</span>${esc(line.claim_line_id)}</td><td class="number">${usd(line.fineprint_patient_cents)}</td><td class="number">${usd(line.eob_patient_cents)}</td><td class="number ${line.potential_overpayment_cents ? "difference" : ""}">${usd(line.bill_patient_cents)}</td><td class="number">${usd(line.already_paid_cents)}</td><td class="number">${usd(line.bill_balance_due_cents)}</td><td class="number">${usd(line.fineprint_remaining_cents)}</td></tr>`).join("")}<tr class="total-row"><td>Total</td>${[comparison.fineprint_patient_cents, comparison.eob_patient_cents, comparison.bill_patient_cents, comparison.already_paid_cents, comparison.bill_balance_due_cents, comparison.fineprint_remaining_cents].map((n) => `<td class="number">${usd(n)}</td>`).join("")}</tr></tbody></table></div>${comparison.lines.flatMap((line) => line.explanations.filter((item) => item.kind.startsWith("bill_")).map((item) => `<div class="explanation"><strong>${esc(line.code)} · ${esc(line.claim_line_id)}</strong> — ${esc(item.message)} Difference: ${usd(item.difference_cents)}.${refs(item.clause_ids)}</div>`)).join("")}</article>
-  <article class="card"><div class="card-title"><h3>Questions to bring to a review</h3></div><ol class="questions"><li>Ask the insurer for its line-by-line deductible, copay, coinsurance and OOP calculations. Compare the cited policy clauses in the Claim step.</li><li>Ask the provider to reconcile the EOB with all insurance credits, contractual adjustments and prior patient payments.</li>${conditional ? "<li>Confirm network participation, the contracted allowance, prior spending and which conflicting policy clause governs before relying on a scenario.</li>" : ""}<li>Keep the original policy, EOB and itemized bill with the exported case for a documented review. The results are an estimate under the supported rules.</li></ol></article>
-  <article class="card"><details><summary>Inspect the links across all three documents</summary><div class="table-scroll"><table class="link-table"><thead><tr><th>Member / claim</th><th>Provider / date</th><th>Code / claim line</th><th>Bill lines</th></tr></thead><tbody>${report.links.map((link) => `<tr><td>${esc(link.member_id)}<br>${esc(link.claim_id)}</td><td>${esc(link.provider_id)}<br>${esc(link.service_date)}</td><td>${esc(link.code)} / ${esc(link.claim_line_id)}</td><td>${esc(link.bill_line_ids.join(", "))}</td></tr>`).join("")}</tbody></table></div></details></article>${sourceDoc("bill", "View original synthetic itemized bill")}<details class="document"><summary>Supported scope and current limits</summary><ul class="questions">${report.limitations.map((line) => `<li>${esc(line)}</li>`).join("")}</ul></details><div class="next-row"><button class="secondary-button" data-next="claim">← Back to claim</button><button id="export-bill" class="primary-button" data-export>Export case JSON ↓</button></div>`;
-}
-
-function renderPanels() {
-  $("#panel-policy").innerHTML = policyPanel();
-  // Distinct IDs keep the scenario dropdown labels accessible in hidden panels too.
-  const current = activeStep;
-  activeStep = "claim"; $("#panel-claim").innerHTML = claimPanel();
-  activeStep = "bill"; $("#panel-bill").innerHTML = billPanel();
-  activeStep = current;
-  setStep(current);
-}
-
-function render() {
-  $("#case-title").textContent = state.case.title;
-  $("#insurer").textContent = state.case.policy.insurer;
-  $("#case-summary").textContent = catalog.find((item) => item.id === state.case.id)?.summary || "Imported normalized case · data stays in this local session.";
-  $("#data-badge").textContent = state.case.synthetic ? "SYNTHETIC DATA ONLY" : "IMPORTED CASE · LOCAL SESSION";
-  $("#download").disabled = false; $("#reset").disabled = false;
-  renderCatalog(); renderValidation(); renderPanels();
-}
-
-function exportCase() {
-  if (!state) return;
-  const url = URL.createObjectURL(new Blob([JSON.stringify(state.case,null,2) + "\n"], {type:"application/json"}));
-  const anchor = document.createElement("a"); anchor.href = url; anchor.download = "fineprint-case.json"; anchor.click();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-}
-
-function parseMoney(text) {
-  text = text.trim();
-  if (!text) return null;
-  if (!/^\d+(?:\.\d{1,2})?$/.test(text)) throw new Error("Use nonnegative USD amounts with at most two decimal places.");
-  const [whole, fraction = ""] = text.split(".");
-  const value = Number(whole) * 100 + Number(fraction.padEnd(2,"0"));
-  if (!Number.isSafeInteger(value) || value > 1e12) throw new Error("Amount is too large.");
-  return value;
-}
-
-document.addEventListener("click", (event) => {
-  const button = event.target.closest("button");
-  if (!button) return;
-  if (button.dataset.evidence) return void showEvidence(...button.dataset.evidence.split(":").map(Number));
-  if (button.id === "export-rules" && state.compilation) {
-    const data = {source_document:state.documents.policy,compilation:state.compilation};
-    const url = URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:"application/json"}));
-    const anchor = document.createElement("a"); anchor.href=url; anchor.download="fineprint-compiled-policy.json"; anchor.click();
-    setTimeout(() => URL.revokeObjectURL(url),1000); return;
-  }
-  if (button.id === "load-metrics") return void loadMetrics();
-  if (button.dataset.case) return void loadCase(button.dataset.case);
-  if (button.dataset.step) return void setStep(button.dataset.step);
-  if (button.dataset.next) return void setStep(button.dataset.next, true);
-  if (button.dataset.clause && state) {
-    setStep("policy", true); $("#clauses").open = true;
-    document.getElementById(`clause-${button.dataset.clause}`)?.scrollIntoView({block:"center"});
-  }
-  if (button.id === "download" || button.hasAttribute("data-export")) exportCase();
-  if (button.id === "reset" && original) {
-    ++requestNumber; state = structuredClone(original); selectedScenario = 0; error(""); render(); announce("Original case restored");
-  }
-});
-
-$(".steps").addEventListener("keydown", (event) => {
-  const names = ["policy","claim","bill"], index = names.indexOf(activeStep);
-  const next = {ArrowRight:names[(index + 1) % 3],ArrowLeft:names[(index + 2) % 3],Home:"policy",End:"bill"}[event.key];
-  if (next) { event.preventDefault(); setStep(next,true); }
-});
-
-document.addEventListener("change", (event) => {
-  if (event.target.matches(".scenario-select")) { selectedScenario = Number(event.target.value); renderPanels(); announce("Calculation scenario updated"); }
-});
-
-document.addEventListener("submit", async (event) => {
-  if (event.target.id === "policy-form") {
-    event.preventDefault(); error("");
-    const ticket = ++requestNumber;
-    const button = event.target.querySelector('button[type="submit"]');
-    const document = new FormData(event.target).get("document");
-    button.disabled = true;
-    try {
-      const result = await api("/api/compile", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({document,document_id:"uploaded-policy",case:state.case})});
-      if (ticket !== requestNumber) return;
-      state = {...result,documents:{...state.documents,...result.documents}};
-      selectedScenario = 0; render(); announce("Policy compiled; claim and bill recalculated from the new rules");
-    } catch (err) { if (ticket === requestNumber) error(`Compilation failed: ${err.message}. Current results still refer to the previous policy.`); }
-    finally { button.disabled = false; }
-    return;
-  }
-  if (event.target.id !== "facts-form") return;
-  event.preventDefault(); error("");
-  const button = event.target.querySelector("button[type=submit]");
-  const ticket = ++requestNumber;
-  try {
-    if (state.compilation?.output.unresolved.length) throw new Error("Resolve unsupported clauses by recompiling the policy before editing claim facts.");
-    const data = new FormData(event.target), updated = structuredClone(state.case), documents = state.documents, compilation = state.compilation;
-    for (const [net, accum] of Object.entries(updated.claim.accumulators)) {
-      accum.deductible_paid_cents = parseMoney(data.get(`ded:${net}`));
-      accum.oop_paid_cents = parseMoney(data.get(`oop:${net}`));
+  /* ---------- helpers ---------- */
+  function h(tag, attrs, ...kids) {
+    const el = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs || {})) {
+      if (v === false || v == null) continue;
+      if (k === "class") el.className = v;
+      else if (k.startsWith("on")) el.addEventListener(k.slice(2), v);
+      else el.setAttribute(k, v === true ? "" : v);
     }
-    updated.claim.lines.forEach((line,index) => {
-      line.network = data.get(`net:${index}`);
-      const allowed = parseMoney(data.get(`allowed:${index}`));
-      const source = allowed === null ? "unknown" : data.get(`source:${index}`);
-      if (allowed !== null && source === "unknown") throw new Error("Choose a documented allowance source or leave the amount blank.");
-      updated.allowed_evidence[line.id] = {allowed_cents:allowed, source, reference:data.get(`ref:${index}`).trim()};
+    for (const kid of kids.flat()) if (kid != null && kid !== false) el.append(kid.nodeType ? kid : document.createTextNode(kid));
+    return el;
+  }
+  const money = (c) => {
+    const neg = c < 0, v = Math.abs(c) / 100;
+    return (neg ? "−" : "") + "$" + v.toLocaleString("en-US", {minimumFractionDigits: Number.isInteger(v) ? 0 : 2, maximumFractionDigits: 2});
+  };
+  const pct = (bps) => (bps / 100).toLocaleString("en-US", {maximumFractionDigits: 2}) + "%";
+  const clear = (el) => { el.replaceChildren(); return el; };
+
+  async function api(path, options) {
+    let res;
+    try { res = await fetch(path, options); }
+    catch { throw {message: "Can’t reach the Fineprint server. Is it still running?", kind: "network"}; }
+    let body = null;
+    try { body = await res.json(); } catch { /* non-JSON */ }
+    if (!res.ok) throw {message: (body && body.error) || `Request failed (${res.status})`, kind: (body && body.kind) || "input"};
+    return body;
+  }
+
+  /* ---------- navigation ---------- */
+  function show(step) {
+    S.step = step;
+    for (const n of [1, 2, 3]) $("step-" + n).hidden = n !== step;
+    $("loading").hidden = true;
+    const have = S.data;
+    document.querySelectorAll("#steps button").forEach((b) => {
+      const n = +b.dataset.step;
+      b.disabled = n > 1 && !have;
+      b.classList.toggle("done", !!have && n < step);
+      if (n === step) b.setAttribute("aria-current", "step"); else b.removeAttribute("aria-current");
     });
-    button.disabled = true;
-    const result = await api("/api/analyze", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(updated)});
-    if (ticket !== requestNumber) return;
-    state = {...result,documents,compilation}; selectedScenario = 0; render(); announce("Facts updated and case recalculated");
-  } catch (err) { if (ticket === requestNumber) error(err.message); }
-  finally { button.disabled = false; }
-});
+    window.scrollTo(0, 0);
+    $("main").focus({preventScroll: true});
+  }
+  function loading(text) {
+    for (const n of [1, 2, 3]) $("step-" + n).hidden = true;
+    $("loading-text").textContent = text;
+    $("loading").hidden = false;
+  }
+  function banner(message, kind, retry) {
+    const box = clear($("banner"));
+    const title = kind === "provider" ? "The AI policy reader failed — nothing was guessed"
+      : kind === "network" ? "Connection problem" : "We couldn’t check these documents";
+    const extra = kind === "provider" ? "No offline fallback was substituted, so no result is shown. Try again, or ask whoever runs this server to switch to the offline reader." : "";
+    box.append(h("div", {}, h("strong", {}, title), message, extra ? h("div", {class: "hint"}, extra) : null));
+    if (retry) box.append(h("button", {class: "btn", type: "button", onclick: retry}, "Try again"));
+    box.hidden = false;
+  }
+  const unbanner = () => { $("banner").hidden = true; };
 
-$("#import-file").addEventListener("change", async (event) => {
-  const file = event.target.files[0];
-  if (!file) return;
-  const ticket = ++requestNumber;
-  error("");
-  try {
-    if (file.size > 1024 * 1024) throw new Error("Case JSON must be at most 1 MiB.");
-    const payload = JSON.parse(await file.text());
-    const result = await api("/api/analyze", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
-    if (ticket !== requestNumber) return;
-    state = result; original = structuredClone(result); selectedScenario = 0; activeStep = "policy"; render(); announce("Imported case analyzed");
-  } catch (err) { if (ticket === requestNumber) error(err.message); }
-  finally { event.target.value = ""; }
-});
+  /* ---------- step 1 ---------- */
+  function updateCounts() {
+    document.querySelectorAll("[data-count]").forEach((el) => {
+      const n = $(el.dataset.count).value.length;
+      el.textContent = n ? n.toLocaleString("en-US") + " characters" : "";
+    });
+  }
+  function fillInputs(inputs) {
+    $("in-policy").value = inputs.policy; $("in-eob").value = inputs.eob; $("in-bill").value = inputs.bill;
+    $("in-format").value = inputs.claim_format;
+    $("in-facts").value = JSON.stringify({claim_context: inputs.claim_context, bill_context: inputs.bill_context, allowed_evidence: inputs.allowed_evidence}, null, 2);
+    updateCounts();
+  }
+  function collect() {
+    const eob = $("in-eob").value;
+    let facts = {};
+    const raw = $("in-facts").value.trim();
+    if (raw) {
+      try { facts = JSON.parse(raw); } catch { throw {message: "The claim facts are not valid JSON. Open “Claim facts & format” to fix them.", kind: "input"}; }
+    }
+    return {policy: $("in-policy").value, eob, bill: $("in-bill").value, claim_format: $("in-format").value, ...facts,
+            synthetic: !!S.sample};
+  }
+  async function loadSample(id) {
+    unbanner(); loading("Loading sample…");
+    try {
+      const sample = await api("/api/samples/" + encodeURIComponent(id));
+      S.sample = sample;
+      fillInputs(sample.inputs);
+      await run(`Reading “${sample.title}”…`);
+    } catch (e) { show(1); banner(e.message, e.kind); }
+  }
+  async function run(text) {
+    unbanner();
+    let payload;
+    try { payload = collect(); } catch (e) { show(1); banner(e.message, e.kind); return; }
+    if (!payload.policy.trim() || !payload.eob.trim() || !payload.bill.trim()) {
+      show(1); banner("Add all three documents, or try a sample case.", "input"); return;
+    }
+    loading(text || "Reading your policy…");
+    try {
+      S.data = await api("/api/check", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(payload)});
+      S.active = null; S.scenario = 0;
+      renderRules(); renderResult(); show(2);
+    } catch (e) { show(1); banner(e.message, e.kind, () => run()); }
+  }
 
-(async () => {
-  try { catalog = await api("/api/cases"); renderCatalog(); if (catalog.length) await loadCase(catalog[0].id); }
-  catch (err) { error(`Unable to load Fineprint: ${err.message}`); }
+  /* ---------- step 2: rules + source ---------- */
+  function ruleDescription(r) {
+    const bits = [];
+    if (!r.covered) bits.push("Not covered — you pay the full charge");
+    else {
+      bits.push(r.copay_cents ? `${money(r.copay_cents)} copay` : "no copay");
+      bits.push(r.coinsurance_bps ? `you pay ${pct(r.coinsurance_bps)} after` : "no coinsurance");
+      bits.push(r.deductible_applies ? "deductible applies" : "deductible waived");
+    }
+    return bits.join(" · ");
+  }
+  function evidenceFor(path) {
+    const re = S.data.compilation.output.rule_evidence.find((e) => e.rule_path === path);
+    return re || null;
+  }
+  function unresolvedRanges() {
+    const text = S.data.documents.policy, out = [];
+    for (const msg of S.data.compilation.output.unresolved) {
+      const id = (/Clause\s+([^\s:]+)/.exec(msg) || [])[1];
+      let range = null;
+      if (id) {
+        const esc = id.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        const m = new RegExp(`^.*(?:^|[\\s|#])(?:Clause\\s+)?${esc}(?=[\\s|:.)])[^\\n]*$`, "m").exec(text);
+        if (m) range = [m.index, m.index + m[0].length];
+      }
+      out.push({msg, id, range});
+    }
+    return out;
+  }
+  function renderRules() {
+    const {compilation, case: kase} = S.data, out = compilation.output, policy = out.policy;
+    // backend card
+    const off = compilation.backend === "fallback";
+    const card = clear($("backend-card"));
+    card.className = "backend " + (off ? "off" : "llm");
+    card.append(h("b", {}, off ? "Offline rule reader — no AI used" : `AI provider: ${compilation.backend}`),
+      h("span", {class: "muted"}, off
+        ? "A fixed pattern parser read your policy on this device. It understands common wording only."
+        : `Rules were drafted by an AI model, then checked against your text. ${compilation.attempts} attempt${compilation.attempts > 1 ? "s" : ""}.`),
+      h("div", {class: "hint"}, "Document fingerprint " + compilation.source_sha256.slice(0, 10)));
+
+    // unresolved
+    const un = clear($("unresolved")), ranges = S.unresolved = unresolvedRanges();
+    if (ranges.length) {
+      un.hidden = false;
+      un.append(h("h2", {}, `${ranges.length} clause${ranges.length > 1 ? "s" : ""} we couldn’t understand`),
+        h("p", {}, "We won’t guess. The result will say “needs clarification” until these are fixed or reworded."),
+        h("ul", {}, ranges.map((r, i) => h("li", {}, r.range
+          ? h("button", {type: "button", onclick: () => selectRule("unresolved:" + i)}, r.msg)
+          : r.msg))));
+    } else un.hidden = true;
+    $("to-result").textContent = ranges.length ? "See what this means →" : "See my result →";
+
+    // rule cards
+    const box = clear($("rules"));
+    const netName = {in: "In-network", out: "Out-of-network"};
+    box.append(h("h3", {}, "Plan limits"));
+    for (const [net, t] of Object.entries(policy.networks)) {
+      const ev = evidenceFor(`networks.${net}.deductible_cents`);
+      box.append(ruleCard("net:" + net, `${netName[net] || net} limits`,
+        `Deductible ${money(t.deductible_cents)} · out-of-pocket max ${money(t.oop_max_cents)} · ${t.balance_billing ? "extra billing allowed" : "no extra billing"}`,
+        net, ["deductible_cents", "oop_max_cents", "balance_billing"].map((k) => evidenceFor(`networks.${net}.${k}`)).filter(Boolean)));
+    }
+    box.append(h("h3", {}, "Covered services"));
+    for (const b of policy.benefits) {
+      const ev = evidenceFor("benefits." + b.id);
+      box.append(ruleCard("ben:" + b.id, (/network/i.test(b.label) ? b.label : `${b.label} (${netName[b.network] || b.network})`), ruleDescription(b), null, ev ? [ev] : [], b));
+    }
+    renderSource();
+  }
+  function ruleCard(id, title, desc, _net, evs, benefit) {
+    const spans = evs.flatMap((e) => e.evidence);
+    const ambiguous = evs.find((e) => e.ambiguity && e.ambiguity !== "none");
+    const secs = [...new Set(spans.map((s) => s.section))];
+    const card = h("button", {type: "button", class: "rule", "data-rule": id, "aria-pressed": "false", onclick: () => selectRule(id)},
+      h("div", {class: "t"}, h("span", {}, title, ambiguous ? h("span", {class: "flag"}, "Unclear wording") : null)),
+      h("div", {class: "d"}, desc),
+      ambiguous ? h("div", {class: "d"}, ambiguous.ambiguity) : null,
+      h("div", {class: "src"}, secs.length ? "Source: " + secs.join(", ") : "No source passage recorded"));
+    card._spans = spans;
+    return card;
+  }
+  function spansOf(id) {
+    if (!id) return [];
+    if (id.startsWith("unresolved:")) { const r = S.unresolved[+id.slice(11)]; return r && r.range ? [{start: r.range[0], end: r.range[1]}] : []; }
+    const el = document.querySelector(`[data-rule="${CSS.escape(id)}"]`);
+    return el ? el._spans : [];
+  }
+  function selectRule(id) {
+    S.active = S.active === id ? null : id;
+    document.querySelectorAll(".rule").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.rule === S.active)));
+    renderSource(true);
+    if (S.active && window.matchMedia("(max-width:900px)").matches) $("source-text").scrollIntoView({block: "center", behavior: "smooth"});
+  }
+  function renderSource(scroll, focusRange) {
+    const text = S.data.documents.policy, box = clear($("source-text"));
+    const all = [...document.querySelectorAll(".rule")].flatMap((b) => b._spans || []);
+    const active = focusRange ? [focusRange] : spansOf(S.active);
+    const flagged = S.unresolved.filter((r) => r.range).map((r) => r.range);
+    const cuts = new Set([0, text.length]);
+    for (const s of [...all, ...active, ...flagged.map(([start, end]) => ({start, end}))]) { cuts.add(Math.max(0, s.start)); cuts.add(Math.min(text.length, s.end)); }
+    const pts = [...cuts].sort((a, b) => a - b);
+    const within = (list, a, b) => list.some((s) => (s.start ?? s[0]) <= a && (s.end ?? s[1]) >= b);
+    let firstOn = null;
+    for (let i = 0; i < pts.length - 1; i++) {
+      const a = pts[i], b = pts[i + 1], piece = text.slice(a, b);
+      const on = within(active, a, b), fl = within(flagged, a, b), cov = within(all, a, b);
+      if (!on && !fl && !cov) { box.append(piece); continue; }
+      const m = h("mark", {class: on ? "on" : fl ? "flagged" : ""}, piece);
+      if (on && !firstOn) firstOn = m;
+      box.append(m);
+    }
+    $("source-legend").replaceChildren(h("i"), "Source of a rule", h("i", {class: "f"}), "Not understood");
+    if (scroll && firstOn) firstOn.scrollIntoView({block: "center", behavior: "smooth"});
+  }
+
+  /* ---------- step 3: result ---------- */
+  const MAIN = ["allowed_cents", "deductible_cents", "copay_cents", "coinsurance_cents", "noncovered_cents", "balance_cents"];
+  const LABEL = {allowed_cents: "allowed price", deductible_cents: "deductible", copay_cents: "copay", coinsurance_cents: "coinsurance", noncovered_cents: "uncovered charge", balance_cents: "extra billing"};
+  function verdict() {
+    const r = S.data.report;
+    if (r.status === "blocked") return {kind: "ask", k: "Needs clarification", title: "We can’t give you an answer yet",
+      text: r.blocked_reason + " Fix the policy text or the claim facts and check again."};
+    const s = r.summary, min = s.potential_overpayment_min_cents, max = s.potential_overpayment_max_cents;
+    const refund = Math.max(...r.comparisons.map((c) => c.lines.reduce((a, l) => a + l.potential_refund_cents, 0)));
+    if (min > 0) return {kind: "over", k: "Possible overcharge", title: s.conditional ? `You may be overcharged at least ${money(min)}` : `You may be overcharged ${money(min)}`,
+      text: `The bill asks for ${money(s.bill_patient_cents)}. Your policy supports ${s.conditional ? "as little as " : ""}${money(s.bill_patient_cents - min)}. Ask the billing office to explain the difference.`};
+    if (max > 0) return {kind: "ask", k: "Needs clarification", title: `You could be overcharged up to ${money(max)}`,
+      text: `It depends on facts we couldn’t confirm (such as network, contracted price or what you’ve already paid). ${s.scenario_count} possible readings fit your documents; some match your bill.`};
+    if (refund > 0) return {kind: "over", k: "Possible refund", title: `You may have overpaid ${money(refund)}`,
+      text: "You’ve already paid more than your policy supports. Ask for a credit or refund."};
+    const diffs = r.comparisons.some((c) => c.lines.some((l) => l.explanations.some((e) => e.kind !== "match")));
+    return {kind: "ok", k: "Looks right", title: "Your bill matches",
+      text: diffs ? `The bill isn’t higher than your policy supports, but the insurer’s statement differs in places — see below.` : "Our independent calculation, the insurer’s statement and the bill all agree."};
+  }
+  function ordered() {
+    return [...S.data.report.comparisons].sort((a, b) => a.fineprint_patient_cents - b.fineprint_patient_cents || a.scenario_id.localeCompare(b.scenario_id));
+  }
+  function renderResult() {
+    const r = S.data.report, v = verdict();
+    const box = clear($("verdict")); box.className = "verdict " + v.kind;
+    box.append(h("div", {class: "k"}, v.k), h("h1", {id: "verdict-title"}, v.title), h("p", {}, v.text));
+    const fig = clear($("figures")), asm = clear($("assumptions")), lines = clear($("lines")), pick = clear($("scenario-pick"));
+    if (r.status === "blocked") {
+      fig.hidden = true; $("export").hidden = false;
+      lines.append(h("div", {class: "note warn"}, "Line-by-line results appear once the policy is fully understood."));
+      return;
+    }
+    fig.hidden = false;
+    const s = r.summary, cs = ordered(), cur = cs[S.scenario] || cs[0];
+    const range = (a, b) => (a === b ? money(a) : `${money(a)}–${money(b)}`);
+    fig.append(figure("Hospital bill", money(s.bill_patient_cents)), figure("Insurer says you owe", money(s.eob_patient_cents)),
+      figure("Fineprint calculates", range(s.illustrated_min_patient_cents, s.illustrated_max_patient_cents), true));
+    if (!s.conditional) fig.append(figure("Still to pay (by our math)", money(cur.fineprint_remaining_cents)));
+
+    const issues = r.validation.filter((i) => i.severity !== "info");
+    if (issues.length || r.limitations.length) {
+      asm.append(h("details", {class: "note warn"}, h("summary", {}, issues.length ? `${issues.length} thing${issues.length > 1 ? "s" : ""} we assumed or couldn’t confirm` : "What this check doesn’t cover"),
+        h("ul", {}, issues.map((i) => h("li", {}, i.message)), r.limitations.map((l) => h("li", {class: "muted"}, l)))));
+    }
+    if (s.conditional) {
+      pick.append(h("label", {for: "scn", class: "muted"}, "Reading: "),
+        h("select", {id: "scn", onchange: (e) => { S.scenario = +e.target.value; renderResult(); document.getElementById("scn").focus(); }},
+          cs.map((c, i) => h("option", {value: i, selected: i === S.scenario}, `${i + 1} of ${cs.length} — you’d owe ${money(c.fineprint_patient_cents)}`))));
+      const sc = r.scenarios.find((x) => x.id === cur.scenario_id);
+      if (sc) asm.append(h("details", {class: "note"}, h("summary", {}, "Assumptions in this reading"), h("ul", {}, sc.assumptions.map((a) => h("li", {}, a)))));
+    }
+    const scenario = r.scenarios.find((x) => x.id === cur.scenario_id);
+    cur.lines.forEach((l) => lines.append(lineCard(l, scenario)));
+  }
+  const figure = (l, v, hl) => h("div", {class: "fig" + (hl ? " hl" : "")}, h("div", {class: "l"}, l), h("div", {class: "v"}, v));
+
+  function lineCard(l, scenario) {
+    const claim = S.data.case.claim.lines.find((c) => c.id === l.claim_line_id), eob = claim.insurer;
+    const res = scenario && scenario.lines.find((x) => x.claim_line_id === l.claim_line_id);
+    const diffs = l.explanations.filter((e) => e.kind !== "match");
+    const material = diffs.filter((e) => e.kind !== "eob_vs_fineprint" || MAIN.includes(e.component));
+    const over = l.bill_patient_cents - l.fineprint_patient_cents;
+    const chip = over > 0 ? ["over", `Overbilled ${money(over)}`] : over < 0 ? ["ask", `Billed ${money(-over)} less`] : material.length ? ["ask", "Check statement"] : ["ok", "Matches"];
+    const reasons = material.map((e) => {
+      let text;
+      if (e.kind === "eob_vs_fineprint") {
+        const a = eob[e.component], b = res ? res[e.component] : a - e.difference_cents;
+        text = e.component === "allowed_cents" ? `The insurer used an allowed price of ${money(a)}; your contract supports ${money(b)}.`
+          : `The insurer charged you ${money(a)} in ${LABEL[e.component]}; your policy supports ${money(b)}.`;
+      } else if (e.kind === "bill_vs_eob") {
+        text = `The bill (${money(l.bill_patient_cents)}) differs from the insurer’s statement (${money(l.eob_patient_cents)}) by ${money(Math.abs(e.difference_cents))}. Ask about a missing credit or adjustment.`;
+      } else text = `The bill asks for ${money(l.bill_patient_cents)}; your policy supports ${money(l.fineprint_patient_cents)}. Request an itemized explanation.`;
+      return h("li", {}, text, h("div", {class: "cite"}, "Based on:", e.clause_ids.map((id) => clauseButton(id))));
+    });
+    const trace = res && res.trace;
+    return h("article", {class: "line"},
+      h("div", {class: "line-top"}, h("div", {}, h("b", {}, l.description), h("span", {class: "code"}, l.code)), h("span", {class: "chip " + chip[0]}, chip[1])),
+      h("div", {class: "amts"}, amt("Hospital bill", l.bill_patient_cents), amt("Insurer says", l.eob_patient_cents), amt("Fineprint", l.fineprint_patient_cents, true)),
+      reasons.length ? h("ul", {class: "why"}, reasons) : h("p", {class: "ok-line"}, "✓ Policy, statement and bill agree for this line."),
+      l.already_paid_cents ? h("p", {class: "hint"}, `You already paid ${money(l.already_paid_cents)}${l.potential_refund_cents ? `, ${money(l.potential_refund_cents)} more than supported` : ""}.`) : null,
+      trace && trace.length ? h("details", {}, h("summary", {}, "How we calculated this"),
+        h("ol", {class: "trace"}, trace.map((t) => h("li", {}, `${t.explanation} (${money(t.amount_cents)}) `, h("span", {class: "cite"}, t.clause_ids.map((id) => clauseButton(id)))))) ) : null);
+  }
+  const amt = (l, c, me) => h("div", {class: me ? "me" : ""}, h("div", {class: "l"}, l), h("div", {class: "v"}, money(c)));
+
+  function clauseButton(id) {
+    return h("button", {type: "button", onclick: () => openClause(id), "aria-label": `Show clause ${id}`}, id);
+  }
+  function openClause(id) {
+    const clause = S.data.case.policy.clauses.find((c) => c.id === id);
+    $("clause-title").textContent = clause ? `Clause ${id}` : `Clause ${id} not found`;
+    $("clause-text").textContent = clause ? clause.text : "This clause is not in the compiled policy.";
+    $("clause-show").hidden = !clause;
+    $("clause-show").onclick = () => {
+      $("clause-dialog").close();
+      const text = S.data.documents.policy, i = clause ? text.indexOf(clause.text) : -1;
+      show(2); S.active = null; document.querySelectorAll(".rule").forEach((b) => b.setAttribute("aria-pressed", "false"));
+      renderSource(true, i >= 0 ? [i, i + clause.text.length] : null);
+    };
+    $("clause-dialog").showModal();
+  }
+
+  /* ---------- export ---------- */
+  function summaryText() {
+    const r = S.data.report, v = verdict(), c = S.data.compilation, lines = [];
+    lines.push("# Fineprint summary", "", `**${v.title}**`, "", v.text, "");
+    lines.push(`Policy reader: ${c.backend === "fallback" ? "offline rule reader (no AI)" : "AI provider " + c.backend}`);
+    if (S.data.case.synthetic) lines.push("Data: synthetic demo case, not a real claim.");
+    if (r.status !== "blocked") {
+      const s = r.summary;
+      lines.push("", `- Hospital bill: ${money(s.bill_patient_cents)}`, `- Insurer statement: ${money(s.eob_patient_cents)}`,
+        `- Fineprint: ${s.illustrated_min_patient_cents === s.illustrated_max_patient_cents ? money(s.illustrated_min_patient_cents) : money(s.illustrated_min_patient_cents) + "–" + money(s.illustrated_max_patient_cents)}`, "");
+      const cur = ordered()[S.scenario] || ordered()[0];
+      if (s.conditional) lines.push(`_Showing reading ${S.scenario + 1} of ${s.scenario_count}; results depend on unconfirmed facts._`, "");
+      lines.push("## Lines", "");
+      for (const l of cur.lines) {
+        lines.push(`### ${l.description} (${l.code})`, `Bill ${money(l.bill_patient_cents)} · Insurer ${money(l.eob_patient_cents)} · Fineprint ${money(l.fineprint_patient_cents)}`);
+        const eob = S.data.case.claim.lines.find((x) => x.id === l.claim_line_id).insurer;
+        for (const e of l.explanations.filter((x) => x.kind !== "match" && (x.kind !== "eob_vs_fineprint" || MAIN.includes(x.component))))
+          lines.push(`- ${e.kind === "eob_vs_fineprint" ? `Insurer’s ${LABEL[e.component]} ${money(eob[e.component])} vs policy ${money(eob[e.component] - e.difference_cents)}` : e.kind === "bill_vs_eob" ? "Bill differs from insurer statement by " + money(Math.abs(e.difference_cents)) : "Bill differs from policy calculation by " + money(Math.abs(e.difference_cents))} (clauses: ${e.clause_ids.join(", ")})`);
+        lines.push("");
+      }
+    }
+    lines.push("_Not legal or medical advice. A difference is a question to ask, not a reason to withhold payment._");
+    return lines.join("\n");
+  }
+  function download(name, mime, content) {
+    const a = h("a", {href: URL.createObjectURL(new Blob([content], {type: mime})), download: name});
+    document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  }
+
+  /* ---------- wiring ---------- */
+  async function init() {
+    document.querySelectorAll("#steps button").forEach((b) => b.addEventListener("click", () => show(+b.dataset.step)));
+    document.querySelectorAll("[data-go]").forEach((b) => b.addEventListener("click", () => show(+b.dataset.go)));
+    $("doc-form").addEventListener("submit", (e) => { e.preventDefault(); S.sample = null; run(); });
+    $("clear-btn").addEventListener("click", () => { for (const id of ["in-policy", "in-eob", "in-bill", "in-facts"]) $(id).value = ""; S.sample = null; updateCounts(); unbanner(); });
+    document.querySelectorAll("textarea").forEach((t) => t.addEventListener("input", updateCounts));
+    document.querySelectorAll("input[type=file]").forEach((f) => f.addEventListener("change", async () => {
+      const file = f.files[0]; if (!file) return;
+      if (file.size > 900000) { banner("That file is too large (limit about 900 KB).", "input"); return; }
+      const text = await file.text(); $(f.dataset.target).value = text;
+      if (f.dataset.target === "in-eob") $("in-format").value = text.trim().startsWith("{") ? "mosaic-ledger-v1" : "aurora-csv-v1";
+      updateCounts(); f.value = ""; S.sample = null;
+    }));
+    $("copy-btn").addEventListener("click", async () => {
+      try { await navigator.clipboard.writeText(summaryText()); $("copy-status").textContent = "Summary copied."; }
+      catch { $("copy-status").textContent = "Couldn’t copy automatically — use Download instead."; }
+    });
+    $("dl-md").addEventListener("click", () => download("fineprint-summary.md", "text/markdown", summaryText()));
+    $("dl-json").addEventListener("click", () => download("fineprint-result.json", "application/json", JSON.stringify(S.data, null, 2)));
+    $("print-btn").addEventListener("click", () => window.print());
+    $("restart").addEventListener("click", () => { S.data = null; show(1); });
+    show(1);
+    api("/api/status").then((st) => {
+      const b = $("provider-badge"); b.hidden = false;
+      b.textContent = st.offline ? "Offline reader" : "AI reader: " + st.provider;
+      b.classList.toggle("llm", !st.offline);
+      b.title = st.offline ? "Policies are read by the built-in offline parser." : "Policies are read by an external AI provider.";
+    }).catch(() => {});
+    try {
+      S.samples = await api("/api/samples");
+      const list = clear($("sample-list"));
+      for (const s of S.samples) list.append(h("button", {type: "button", class: "sample", onclick: () => loadSample(s.id)},
+        h("b", {}, s.title), h("span", {}, s.summary), h("span", {class: "go"}, "Try this sample →")));
+    } catch (e) { clear($("sample-list")).append(h("p", {class: "muted"}, "Samples couldn’t load. You can still paste your own documents.")); }
+  }
+  init();
 })();
-
-
-document.addEventListener("change", async (event) => {
-  if (event.target.id !== "policy-file") return;
-  const file = event.target.files[0];
-  if (!file) return;
-  const ticket = requestNumber;
-  try {
-    if (file.size > 500000) throw new Error("Policy text must be at most 500 KB.");
-    const text = await file.text();
-    if (ticket === requestNumber && $("#policy-text")) { $("#policy-text").value = text; announce("Policy text loaded. Choose Compile policy to apply it."); }
-  } catch (err) { error(err.message); }
-});
-
-async function loadMetrics() {
-  const button = $("#load-metrics"); button.disabled = true;
-  try {
-    const report = await api("/api/evaluation");
-    const pct = value => value === null ? "n/a" : `${(value*100).toFixed(1)}%`;
-    $("#metrics-results").innerHTML = `<p class="detail-meta">Actually run ${esc(report.generated_at)} · ${esc(report.backend)} · synthetic data only · author-created format holdout, not blinded</p><div class="table-scroll"><table><thead><tr><th>Split</th><th>Exact / end-to-end</th><th>Extraction P / R</th><th>Discrepancy P / R</th><th>False positive rate</th></tr></thead><tbody>${Object.entries(report.groups).map(([name,g]) => `<tr><td>${esc(name)}</td><td>${g.calculation.exact}/${g.cases} · ${pct(g.end_to_end.rate)}</td><td>${pct(g.extraction.precision)} / ${pct(g.extraction.recall)}</td><td>${pct(g.discrepancy.precision)} / ${pct(g.discrepancy.recall)}</td><td>${pct(g.discrepancy.false_positive_rate)}</td></tr>`).join("")}</tbody></table></div><p class="form-help">Valid source spans: ${pct(report.groups.all.evidence.traceability_rate)} of emitted rules; ${pct(report.groups.all.evidence.coverage_rate)} coverage including failed policies. Ambiguous cases abstain; compilation failures stay in denominators.</p><ul class="questions">${report.policies.filter(p => p.error).map(p => `<li>${esc(p.insurer)}: ${esc(p.error)}</li>`).join("")}</ul>`;
-  } catch (err) { error(err.message); }
-  finally { button.disabled = false; }
-}

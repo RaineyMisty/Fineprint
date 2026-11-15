@@ -114,3 +114,39 @@ class CompilerServerTests(unittest.TestCase):
         self.assertEqual(status,200)
         self.assertEqual(report["backend"],"fallback")
         self.assertEqual(report["groups"]["all"]["calculation"]["exact"],8)
+
+
+class CheckEndpointTests(unittest.TestCase):
+    setUpClass = classmethod(ServerTests.setUpClass.__func__)
+    tearDownClass = classmethod(ServerTests.tearDownClass.__func__)
+    request = ServerTests.request
+
+    def check(self, inputs):
+        return self.request("POST", "/api/check", json.dumps(inputs), {"Content-Type": "application/json"})
+
+    def test_status_and_samples(self):
+        self.assertIn("provider", self.request("GET", "/api/status")[2])
+        self.assertEqual(len(self.request("GET", "/api/samples")[2]), 3)
+        sample = self.request("GET", "/api/samples/aurora-imaging")[2]
+        self.assertEqual(set(sample["inputs"]) >= {"policy", "eob", "bill", "claim_format"}, True)
+        self.assertEqual(self.request("GET", "/api/samples/missing")[0], 404)
+
+    def test_check_pasted_documents_matches_case_endpoint(self):
+        for case_id in ("aurora-imaging", "mosaic-oop", "mosaic-therapy"):
+            inputs = self.request("GET", "/api/samples/" + case_id)[2]["inputs"]
+            status, _, data = self.check(inputs)
+            self.assertEqual(status, 200)
+            expected = self.request("GET", "/api/cases/" + case_id)[2]["report"]["summary"]
+            self.assertEqual(data["report"]["summary"], expected)
+            self.assertEqual(data["compilation"]["backend"], "fallback")
+
+    def test_check_unresolved_clause_blocks_and_bad_input_is_400(self):
+        inputs = self.request("GET", "/api/samples/aurora-imaging")[2]["inputs"]
+        bad = dict(inputs, policy=inputs["policy"].replace("deductible then 20% member coinsurance", "subject to administrator discretion"))
+        data = self.check(bad)[2]
+        self.assertEqual(data["report"]["status"], "blocked")
+        self.assertTrue(data["compilation"]["output"]["unresolved"])
+        status, _, err = self.check(dict(inputs, eob="not,a,claim"))
+        self.assertEqual((status, err["kind"]), (400, "input"))
+        self.assertEqual(self.check(dict(inputs, claim_format="nope"))[0], 400)
+        self.assertEqual(self.check({"policy": "x"})[0], 400)

@@ -3,45 +3,113 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Connect policy terms, an independent claim calculation, and the final medical bill.">
-  <title>Fineprint · Follow the fine print</title>
+  <meta name="description" content="Check your medical bill against your insurance policy, clause by clause.">
+  <title>Fineprint · Check what you really owe</title>
   <link rel="stylesheet" href="/styles.css">
   <script src="/app.js" defer></script>
 </head>
 <body>
-  <a class="skip-link" href="#main">Skip to case</a>
-  <aside class="sidebar">
-    <a class="brand" href="/" aria-label="Fineprint home"><span class="brand-mark">f.</span>fineprint</a>
-    <p class="brand-caption">The fine print, on your side.</p>
-    <div class="sidebar-label">YOUR CASE EXPLORER</div>
-    <nav id="case-list" aria-label="Synthetic cases"><p>Loading cases…</p></nav>
-    <div class="sidebar-tools">
-      <label class="import-button" for="import-file">＋ Open case JSON</label>
-      <input id="import-file" type="file" accept=".json,application/json">
-      <button id="download" class="sidebar-button" disabled>↓ Export normalized case</button>
-    </div>
-    <div class="sidebar-note"><span class="offline-dot"></span> Offline by design<p>Default fallback: no API keys.<br>Uploaded text stays in memory.</p></div>
-    <p class="sidebar-footer">HEALTHCARE × PRACTICAL AI<br><span>Policy text to clause-backed calculations.</span></p>
-  </aside>
-  <div class="workspace">
-    <header class="topbar"><span>POLICY <span class="muted">/</span> CLAIM <span class="muted">/</span> BILL</span><span id="data-badge" class="badge">SYNTHETIC DATA ONLY</span></header>
-    <main id="main" tabindex="-1">
-      <div id="error" class="error-banner" role="alert" hidden></div>
-      <p id="status" class="sr-only" role="status" aria-live="polite"></p>
-      <div class="intro"><div><p class="eyebrow">CLARITY AT EVERY STEP</p><h1>Follow the fine print<span>.</span></h1><p class="intro-copy">Understand your coverage. Check the math. Know what to question.</p></div><span class="edition">INDEPENDENT<br>BY DESIGN ↗</span></div>
-      <section class="case-heading" aria-label="Current case"><div><p id="insurer" class="eyebrow">CASE EXPLORER</p><h2 id="case-title">Loading your case…</h2><p id="case-summary" class="muted"></p></div><button id="reset" class="text-button" disabled>Reset case ↺</button></section>
-      <div class="steps" role="tablist" aria-label="Case workflow">
-        <button id="tab-policy" role="tab" aria-selected="true" aria-controls="panel-policy" data-step="policy"><span>01</span><div>Policy<small>Compile & trace rules</small></div><b>↗</b></button>
-        <button id="tab-claim" role="tab" aria-selected="false" aria-controls="panel-claim" tabindex="-1" data-step="claim"><span>02</span><div>Claim<small>Check the calculation</small></div><b>↗</b></button>
-        <button id="tab-bill" role="tab" aria-selected="false" aria-controls="panel-bill" tabindex="-1" data-step="bill"><span>03</span><div>Bill<small>What you may owe</small></div><b>↗</b></button>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="top">
+    <a class="brand" href="/" aria-label="Fineprint, start over"><span class="mark" aria-hidden="true">f</span>Fineprint</a>
+    <ol class="steps" id="steps" aria-label="Progress">
+      <li><button type="button" data-step="1"><span class="n">1</span>Documents</button></li>
+      <li><button type="button" data-step="2"><span class="n">2</span>Policy rules</button></li>
+      <li><button type="button" data-step="3"><span class="n">3</span>Your result</button></li>
+    </ol>
+    <span class="badge" id="provider-badge" hidden></span>
+  </header>
+
+  <main id="main" tabindex="-1">
+    <div id="banner" role="alert" hidden></div>
+
+    <!-- Step 1 -->
+    <section id="step-1" class="step" aria-labelledby="h1-title">
+      <div class="intro">
+        <h1 id="h1-title">Is your bill right?</h1>
+        <p class="lede">Add your policy, your insurer’s statement (EOB) and the provider’s bill. We read the policy, recalculate what you should owe, and show any difference with the clause behind it.</p>
       </div>
-      <div id="validation"></div>
-      <section id="panel-policy" role="tabpanel" aria-labelledby="tab-policy"></section>
-      <section id="panel-claim" role="tabpanel" aria-labelledby="tab-claim" hidden></section>
-      <section id="panel-bill" role="tabpanel" aria-labelledby="tab-bill" hidden></section>
-      <section class="card" id="evaluation"><details><summary>Measured offline evaluation · synthetic benchmark</summary><p class="form-help">Run the frozen fallback against seen and held-out insurer documents, including unsupported formats. Results are measured locally.</p><button id="load-metrics" class="secondary-button">Run offline evaluation</button><div id="metrics-results"></div></details></section>
-      <footer class="page-footer"><span>Fictional cases. Real questions worth asking.</span><span>A calculation aid, subject to the stated inputs and plan scope.</span></footer>
-    </main>
-  </div>
+      <div class="samples" aria-labelledby="samples-title">
+        <h2 id="samples-title" class="eyebrow">Just exploring? Try a sample case</h2>
+        <div id="sample-list" class="sample-list"><p class="muted">Loading samples…</p></div>
+      </div>
+      <form id="doc-form" novalidate>
+        <div class="docs">
+          <div class="doc"><div class="doc-head"><label for="in-policy">Insurance policy</label><label class="file" for="file-policy">Upload<input id="file-policy" type="file" accept=".txt,.md,text/plain,text/markdown" data-target="in-policy"></label></div>
+            <textarea id="in-policy" spellcheck="false" placeholder="Paste the plan’s benefits text here…" aria-describedby="hint-policy"></textarea><p id="hint-policy" class="hint">Text or Markdown. <span class="count" data-count="in-policy"></span></p></div>
+          <div class="doc"><div class="doc-head"><label for="in-eob">Insurer statement (EOB)</label><label class="file" for="file-eob">Upload<input id="file-eob" type="file" accept=".csv,.json,.txt,text/csv,application/json,text/plain" data-target="in-eob"></label></div>
+            <textarea id="in-eob" spellcheck="false" placeholder="Paste the claim statement (CSV or JSON)…" aria-describedby="hint-eob"></textarea><p id="hint-eob" class="hint">CSV or JSON. <span class="count" data-count="in-eob"></span></p></div>
+          <div class="doc"><div class="doc-head"><label for="in-bill">Provider bill</label><label class="file" for="file-bill">Upload<input id="file-bill" type="file" accept=".csv,.txt,text/csv,text/plain" data-target="in-bill"></label></div>
+            <textarea id="in-bill" spellcheck="false" placeholder="Paste the itemized bill (CSV)…" aria-describedby="hint-bill"></textarea><p id="hint-bill" class="hint">CSV. <span class="count" data-count="in-bill"></span></p></div>
+        </div>
+        <details class="facts">
+          <summary>Claim facts &amp; format <span class="muted">(filled in for samples)</span></summary>
+          <p class="hint">Details a statement may not spell out: prior deductible spending, contracted prices and IDs. JSON.</p>
+          <label for="in-format" class="inline">EOB format</label>
+          <select id="in-format"><option value="aurora-csv-v1">CSV claim table</option><option value="mosaic-ledger-v1">JSON claim ledger</option></select>
+          <label for="in-facts" class="inline block">Facts (JSON)</label>
+          <textarea id="in-facts" class="facts-text" spellcheck="false" placeholder='{"claim_context": {...}, "bill_context": {...}, "allowed_evidence": {...}}'></textarea>
+        </details>
+        <div class="actions">
+          <button class="btn primary" type="submit" id="check-btn">Check my bill</button>
+          <button class="btn ghost" type="button" id="clear-btn">Clear</button>
+          <p class="privacy">Nothing is stored. Documents are sent only to this local server.</p>
+        </div>
+      </form>
+    </section>
+
+    <!-- Loading -->
+    <section id="loading" class="step" hidden aria-live="polite">
+      <div class="loading" role="status"><span class="spinner" aria-hidden="true"></span><p id="loading-text">Reading your policy…</p></div>
+    </section>
+
+    <!-- Step 2 -->
+    <section id="step-2" class="step" hidden aria-labelledby="h2-title">
+      <div class="step-head">
+        <div><h1 id="h2-title">What we read in your policy</h1>
+          <p class="lede">Each rule below was taken from a passage of your policy. Select a rule to see exactly where.</p></div>
+        <div id="backend-card" class="backend"></div>
+      </div>
+      <div id="unresolved" class="unresolved" hidden></div>
+      <div class="split">
+        <div class="rules" id="rules" aria-label="Compiled rules"></div>
+        <aside class="source" aria-label="Policy text">
+          <div class="source-head"><h2>Your policy</h2><span id="source-legend" class="legend"></span></div>
+          <div id="source-text" class="source-text" tabindex="0" role="region" aria-label="Policy text with highlighted source clauses"></div>
+        </aside>
+      </div>
+      <div class="actions sticky">
+        <button class="btn ghost" type="button" data-go="1">← Edit documents</button>
+        <button class="btn primary" type="button" data-go="3" id="to-result">See my result →</button>
+      </div>
+    </section>
+
+    <!-- Step 3 -->
+    <section id="step-3" class="step" hidden aria-labelledby="verdict-title">
+      <div id="verdict" class="verdict"></div>
+      <div id="figures" class="figures"></div>
+      <div id="assumptions"></div>
+      <div class="lines-head"><h2>Line by line</h2><div id="scenario-pick"></div></div>
+      <div id="lines" class="lines"></div>
+      <div class="export" id="export">
+        <h2>Take it with you</h2>
+        <p class="muted">A plain summary to bring to your insurer or the billing office.</p>
+        <div class="export-btns">
+          <button class="btn" type="button" id="copy-btn">Copy summary</button>
+          <button class="btn" type="button" id="dl-md">Download .md</button>
+          <button class="btn" type="button" id="dl-json">Download JSON</button>
+          <button class="btn" type="button" id="print-btn">Print / PDF</button>
+        </div>
+        <p id="copy-status" class="muted" role="status"></p>
+        <p class="fine">Fineprint does not give legal or medical advice. A difference is a question to ask, not a reason to withhold payment. Calculations are deterministic; the policy reader may make mistakes, so check the cited clauses.</p>
+      </div>
+      <div class="actions sticky"><button class="btn ghost" type="button" data-go="2">← Policy rules</button><button class="btn" type="button" id="restart">Start over</button></div>
+    </section>
+  </main>
+
+  <dialog id="clause-dialog" aria-labelledby="clause-title">
+    <form method="dialog"><h2 id="clause-title"></h2><p id="clause-text" class="clause-quote"></p>
+      <div class="dialog-actions"><button class="btn ghost" type="button" id="clause-show">Show in policy</button><button class="btn primary" value="close" autofocus>Close</button></div></form>
+  </dialog>
 </body>
 </html>

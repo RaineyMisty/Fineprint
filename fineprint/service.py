@@ -46,3 +46,17 @@ def analyze_policy_text(case: Case, document: str, document_id: str, *, compiler
     from .models import to_dict
     return {"case": to_dict(updated), "documents": {"policy": document},
             "compilation": compilation.as_dict(), "report": analyze(updated, unresolved=compilation.output.unresolved)}
+
+
+def check_documents(inputs: dict, *, compiler=None):
+    """Pasted policy + EOB + bill -> compile policy, then independent recalculation."""
+    from .compiler import get_compiler
+    from .models import case_from_dict, to_dict
+    from .repository import parse_inputs
+    claim, bill, allowed = parse_inputs(inputs)
+    document_id = "uploaded-policy"
+    compilation = (compiler or get_compiler()).compile(inputs["policy"], document_id)
+    case = case_from_dict({"schema_version": "1.0", "id": claim.id, "title": "Your claim", "synthetic": bool(inputs.get("synthetic", False)),
+                           "policy": to_dict(compilation.policy), "claim": to_dict(claim), "bill": bill, "allowed_evidence": allowed})
+    return {"case": to_dict(case), "documents": {"policy": inputs["policy"]}, "compilation": compilation.as_dict(),
+            "report": analyze(case, unresolved=compilation.output.unresolved)}

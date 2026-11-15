@@ -7,11 +7,17 @@ from pathlib import Path
 from urllib.parse import urlsplit
 
 from .models import ModelError, case_from_dict, to_dict
-from .repository import list_cases, load_case
-from .service import analyze, analyze_policy_text
+from .repository import list_cases, load_case, sample_inputs
+from .service import analyze, analyze_policy_text, check_documents
 
 STATIC = Path(__file__).parent / "static"
 MAX_BODY = 1024 * 1024
+
+
+def error_kind(exc):
+    """'provider' when an LLM backend failed (nothing was substituted); otherwise 'input'."""
+    from .providers import ProviderError
+    return "provider" if isinstance(exc, ProviderError) else "input"
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -36,6 +42,14 @@ class Handler(BaseHTTPRequestHandler):
         try:
             if path == "/api/cases":
                 return self.reply(200, list_cases())
+            if path == "/api/status":
+                import os
+                name = os.getenv("FINEPRINT_LLM_PROVIDER", "fallback")
+                return self.reply(200, {"provider": name, "offline": name == "fallback"})
+            if path == "/api/samples":
+                return self.reply(200, list_cases())
+            if path.startswith("/api/samples/"):
+                return self.reply(200, sample_inputs(path.removeprefix("/api/samples/")))
             if path == "/api/evaluation":
                 from .compiler import FallbackCompiler
                 from .eval import run_evaluation
@@ -55,11 +69,11 @@ class Handler(BaseHTTPRequestHandler):
         except FileNotFoundError:
             return self.reply(404, {"error": "Unknown case"})
         except (ModelError, ValueError, TypeError) as exc:
-            return self.reply(400, {"error": str(exc)})
+            return self.reply(400, {"error": str(exc), "kind": error_kind(exc)})
 
     def do_POST(self):
         path = urlsplit(self.path).path
-        if path not in ("/api/analyze", "/api/compile"):
+        if path not in ("/api/analyze", "/api/compile", "/api/check"):
             return self.reply(404, {"error": "Not found"})
         # Reject cross-origin browser requests; this endpoint has no CORS opt-in.
         if self.headers.get("Sec-Fetch-Site") == "cross-site":
@@ -71,6 +85,8 @@ class Handler(BaseHTTPRequestHandler):
             if not 0 < length <= MAX_BODY:
                 return self.reply(413, {"error": "JSON body must be between 1 byte and 1 MiB"})
             payload = json.loads(self.rfile.read(length))
+            if path == "/api/check":
+                return self.reply(200, check_documents(payload))
             if path == "/api/compile":
                 if not isinstance(payload, dict) or set(payload) - {"document", "document_id", "case"}:
                     raise ModelError("Expected document, optional document_id and optional case")
@@ -85,7 +101,7 @@ class Handler(BaseHTTPRequestHandler):
             case = case_from_dict(payload)
             return self.reply(200, {"case": to_dict(case), "documents": {}, "report": analyze(case)})
         except (ModelError, ValueError, TypeError, RecursionError) as exc:
-            return self.reply(400, {"error": str(exc)})
+            return self.reply(400, {"error": str(exc), "kind": error_kind(exc)})
 
 
 def main():
