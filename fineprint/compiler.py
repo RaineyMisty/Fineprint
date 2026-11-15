@@ -130,9 +130,17 @@ def _normalized_text(text):
 
 
 def _balance_supported(value, quotes, network=None):
-    """Require explicit billing language, not an inferred network protection."""
+    """Corroborate known wording; don't treat the grammar as a closed vocabulary.
+
+    Callers separately require located, verbatim source spans. Unrecognized
+    wording retains the model interpretation with a review warning. Explicit
+    contradictions and evidence describing only another network still fail.
+    """
     from .billing_language import explicit_balance_values
-    return explicit_balance_values(quotes, network) == {value}
+    values = explicit_balance_values(quotes, network)
+    if values:
+        return values == {value}
+    return bool(quotes) and not explicit_balance_values(quotes)
 
 
 def _selector_supported(benefit, quotes):
@@ -369,6 +377,12 @@ def recover_evidence(value, document, document_id):
                 terms["balance_billing"], terms["network_clause"] = None, None
                 merged.pop(path, None)
                 dropped.append(path)
+            else:
+                from .billing_language import explicit_balance_values
+                if not explicit_balance_values(quotes, net):
+                    value["warnings"].append(
+                        f"{path}: retained source-backed model interpretation; local billing wording "
+                        "recognizer could not confirm it. Review the cited verbatim source before relying on this term.")
     retained = []
     for benefit in value["policy"]["benefits"]:
         path = "benefits." + benefit["id"]

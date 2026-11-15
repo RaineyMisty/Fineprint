@@ -184,7 +184,7 @@ class CompilerTests(unittest.TestCase):
         self.assertEqual(result.attempts, 2)
         self.assertIn('policy.id must copy the explicit Policy:', calls[1])
 
-    def test_generic_quote_cannot_establish_balance_billing_and_claim_is_blocked(self):
+    def test_unrecognized_verbatim_billing_interpretation_is_retained_for_review(self):
         from dataclasses import replace
         from fineprint.repository import load_case
         from fineprint.service import analyze
@@ -201,22 +201,22 @@ class CompilerTests(unittest.TestCase):
                 if rule['rule_path'] == 'networks.in.balance_billing':
                     evidence['quote'] = 'Individual annual in-network deductible: $1000.00.'
         result = LLMCompiler('deepseek', transport=lambda *_:value, sleep=lambda _:None).compile(DOC)
-        self.assertIsNone(result.policy.networks['in'].balance_billing)
-        self.assertIsNone(result.policy.networks['in'].network_clause)
+        self.assertFalse(result.policy.networks['in'].balance_billing)
+        self.assertIsNotNone(result.policy.networks['in'].network_clause)
         paths = {r.rule_path for r in result.output.rule_evidence}
         self.assertIn('networks.in.deductible_cents', paths)
         self.assertIn('networks.in.oop_max_cents', paths)
-        self.assertNotIn('networks.in.balance_billing', paths)
+        self.assertIn('networks.in.balance_billing', paths)
         references = {ref for benefit in result.policy.benefits for ref in benefit.clause_ids}
         for terms in result.policy.networks.values():
             references.update(ref for ref in (terms.deductible_clause, terms.oop_clause, terms.network_clause) if ref)
         self.assertEqual({clause.id for clause in result.policy.clauses}, references)
-        self.assertTrue(result.output.coverage_gaps)
+        self.assertTrue(any('retained source-backed model interpretation' in warning for warning in result.output.warnings))
         original, _ = load_case('aurora-imaging')
         report = analyze(replace(original, policy=result.policy))
-        self.assertEqual(report['status'], 'blocked')
-        self.assertFalse(report['scenarios'])
-        self.assertIn('incomplete_network', {issue['code'] for issue in report['validation']})
+        self.assertEqual(report['status'], 'ready')
+        self.assertTrue(report['scenarios'])
+        self.assertNotIn('incomplete_network', {issue['code'] for issue in report['validation']})
 
     def test_partial_quote_failure_retries_and_keeps_only_validated_output(self):
         good = to_dict(FallbackCompiler().compile(DOC).output)

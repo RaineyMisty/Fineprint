@@ -61,9 +61,9 @@ def explicit_balance_values(quotes, network=None):
     for quote in quotes:
         # Keep sentence boundaries: an unrelated "no" must not negate a
         # permission later in a paragraph, or a different network's rule.
-        text = " ".join(quote.casefold().replace("\u2011", "-").split())
-        if "|" in text:
-            continue  # evaluated using table headings, never flattened cells
+        # A clause table can contain a complete narrative rule in one cell.
+        # Keep cells separate rather than discarding that source-line quote.
+        text = " ".join(quote.casefold().replace("\u2011", "-").replace("|", ". ").split())
         scope = set()
         billing_question = False
         for sentence in re.split(r"(?<=[.!?])\s+", text):
@@ -82,6 +82,11 @@ def explicit_balance_values(quotes, network=None):
                 if answer:
                     values.add(answer[1] in ("may", "can"))
                     continue
+            if scope == {"in"} and (
+                    re.search(r"(?:charges?|amounts?|difference).{0,100}\bmust be written off\b", sentence)
+                    or re.search(r"\b(?:cannot|can't|may not|must not) bill (?:you|the (?:member|patient)) for the difference\b", sentence)
+                    or re.search(r"\bnot responsible for (?:charges?|amounts?) above the allowed amount\b", sentence)):
+                values.add(False)
             if not re.search(_TOPIC, sentence):
                 continue
             negative = (re.search(r"\b(?:no|never|cannot|can't|may not|must not|not permitted to|not allowed to|prohibited from|forbidden from)\s+(?:[a-z-]+\s+){0,4}" + _TOPIC, sentence)

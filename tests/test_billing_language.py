@@ -9,6 +9,56 @@ from fineprint.models import to_dict
 
 
 class BillingLanguageTests(unittest.TestCase):
+    def test_participating_provider_writeoffs_in_prose_and_clause_tables(self):
+        sentence = "Covered participating-provider charges above the allowed amount must be written off; no balance billing."
+        for text in (sentence, "| N-in | " + sentence + " |",
+                     "Participating providers may not balance bill.",
+                     "In-network charges above the allowed amount must be written off.",
+                     "Participating providers cannot bill you for the difference.",
+                     "For participating providers, you are not responsible for amounts above the allowed amount."):
+            with self.subTest(text=text):
+                self.assertEqual(explicit_balance_values([text], 'in'), {False})
+                self.assertEqual(explicit_balance_values([text], 'out'), set())
+
+    def test_source_line_table_evidence_preserves_sample_billing_terms(self):
+        from fineprint.providers import LLMCompiler
+        source = Path('fineprint/samples/aurora-imaging/policy.md').read_text()
+        value = to_dict(FallbackCompiler().compile(source).output)
+        del value['policy']['clauses']
+        for terms in value['policy']['networks'].values():
+            for field in ('deductible_clause', 'oop_clause', 'network_clause'):
+                del terms[field]
+        for benefit in value['policy']['benefits']:
+            del benefit['clause_ids']
+        for rule in value['rule_evidence']:
+            for evidence in rule['evidence']:
+                quote = evidence['quote']
+                numbers = [n for n,line in enumerate(source.splitlines(),1) if quote in line]
+                evidence.clear()
+                evidence.update(source_document_id='uploaded-policy', section='Benefits', source_lines=numbers)
+        result = LLMCompiler('deepseek', transport=lambda *_: value, retries=1).compile(source)
+        self.assertIs(result.policy.networks['in'].balance_billing, False)
+        self.assertIs(result.policy.networks['out'].balance_billing, True)
+        self.assertFalse(any('balance_billing' in warning and 'Dropped' in warning for warning in result.output.warnings))
+
+    def test_missing_or_contradictory_billing_evidence_is_still_rejected(self):
+        from fineprint.compiler import _balance_supported
+        self.assertFalse(_balance_supported(False, [] , 'in'))
+        self.assertFalse(_balance_supported(True, ['Participating providers may not balance bill.'], 'in'))
+        self.assertFalse(_balance_supported(False, ['Out-of-network balance billing is permitted.'], 'in'))
+        self.assertTrue(_balance_supported(False, ['Participating providers absorb residual negotiated-price variance.'], 'in'))
+
+    def test_unmatched_billing_quote_does_not_get_source_backed_fallback(self):
+        source = Path('fineprint/samples/aurora-imaging/policy.md').read_text()
+        value = to_dict(FallbackCompiler().compile(source).output)
+        rule = next(r for r in value['rule_evidence'] if r['rule_path'] == 'networks.in.balance_billing')
+        for evidence in rule['evidence']:
+            evidence['quote'] = 'Invented participating provider billing terms absent from this document.'
+        recovered = recover_evidence(value, source, 'uploaded-policy')
+        checked = validate_output(recovered, source, 'uploaded-policy')
+        self.assertIsNone(checked.policy.networks['in'].balance_billing)
+        self.assertNotIn('networks.in.balance_billing', {r.rule_path for r in checked.rule_evidence})
+
     def test_explicit_permission_in_both_word_orders(self):
         for text in ("Out-of-network providers may balance bill excess charges.",
                      "Out-of-network: excess balance billing is permitted.",
