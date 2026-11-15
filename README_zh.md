@@ -8,7 +8,7 @@ Fineprint 面向 **患者、照护者及医保权益协助人员**：根据保�
 
 **自然语言保单 → 带原文证据的可执行规则 → 独立理赔核算 → 精确条款与金额差异 → 最终账单核对。** EOB 是待比较的观察值，不是 Fineprint 复用的答案。计算由确定性引擎完成；可选 LLM 用于编译保单语言，不负责金额运算。
 
-**所有内置保险公司、会员、医疗机构、保单、协议价格、EOB 和账单均为合成／虚构数据，不含真实个人信息。** 默认演示、测试和评估完全离线，无需密钥或运行时依赖。尚无实际 LLM 服务的测量结果。
+**所有内置保险公司、会员、医疗机构、保单、协议价格、EOB 和账单均为合成／虚构数据，不含真实个人信息。** 默认演示、测试和评估完全离线，无需密钥或运行时依赖。下文另列该合成基准上的真实 DeepSeek API 实测结果。
 
 ## 本地运行
 
@@ -22,7 +22,7 @@ python3 -m fineprint.server --port 8765
 
 打开 **http://127.0.0.1:8765**，Ctrl+C 停止。可选安装：`python3 -m pip install -e .`，然后运行 `fineprint`。安装可能下载构建工具；直接运行源码无需下载。
 
-**80 项测试通过**，涵盖严格模式验证、原文跨度、重试及服务请求契约（使用测试替身）、合成样例、计算独立性、评估分母和 HTTP 集成。实际在线服务调用尚未验证。可选浏览器检查需要 Node.js 22+ 和 Chrome，无需 npm 包：
+**95 项测试通过**，涵盖严格模式验证、原文跨度、重试及服务请求契约（使用测试替身）、合成样例、计算独立性、评估分母和 HTTP 集成。另已通过真实 API 调用评估 DeepSeek；其他在线后端尚未实测。可选浏览器检查需要 Node.js 22+ 和 Chrome，无需 npm 包：
 
 ```bash
 node scripts/browser_smoke.mjs
@@ -39,7 +39,7 @@ node scripts/browser_smoke.mjs
 4. 打开 **Bill**：医院患者总额为 **$505**，比 EOB 又多 **$40**。Fineprint 显示 **“You may be overpaying $120.”** 已付款 $100 后，支持的剩余金额是 **$285**。这些数字来自虚构案例核算，不是真实节省金额的测量。
 5. 查看 Mosaic 的自付上限案例（**$150 差异**），以及治疗歧义案例（**32 个有条件情景**，演示总额 **$0–$300**）。补齐网络、允许金额和历史支出后，治疗案例仍有两个合同解释。缺失事实的端点并不穷尽可能结果，最低情景不是确认应付金额。
 
-评估面板可运行离线基准并显示未见格式失败。案例导入和事实编辑保留在内存中。导入的结构化 JSON 不附带编译来源；需再次编译原文才能建立跨度证据。有利结果是有据可查的复核问题，不保证节省，也不构成停止付款的指示。
+静态站点评估页并列显示离线基准与已保存的 DeepSeek 实测结果，保留未见格式失败。CI 仅读取已提交的 LLM 报告，无需密钥或 API 调用。案例导入和事实编辑保留在内存中。导入的结构化 JSON 不附带编译来源；需再次编译原文才能建立跨度证据。有利结果是有据可查的复核问题，不保证节省，也不构成停止付款的指示。
 
 ## Policy-to-Rules 编译器
 
@@ -47,7 +47,7 @@ node scripts/browser_smoke.mjs
 flowchart LR
     P[自然语言保单] --> I[统一编译接口]
     I --> F[离线模式 / 表格解析器]
-    I --> L[OpenAI / Bedrock / Anthropic]
+    I --> L[OpenAI / Bedrock / Anthropic / DeepSeek]
     F --> V[封闭 JSON Schema + 原文跨度验证]
     L --> V
     V --> R[可执行规则 + 证据 + 歧义]
@@ -76,23 +76,29 @@ python3 -m fineprint.compiler fineprint/samples/aurora-imaging/policy.md \
 | --- | --- | --- |
 | `openai` | `OPENAI_API_KEY`；可选 `FINEPRINT_LLM_MODEL` | HTTPS Chat Completions，严格 JSON Schema 输出。 |
 | `anthropic` | `ANTHROPIC_API_KEY`；可选 `FINEPRINT_LLM_MODEL` | HTTPS Messages，JSON Schema 输出。 |
+| `deepseek` | `DEEPSEEK_API_KEY`；`FINEPRINT_DEEPSEEK_MODEL` 默认 `deepseek-v4-pro`，另可用 `deepseek-flash` | 标准库 HTTPS 请求 `https://api.deepseek.com/chat/completions`，JSON 输出模式，再执行统一严格模式及原文跨度验证。 |
 | `bedrock` | `FINEPRINT_LLM_MODEL` 为已启用模型／推理配置 ID；`AWS_REGION` 或 `AWS_DEFAULT_REGION`；标准 AWS 凭据链 | Amazon Bedrock Converse，强制返回指定工具及规则结构，再本地严格验证。所选模型须支持强制工具。 |
 
-Bedrock 可选 SDK：`python3 -m pip install -e '.[bedrock]'`。OpenAI 与 Anthropic 使用标准库 HTTPS。`FINEPRINT_LLM_ATTEMPTS` 默认 3，允许 1–5 次，具有有界退避、网络超时，每次尝试都校验结构和原文。错误信息不包含密钥和服务响应正文。[.env.example](.env.example) 列出变量；应用不会自动加载 `.env`。不要提交密钥。
+Bedrock 可选 SDK：`python3 -m pip install -e '.[bedrock]'`。OpenAI、Anthropic 和 DeepSeek 使用标准库 HTTPS。`FINEPRINT_LLM_ATTEMPTS` 默认 3，允许 1–5 次，具有有界退避、网络超时，每次尝试都校验结构和原文。DeepSeek 超时为 60 秒，输出上限 16,384 token，关闭 thinking；其模型配置独立于 `FINEPRINT_LLM_MODEL`。错误信息不包含密钥和服务响应正文。[.env.example](.env.example) 列出变量；应用不会自动加载 `.env`。不要提交密钥。
 
 ```bash
-export FINEPRINT_LLM_PROVIDER=openai
-# 在环境中安全设置 OPENAI_API_KEY。
+export FINEPRINT_LLM_PROVIDER=deepseek
+# 在环境中安全设置 DEEPSEEK_API_KEY。
 python3 -m fineprint.compiler fineprint/samples/aurora-imaging/policy.md
+python3 -m fineprint.eval --provider deepseek --report-name evaluation-deepseek-v4-pro
+FINEPRINT_DEEPSEEK_MODEL=deepseek-flash python3 -m fineprint.eval \
+  --provider deepseek --report-name evaluation-deepseek-flash
 # 无论服务器如何配置，以下命令明确运行离线基准：
 python3 -m fineprint.eval --provider fallback
 ```
 
-在线后端会收到提交的保单文本，应明确选择后使用。集成代码及请求契约已实现，但**当前没有密钥，没有运行任何真实在线后端**。测试替身仅用于测试，不计为 LLM 评估结果。Bedrock 是已经实现的 Amazon 接入路径，不代表已完成部署或实测。
+在线后端会收到提交的保单文本，应明确选择后使用。下列 DeepSeek 结果来自真实凭据下的 API 调用。测试替身仅用于测试，不计为 LLM 评估结果。Bedrock 是已经实现的 Amazon 接入路径，不代表已完成部署或实测。
 
-## 实测评估：合成数据上的离线 fallback
+## 实测评估：合成数据
 
 默认环境运行 `python3 -m fineprint.eval`，或明确指定 `python3 -m fineprint.eval --provider fallback`。流程编译原文，只用编译结果替换案例保单，计算全部情景，对比 EOB 并核对最终账单。生成 [JSON 结果](reports/evaluation.json) 和 [Markdown 报告](reports/evaluation.md)，可用 `--output-dir PATH` 指定目录。报告记录后端、模型、时间戳、提交版本及语料／解析器哈希。
+
+### 离线 fallback
 
 下列数字**确实来自本次离线 fallback 执行**，覆盖 **5 份合成保单／10 个案例／4 家虚构保险公司**：
 
@@ -102,9 +108,9 @@ python3 -m fineprint.eval --provider fallback
 | 留出未见 | 2 / 4 | 100.0% / 56.8% | 2/4 (50.0%) | 100.0% / 50.0% | 0.0% | 100.0% / 52.9% | 2/4 (50.0%) |
 | 全部 | 5 / 10 | 100.0% / 84.8% | 8/10 (80.0%) | 100.0% / 83.3% | 0.0% | 100.0% / 81.8% | 8/10 (80.0%) |
 
-**留出协议：** 先在提交 `bd9f7ab` 冻结编译器，再创建 **Cedar Assurance**（标签式参考卡）和 **Harbor Benefits Cooperative**（转置 SBC 矩阵）。哈希检查确认解析器未改动。Cedar 成功；Harbor 无法建立网络规则，两个案例均阻止计算。这是**作者编写的格式留出集，不是盲测或外部基准**；作者了解语法。没有使用这些结果调优解析器，详见 [协议](docs/benchmark-protocol.md)。
+**Fallback 留出协议：** 先在提交 `bd9f7ab` 冻结编译器，再创建 **Cedar Assurance**（标签式参考卡）和 **Harbor Benefits Cooperative**（转置 SBC 矩阵）。哈希检查确认解析器未改动。Cedar 成功；Harbor 无法建立网络规则，两个案例均阻止计算。这是**作者编写的格式留出集，不是盲测或外部基准**；作者了解语法。没有使用这些结果调优解析器，详见 [协议](docs/benchmark-protocol.md)。
 
-指标定义：
+Fallback 指标明细：
 
 - **规则提取：** 对独立编写金标准计算微平均字段精确率／召回率：89 个正确、0 个多余、16 个缺失字段。每份保单仅统计一次。覆盖网络免赔额／自付上限／差额收费，以及每个编码／网络下的承保、免赔适用、共付额、共同保险及歧义；忽略展示 ID、标签及顺序。
 - **独立计算：** 逐项目九个金额字段均精确到分，网络、完整的不同情景结果集合、情景数及有条件状态也须一致。患者总额相同不能掩盖项目计算错误。
@@ -113,6 +119,25 @@ python3 -m fineprint.eval --provider fallback
 - **端到端：** 须同时满足规则完全正确、理赔及最终账单核对完全正确、证据完整、差异判断正确或有合理歧义弃权。编译失败不从分母删除。
 
 样例覆盖重复免赔额、错误网络费率、预防服务收费、忽略自付上限、共付服务额外收共同保险、正确理赔，以及歧义／缺失事实。这些小规模合成结果不能证明真实准确率、节省金额或 LLM 质量。可用 `python3 scripts/generate_samples.py` 和 `python3 scripts/generate_benchmark.py` 重建人工编写数据；两个生成器均不导入引擎或编译器。后续解析器开发需要新的未见留出集，不能用 Harbor 调优后继续称其未见。
+
+### 真实 DeepSeek API 实测：合成数据
+
+同一基准：**5 份合成保单／10 个案例，UTC 2026-11-15**。使用原有共享提示词，**未对已见或留出保险公司的提示词进行调优**；重试只反馈本地验证错误。thinking 关闭，JSON 模式，输出上限 16,384 token，超时 60 秒，每份保单最多 3 次尝试。
+
+| 模型 | UTC 日期 | 集合 | 提取精确率／召回率 | 金额完全正确 | 端到端 | 编译失败保单 |
+| --- | --- | --- | --- | --- | --- | --- |
+| `deepseek-v4-pro` | 2026-11-15 | 开发已见 | n/a / 0.0% | 0/6 (0.0%) | 0/6 (0.0%) | 3/3 |
+| `deepseek-v4-pro` | 2026-11-15 | 留出未见 | n/a / 0.0% | 0/4 (0.0%) | 0/4 (0.0%) | 2/2 |
+| `deepseek-v4-pro` | 2026-11-15 | 全部 | n/a / 0.0% | 0/10 (0.0%) | 0/10 (0.0%) | 5/5 |
+| `deepseek-flash` | 2026-11-15 | 开发已见 | n/a / 0.0% | 0/6 (0.0%) | 0/6 (0.0%) | 3/3 |
+| `deepseek-flash` | 2026-11-15 | 留出未见 | n/a / 0.0% | 0/4 (0.0%) | 0/4 (0.0%) | 2/2 |
+| `deepseek-flash` | 2026-11-15 | 全部 | n/a / 0.0% | 0/10 (0.0%) | 0/10 (0.0%) | 5/5 |
+
+两个模型均未产生通过严格验证的保单：证据覆盖率 **0/44（0%）**，跨度可追溯率为 **n/a（0/0）**，每个模型 **10/10 案例弃权**。差异检测召回率为 **0/6（0%）**，精确率 n/a；假阳性率虽为 0/3，但没有任何已确认判断，不能解读为检测成功。失败仍计入分母，未补入金标准或 fallback。
+
+最终错误：v4-pro 为 4 份规则证据映射不完整、1 份原文跨度不匹配；flash 为 3 份跨度不匹配、1 份传输／超时、1 份响应 JSON 格式错误。
+
+报告：[v4-pro JSON](reports/evaluation-deepseek-v4-pro.json) / [Markdown](reports/evaluation-deepseek-v4-pro.md)；[flash JSON](reports/evaluation-deepseek-flash.json) / [Markdown](reports/evaluation-deepseek-flash.md)。上述离线 fallback 表的已提交测量日期为 **2026-11-14**。
 
 ## 计算约定与 API
 
@@ -142,4 +167,4 @@ python3 -m fineprint.eval --provider fallback
 
 除另行说明外，上述实现文件位于 `fineprint/` 下。参见 [架构](docs/architecture.md) 和 [后续公共数据采集](docs/data-sources.md)。
 
-下一步：真实凭据下验证在线后端；在**新的**未见集合上评估更广泛解析器／LLM；PDF／OCR 和更多 SBC 格式；持久化人工审核；经同意、去标识化的真实案例及已核实协议价格／历史支出；家庭／共享池与复杂保障。Harbor 的失败继续保留。本轮仅创建本地提交，由操作方负责推送；未部署、未修改 git 配置。
+下一步：验证其他在线后端；在**新的**未见集合上评估更广泛解析器／LLM；PDF／OCR 和更多 SBC 格式；持久化人工审核；经同意、去标识化的真实案例及已核实协议价格／历史支出；家庭／共享池与复杂保障。Harbor 的失败继续保留。本轮仅创建本地提交，由操作方负责推送；未部署、未修改 git 配置。
