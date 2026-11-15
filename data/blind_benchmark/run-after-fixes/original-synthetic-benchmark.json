@@ -1,0 +1,1618 @@
+{
+  "backend": "fallback",
+  "synthetic": true,
+  "generated_at": "2026-11-15T12:31:54.075206+00:00",
+  "evaluation_scope": "Uncapped policy-formula and reconciliation audit; not the patient-facing document-bounded amount",
+  "revision": "edbef78a2421a028ddc10fe163f774a32906c380",
+  "corpus_sha256": "cb6d8cd952b5d9ba0277b471290eed14cf7a1157ab7e947a9a00ee4a3d0eb3a7",
+  "parser_sha256": "f5fc23debfbca698003c98449b9239c590d80c70f467e98530c75d2ee191be23",
+  "parser_matches_holdout_freeze": false,
+  "model": null,
+  "provider_sha256": "903df98516eb423ea5abbfbf40ee039ae899f670a0b4d5844409376d8acfbb40",
+  "request_config": null,
+  "methodology": [
+    "Author-created format holdout; not blinded and not evidence of real-world performance.",
+    "Extraction micro precision/recall: financial fields per network and per code/network interpretation; each policy scored once; IDs/labels/order ignored.",
+    "Calculation exactness: all nine integer-cent fields on every line, network, complete distinct scenario outcome set, scenario count and conditional status.",
+    "Discrepancy: any EOB patient-total difference per line in a nonconditional case. Ambiguous/missing-fact cases abstain and are excluded from labeled precision/recall.",
+    "Compilation failures remain in extraction recall, calculation and end-to-end denominators; positive failures count as false negatives. Negative failures abstain, not true negatives; FPR denominator is all gold-negative cases.",
+    "Traceability is valid spans / emitted rules; coverage also counts missing rules from failed policies.",
+    "End-to-end success requires exact extraction, exact calculations and final bill reconciliation, complete evidence and correct discrepancy decision or justified conditional abstention.",
+    "No live LLM measurement unless backend explicitly names a real configured provider. No LLM used for arithmetic.",
+    "Synthetic compiler outputs, exact source spans and attempts are saved per policy; claim/EOB/bill data and gold policy answers are never sent to the model.",
+    "The shared LLM prompt was not tuned on held-out insurers or their gold answers; validation retries use local validation errors only."
+  ],
+  "groups": {
+    "seen": {
+      "policies": 3,
+      "cases": 6,
+      "extraction": {
+        "tp": 68,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0
+      },
+      "calculation": {
+        "exact": 6,
+        "total": 6,
+        "accuracy": 1.0
+      },
+      "discrepancy": {
+        "tp": 4,
+        "fp": 0,
+        "fn": 0,
+        "tn": 1,
+        "precision": 1.0,
+        "recall": 1.0,
+        "false_positive_rate": 0.0,
+        "labeled_cases": 5,
+        "resolved_labeled_cases": 5,
+        "abstentions": 1
+      },
+      "evidence": {
+        "valid_rules": 27,
+        "emitted_rules": 27,
+        "gold_rules": 27,
+        "traceability_rate": 1.0,
+        "coverage_rate": 1.0
+      },
+      "end_to_end": {
+        "success": 6,
+        "total": 6,
+        "rate": 1.0
+      }
+    },
+    "held_out": {
+      "policies": 2,
+      "cases": 4,
+      "extraction": {
+        "tp": 21,
+        "fp": 0,
+        "fn": 16,
+        "precision": 1.0,
+        "recall": 0.5675675675675675
+      },
+      "calculation": {
+        "exact": 2,
+        "total": 4,
+        "accuracy": 0.5
+      },
+      "discrepancy": {
+        "tp": 1,
+        "fp": 0,
+        "fn": 1,
+        "tn": 1,
+        "precision": 1.0,
+        "recall": 0.5,
+        "false_positive_rate": 0.0,
+        "labeled_cases": 4,
+        "resolved_labeled_cases": 2,
+        "abstentions": 2
+      },
+      "evidence": {
+        "valid_rules": 9,
+        "emitted_rules": 9,
+        "gold_rules": 17,
+        "traceability_rate": 1.0,
+        "coverage_rate": 0.5294117647058824
+      },
+      "end_to_end": {
+        "success": 2,
+        "total": 4,
+        "rate": 0.5
+      }
+    },
+    "all": {
+      "policies": 5,
+      "cases": 10,
+      "extraction": {
+        "tp": 89,
+        "fp": 0,
+        "fn": 16,
+        "precision": 1.0,
+        "recall": 0.8476190476190476
+      },
+      "calculation": {
+        "exact": 8,
+        "total": 10,
+        "accuracy": 0.8
+      },
+      "discrepancy": {
+        "tp": 5,
+        "fp": 0,
+        "fn": 1,
+        "tn": 2,
+        "precision": 1.0,
+        "recall": 0.8333333333333334,
+        "false_positive_rate": 0.0,
+        "labeled_cases": 9,
+        "resolved_labeled_cases": 7,
+        "abstentions": 3
+      },
+      "evidence": {
+        "valid_rules": 36,
+        "emitted_rules": 36,
+        "gold_rules": 44,
+        "traceability_rate": 1.0,
+        "coverage_rate": 0.8181818181818182
+      },
+      "end_to_end": {
+        "success": 8,
+        "total": 10,
+        "rate": 0.8
+      }
+    }
+  },
+  "policies": [
+    {
+      "id": "aurora-imaging",
+      "split": "seen",
+      "insurer": "Aurora Mutual (fictional)",
+      "fields": {
+        "tp": 26,
+        "fp": 0,
+        "fn": 0
+      },
+      "extraction_exact": true,
+      "emitted_rules": 9,
+      "traceable_rules": 9,
+      "gold_rules": 9,
+      "error": null,
+      "unresolved": [],
+      "compilation": {
+        "output": {
+          "policy": {
+            "id": "POL-SYN-A01",
+            "insurer": "Aurora Mutual (fictional)",
+            "name": "Synthetic Clear PPO",
+            "member_id": "MEMBER-SYN-A01",
+            "effective_from": "2026-01-01",
+            "effective_to": "2026-12-31",
+            "currency": "USD",
+            "networks": {
+              "in": {
+                "deductible_cents": 100000,
+                "oop_max_cents": 300000,
+                "balance_billing": false,
+                "deductible_clause": "D-in",
+                "oop_clause": "O-in",
+                "network_clause": "N-in"
+              },
+              "out": {
+                "deductible_cents": 200000,
+                "oop_max_cents": 600000,
+                "balance_billing": true,
+                "deductible_clause": "D-out",
+                "oop_clause": "O-out",
+                "network_clause": "N-out"
+              }
+            },
+            "benefits": [
+              {
+                "id": "B1-in",
+                "label": "In-network office visit (99213)",
+                "codes": [
+                  "99213"
+                ],
+                "network": "in",
+                "covered": true,
+                "deductible_applies": false,
+                "copay_cents": 2500,
+                "coinsurance_bps": 0,
+                "clause_ids": [
+                  "B1",
+                  "ORDER"
+                ],
+                "ambiguity_group": ""
+              },
+              {
+                "id": "B2-in",
+                "label": "In-network diagnostic imaging (70551)",
+                "codes": [
+                  "70551"
+                ],
+                "network": "in",
+                "covered": true,
+                "deductible_applies": true,
+                "copay_cents": 0,
+                "coinsurance_bps": 2000,
+                "clause_ids": [
+                  "B2",
+                  "ORDER"
+                ],
+                "ambiguity_group": ""
+              },
+              {
+                "id": "B3-out",
+                "label": "Out-of-network office and imaging (99213, 70551)",
+                "codes": [
+                  "70551",
+                  "99213"
+                ],
+                "network": "out",
+                "covered": true,
+                "deductible_applies": true,
+                "copay_cents": 0,
+                "coinsurance_bps": 4000,
+                "clause_ids": [
+                  "B3",
+                  "ORDER"
+                ],
+                "ambiguity_group": ""
+              }
+            ],
+            "clauses": [
+              {
+                "id": "D-in",
+                "text": "Individual annual in-network deductible: $1000.00. Apply to covered allowance before copay and coinsurance unless the benefit explicitly waives it.",
+                "location": "Clause D-in"
+              },
+              {
+                "id": "O-in",
+                "text": "Individual annual in-network OOP maximum: $3000.00. Cap covered deductible, copay and coinsurance together. Exclusions and permitted balance bills do not count. Network pools are separate.",
+                "location": "Clause O-in"
+              },
+              {
+                "id": "N-in",
+                "text": "Covered participating-provider charges above the allowed amount must be written off; no balance billing.",
+                "location": "Clause N-in"
+              },
+              {
+                "id": "D-out",
+                "text": "Individual annual out-network deductible: $2000.00. Apply to covered allowance before copay and coinsurance unless the benefit explicitly waives it.",
+                "location": "Clause D-out"
+              },
+              {
+                "id": "O-out",
+                "text": "Individual annual out-network OOP maximum: $6000.00. Cap covered deductible, copay and coinsurance together. Exclusions and permitted balance bills do not count. Network pools are separate.",
+                "location": "Clause O-out"
+              },
+              {
+                "id": "N-out",
+                "text": "Out-of-network charges above the allowed amount may be balance billed under this fictional plan; outside OOP.",
+                "location": "Clause N-out"
+              },
+              {
+                "id": "B1",
+                "text": "In-network office visit (99213): $25 copay; deductible waived; no coinsurance.",
+                "location": "Clause B1"
+              },
+              {
+                "id": "B2",
+                "text": "In-network diagnostic imaging (70551): deductible then 20% member coinsurance.",
+                "location": "Clause B2"
+              },
+              {
+                "id": "B3",
+                "text": "Out-of-network office and imaging (99213, 70551): deductible then 40% coinsurance, plus permitted balance billing.",
+                "location": "Clause B3"
+              },
+              {
+                "id": "ORDER",
+                "text": "One visit/unit per line. Apply deductible, then copay, then member coinsurance on the remaining allowance. Round coinsurance half up to cents. Apply OOP cap in that order. Process by service date, then line ID. Excluded services are member liability at full charge. This is an illustrative individual USD plan only.",
+                "location": "Clause ORDER"
+              }
+            ]
+          },
+          "rule_evidence": [
+            {
+              "rule_path": "networks.in.deductible_cents",
+              "evidence": [
+                {
+                  "source_document_id": "aurora-imaging",
+                  "section": "Clause D-in",
+                  "quote": "Individual annual in-network deductible: $1000.00. Apply to covered allowance before copay and coinsurance unless the benefit explicitly waives it.",
+                  "start": 310,
+                  "end": 457
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "networks.in.oop_max_cents",
+              "evidence": [
+                {
+                  "source_document_id": "aurora-imaging",
+                  "section": "Clause O-in",
+                  "quote": "Individual annual in-network OOP maximum: $3000.00. Cap covered deductible, copay and coinsurance together. Exclusions and permitted balance bills do not count. Network pools are separate.",
+                  "start": 469,
+                  "end": 657
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "networks.in.balance_billing",
+              "evidence": [
+                {
+                  "source_document_id": "aurora-imaging",
+                  "section": "Clause N-in",
+                  "quote": "Covered participating-provider charges above the allowed amount must be written off; no balance billing.",
+                  "start": 669,
+                  "end": 773
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "networks.out.deductible_cents",
+              "evidence": [
+                {
+                  "source_document_id": "aurora-imaging",
+                  "section": "Clause D-out",
+                  "quote": "Individual annual out-network deductible: $2000.00. Apply to covered allowance before copay and coinsurance unless the benefit explicitly waives it.",
+                  "start": 786,
+                  "end": 934
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "networks.out.oop_max_cents",
+              "evidence": [
+                {
+                  "source_document_id": "aurora-imaging",
+                  "section": "Clause O-out",
+                  "quote": "Individual annual out-network OOP maximum: $6000.00. Cap covered deductible, copay and coinsurance together. Exclusions and permitted balance bills do not count. Network pools are separate.",
+                  "start": 947,
+                  "end": 1136
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "networks.out.balance_billing",
+              "evidence": [
+                {
+                  "source_document_id": "aurora-imaging",
+                  "section": "Clause N-out",
+                  "quote": "Out-of-network charges above the allowed amount may be balance billed under this fictional plan; outside OOP.",
+                  "start": 1149,
+                  "end": 1258
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "benefits.B1-in",
+              "evidence": [
+                {
+                  "source_document_id": "aurora-imaging",
+                  "section": "Clause B1",
+                  "quote": "In-network office visit (99213): $25 copay; deductible waived; no coinsurance.",
+                  "start": 1268,
+                  "end": 1346
+                },
+                {
+                  "source_document_id": "aurora-imaging",
+                  "section": "Clause ORDER",
+                  "quote": "One visit/unit per line. Apply deductible, then copay, then member coinsurance on the remaining allowance. Round coinsurance half up to cents. Apply OOP cap in that order. Process by service date, then line ID. Excluded services are member liability at full charge. This is an illustrative individual USD plan only.",
+                  "start": 1571,
+                  "end": 1886
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "benefits.B2-in",
+              "evidence": [
+                {
+                  "source_document_id": "aurora-imaging",
+                  "section": "Clause B2",
+                  "quote": "In-network diagnostic imaging (70551): deductible then 20% member coinsurance.",
+                  "start": 1356,
+                  "end": 1434
+                },
+                {
+                  "source_document_id": "aurora-imaging",
+                  "section": "Clause ORDER",
+                  "quote": "One visit/unit per line. Apply deductible, then copay, then member coinsurance on the remaining allowance. Round coinsurance half up to cents. Apply OOP cap in that order. Process by service date, then line ID. Excluded services are member liability at full charge. This is an illustrative individual USD plan only.",
+                  "start": 1571,
+                  "end": 1886
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "benefits.B3-out",
+              "evidence": [
+                {
+                  "source_document_id": "aurora-imaging",
+                  "section": "Clause B3",
+                  "quote": "Out-of-network office and imaging (99213, 70551): deductible then 40% coinsurance, plus permitted balance billing.",
+                  "start": 1444,
+                  "end": 1558
+                },
+                {
+                  "source_document_id": "aurora-imaging",
+                  "section": "Clause ORDER",
+                  "quote": "One visit/unit per line. Apply deductible, then copay, then member coinsurance on the remaining allowance. Round coinsurance half up to cents. Apply OOP cap in that order. Process by service date, then line ID. Excluded services are member liability at full charge. This is an illustrative individual USD plan only.",
+                  "start": 1571,
+                  "end": 1886
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            }
+          ],
+          "warnings": [
+            "Deterministic pattern parser; confidence scores indicate parser coverage, not calibrated probabilities. No LLM was used."
+          ],
+          "unresolved": []
+        },
+        "backend": "fallback",
+        "source_document_id": "aurora-imaging",
+        "source_sha256": "d3c7e84cb34686131604f02ee5101f8d9068fd5b7ec8dde97d3b5807a56772db",
+        "attempts": 1
+      },
+      "elapsed_seconds": 0.002,
+      "backend": "fallback"
+    },
+    {
+      "id": "mosaic-oop",
+      "split": "seen",
+      "insurer": "Mosaic Health (fictional)",
+      "fields": {
+        "tp": 21,
+        "fp": 0,
+        "fn": 0
+      },
+      "extraction_exact": true,
+      "emitted_rules": 9,
+      "traceable_rules": 9,
+      "gold_rules": 9,
+      "error": null,
+      "unresolved": [],
+      "compilation": {
+        "output": {
+          "policy": {
+            "id": "POL-SYN-M01",
+            "insurer": "Mosaic Health (fictional)",
+            "name": "Synthetic Horizon Choice",
+            "member_id": "MEMBER-SYN-M01",
+            "effective_from": "2026-01-01",
+            "effective_to": "2026-12-31",
+            "currency": "USD",
+            "networks": {
+              "in": {
+                "deductible_cents": 50000,
+                "oop_max_cents": 150000,
+                "balance_billing": false,
+                "deductible_clause": "D-in",
+                "oop_clause": "O-in",
+                "network_clause": "N-in"
+              },
+              "out": {
+                "deductible_cents": 100000,
+                "oop_max_cents": 300000,
+                "balance_billing": true,
+                "deductible_clause": "D-out",
+                "oop_clause": "O-out",
+                "network_clause": "N-out"
+              }
+            },
+            "benefits": [
+              {
+                "id": "B1-in",
+                "label": "Covered in-network ambulatory procedure (29881)",
+                "codes": [
+                  "29881"
+                ],
+                "network": "in",
+                "covered": true,
+                "deductible_applies": true,
+                "copay_cents": 0,
+                "coinsurance_bps": 2000,
+                "clause_ids": [
+                  "B1",
+                  "ORDER"
+                ],
+                "ambiguity_group": ""
+              },
+              {
+                "id": "X1-in",
+                "label": "In-network elective cosmetic service (15820) is excluded at full billed charge; no deductible or OOP credit.",
+                "codes": [
+                  "15820"
+                ],
+                "network": "in",
+                "covered": false,
+                "deductible_applies": false,
+                "copay_cents": 0,
+                "coinsurance_bps": 0,
+                "clause_ids": [
+                  "X1",
+                  "ORDER"
+                ],
+                "ambiguity_group": ""
+              },
+              {
+                "id": "B2-out",
+                "label": "Out-of-network nonemergency transport (A0428)",
+                "codes": [
+                  "A0428"
+                ],
+                "network": "out",
+                "covered": true,
+                "deductible_applies": true,
+                "copay_cents": 0,
+                "coinsurance_bps": 5000,
+                "clause_ids": [
+                  "B2",
+                  "ORDER"
+                ],
+                "ambiguity_group": ""
+              }
+            ],
+            "clauses": [
+              {
+                "id": "D-in",
+                "text": "Individual annual in-network deductible: $500.00. Apply to covered allowance before copay and coinsurance unless the benefit explicitly waives it.",
+                "location": "Clause D-in"
+              },
+              {
+                "id": "O-in",
+                "text": "Individual annual in-network OOP maximum: $1500.00. Cap covered deductible, copay and coinsurance together. Exclusions and permitted balance bills do not count. Network pools are separate.",
+                "location": "Clause O-in"
+              },
+              {
+                "id": "N-in",
+                "text": "Covered participating-provider charges above the allowed amount must be written off; no balance billing.",
+                "location": "Clause N-in"
+              },
+              {
+                "id": "D-out",
+                "text": "Individual annual out-network deductible: $1000.00. Apply to covered allowance before copay and coinsurance unless the benefit explicitly waives it.",
+                "location": "Clause D-out"
+              },
+              {
+                "id": "O-out",
+                "text": "Individual annual out-network OOP maximum: $3000.00. Cap covered deductible, copay and coinsurance together. Exclusions and permitted balance bills do not count. Network pools are separate.",
+                "location": "Clause O-out"
+              },
+              {
+                "id": "N-out",
+                "text": "Out-of-network charges above the allowed amount may be balance billed under this fictional plan; outside OOP.",
+                "location": "Clause N-out"
+              },
+              {
+                "id": "B1",
+                "text": "Covered in-network ambulatory procedure (29881): deductible then 20% coinsurance; subject to OOP maximum.",
+                "location": "Clause B1"
+              },
+              {
+                "id": "X1",
+                "text": "In-network elective cosmetic service (15820) is excluded at full billed charge; no deductible or OOP credit.",
+                "location": "Clause X1"
+              },
+              {
+                "id": "B2",
+                "text": "Out-of-network nonemergency transport (A0428): deductible then 50% member coinsurance; permitted balance billing applies.",
+                "location": "Clause B2"
+              },
+              {
+                "id": "ORDER",
+                "text": "One visit/unit per line. Apply deductible, then copay, then member coinsurance on the remaining allowance. Round coinsurance half up to cents. Apply OOP cap in that order. Process by service date, then line ID. Excluded services are member liability at full charge. This is an illustrative individual USD plan only.",
+                "location": "Clause ORDER"
+              }
+            ]
+          },
+          "rule_evidence": [
+            {
+              "rule_path": "networks.in.deductible_cents",
+              "evidence": [
+                {
+                  "source_document_id": "mosaic-oop",
+                  "section": "Clause D-in",
+                  "quote": "Individual annual in-network deductible: $500.00. Apply to covered allowance before copay and coinsurance unless the benefit explicitly waives it.",
+                  "start": 295,
+                  "end": 441
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "networks.in.oop_max_cents",
+              "evidence": [
+                {
+                  "source_document_id": "mosaic-oop",
+                  "section": "Clause O-in",
+                  "quote": "Individual annual in-network OOP maximum: $1500.00. Cap covered deductible, copay and coinsurance together. Exclusions and permitted balance bills do not count. Network pools are separate.",
+                  "start": 455,
+                  "end": 643
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "networks.in.balance_billing",
+              "evidence": [
+                {
+                  "source_document_id": "mosaic-oop",
+                  "section": "Clause N-in",
+                  "quote": "Covered participating-provider charges above the allowed amount must be written off; no balance billing.",
+                  "start": 657,
+                  "end": 761
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "networks.out.deductible_cents",
+              "evidence": [
+                {
+                  "source_document_id": "mosaic-oop",
+                  "section": "Clause D-out",
+                  "quote": "Individual annual out-network deductible: $1000.00. Apply to covered allowance before copay and coinsurance unless the benefit explicitly waives it.",
+                  "start": 776,
+                  "end": 924
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "networks.out.oop_max_cents",
+              "evidence": [
+                {
+                  "source_document_id": "mosaic-oop",
+                  "section": "Clause O-out",
+                  "quote": "Individual annual out-network OOP maximum: $3000.00. Cap covered deductible, copay and coinsurance together. Exclusions and permitted balance bills do not count. Network pools are separate.",
+                  "start": 939,
+                  "end": 1128
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "networks.out.balance_billing",
+              "evidence": [
+                {
+                  "source_document_id": "mosaic-oop",
+                  "section": "Clause N-out",
+                  "quote": "Out-of-network charges above the allowed amount may be balance billed under this fictional plan; outside OOP.",
+                  "start": 1143,
+                  "end": 1252
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "benefits.B1-in",
+              "evidence": [
+                {
+                  "source_document_id": "mosaic-oop",
+                  "section": "Clause B1",
+                  "quote": "Covered in-network ambulatory procedure (29881): deductible then 20% coinsurance; subject to OOP maximum.",
+                  "start": 1264,
+                  "end": 1369
+                },
+                {
+                  "source_document_id": "mosaic-oop",
+                  "section": "Clause ORDER",
+                  "quote": "One visit/unit per line. Apply deductible, then copay, then member coinsurance on the remaining allowance. Round coinsurance half up to cents. Apply OOP cap in that order. Process by service date, then line ID. Excluded services are member liability at full charge. This is an illustrative individual USD plan only.",
+                  "start": 1638,
+                  "end": 1953
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "benefits.X1-in",
+              "evidence": [
+                {
+                  "source_document_id": "mosaic-oop",
+                  "section": "Clause X1",
+                  "quote": "In-network elective cosmetic service (15820) is excluded at full billed charge; no deductible or OOP credit.",
+                  "start": 1381,
+                  "end": 1489
+                },
+                {
+                  "source_document_id": "mosaic-oop",
+                  "section": "Clause ORDER",
+                  "quote": "One visit/unit per line. Apply deductible, then copay, then member coinsurance on the remaining allowance. Round coinsurance half up to cents. Apply OOP cap in that order. Process by service date, then line ID. Excluded services are member liability at full charge. This is an illustrative individual USD plan only.",
+                  "start": 1638,
+                  "end": 1953
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "benefits.B2-out",
+              "evidence": [
+                {
+                  "source_document_id": "mosaic-oop",
+                  "section": "Clause B2",
+                  "quote": "Out-of-network nonemergency transport (A0428): deductible then 50% member coinsurance; permitted balance billing applies.",
+                  "start": 1501,
+                  "end": 1622
+                },
+                {
+                  "source_document_id": "mosaic-oop",
+                  "section": "Clause ORDER",
+                  "quote": "One visit/unit per line. Apply deductible, then copay, then member coinsurance on the remaining allowance. Round coinsurance half up to cents. Apply OOP cap in that order. Process by service date, then line ID. Excluded services are member liability at full charge. This is an illustrative individual USD plan only.",
+                  "start": 1638,
+                  "end": 1953
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            }
+          ],
+          "warnings": [
+            "Deterministic pattern parser; confidence scores indicate parser coverage, not calibrated probabilities. No LLM was used."
+          ],
+          "unresolved": []
+        },
+        "backend": "fallback",
+        "source_document_id": "mosaic-oop",
+        "source_sha256": "aedb25eb987c5165b9185c8bbdd5b385084a4dc539ff0871ba7c1a430ceb30e9",
+        "attempts": 1
+      },
+      "elapsed_seconds": 0.001,
+      "backend": "fallback"
+    },
+    {
+      "id": "mosaic-therapy",
+      "split": "seen",
+      "insurer": "Mosaic Health (fictional)",
+      "fields": {
+        "tp": 21,
+        "fp": 0,
+        "fn": 0
+      },
+      "extraction_exact": true,
+      "emitted_rules": 9,
+      "traceable_rules": 9,
+      "gold_rules": 9,
+      "error": null,
+      "unresolved": [],
+      "compilation": {
+        "output": {
+          "policy": {
+            "id": "POL-SYN-M02",
+            "insurer": "Mosaic Health (fictional)",
+            "name": "Synthetic Therapy Choice",
+            "member_id": "MEMBER-SYN-M02",
+            "effective_from": "2026-01-01",
+            "effective_to": "2026-12-31",
+            "currency": "USD",
+            "networks": {
+              "in": {
+                "deductible_cents": 50000,
+                "oop_max_cents": 150000,
+                "balance_billing": false,
+                "deductible_clause": "D-in",
+                "oop_clause": "O-in",
+                "network_clause": "N-in"
+              },
+              "out": {
+                "deductible_cents": 100000,
+                "oop_max_cents": 300000,
+                "balance_billing": true,
+                "deductible_clause": "D-out",
+                "oop_clause": "O-out",
+                "network_clause": "N-out"
+              }
+            },
+            "benefits": [
+              {
+                "id": "T1-in",
+                "label": "Therapy schedule",
+                "codes": [
+                  "97110"
+                ],
+                "network": "in",
+                "covered": true,
+                "deductible_applies": true,
+                "copay_cents": 0,
+                "coinsurance_bps": 2000,
+                "clause_ids": [
+                  "T1",
+                  "ORDER"
+                ],
+                "ambiguity_group": "conflict-97110-in"
+              },
+              {
+                "id": "T2-in",
+                "label": "Therapy endorsement",
+                "codes": [
+                  "97110"
+                ],
+                "network": "in",
+                "covered": true,
+                "deductible_applies": false,
+                "copay_cents": 4000,
+                "coinsurance_bps": 0,
+                "clause_ids": [
+                  "T2",
+                  "ORDER"
+                ],
+                "ambiguity_group": "conflict-97110-in"
+              },
+              {
+                "id": "T3-out",
+                "label": "Out-of-network therapeutic exercise (97110)",
+                "codes": [
+                  "97110"
+                ],
+                "network": "out",
+                "covered": true,
+                "deductible_applies": true,
+                "copay_cents": 0,
+                "coinsurance_bps": 5000,
+                "clause_ids": [
+                  "T3",
+                  "ORDER"
+                ],
+                "ambiguity_group": ""
+              }
+            ],
+            "clauses": [
+              {
+                "id": "D-in",
+                "text": "Individual annual in-network deductible: $500.00. Apply to covered allowance before copay and coinsurance unless the benefit explicitly waives it.",
+                "location": "Clause D-in"
+              },
+              {
+                "id": "O-in",
+                "text": "Individual annual in-network OOP maximum: $1500.00. Cap covered deductible, copay and coinsurance together. Exclusions and permitted balance bills do not count. Network pools are separate.",
+                "location": "Clause O-in"
+              },
+              {
+                "id": "N-in",
+                "text": "Covered participating-provider charges above the allowed amount must be written off; no balance billing.",
+                "location": "Clause N-in"
+              },
+              {
+                "id": "D-out",
+                "text": "Individual annual out-network deductible: $1000.00. Apply to covered allowance before copay and coinsurance unless the benefit explicitly waives it.",
+                "location": "Clause D-out"
+              },
+              {
+                "id": "O-out",
+                "text": "Individual annual out-network OOP maximum: $3000.00. Cap covered deductible, copay and coinsurance together. Exclusions and permitted balance bills do not count. Network pools are separate.",
+                "location": "Clause O-out"
+              },
+              {
+                "id": "N-out",
+                "text": "Out-of-network charges above the allowed amount may be balance billed under this fictional plan; outside OOP.",
+                "location": "Clause N-out"
+              },
+              {
+                "id": "T1",
+                "text": "Therapy schedule: in-network therapeutic exercise (97110) is subject to deductible then 20% coinsurance.",
+                "location": "Clause T1"
+              },
+              {
+                "id": "T2",
+                "text": "Therapy endorsement: in-network therapeutic exercise (97110) has a $40 copay and waived deductible; no coinsurance. The document does not state whether this endorsement supersedes T1: both interpretations require review.",
+                "location": "Clause T2"
+              },
+              {
+                "id": "T3",
+                "text": "Out-of-network therapeutic exercise (97110): deductible then 50% coinsurance, plus permitted balance billing.",
+                "location": "Clause T3"
+              },
+              {
+                "id": "ORDER",
+                "text": "One visit/unit per line. Apply deductible, then copay, then member coinsurance on the remaining allowance. Round coinsurance half up to cents. Apply OOP cap in that order. Process by service date, then line ID. Excluded services are member liability at full charge. This is an illustrative individual USD plan only.",
+                "location": "Clause ORDER"
+              }
+            ]
+          },
+          "rule_evidence": [
+            {
+              "rule_path": "networks.in.deductible_cents",
+              "evidence": [
+                {
+                  "source_document_id": "mosaic-therapy",
+                  "section": "Clause D-in",
+                  "quote": "Individual annual in-network deductible: $500.00. Apply to covered allowance before copay and coinsurance unless the benefit explicitly waives it.",
+                  "start": 295,
+                  "end": 441
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "networks.in.oop_max_cents",
+              "evidence": [
+                {
+                  "source_document_id": "mosaic-therapy",
+                  "section": "Clause O-in",
+                  "quote": "Individual annual in-network OOP maximum: $1500.00. Cap covered deductible, copay and coinsurance together. Exclusions and permitted balance bills do not count. Network pools are separate.",
+                  "start": 455,
+                  "end": 643
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "networks.in.balance_billing",
+              "evidence": [
+                {
+                  "source_document_id": "mosaic-therapy",
+                  "section": "Clause N-in",
+                  "quote": "Covered participating-provider charges above the allowed amount must be written off; no balance billing.",
+                  "start": 657,
+                  "end": 761
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "networks.out.deductible_cents",
+              "evidence": [
+                {
+                  "source_document_id": "mosaic-therapy",
+                  "section": "Clause D-out",
+                  "quote": "Individual annual out-network deductible: $1000.00. Apply to covered allowance before copay and coinsurance unless the benefit explicitly waives it.",
+                  "start": 776,
+                  "end": 924
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "networks.out.oop_max_cents",
+              "evidence": [
+                {
+                  "source_document_id": "mosaic-therapy",
+                  "section": "Clause O-out",
+                  "quote": "Individual annual out-network OOP maximum: $3000.00. Cap covered deductible, copay and coinsurance together. Exclusions and permitted balance bills do not count. Network pools are separate.",
+                  "start": 939,
+                  "end": 1128
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "networks.out.balance_billing",
+              "evidence": [
+                {
+                  "source_document_id": "mosaic-therapy",
+                  "section": "Clause N-out",
+                  "quote": "Out-of-network charges above the allowed amount may be balance billed under this fictional plan; outside OOP.",
+                  "start": 1143,
+                  "end": 1252
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "benefits.T1-in",
+              "evidence": [
+                {
+                  "source_document_id": "mosaic-therapy",
+                  "section": "Clause T1",
+                  "quote": "Therapy schedule: in-network therapeutic exercise (97110) is subject to deductible then 20% coinsurance.",
+                  "start": 1264,
+                  "end": 1368
+                },
+                {
+                  "source_document_id": "mosaic-therapy",
+                  "section": "Clause ORDER",
+                  "quote": "One visit/unit per line. Apply deductible, then copay, then member coinsurance on the remaining allowance. Round coinsurance half up to cents. Apply OOP cap in that order. Process by service date, then line ID. Excluded services are member liability at full charge. This is an illustrative individual USD plan only.",
+                  "start": 1737,
+                  "end": 2052
+                }
+              ],
+              "confidence_bps": 5000,
+              "ambiguity": "Conflicting benefit clauses; no precedence established"
+            },
+            {
+              "rule_path": "benefits.T2-in",
+              "evidence": [
+                {
+                  "source_document_id": "mosaic-therapy",
+                  "section": "Clause T2",
+                  "quote": "Therapy endorsement: in-network therapeutic exercise (97110) has a $40 copay and waived deductible; no coinsurance. The document does not state whether this endorsement supersedes T1: both interpretations require review.",
+                  "start": 1380,
+                  "end": 1600
+                },
+                {
+                  "source_document_id": "mosaic-therapy",
+                  "section": "Clause ORDER",
+                  "quote": "One visit/unit per line. Apply deductible, then copay, then member coinsurance on the remaining allowance. Round coinsurance half up to cents. Apply OOP cap in that order. Process by service date, then line ID. Excluded services are member liability at full charge. This is an illustrative individual USD plan only.",
+                  "start": 1737,
+                  "end": 2052
+                }
+              ],
+              "confidence_bps": 5000,
+              "ambiguity": "Conflicting benefit clauses; no precedence established"
+            },
+            {
+              "rule_path": "benefits.T3-out",
+              "evidence": [
+                {
+                  "source_document_id": "mosaic-therapy",
+                  "section": "Clause T3",
+                  "quote": "Out-of-network therapeutic exercise (97110): deductible then 50% coinsurance, plus permitted balance billing.",
+                  "start": 1612,
+                  "end": 1721
+                },
+                {
+                  "source_document_id": "mosaic-therapy",
+                  "section": "Clause ORDER",
+                  "quote": "One visit/unit per line. Apply deductible, then copay, then member coinsurance on the remaining allowance. Round coinsurance half up to cents. Apply OOP cap in that order. Process by service date, then line ID. Excluded services are member liability at full charge. This is an illustrative individual USD plan only.",
+                  "start": 1737,
+                  "end": 2052
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            }
+          ],
+          "warnings": [
+            "Deterministic pattern parser; confidence scores indicate parser coverage, not calibrated probabilities. No LLM was used."
+          ],
+          "unresolved": []
+        },
+        "backend": "fallback",
+        "source_document_id": "mosaic-therapy",
+        "source_sha256": "b5671243d4c99d10deb33820c31ce3a9c61e433263d266318710169230956780",
+        "attempts": 1
+      },
+      "elapsed_seconds": 0.001,
+      "backend": "fallback"
+    },
+    {
+      "id": "cedar",
+      "split": "held_out",
+      "insurer": "Cedar Assurance (fictional)",
+      "fields": {
+        "tp": 21,
+        "fp": 0,
+        "fn": 0
+      },
+      "extraction_exact": true,
+      "emitted_rules": 9,
+      "traceable_rules": 9,
+      "gold_rules": 9,
+      "error": null,
+      "unresolved": [],
+      "compilation": {
+        "output": {
+          "policy": {
+            "id": "POL-SYN-C01",
+            "insurer": "Cedar Assurance (fictional)",
+            "name": "Synthetic Everyday PPO",
+            "member_id": "MEMBER-SYN-C01",
+            "effective_from": "2026-01-01",
+            "effective_to": "2026-12-31",
+            "currency": "USD",
+            "networks": {
+              "in": {
+                "deductible_cents": 50000,
+                "oop_max_cents": 150000,
+                "balance_billing": false,
+                "deductible_clause": "D-in",
+                "oop_clause": "O-in",
+                "network_clause": "N-in"
+              },
+              "out": {
+                "deductible_cents": 100000,
+                "oop_max_cents": 300000,
+                "balance_billing": true,
+                "deductible_clause": "D-out",
+                "oop_clause": "O-out",
+                "network_clause": "N-out"
+              }
+            },
+            "benefits": [
+              {
+                "id": "P1-in",
+                "label": "In-network preventive examination (99395)",
+                "codes": [
+                  "99395"
+                ],
+                "network": "in",
+                "covered": true,
+                "deductible_applies": false,
+                "copay_cents": 0,
+                "coinsurance_bps": 0,
+                "clause_ids": [
+                  "P1",
+                  "ORDER"
+                ],
+                "ambiguity_group": ""
+              },
+              {
+                "id": "S1-in",
+                "label": "In-network specialist consultation (99214)",
+                "codes": [
+                  "99214"
+                ],
+                "network": "in",
+                "covered": true,
+                "deductible_applies": false,
+                "copay_cents": 3500,
+                "coinsurance_bps": 0,
+                "clause_ids": [
+                  "S1",
+                  "ORDER"
+                ],
+                "ambiguity_group": ""
+              },
+              {
+                "id": "S2-out",
+                "label": "Out-of-network specialist consultation (99214)",
+                "codes": [
+                  "99214"
+                ],
+                "network": "out",
+                "covered": true,
+                "deductible_applies": true,
+                "copay_cents": 0,
+                "coinsurance_bps": 5000,
+                "clause_ids": [
+                  "S2",
+                  "ORDER"
+                ],
+                "ambiguity_group": ""
+              }
+            ],
+            "clauses": [
+              {
+                "id": "D-in",
+                "text": "Individual annual in-network deductible: $500.00. Apply to covered allowance before copay and coinsurance unless the benefit explicitly waives it.",
+                "location": "Clause D-in"
+              },
+              {
+                "id": "O-in",
+                "text": "Individual annual in-network OOP maximum: $1500.00. Cap covered deductible, copay and coinsurance together. Exclusions and permitted balance bills do not count. Network pools are separate.",
+                "location": "Clause O-in"
+              },
+              {
+                "id": "N-in",
+                "text": "Covered participating-provider charges above the allowed amount must be written off; no balance billing.",
+                "location": "Clause N-in"
+              },
+              {
+                "id": "D-out",
+                "text": "Individual annual out-network deductible: $1000.00. Apply to covered allowance before copay and coinsurance unless the benefit explicitly waives it.",
+                "location": "Clause D-out"
+              },
+              {
+                "id": "O-out",
+                "text": "Individual annual out-network OOP maximum: $3000.00. Cap covered deductible, copay and coinsurance together. Exclusions and permitted balance bills do not count. Network pools are separate.",
+                "location": "Clause O-out"
+              },
+              {
+                "id": "N-out",
+                "text": "Out-of-network charges above the allowed amount may be balance billed under this fictional plan; outside OOP.",
+                "location": "Clause N-out"
+              },
+              {
+                "id": "P1",
+                "text": "In-network preventive examination (99395): no charge; deductible does not apply.",
+                "location": "Clause P1"
+              },
+              {
+                "id": "S1",
+                "text": "In-network specialist consultation (99214): $35 copay only; deductible waived; no coinsurance.",
+                "location": "Clause S1"
+              },
+              {
+                "id": "S2",
+                "text": "Out-of-network specialist consultation (99214): deductible then 50% member coinsurance.",
+                "location": "Clause S2"
+              },
+              {
+                "id": "ORDER",
+                "text": "One visit/unit per line. Apply deductible, then copay, then member coinsurance on the remaining allowance. Round coinsurance half up to cents. Apply OOP cap in that order. Process by service date, then line ID. Excluded services are member liability at full charge. This is an illustrative individual USD plan only.",
+                "location": "Clause ORDER"
+              }
+            ]
+          },
+          "rule_evidence": [
+            {
+              "rule_path": "networks.in.deductible_cents",
+              "evidence": [
+                {
+                  "source_document_id": "cedar",
+                  "section": "Clause D-in",
+                  "quote": "Individual annual in-network deductible: $500.00. Apply to covered allowance before copay and coinsurance unless the benefit explicitly waives it.",
+                  "start": 261,
+                  "end": 407
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "networks.in.oop_max_cents",
+              "evidence": [
+                {
+                  "source_document_id": "cedar",
+                  "section": "Clause O-in",
+                  "quote": "Individual annual in-network OOP maximum: $1500.00. Cap covered deductible, copay and coinsurance together. Exclusions and permitted balance bills do not count. Network pools are separate.",
+                  "start": 416,
+                  "end": 604
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "networks.in.balance_billing",
+              "evidence": [
+                {
+                  "source_document_id": "cedar",
+                  "section": "Clause N-in",
+                  "quote": "Covered participating-provider charges above the allowed amount must be written off; no balance billing.",
+                  "start": 613,
+                  "end": 717
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "networks.out.deductible_cents",
+              "evidence": [
+                {
+                  "source_document_id": "cedar",
+                  "section": "Clause D-out",
+                  "quote": "Individual annual out-network deductible: $1000.00. Apply to covered allowance before copay and coinsurance unless the benefit explicitly waives it.",
+                  "start": 727,
+                  "end": 875
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "networks.out.oop_max_cents",
+              "evidence": [
+                {
+                  "source_document_id": "cedar",
+                  "section": "Clause O-out",
+                  "quote": "Individual annual out-network OOP maximum: $3000.00. Cap covered deductible, copay and coinsurance together. Exclusions and permitted balance bills do not count. Network pools are separate.",
+                  "start": 885,
+                  "end": 1074
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "networks.out.balance_billing",
+              "evidence": [
+                {
+                  "source_document_id": "cedar",
+                  "section": "Clause N-out",
+                  "quote": "Out-of-network charges above the allowed amount may be balance billed under this fictional plan; outside OOP.",
+                  "start": 1084,
+                  "end": 1193
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "benefits.P1-in",
+              "evidence": [
+                {
+                  "source_document_id": "cedar",
+                  "section": "Clause P1",
+                  "quote": "In-network preventive examination (99395): no charge; deductible does not apply.",
+                  "start": 1200,
+                  "end": 1280
+                },
+                {
+                  "source_document_id": "cedar",
+                  "section": "Clause ORDER",
+                  "quote": "One visit/unit per line. Apply deductible, then copay, then member coinsurance on the remaining allowance. Round coinsurance half up to cents. Apply OOP cap in that order. Process by service date, then line ID. Excluded services are member liability at full charge. This is an illustrative individual USD plan only.",
+                  "start": 1485,
+                  "end": 1800
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "benefits.S1-in",
+              "evidence": [
+                {
+                  "source_document_id": "cedar",
+                  "section": "Clause S1",
+                  "quote": "In-network specialist consultation (99214): $35 copay only; deductible waived; no coinsurance.",
+                  "start": 1287,
+                  "end": 1381
+                },
+                {
+                  "source_document_id": "cedar",
+                  "section": "Clause ORDER",
+                  "quote": "One visit/unit per line. Apply deductible, then copay, then member coinsurance on the remaining allowance. Round coinsurance half up to cents. Apply OOP cap in that order. Process by service date, then line ID. Excluded services are member liability at full charge. This is an illustrative individual USD plan only.",
+                  "start": 1485,
+                  "end": 1800
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "benefits.S2-out",
+              "evidence": [
+                {
+                  "source_document_id": "cedar",
+                  "section": "Clause S2",
+                  "quote": "Out-of-network specialist consultation (99214): deductible then 50% member coinsurance.",
+                  "start": 1388,
+                  "end": 1475
+                },
+                {
+                  "source_document_id": "cedar",
+                  "section": "Clause ORDER",
+                  "quote": "One visit/unit per line. Apply deductible, then copay, then member coinsurance on the remaining allowance. Round coinsurance half up to cents. Apply OOP cap in that order. Process by service date, then line ID. Excluded services are member liability at full charge. This is an illustrative individual USD plan only.",
+                  "start": 1485,
+                  "end": 1800
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            }
+          ],
+          "warnings": [
+            "Deterministic pattern parser; confidence scores indicate parser coverage, not calibrated probabilities. No LLM was used."
+          ],
+          "unresolved": []
+        },
+        "backend": "fallback",
+        "source_document_id": "cedar",
+        "source_sha256": "a41d77a60768466c6256f646e88a787074a8687db4e36a70a0ab92afd9d87340",
+        "attempts": 1
+      },
+      "elapsed_seconds": 0.001,
+      "backend": "fallback"
+    },
+    {
+      "id": "harbor",
+      "split": "held_out",
+      "insurer": "Harbor Benefits Cooperative (fictional)",
+      "fields": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 16
+      },
+      "extraction_exact": false,
+      "emitted_rules": 0,
+      "traceable_rules": 0,
+      "gold_rules": 8,
+      "error": "Fallback could not establish both network deductibles, OOP caps and balance-billing rules",
+      "unresolved": [],
+      "compilation": null,
+      "elapsed_seconds": 0.0,
+      "backend": "fallback"
+    }
+  ],
+  "cases": [
+    {
+      "id": "aurora-imaging",
+      "policy": "aurora-imaging",
+      "split": "seen",
+      "calculation_exact": true,
+      "bill_reconciliation_exact": true,
+      "scenario_count": 1,
+      "gold_scenario_count": 1,
+      "actual_patient_totals_cents": [
+        38500
+      ],
+      "gold_patient_totals_cents": [
+        38500
+      ],
+      "conditional": false,
+      "predicted_discrepancy": true,
+      "gold_discrepancy": true,
+      "end_to_end_success": true,
+      "error": null
+    },
+    {
+      "id": "mosaic-oop",
+      "policy": "mosaic-oop",
+      "split": "seen",
+      "calculation_exact": true,
+      "bill_reconciliation_exact": true,
+      "scenario_count": 1,
+      "gold_scenario_count": 1,
+      "actual_patient_totals_cents": [
+        100000
+      ],
+      "gold_patient_totals_cents": [
+        100000
+      ],
+      "conditional": false,
+      "predicted_discrepancy": true,
+      "gold_discrepancy": true,
+      "end_to_end_success": true,
+      "error": null
+    },
+    {
+      "id": "mosaic-therapy",
+      "policy": "mosaic-therapy",
+      "split": "seen",
+      "calculation_exact": true,
+      "bill_reconciliation_exact": true,
+      "scenario_count": 32,
+      "gold_scenario_count": 32,
+      "actual_patient_totals_cents": [
+        0,
+        4000,
+        6000,
+        30000
+      ],
+      "gold_patient_totals_cents": [
+        0,
+        4000,
+        6000,
+        30000
+      ],
+      "conditional": true,
+      "predicted_discrepancy": null,
+      "gold_discrepancy": null,
+      "end_to_end_success": true,
+      "error": null
+    },
+    {
+      "id": "aurora-correct",
+      "policy": "aurora-imaging",
+      "split": "seen",
+      "calculation_exact": true,
+      "bill_reconciliation_exact": true,
+      "scenario_count": 1,
+      "gold_scenario_count": 1,
+      "actual_patient_totals_cents": [
+        2500
+      ],
+      "gold_patient_totals_cents": [
+        2500
+      ],
+      "conditional": false,
+      "predicted_discrepancy": false,
+      "gold_discrepancy": false,
+      "end_to_end_success": true,
+      "error": null
+    },
+    {
+      "id": "aurora-coinsurance-on-copay",
+      "policy": "aurora-imaging",
+      "split": "seen",
+      "calculation_exact": true,
+      "bill_reconciliation_exact": true,
+      "scenario_count": 1,
+      "gold_scenario_count": 1,
+      "actual_patient_totals_cents": [
+        2500
+      ],
+      "gold_patient_totals_cents": [
+        2500
+      ],
+      "conditional": false,
+      "predicted_discrepancy": true,
+      "gold_discrepancy": true,
+      "end_to_end_success": true,
+      "error": null
+    },
+    {
+      "id": "aurora-wrong-network",
+      "policy": "aurora-imaging",
+      "split": "seen",
+      "calculation_exact": true,
+      "bill_reconciliation_exact": true,
+      "scenario_count": 1,
+      "gold_scenario_count": 1,
+      "actual_patient_totals_cents": [
+        20000
+      ],
+      "gold_patient_totals_cents": [
+        20000
+      ],
+      "conditional": false,
+      "predicted_discrepancy": true,
+      "gold_discrepancy": true,
+      "end_to_end_success": true,
+      "error": null
+    },
+    {
+      "id": "cedar-preventive-charged",
+      "policy": "cedar",
+      "split": "held_out",
+      "calculation_exact": true,
+      "bill_reconciliation_exact": true,
+      "scenario_count": 1,
+      "gold_scenario_count": 1,
+      "actual_patient_totals_cents": [
+        0
+      ],
+      "gold_patient_totals_cents": [
+        0
+      ],
+      "conditional": false,
+      "predicted_discrepancy": true,
+      "gold_discrepancy": true,
+      "end_to_end_success": true,
+      "error": null
+    },
+    {
+      "id": "cedar-correct-specialist",
+      "policy": "cedar",
+      "split": "held_out",
+      "calculation_exact": true,
+      "bill_reconciliation_exact": true,
+      "scenario_count": 1,
+      "gold_scenario_count": 1,
+      "actual_patient_totals_cents": [
+        3500
+      ],
+      "gold_patient_totals_cents": [
+        3500
+      ],
+      "conditional": false,
+      "predicted_discrepancy": false,
+      "gold_discrepancy": false,
+      "end_to_end_success": true,
+      "error": null
+    },
+    {
+      "id": "harbor-oop-ignored",
+      "policy": "harbor",
+      "split": "held_out",
+      "calculation_exact": false,
+      "bill_reconciliation_exact": false,
+      "scenario_count": 0,
+      "gold_scenario_count": 1,
+      "actual_patient_totals_cents": [],
+      "gold_patient_totals_cents": [
+        5000
+      ],
+      "conditional": null,
+      "predicted_discrepancy": null,
+      "gold_discrepancy": true,
+      "end_to_end_success": false,
+      "error": "Fallback could not establish both network deductibles, OOP caps and balance-billing rules"
+    },
+    {
+      "id": "harbor-correct-office",
+      "policy": "harbor",
+      "split": "held_out",
+      "calculation_exact": false,
+      "bill_reconciliation_exact": false,
+      "scenario_count": 0,
+      "gold_scenario_count": 1,
+      "actual_patient_totals_cents": [],
+      "gold_patient_totals_cents": [
+        2000
+      ],
+      "conditional": null,
+      "predicted_discrepancy": null,
+      "gold_discrepancy": false,
+      "end_to_end_success": false,
+      "error": "Fallback could not establish both network deductibles, OOP caps and balance-billing rules"
+    }
+  ],
+  "runtime_revision": "49823fe85d3be2413d4e9bc255888819eb314596"
+}

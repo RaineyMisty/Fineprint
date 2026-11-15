@@ -1,0 +1,91 @@
+{
+  "official_blind_commit": "36ac3ff3abb3b551667befe39ac685e173c52b73",
+  "primary_abstention_causes": [
+    {
+      "cause": "Explicit balance/excess billing language rejected by local source validator",
+      "cases": 24,
+      "detail": "All 24 clarification cases have incomplete_network at policy.networks.in.balance_billing. The model proposed terms, but local _balance_supported discarded them; not an absent input fact."
+    },
+    {
+      "cause": "Null or empty policy display name fails closed schema",
+      "cases": 9,
+      "detail": "Six 'expected string' and three 'text must not be empty' errors at output.policy.name; all nine errors were compilation metadata failures, not transport failures."
+    }
+  ],
+  "secondary_causes_overlap_primary": [
+    {
+      "cause": "Compiled condition wording does not equal literal supplied claim confirmations (missing_rule)",
+      "cases": 3
+    },
+    {
+      "cause": "Incompatible shared ambiguity interpretation labels (incomplete_interpretations)",
+      "cases": 1,
+      "issues": 2
+    }
+  ],
+  "validation_case_counts": {
+    "incomplete_network": 24,
+    "missing_rule": 3,
+    "incomplete_interpretations": 1
+  },
+  "billing_wording_formats": {
+    "Reference card: balance billing = yes/no": {
+      "count": 7,
+      "case_ids": [
+        "blind-02",
+        "blind-06",
+        "blind-10",
+        "blind-18",
+        "blind-22",
+        "blind-26",
+        "blind-34"
+      ]
+    },
+    "Question and answer: excess charges": {
+      "count": 8,
+      "case_ids": [
+        "blind-03",
+        "blind-07",
+        "blind-11",
+        "blind-19",
+        "blind-23",
+        "blind-27",
+        "blind-31",
+        "blind-39"
+      ]
+    },
+    "SBC table: prohibited/permitted cell": {
+      "count": 8,
+      "case_ids": [
+        "blind-04",
+        "blind-08",
+        "blind-12",
+        "blind-16",
+        "blind-20",
+        "blind-28",
+        "blind-32",
+        "blind-36"
+      ]
+    },
+    "Narrative: excess balance billing permitted": {
+      "count": 1,
+      "case_ids": [
+        "blind-25"
+      ]
+    }
+  },
+  "non_abstention_failure": {
+    "cases": 1,
+    "detail": "Acknowledged upcoded visit: pipeline used submitted code rather than the documented actual service, returned $70 instead of $20 and missed the error."
+  },
+  "recall_accounting": {
+    "true_positives": 4,
+    "positive_abstentions": 19,
+    "answered_false_negatives": 1,
+    "all_true_errors": 24
+  },
+  "eob_bill_format_errors": 0,
+  "transport_errors": 0,
+  "missing_allowance_or_opening_history_cases": 0,
+  "scope": "The original run normalized structured EOB/bill observations; it did not test PDF/OCR or raw-format adapters. Unsupported legal/clinical/coding semantics remain distinct from the main balance-language gate."
+}

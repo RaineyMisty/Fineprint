@@ -1,0 +1,646 @@
+{
+  "case_id": "blind-21",
+  "started_at_utc": "2026-11-15T12:31:01.746903+00:00",
+  "compilation": {
+    "output": {
+      "policy": {
+        "id": "SYN-B21",
+        "insurer": "SYNTHETIC Silver Thimble Benefits",
+        "name": "SYNTHETIC Silver Thimble Benefits",
+        "member_id": "SYN-M21",
+        "effective_from": "2026-01-01",
+        "effective_to": "2026-12-31",
+        "currency": "USD",
+        "networks": {
+          "in": {
+            "deductible_cents": 100000,
+            "oop_max_cents": 500000,
+            "balance_billing": false,
+            "deductible_clause": "source-1",
+            "oop_clause": "source-1",
+            "network_clause": "source-1"
+          },
+          "out": {
+            "deductible_cents": 200000,
+            "oop_max_cents": 1000000,
+            "balance_billing": true,
+            "deductible_clause": "source-2",
+            "oop_clause": "source-2",
+            "network_clause": "source-2"
+          }
+        },
+        "benefits": [
+          {
+            "id": "B1",
+            "label": "CT scan (CPT/HCPCS 74177), in-network",
+            "codes": [
+              "74177"
+            ],
+            "network": "in",
+            "covered": true,
+            "deductible_applies": false,
+            "copay_cents": 0,
+            "coinsurance_bps": 2000,
+            "clause_ids": [
+              "source-3",
+              "source-4"
+            ],
+            "ambiguity_group": ""
+          },
+          {
+            "id": "B2",
+            "label": "CT scan (CPT/HCPCS 74177), out-network",
+            "codes": [
+              "74177"
+            ],
+            "network": "out",
+            "covered": true,
+            "deductible_applies": false,
+            "copay_cents": 0,
+            "coinsurance_bps": 4000,
+            "clause_ids": [
+              "source-3",
+              "source-5"
+            ],
+            "ambiguity_group": ""
+          }
+        ],
+        "clauses": [
+          {
+            "id": "source-1",
+            "text": "Section A — participating providers: annual deductible $1,000.00; annual out-of-pocket limit $5,000.00. No excess balance billing.",
+            "location": "Section A"
+          },
+          {
+            "id": "source-2",
+            "text": "Section B — nonparticipating providers: annual deductible $2,000.00; annual out-of-pocket limit $10,000.00. Excess balance billing is permitted.",
+            "location": "Section B"
+          },
+          {
+            "id": "source-3",
+            "text": "Calculation and accumulation rules: For covered care apply any remaining deductible first, then the stated copay, then member coinsurance to the remaining allowed amount. Round coinsurance half up to cents. Apply the remaining annual OOP cap to deductible, copay and coinsurance in that order. Only actually assessed covered sharing accrues. In- and out-of-network annual pools are separate. Permitted excess equals charge minus allowance and is outside OOP. Excluded care is full-charge patient liability outside deductible and OOP, with no insurer payment. No excess billing is allowed in network. A waived deductible means no deductible applies to that benefit.",
+            "location": "Calculation and accumulation rules"
+          },
+          {
+            "id": "source-4",
+            "text": "B1: CT scan (CPT/HCPCS 74177), in-network: covered; deductible waived; member copay $0.00; member coinsurance 20%.",
+            "location": "Benefits"
+          },
+          {
+            "id": "source-5",
+            "text": "B2: CT scan (CPT/HCPCS 74177), out-network: covered; deductible waived; member copay $0.00; member coinsurance 40%.",
+            "location": "Benefits"
+          }
+        ]
+      },
+      "rule_evidence": [
+        {
+          "rule_path": "networks.in.deductible_cents",
+          "evidence": [
+            {
+              "source_document_id": "blind-21/policy.md",
+              "section": "Section A",
+              "quote": "Section A — participating providers: annual deductible $1,000.00; annual out-of-pocket limit $5,000.00. No excess balance billing.",
+              "start": 313,
+              "end": 443
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "networks.in.oop_max_cents",
+          "evidence": [
+            {
+              "source_document_id": "blind-21/policy.md",
+              "section": "Section A",
+              "quote": "Section A — participating providers: annual deductible $1,000.00; annual out-of-pocket limit $5,000.00. No excess balance billing.",
+              "start": 313,
+              "end": 443
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "networks.in.balance_billing",
+          "evidence": [
+            {
+              "source_document_id": "blind-21/policy.md",
+              "section": "Section A",
+              "quote": "Section A — participating providers: annual deductible $1,000.00; annual out-of-pocket limit $5,000.00. No excess balance billing.",
+              "start": 313,
+              "end": 443
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "networks.out.deductible_cents",
+          "evidence": [
+            {
+              "source_document_id": "blind-21/policy.md",
+              "section": "Section B",
+              "quote": "Section B — nonparticipating providers: annual deductible $2,000.00; annual out-of-pocket limit $10,000.00. Excess balance billing is permitted.",
+              "start": 444,
+              "end": 588
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "networks.out.oop_max_cents",
+          "evidence": [
+            {
+              "source_document_id": "blind-21/policy.md",
+              "section": "Section B",
+              "quote": "Section B — nonparticipating providers: annual deductible $2,000.00; annual out-of-pocket limit $10,000.00. Excess balance billing is permitted.",
+              "start": 444,
+              "end": 588
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "networks.out.balance_billing",
+          "evidence": [
+            {
+              "source_document_id": "blind-21/policy.md",
+              "section": "Section B",
+              "quote": "Section B — nonparticipating providers: annual deductible $2,000.00; annual out-of-pocket limit $10,000.00. Excess balance billing is permitted.",
+              "start": 444,
+              "end": 588
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "benefits.B1",
+          "evidence": [
+            {
+              "source_document_id": "blind-21/policy.md",
+              "section": "Calculation and accumulation rules",
+              "quote": "Calculation and accumulation rules: For covered care apply any remaining deductible first, then the stated copay, then member coinsurance to the remaining allowed amount. Round coinsurance half up to cents. Apply the remaining annual OOP cap to deductible, copay and coinsurance in that order. Only actually assessed covered sharing accrues. In- and out-of-network annual pools are separate. Permitted excess equals charge minus allowance and is outside OOP. Excluded care is full-charge patient liability outside deductible and OOP, with no insurer payment. No excess billing is allowed in network. A waived deductible means no deductible applies to that benefit.",
+              "start": 590,
+              "end": 1254
+            },
+            {
+              "source_document_id": "blind-21/policy.md",
+              "section": "Benefits",
+              "quote": "B1: CT scan (CPT/HCPCS 74177), in-network: covered; deductible waived; member copay $0.00; member coinsurance 20%.",
+              "start": 1294,
+              "end": 1408
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "benefits.B2",
+          "evidence": [
+            {
+              "source_document_id": "blind-21/policy.md",
+              "section": "Calculation and accumulation rules",
+              "quote": "Calculation and accumulation rules: For covered care apply any remaining deductible first, then the stated copay, then member coinsurance to the remaining allowed amount. Round coinsurance half up to cents. Apply the remaining annual OOP cap to deductible, copay and coinsurance in that order. Only actually assessed covered sharing accrues. In- and out-of-network annual pools are separate. Permitted excess equals charge minus allowance and is outside OOP. Excluded care is full-charge patient liability outside deductible and OOP, with no insurer payment. No excess billing is allowed in network. A waived deductible means no deductible applies to that benefit.",
+              "start": 590,
+              "end": 1254
+            },
+            {
+              "source_document_id": "blind-21/policy.md",
+              "section": "Benefits",
+              "quote": "B2: CT scan (CPT/HCPCS 74177), out-network: covered; deductible waived; member copay $0.00; member coinsurance 40%.",
+              "start": 1409,
+              "end": 1524
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        }
+      ],
+      "warnings": [
+        "Synthetic data notice: This document is fictional and for testing purposes only.",
+        "Rounding convention: Coinsurance amounts are rounded half-up to cents as an engine convention, not an extracted policy fact."
+      ],
+      "unresolved": [],
+      "coverage_gaps": [
+        "No other benefits are listed in the document; only CT scan benefits B1 and B2 are compiled.",
+        "No out-of-network balance billing protection is provided; excess balance billing is permitted as stated.",
+        "No additional service categories or exclusions are present in the document."
+      ]
+    },
+    "backend": "deepseek",
+    "source_document_id": "blind-21/policy.md",
+    "source_sha256": "7fb89522b57bca1d3509f232c77ddaa94153cc79fc4b749c6640e08de0ec42f0",
+    "attempts": 1
+  },
+  "normalized_case": {
+    "schema_version": "1.0",
+    "id": "blind-21",
+    "title": "Verified participating provider assigned wrong tier",
+    "synthetic": true,
+    "policy": {
+      "id": "SYN-B21",
+      "insurer": "SYNTHETIC Silver Thimble Benefits",
+      "name": "SYNTHETIC Silver Thimble Benefits",
+      "member_id": "SYN-M21",
+      "effective_from": "2026-01-01",
+      "effective_to": "2026-12-31",
+      "currency": "USD",
+      "networks": {
+        "in": {
+          "deductible_cents": 100000,
+          "oop_max_cents": 500000,
+          "balance_billing": false,
+          "deductible_clause": "source-1",
+          "oop_clause": "source-1",
+          "network_clause": "source-1"
+        },
+        "out": {
+          "deductible_cents": 200000,
+          "oop_max_cents": 1000000,
+          "balance_billing": true,
+          "deductible_clause": "source-2",
+          "oop_clause": "source-2",
+          "network_clause": "source-2"
+        }
+      },
+      "benefits": [
+        {
+          "id": "B1",
+          "label": "CT scan (CPT/HCPCS 74177), in-network",
+          "codes": [
+            "74177"
+          ],
+          "network": "in",
+          "covered": true,
+          "deductible_applies": false,
+          "copay_cents": 0,
+          "coinsurance_bps": 2000,
+          "clause_ids": [
+            "source-3",
+            "source-4"
+          ],
+          "ambiguity_group": ""
+        },
+        {
+          "id": "B2",
+          "label": "CT scan (CPT/HCPCS 74177), out-network",
+          "codes": [
+            "74177"
+          ],
+          "network": "out",
+          "covered": true,
+          "deductible_applies": false,
+          "copay_cents": 0,
+          "coinsurance_bps": 4000,
+          "clause_ids": [
+            "source-3",
+            "source-5"
+          ],
+          "ambiguity_group": ""
+        }
+      ],
+      "clauses": [
+        {
+          "id": "source-1",
+          "text": "Section A — participating providers: annual deductible $1,000.00; annual out-of-pocket limit $5,000.00. No excess balance billing.",
+          "location": "Section A"
+        },
+        {
+          "id": "source-2",
+          "text": "Section B — nonparticipating providers: annual deductible $2,000.00; annual out-of-pocket limit $10,000.00. Excess balance billing is permitted.",
+          "location": "Section B"
+        },
+        {
+          "id": "source-3",
+          "text": "Calculation and accumulation rules: For covered care apply any remaining deductible first, then the stated copay, then member coinsurance to the remaining allowed amount. Round coinsurance half up to cents. Apply the remaining annual OOP cap to deductible, copay and coinsurance in that order. Only actually assessed covered sharing accrues. In- and out-of-network annual pools are separate. Permitted excess equals charge minus allowance and is outside OOP. Excluded care is full-charge patient liability outside deductible and OOP, with no insurer payment. No excess billing is allowed in network. A waived deductible means no deductible applies to that benefit.",
+          "location": "Calculation and accumulation rules"
+        },
+        {
+          "id": "source-4",
+          "text": "B1: CT scan (CPT/HCPCS 74177), in-network: covered; deductible waived; member copay $0.00; member coinsurance 20%.",
+          "location": "Benefits"
+        },
+        {
+          "id": "source-5",
+          "text": "B2: CT scan (CPT/HCPCS 74177), out-network: covered; deductible waived; member copay $0.00; member coinsurance 40%.",
+          "location": "Benefits"
+        }
+      ]
+    },
+    "claim": {
+      "id": "SYN-C21",
+      "policy_id": "SYN-B21",
+      "member_id": "SYN-M21",
+      "accumulators": {
+        "in": {
+          "deductible_paid_cents": 0,
+          "oop_paid_cents": 0
+        },
+        "out": {
+          "deductible_paid_cents": 0,
+          "oop_paid_cents": 0
+        }
+      },
+      "lines": [
+        {
+          "id": "L01",
+          "provider_id": "SYN-P21",
+          "service_date": "2026-06-11",
+          "code": "74177",
+          "description": "SYNTHETIC submitted service 74177; documented actual service code 74177; Signed participation roster verifies in-network on the service date.",
+          "network": "in",
+          "billed_cents": 120000,
+          "confirmed_conditions": [
+            "Signed participation roster verifies in-network on the service date."
+          ],
+          "insurer": {
+            "allowed_cents": 40000,
+            "deductible_cents": 0,
+            "copay_cents": 0,
+            "coinsurance_cents": 16000,
+            "noncovered_cents": 0,
+            "balance_cents": 32000,
+            "insurer_paid_cents": 24000,
+            "adjustment_cents": 48000
+          }
+        }
+      ]
+    },
+    "bill": {
+      "id": "SYN-I21",
+      "claim_id": "SYN-C21",
+      "member_id": "SYN-M21",
+      "lines": [
+        {
+          "id": "B-L01",
+          "claim_line_id": "L01",
+          "provider_id": "SYN-P21",
+          "service_date": "2026-06-11",
+          "code": "74177",
+          "charged_cents": 120000,
+          "insurance_paid_cents": 24000,
+          "adjustment_cents": 48000,
+          "patient_paid_cents": 0,
+          "balance_due_cents": 48000
+        }
+      ]
+    },
+    "allowed_evidence": {
+      "L01": {
+        "allowed_cents": 40000,
+        "source": "contract",
+        "reference": "SYNTHETIC signed rate schedule SYN-R21, line L01; protected recognized amount where stipulated"
+      }
+    }
+  },
+  "report": {
+    "validation": [],
+    "links": [
+      {
+        "claim_line_id": "L01",
+        "member_id": "SYN-M21",
+        "provider_id": "SYN-P21",
+        "service_date": "2026-06-11",
+        "code": "74177",
+        "claim_id": "SYN-C21",
+        "bill_line_ids": [
+          "B-L01"
+        ]
+      }
+    ],
+    "status": "ready",
+    "scenarios": [
+      {
+        "id": "scenario-1",
+        "assumptions": [],
+        "conditional": false,
+        "lines": [
+          {
+            "claim_line_id": "L01",
+            "network": "in",
+            "benefit_id": "B1",
+            "allowed_cents": 40000,
+            "deductible_cents": 0,
+            "copay_cents": 0,
+            "coinsurance_cents": 8000,
+            "noncovered_cents": 0,
+            "balance_cents": 0,
+            "patient_cents": 8000,
+            "insurer_paid_cents": 32000,
+            "adjustment_cents": 80000,
+            "opening_deductible_cents": 0,
+            "opening_oop_cents": 0,
+            "closing_deductible_cents": 0,
+            "closing_oop_cents": 8000,
+            "trace": [
+              {
+                "explanation": "Allowance supplied as evidence; it is not derived from policy cost-sharing rules.",
+                "amount_cents": 40000,
+                "clause_ids": [
+                  "source-3",
+                  "source-4"
+                ]
+              },
+              {
+                "explanation": "Deductible: min(allowance, remaining deductible 100000 cents), then OOP cap; applies=False.",
+                "amount_cents": 0,
+                "clause_ids": [
+                  "source-1",
+                  "source-1",
+                  "source-3",
+                  "source-4"
+                ]
+              },
+              {
+                "explanation": "Copay: up to 0 cents after deductible, then OOP cap.",
+                "amount_cents": 0,
+                "clause_ids": [
+                  "source-3",
+                  "source-4",
+                  "source-1"
+                ]
+              },
+              {
+                "explanation": "Coinsurance: 2000/10000 × 40000 cents, half-up rounding, then OOP cap.",
+                "amount_cents": 8000,
+                "clause_ids": [
+                  "source-3",
+                  "source-4",
+                  "source-1"
+                ]
+              },
+              {
+                "explanation": "Covered cost sharing capped by 500000 cents remaining OOP; exclusions and permitted balance bills do not count.",
+                "amount_cents": 8000,
+                "clause_ids": [
+                  "source-1"
+                ]
+              },
+              {
+                "explanation": "Network rule: excess charge is patient balance billing if permitted; otherwise a contractual write-off.",
+                "amount_cents": 0,
+                "clause_ids": [
+                  "source-1"
+                ]
+              }
+            ],
+            "policy_patient_cents": 8000,
+            "policy_insurer_paid_cents": 32000
+          }
+        ],
+        "patient_cents": 8000,
+        "insurer_paid_cents": 32000,
+        "closing_accumulators": {
+          "in": {
+            "deductible_paid_cents": 0,
+            "oop_paid_cents": 8000
+          }
+        }
+      }
+    ],
+    "comparisons": [
+      {
+        "scenario_id": "scenario-1",
+        "conditional": false,
+        "lines": [
+          {
+            "claim_line_id": "L01",
+            "code": "74177",
+            "description": "SYNTHETIC submitted service 74177; documented actual service code 74177; Signed participation roster verifies in-network on the service date.",
+            "fineprint_patient_cents": 8000,
+            "eob_patient_cents": 48000,
+            "bill_patient_cents": 48000,
+            "already_paid_cents": 0,
+            "bill_balance_due_cents": 48000,
+            "fineprint_remaining_cents": 8000,
+            "potential_refund_cents": 0,
+            "potential_overpayment_cents": 40000,
+            "eob_difference_cents": 40000,
+            "bill_eob_difference_cents": 0,
+            "explanations": [
+              {
+                "kind": "eob_vs_fineprint",
+                "component": "coinsurance_cents",
+                "difference_cents": 8000,
+                "message": "EOB coinsurance is 16000 cents; policy evaluation gives 8000 cents under this scenario.",
+                "clause_ids": [
+                  "source-3",
+                  "source-4",
+                  "source-1"
+                ]
+              },
+              {
+                "kind": "eob_vs_fineprint",
+                "component": "balance_cents",
+                "difference_cents": 32000,
+                "message": "EOB balance billing is 32000 cents; policy evaluation gives 0 cents under this scenario.",
+                "clause_ids": [
+                  "source-1"
+                ]
+              },
+              {
+                "kind": "eob_vs_fineprint",
+                "component": "insurer_paid_cents",
+                "difference_cents": -8000,
+                "message": "EOB insurer payment is 24000 cents; policy evaluation gives 32000 cents under this scenario.",
+                "clause_ids": [
+                  "source-1",
+                  "source-3",
+                  "source-4"
+                ]
+              },
+              {
+                "kind": "eob_vs_fineprint",
+                "component": "adjustment_cents",
+                "difference_cents": -32000,
+                "message": "EOB contractual adjustment is 48000 cents; policy evaluation gives 80000 cents under this scenario.",
+                "clause_ids": [
+                  "source-1",
+                  "source-3",
+                  "source-4"
+                ]
+              },
+              {
+                "kind": "bill_vs_fineprint",
+                "component": "patient_cents",
+                "difference_cents": 40000,
+                "message": "Hospital patient responsibility differs from policy evaluation. Request itemized adjudication and review the cited terms.",
+                "clause_ids": [
+                  "source-1",
+                  "source-3",
+                  "source-4"
+                ]
+              }
+            ]
+          }
+        ],
+        "fineprint_patient_cents": 8000,
+        "eob_patient_cents": 48000,
+        "bill_patient_cents": 48000,
+        "already_paid_cents": 0,
+        "bill_balance_due_cents": 48000,
+        "fineprint_remaining_cents": 8000,
+        "potential_refund_cents": 0,
+        "potential_overpayment_cents": 40000,
+        "eob_difference_cents": 40000,
+        "bill_eob_difference_cents": 0
+      }
+    ],
+    "summary": {
+      "scenario_count": 1,
+      "conditional": false,
+      "illustrated_min_patient_cents": 8000,
+      "illustrated_max_patient_cents": 8000,
+      "eob_patient_cents": 48000,
+      "bill_patient_cents": 48000,
+      "potential_overpayment_min_cents": 40000,
+      "potential_overpayment_max_cents": 40000,
+      "bill_status": "overcharge",
+      "unconfirmed_facts": []
+    },
+    "method": "Deterministic policy evaluation; no LLM is used for arithmetic. All figures are USD cents.",
+    "limitations": [
+      "Individual annual, separate network accumulators; one unit/visit per claim line.",
+      "Allowed amounts must be supplied; rates are not inferred from an SBC.",
+      "Missing-fact endpoints are illustrative, not exhaustive outcomes or guaranteed savings.",
+      "Legal billing protections, family coordination, prior authorization, coding and medical necessity are not evaluated.",
+      "No other benefits are listed in the document; only CT scan benefits B1 and B2 are compiled.",
+      "No out-of-network balance billing protection is provided; excess balance billing is permitted as stated.",
+      "No additional service categories or exclusions are present in the document."
+    ]
+  },
+  "provider_attempt_audit": [
+    {
+      "attempt": 1,
+      "proposed_rules": 8,
+      "validated_rules": 8,
+      "validated_quote_spans": 10
+    }
+  ],
+  "provider_transport_audit": [
+    {
+      "status": "ok",
+      "elapsed_seconds": 9.001
+    }
+  ],
+  "provider_request_config": {
+    "response_format": "json_object",
+    "max_tokens_initial": 32768,
+    "max_tokens": 32768,
+    "max_tokens_ceiling": 65536,
+    "thinking": "disabled",
+    "timeout_seconds": 120,
+    "attempt_limit": 1,
+    "transport_attempt_limit": 1,
+    "temperature": 0,
+    "no_supported_rule_retry_limit": 1,
+    "evidence_spans": "selected original source lines with local offsets; legacy quotes use whitespace-normalized search"
+  },
+  "completed_at_utc": "2026-11-15T12:31:10.751880+00:00",
+  "elapsed_seconds": 9.005
+}

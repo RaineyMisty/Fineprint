@@ -1,0 +1,646 @@
+{
+  "case_id": "blind-25",
+  "started_at_utc": "2026-11-15T12:31:10.755420+00:00",
+  "compilation": {
+    "output": {
+      "policy": {
+        "id": "SYN-B25",
+        "insurer": "SYNTHETIC Aster Lantern Mutual",
+        "name": "SYNTHETIC — fictional Summary of Benefits and Coverage",
+        "member_id": "SYN-M25",
+        "effective_from": "2026-01-01",
+        "effective_to": "2026-12-31",
+        "currency": "USD",
+        "networks": {
+          "in": {
+            "deductible_cents": 100000,
+            "oop_max_cents": 500000,
+            "balance_billing": false,
+            "deductible_clause": "source-1",
+            "oop_clause": "source-1",
+            "network_clause": "source-1"
+          },
+          "out": {
+            "deductible_cents": 200000,
+            "oop_max_cents": 1000000,
+            "balance_billing": true,
+            "deductible_clause": "source-2",
+            "oop_clause": "source-2",
+            "network_clause": "source-2"
+          }
+        },
+        "benefits": [
+          {
+            "id": "B1",
+            "label": "Anesthesia (CPT/HCPCS 00840), in-network",
+            "codes": [
+              "00840"
+            ],
+            "network": "in",
+            "covered": true,
+            "deductible_applies": false,
+            "copay_cents": 0,
+            "coinsurance_bps": 2000,
+            "clause_ids": [
+              "source-3",
+              "source-4"
+            ],
+            "ambiguity_group": ""
+          },
+          {
+            "id": "B2",
+            "label": "Anesthesia (CPT/HCPCS 00840), out-network",
+            "codes": [
+              "00840"
+            ],
+            "network": "out",
+            "covered": true,
+            "deductible_applies": false,
+            "copay_cents": 0,
+            "coinsurance_bps": 4000,
+            "clause_ids": [
+              "source-3",
+              "source-5"
+            ],
+            "ambiguity_group": ""
+          }
+        ],
+        "clauses": [
+          {
+            "id": "source-1",
+            "text": "Section A — participating providers: annual deductible $1,000.00; annual out-of-pocket limit $5,000.00. No excess balance billing.",
+            "location": "Section A"
+          },
+          {
+            "id": "source-2",
+            "text": "Section B — nonparticipating providers: annual deductible $2,000.00; annual out-of-pocket limit $10,000.00. Excess balance billing is permitted.",
+            "location": "Section B"
+          },
+          {
+            "id": "source-3",
+            "text": "Calculation and accumulation rules: For covered care apply any remaining deductible first, then the stated copay, then member coinsurance to the remaining allowed amount. Round coinsurance half up to cents. Apply the remaining annual OOP cap to deductible, copay and coinsurance in that order. Only actually assessed covered sharing accrues. In- and out-of-network annual pools are separate. Permitted excess equals charge minus allowance and is outside OOP. Excluded care is full-charge patient liability outside deductible and OOP, with no insurer payment. No excess billing is allowed in network. A waived deductible means no deductible applies to that benefit.",
+            "location": "Calculation and accumulation rules"
+          },
+          {
+            "id": "source-4",
+            "text": "B1: Anesthesia (CPT/HCPCS 00840), in-network: covered; deductible waived; member copay $0.00; member coinsurance 20%.",
+            "location": "Benefits"
+          },
+          {
+            "id": "source-5",
+            "text": "B2: Anesthesia (CPT/HCPCS 00840), out-network: covered; deductible waived; member copay $0.00; member coinsurance 40%.",
+            "location": "Benefits"
+          }
+        ]
+      },
+      "rule_evidence": [
+        {
+          "rule_path": "networks.in.deductible_cents",
+          "evidence": [
+            {
+              "source_document_id": "blind-25/policy.md",
+              "section": "Section A",
+              "quote": "Section A — participating providers: annual deductible $1,000.00; annual out-of-pocket limit $5,000.00. No excess balance billing.",
+              "start": 310,
+              "end": 440
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "networks.in.oop_max_cents",
+          "evidence": [
+            {
+              "source_document_id": "blind-25/policy.md",
+              "section": "Section A",
+              "quote": "Section A — participating providers: annual deductible $1,000.00; annual out-of-pocket limit $5,000.00. No excess balance billing.",
+              "start": 310,
+              "end": 440
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "networks.in.balance_billing",
+          "evidence": [
+            {
+              "source_document_id": "blind-25/policy.md",
+              "section": "Section A",
+              "quote": "Section A — participating providers: annual deductible $1,000.00; annual out-of-pocket limit $5,000.00. No excess balance billing.",
+              "start": 310,
+              "end": 440
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "networks.out.deductible_cents",
+          "evidence": [
+            {
+              "source_document_id": "blind-25/policy.md",
+              "section": "Section B",
+              "quote": "Section B — nonparticipating providers: annual deductible $2,000.00; annual out-of-pocket limit $10,000.00. Excess balance billing is permitted.",
+              "start": 441,
+              "end": 585
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "networks.out.oop_max_cents",
+          "evidence": [
+            {
+              "source_document_id": "blind-25/policy.md",
+              "section": "Section B",
+              "quote": "Section B — nonparticipating providers: annual deductible $2,000.00; annual out-of-pocket limit $10,000.00. Excess balance billing is permitted.",
+              "start": 441,
+              "end": 585
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "networks.out.balance_billing",
+          "evidence": [
+            {
+              "source_document_id": "blind-25/policy.md",
+              "section": "Section B",
+              "quote": "Section B — nonparticipating providers: annual deductible $2,000.00; annual out-of-pocket limit $10,000.00. Excess balance billing is permitted.",
+              "start": 441,
+              "end": 585
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "benefits.B1",
+          "evidence": [
+            {
+              "source_document_id": "blind-25/policy.md",
+              "section": "Calculation and accumulation rules",
+              "quote": "Calculation and accumulation rules: For covered care apply any remaining deductible first, then the stated copay, then member coinsurance to the remaining allowed amount. Round coinsurance half up to cents. Apply the remaining annual OOP cap to deductible, copay and coinsurance in that order. Only actually assessed covered sharing accrues. In- and out-of-network annual pools are separate. Permitted excess equals charge minus allowance and is outside OOP. Excluded care is full-charge patient liability outside deductible and OOP, with no insurer payment. No excess billing is allowed in network. A waived deductible means no deductible applies to that benefit.",
+              "start": 587,
+              "end": 1251
+            },
+            {
+              "source_document_id": "blind-25/policy.md",
+              "section": "Benefits",
+              "quote": "B1: Anesthesia (CPT/HCPCS 00840), in-network: covered; deductible waived; member copay $0.00; member coinsurance 20%.",
+              "start": 1291,
+              "end": 1408
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "benefits.B2",
+          "evidence": [
+            {
+              "source_document_id": "blind-25/policy.md",
+              "section": "Calculation and accumulation rules",
+              "quote": "Calculation and accumulation rules: For covered care apply any remaining deductible first, then the stated copay, then member coinsurance to the remaining allowed amount. Round coinsurance half up to cents. Apply the remaining annual OOP cap to deductible, copay and coinsurance in that order. Only actually assessed covered sharing accrues. In- and out-of-network annual pools are separate. Permitted excess equals charge minus allowance and is outside OOP. Excluded care is full-charge patient liability outside deductible and OOP, with no insurer payment. No excess billing is allowed in network. A waived deductible means no deductible applies to that benefit.",
+              "start": 587,
+              "end": 1251
+            },
+            {
+              "source_document_id": "blind-25/policy.md",
+              "section": "Benefits",
+              "quote": "B2: Anesthesia (CPT/HCPCS 00840), out-network: covered; deductible waived; member copay $0.00; member coinsurance 40%.",
+              "start": 1409,
+              "end": 1527
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        }
+      ],
+      "warnings": [
+        "Synthetic data notice: This document is a fictional SBC for testing purposes.",
+        "Rounding convention: Coinsurance is rounded half-up to cents as per engine convention; the policy does not explicitly state rounding for coinsurance.",
+        "The policy includes a special provision (line 16) that may affect cost sharing for qualifying ancillary anesthesia; this provision is not compiled as a separate benefit because it does not introduce a new service or cost-sharing amount, but it may be relevant for claim adjudication."
+      ],
+      "unresolved": [],
+      "coverage_gaps": [
+        "No other benefits are listed in the document; only anesthesia services are compiled.",
+        "The special provision on line 16 is not compiled as a separate benefit; it may affect cost sharing for qualifying ancillary anesthesia but does not change the numeric rules for the listed anesthesia codes.",
+        "No out-of-network balance billing protection is provided; balance billing is permitted as stated.",
+        "No additional services (e.g., office visits, urgent care, ER, drugs) are present in the document."
+      ]
+    },
+    "backend": "deepseek",
+    "source_document_id": "blind-25/policy.md",
+    "source_sha256": "3153318fd636f7e51c3919e1d9075bcd95a6ba9fa2a2078a8b7ea369aadfd3db",
+    "attempts": 1
+  },
+  "normalized_case": {
+    "schema_version": "1.0",
+    "id": "blind-25",
+    "title": "Protected ancillary anesthesiologist",
+    "synthetic": true,
+    "policy": {
+      "id": "SYN-B25",
+      "insurer": "SYNTHETIC Aster Lantern Mutual",
+      "name": "SYNTHETIC — fictional Summary of Benefits and Coverage",
+      "member_id": "SYN-M25",
+      "effective_from": "2026-01-01",
+      "effective_to": "2026-12-31",
+      "currency": "USD",
+      "networks": {
+        "in": {
+          "deductible_cents": 100000,
+          "oop_max_cents": 500000,
+          "balance_billing": false,
+          "deductible_clause": "source-1",
+          "oop_clause": "source-1",
+          "network_clause": "source-1"
+        },
+        "out": {
+          "deductible_cents": 200000,
+          "oop_max_cents": 1000000,
+          "balance_billing": true,
+          "deductible_clause": "source-2",
+          "oop_clause": "source-2",
+          "network_clause": "source-2"
+        }
+      },
+      "benefits": [
+        {
+          "id": "B1",
+          "label": "Anesthesia (CPT/HCPCS 00840), in-network",
+          "codes": [
+            "00840"
+          ],
+          "network": "in",
+          "covered": true,
+          "deductible_applies": false,
+          "copay_cents": 0,
+          "coinsurance_bps": 2000,
+          "clause_ids": [
+            "source-3",
+            "source-4"
+          ],
+          "ambiguity_group": ""
+        },
+        {
+          "id": "B2",
+          "label": "Anesthesia (CPT/HCPCS 00840), out-network",
+          "codes": [
+            "00840"
+          ],
+          "network": "out",
+          "covered": true,
+          "deductible_applies": false,
+          "copay_cents": 0,
+          "coinsurance_bps": 4000,
+          "clause_ids": [
+            "source-3",
+            "source-5"
+          ],
+          "ambiguity_group": ""
+        }
+      ],
+      "clauses": [
+        {
+          "id": "source-1",
+          "text": "Section A — participating providers: annual deductible $1,000.00; annual out-of-pocket limit $5,000.00. No excess balance billing.",
+          "location": "Section A"
+        },
+        {
+          "id": "source-2",
+          "text": "Section B — nonparticipating providers: annual deductible $2,000.00; annual out-of-pocket limit $10,000.00. Excess balance billing is permitted.",
+          "location": "Section B"
+        },
+        {
+          "id": "source-3",
+          "text": "Calculation and accumulation rules: For covered care apply any remaining deductible first, then the stated copay, then member coinsurance to the remaining allowed amount. Round coinsurance half up to cents. Apply the remaining annual OOP cap to deductible, copay and coinsurance in that order. Only actually assessed covered sharing accrues. In- and out-of-network annual pools are separate. Permitted excess equals charge minus allowance and is outside OOP. Excluded care is full-charge patient liability outside deductible and OOP, with no insurer payment. No excess billing is allowed in network. A waived deductible means no deductible applies to that benefit.",
+          "location": "Calculation and accumulation rules"
+        },
+        {
+          "id": "source-4",
+          "text": "B1: Anesthesia (CPT/HCPCS 00840), in-network: covered; deductible waived; member copay $0.00; member coinsurance 20%.",
+          "location": "Benefits"
+        },
+        {
+          "id": "source-5",
+          "text": "B2: Anesthesia (CPT/HCPCS 00840), out-network: covered; deductible waived; member copay $0.00; member coinsurance 40%.",
+          "location": "Benefits"
+        }
+      ]
+    },
+    "claim": {
+      "id": "SYN-C25",
+      "policy_id": "SYN-B25",
+      "member_id": "SYN-M25",
+      "accumulators": {
+        "in": {
+          "deductible_paid_cents": 0,
+          "oop_paid_cents": 0
+        },
+        "out": {
+          "deductible_paid_cents": 0,
+          "oop_paid_cents": 0
+        }
+      },
+      "lines": [
+        {
+          "id": "L01",
+          "provider_id": "SYN-P25",
+          "service_date": "2026-06-11",
+          "code": "00840",
+          "description": "SYNTHETIC submitted service 00840; documented actual service code 00840; Nonparticipating ancillary anesthesia at participating facility; surprise-billing protection stipulated; no valid waiver.",
+          "network": "out",
+          "billed_cents": 160000,
+          "confirmed_conditions": [
+            "Nonparticipating ancillary anesthesia at participating facility; surprise-billing protection stipulated; no valid waiver."
+          ],
+          "insurer": {
+            "allowed_cents": 60000,
+            "deductible_cents": 0,
+            "copay_cents": 0,
+            "coinsurance_cents": 72000,
+            "noncovered_cents": 0,
+            "balance_cents": 0,
+            "insurer_paid_cents": 0,
+            "adjustment_cents": 88000
+          }
+        }
+      ]
+    },
+    "bill": {
+      "id": "SYN-I25",
+      "claim_id": "SYN-C25",
+      "member_id": "SYN-M25",
+      "lines": [
+        {
+          "id": "B-L01",
+          "claim_line_id": "L01",
+          "provider_id": "SYN-P25",
+          "service_date": "2026-06-11",
+          "code": "00840",
+          "charged_cents": 160000,
+          "insurance_paid_cents": 0,
+          "adjustment_cents": 88000,
+          "patient_paid_cents": 0,
+          "balance_due_cents": 72000
+        }
+      ]
+    },
+    "allowed_evidence": {
+      "L01": {
+        "allowed_cents": 60000,
+        "source": "contract",
+        "reference": "SYNTHETIC signed rate schedule SYN-R25, line L01; protected recognized amount where stipulated"
+      }
+    }
+  },
+  "report": {
+    "validation": [],
+    "links": [
+      {
+        "claim_line_id": "L01",
+        "member_id": "SYN-M25",
+        "provider_id": "SYN-P25",
+        "service_date": "2026-06-11",
+        "code": "00840",
+        "claim_id": "SYN-C25",
+        "bill_line_ids": [
+          "B-L01"
+        ]
+      }
+    ],
+    "status": "ready",
+    "scenarios": [
+      {
+        "id": "scenario-1",
+        "assumptions": [],
+        "conditional": false,
+        "lines": [
+          {
+            "claim_line_id": "L01",
+            "network": "out",
+            "benefit_id": "B2",
+            "allowed_cents": 60000,
+            "deductible_cents": 0,
+            "copay_cents": 0,
+            "coinsurance_cents": 24000,
+            "noncovered_cents": 0,
+            "balance_cents": 48000,
+            "patient_cents": 72000,
+            "insurer_paid_cents": 36000,
+            "adjustment_cents": 52000,
+            "opening_deductible_cents": 0,
+            "opening_oop_cents": 0,
+            "closing_deductible_cents": 0,
+            "closing_oop_cents": 24000,
+            "trace": [
+              {
+                "explanation": "Allowance supplied as evidence; it is not derived from policy cost-sharing rules.",
+                "amount_cents": 60000,
+                "clause_ids": [
+                  "source-3",
+                  "source-5"
+                ]
+              },
+              {
+                "explanation": "Deductible: min(allowance, remaining deductible 200000 cents), then OOP cap; applies=False.",
+                "amount_cents": 0,
+                "clause_ids": [
+                  "source-2",
+                  "source-2",
+                  "source-3",
+                  "source-5"
+                ]
+              },
+              {
+                "explanation": "Copay: up to 0 cents after deductible, then OOP cap.",
+                "amount_cents": 0,
+                "clause_ids": [
+                  "source-3",
+                  "source-5",
+                  "source-2"
+                ]
+              },
+              {
+                "explanation": "Coinsurance: 4000/10000 × 60000 cents, half-up rounding, then OOP cap.",
+                "amount_cents": 24000,
+                "clause_ids": [
+                  "source-3",
+                  "source-5",
+                  "source-2"
+                ]
+              },
+              {
+                "explanation": "Covered cost sharing capped by 1000000 cents remaining OOP; exclusions and permitted balance bills do not count.",
+                "amount_cents": 24000,
+                "clause_ids": [
+                  "source-2"
+                ]
+              },
+              {
+                "explanation": "Network rule: excess charge is patient balance billing if permitted; otherwise a contractual write-off.",
+                "amount_cents": 100000,
+                "clause_ids": [
+                  "source-2"
+                ]
+              },
+              {
+                "explanation": "Patient amount limited by the recorded bill, insurer payments and credits; the uncapped policy calculation is retained for review.",
+                "amount_cents": 72000,
+                "clause_ids": [
+                  "source-3",
+                  "source-5"
+                ]
+              }
+            ],
+            "policy_patient_cents": 124000,
+            "policy_insurer_paid_cents": 36000
+          }
+        ],
+        "patient_cents": 72000,
+        "insurer_paid_cents": 36000,
+        "closing_accumulators": {
+          "out": {
+            "deductible_paid_cents": 0,
+            "oop_paid_cents": 24000
+          }
+        }
+      }
+    ],
+    "comparisons": [
+      {
+        "scenario_id": "scenario-1",
+        "conditional": false,
+        "lines": [
+          {
+            "claim_line_id": "L01",
+            "code": "00840",
+            "description": "SYNTHETIC submitted service 00840; documented actual service code 00840; Nonparticipating ancillary anesthesia at participating facility; surprise-billing protection stipulated; no valid waiver.",
+            "fineprint_patient_cents": 72000,
+            "eob_patient_cents": 72000,
+            "bill_patient_cents": 72000,
+            "already_paid_cents": 0,
+            "bill_balance_due_cents": 72000,
+            "fineprint_remaining_cents": 72000,
+            "potential_refund_cents": 0,
+            "potential_overpayment_cents": 0,
+            "eob_difference_cents": 0,
+            "bill_eob_difference_cents": 0,
+            "explanations": [
+              {
+                "kind": "eob_vs_fineprint",
+                "component": "coinsurance_cents",
+                "difference_cents": 48000,
+                "message": "EOB coinsurance is 72000 cents; policy evaluation gives 24000 cents under this scenario.",
+                "clause_ids": [
+                  "source-3",
+                  "source-5",
+                  "source-2"
+                ]
+              },
+              {
+                "kind": "eob_vs_fineprint",
+                "component": "balance_cents",
+                "difference_cents": -48000,
+                "message": "EOB balance billing is 0 cents; policy evaluation gives 48000 cents under this scenario.",
+                "clause_ids": [
+                  "source-2"
+                ]
+              },
+              {
+                "kind": "eob_vs_fineprint",
+                "component": "insurer_paid_cents",
+                "difference_cents": -36000,
+                "message": "EOB insurer payment is 0 cents; policy evaluation gives 36000 cents under this scenario.",
+                "clause_ids": [
+                  "source-2",
+                  "source-3",
+                  "source-5"
+                ]
+              },
+              {
+                "kind": "eob_vs_fineprint",
+                "component": "adjustment_cents",
+                "difference_cents": 36000,
+                "message": "EOB contractual adjustment is 88000 cents; policy evaluation gives 52000 cents under this scenario.",
+                "clause_ids": [
+                  "source-2",
+                  "source-3",
+                  "source-5"
+                ]
+              }
+            ]
+          }
+        ],
+        "fineprint_patient_cents": 72000,
+        "eob_patient_cents": 72000,
+        "bill_patient_cents": 72000,
+        "already_paid_cents": 0,
+        "bill_balance_due_cents": 72000,
+        "fineprint_remaining_cents": 72000,
+        "potential_refund_cents": 0,
+        "potential_overpayment_cents": 0,
+        "eob_difference_cents": 0,
+        "bill_eob_difference_cents": 0
+      }
+    ],
+    "summary": {
+      "scenario_count": 1,
+      "conditional": false,
+      "illustrated_min_patient_cents": 72000,
+      "illustrated_max_patient_cents": 72000,
+      "eob_patient_cents": 72000,
+      "bill_patient_cents": 72000,
+      "potential_overpayment_min_cents": 0,
+      "potential_overpayment_max_cents": 0,
+      "bill_status": "consistent",
+      "unconfirmed_facts": []
+    },
+    "method": "Deterministic policy evaluation; no LLM is used for arithmetic. All figures are USD cents.",
+    "limitations": [
+      "Individual annual, separate network accumulators; one unit/visit per claim line.",
+      "Allowed amounts must be supplied; rates are not inferred from an SBC.",
+      "Missing-fact endpoints are illustrative, not exhaustive outcomes or guaranteed savings.",
+      "Legal billing protections, family coordination, prior authorization, coding and medical necessity are not evaluated.",
+      "No other benefits are listed in the document; only anesthesia services are compiled.",
+      "The special provision on line 16 is not compiled as a separate benefit; it may affect cost sharing for qualifying ancillary anesthesia but does not change the numeric rules for the listed anesthesia codes.",
+      "No out-of-network balance billing protection is provided; balance billing is permitted as stated.",
+      "No additional services (e.g., office visits, urgent care, ER, drugs) are present in the document."
+    ]
+  },
+  "provider_attempt_audit": [
+    {
+      "attempt": 1,
+      "proposed_rules": 8,
+      "validated_rules": 8,
+      "validated_quote_spans": 10
+    }
+  ],
+  "provider_transport_audit": [
+    {
+      "status": "ok",
+      "elapsed_seconds": 10.21
+    }
+  ],
+  "provider_request_config": {
+    "response_format": "json_object",
+    "max_tokens_initial": 32768,
+    "max_tokens": 32768,
+    "max_tokens_ceiling": 65536,
+    "thinking": "disabled",
+    "timeout_seconds": 120,
+    "attempt_limit": 1,
+    "transport_attempt_limit": 1,
+    "temperature": 0,
+    "no_supported_rule_retry_limit": 1,
+    "evidence_spans": "selected original source lines with local offsets; legacy quotes use whitespace-normalized search"
+  },
+  "completed_at_utc": "2026-11-15T12:31:20.969123+00:00",
+  "elapsed_seconds": 10.214
+}

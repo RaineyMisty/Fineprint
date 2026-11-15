@@ -1,0 +1,1126 @@
+{
+  "aurora-imaging": {
+    "status": "ready",
+    "summary": {
+      "scenario_count": 1,
+      "conditional": false,
+      "illustrated_min_patient_cents": 38500,
+      "illustrated_max_patient_cents": 38500,
+      "eob_patient_cents": 46500,
+      "bill_patient_cents": 50500,
+      "potential_overpayment_min_cents": 12000,
+      "potential_overpayment_max_cents": 12000,
+      "bill_status": "overcharge",
+      "unconfirmed_facts": []
+    },
+    "scenarios": [
+      {
+        "id": "scenario-1",
+        "assumptions": [],
+        "conditional": false,
+        "lines": [
+          {
+            "claim_line_id": "A1",
+            "network": "in",
+            "benefit_id": "B1-in",
+            "allowed_cents": 15000,
+            "deductible_cents": 0,
+            "copay_cents": 2500,
+            "coinsurance_cents": 0,
+            "noncovered_cents": 0,
+            "balance_cents": 0,
+            "patient_cents": 2500,
+            "insurer_paid_cents": 12500,
+            "adjustment_cents": 9000,
+            "opening_deductible_cents": 80000,
+            "opening_oop_cents": 100000,
+            "closing_deductible_cents": 80000,
+            "closing_oop_cents": 102500,
+            "trace": [
+              {
+                "explanation": "Allowance supplied as evidence; it is not derived from policy cost-sharing rules.",
+                "amount_cents": 15000,
+                "clause_ids": [
+                  "B1",
+                  "ORDER"
+                ]
+              },
+              {
+                "explanation": "Deductible: min(allowance, remaining deductible 20000 cents), then OOP cap; applies=False.",
+                "amount_cents": 0,
+                "clause_ids": [
+                  "D-in",
+                  "O-in",
+                  "B1",
+                  "ORDER"
+                ]
+              },
+              {
+                "explanation": "Copay: up to 2500 cents after deductible, then OOP cap.",
+                "amount_cents": 2500,
+                "clause_ids": [
+                  "B1",
+                  "ORDER",
+                  "O-in"
+                ]
+              },
+              {
+                "explanation": "Coinsurance: 0/10000 × 12500 cents, half-up rounding, then OOP cap.",
+                "amount_cents": 0,
+                "clause_ids": [
+                  "B1",
+                  "ORDER",
+                  "O-in"
+                ]
+              },
+              {
+                "explanation": "Covered cost sharing capped by 200000 cents remaining OOP; exclusions and permitted balance bills do not count.",
+                "amount_cents": 2500,
+                "clause_ids": [
+                  "O-in"
+                ]
+              },
+              {
+                "explanation": "Network rule: excess charge is patient balance billing if permitted; otherwise a contractual write-off.",
+                "amount_cents": 0,
+                "clause_ids": [
+                  "N-in"
+                ]
+              }
+            ],
+            "policy_patient_cents": 2500,
+            "policy_insurer_paid_cents": 12500
+          },
+          {
+            "claim_line_id": "A2",
+            "network": "in",
+            "benefit_id": "B2-in",
+            "allowed_cents": 100000,
+            "deductible_cents": 20000,
+            "copay_cents": 0,
+            "coinsurance_cents": 16000,
+            "noncovered_cents": 0,
+            "balance_cents": 0,
+            "patient_cents": 36000,
+            "insurer_paid_cents": 64000,
+            "adjustment_cents": 60000,
+            "opening_deductible_cents": 80000,
+            "opening_oop_cents": 102500,
+            "closing_deductible_cents": 100000,
+            "closing_oop_cents": 138500,
+            "trace": [
+              {
+                "explanation": "Allowance supplied as evidence; it is not derived from policy cost-sharing rules.",
+                "amount_cents": 100000,
+                "clause_ids": [
+                  "B2",
+                  "ORDER"
+                ]
+              },
+              {
+                "explanation": "Deductible: min(allowance, remaining deductible 20000 cents), then OOP cap; applies=True.",
+                "amount_cents": 20000,
+                "clause_ids": [
+                  "D-in",
+                  "O-in",
+                  "B2",
+                  "ORDER"
+                ]
+              },
+              {
+                "explanation": "Copay: up to 0 cents after deductible, then OOP cap.",
+                "amount_cents": 0,
+                "clause_ids": [
+                  "B2",
+                  "ORDER",
+                  "O-in"
+                ]
+              },
+              {
+                "explanation": "Coinsurance: 2000/10000 × 80000 cents, half-up rounding, then OOP cap.",
+                "amount_cents": 16000,
+                "clause_ids": [
+                  "B2",
+                  "ORDER",
+                  "O-in"
+                ]
+              },
+              {
+                "explanation": "Covered cost sharing capped by 197500 cents remaining OOP; exclusions and permitted balance bills do not count.",
+                "amount_cents": 36000,
+                "clause_ids": [
+                  "O-in"
+                ]
+              },
+              {
+                "explanation": "Network rule: excess charge is patient balance billing if permitted; otherwise a contractual write-off.",
+                "amount_cents": 0,
+                "clause_ids": [
+                  "N-in"
+                ]
+              }
+            ],
+            "policy_patient_cents": 36000,
+            "policy_insurer_paid_cents": 64000
+          }
+        ],
+        "patient_cents": 38500,
+        "insurer_paid_cents": 76500,
+        "closing_accumulators": {
+          "in": {
+            "deductible_paid_cents": 100000,
+            "oop_paid_cents": 138500
+          }
+        }
+      }
+    ],
+    "comparisons": [
+      {
+        "scenario_id": "scenario-1",
+        "conditional": false,
+        "lines": [
+          {
+            "claim_line_id": "A1",
+            "code": "99213",
+            "description": "Synthetic office visit",
+            "fineprint_patient_cents": 2500,
+            "eob_patient_cents": 2500,
+            "bill_patient_cents": 2500,
+            "already_paid_cents": 0,
+            "bill_balance_due_cents": 2500,
+            "fineprint_remaining_cents": 2500,
+            "potential_refund_cents": 0,
+            "potential_overpayment_cents": 0,
+            "eob_difference_cents": 0,
+            "bill_eob_difference_cents": 0,
+            "explanations": [
+              {
+                "kind": "match",
+                "component": "patient_cents",
+                "difference_cents": 0,
+                "message": "Independent cost-sharing calculation, EOB, and bill agree under the stated inputs.",
+                "clause_ids": [
+                  "B1",
+                  "D-in",
+                  "N-in",
+                  "O-in",
+                  "ORDER"
+                ]
+              }
+            ]
+          },
+          {
+            "claim_line_id": "A2",
+            "code": "70551",
+            "description": "Synthetic diagnostic MRI",
+            "fineprint_patient_cents": 36000,
+            "eob_patient_cents": 44000,
+            "bill_patient_cents": 48000,
+            "already_paid_cents": 10000,
+            "bill_balance_due_cents": 38000,
+            "fineprint_remaining_cents": 26000,
+            "potential_refund_cents": 0,
+            "potential_overpayment_cents": 12000,
+            "eob_difference_cents": 8000,
+            "bill_eob_difference_cents": 4000,
+            "explanations": [
+              {
+                "kind": "eob_vs_fineprint",
+                "component": "deductible_cents",
+                "difference_cents": 10000,
+                "message": "EOB deductible is 30000 cents; policy evaluation gives 20000 cents under this scenario.",
+                "clause_ids": [
+                  "D-in",
+                  "B2",
+                  "ORDER",
+                  "O-in"
+                ]
+              },
+              {
+                "kind": "eob_vs_fineprint",
+                "component": "coinsurance_cents",
+                "difference_cents": -2000,
+                "message": "EOB coinsurance is 14000 cents; policy evaluation gives 16000 cents under this scenario.",
+                "clause_ids": [
+                  "B2",
+                  "ORDER",
+                  "D-in",
+                  "O-in"
+                ]
+              },
+              {
+                "kind": "eob_vs_fineprint",
+                "component": "insurer_paid_cents",
+                "difference_cents": -8000,
+                "message": "EOB insurer payment is 56000 cents; policy evaluation gives 64000 cents under this scenario.",
+                "clause_ids": [
+                  "B2",
+                  "D-in",
+                  "N-in",
+                  "O-in",
+                  "ORDER"
+                ]
+              },
+              {
+                "kind": "bill_vs_eob",
+                "component": "patient_cents",
+                "difference_cents": 4000,
+                "message": "Hospital patient payments plus balance due differ from EOB patient responsibility. Check credits and adjustments.",
+                "clause_ids": [
+                  "B2",
+                  "D-in",
+                  "N-in",
+                  "O-in",
+                  "ORDER"
+                ]
+              },
+              {
+                "kind": "bill_vs_fineprint",
+                "component": "patient_cents",
+                "difference_cents": 12000,
+                "message": "Hospital patient responsibility differs from policy evaluation. Request itemized adjudication and review the cited terms.",
+                "clause_ids": [
+                  "B2",
+                  "D-in",
+                  "N-in",
+                  "O-in",
+                  "ORDER"
+                ]
+              }
+            ]
+          }
+        ],
+        "fineprint_patient_cents": 38500,
+        "eob_patient_cents": 46500,
+        "bill_patient_cents": 50500,
+        "already_paid_cents": 10000,
+        "bill_balance_due_cents": 40500,
+        "fineprint_remaining_cents": 28500,
+        "potential_refund_cents": 0,
+        "potential_overpayment_cents": 12000,
+        "eob_difference_cents": 8000,
+        "bill_eob_difference_cents": 4000
+      }
+    ]
+  },
+  "mosaic-oop": {
+    "status": "ready",
+    "summary": {
+      "scenario_count": 1,
+      "conditional": false,
+      "illustrated_min_patient_cents": 100000,
+      "illustrated_max_patient_cents": 100000,
+      "eob_patient_cents": 115000,
+      "bill_patient_cents": 115000,
+      "potential_overpayment_min_cents": 15000,
+      "potential_overpayment_max_cents": 15000,
+      "bill_status": "overcharge",
+      "unconfirmed_facts": []
+    },
+    "scenarios": [
+      {
+        "id": "scenario-1",
+        "assumptions": [],
+        "conditional": false,
+        "lines": [
+          {
+            "claim_line_id": "M1",
+            "network": "in",
+            "benefit_id": "B1-in",
+            "allowed_cents": 100000,
+            "deductible_cents": 0,
+            "copay_cents": 0,
+            "coinsurance_cents": 5000,
+            "noncovered_cents": 0,
+            "balance_cents": 0,
+            "patient_cents": 5000,
+            "insurer_paid_cents": 95000,
+            "adjustment_cents": 80000,
+            "opening_deductible_cents": 50000,
+            "opening_oop_cents": 145000,
+            "closing_deductible_cents": 50000,
+            "closing_oop_cents": 150000,
+            "trace": [
+              {
+                "explanation": "Allowance supplied as evidence; it is not derived from policy cost-sharing rules.",
+                "amount_cents": 100000,
+                "clause_ids": [
+                  "B1",
+                  "ORDER"
+                ]
+              },
+              {
+                "explanation": "Deductible: min(allowance, remaining deductible 0 cents), then OOP cap; applies=True.",
+                "amount_cents": 0,
+                "clause_ids": [
+                  "D-in",
+                  "O-in",
+                  "B1",
+                  "ORDER"
+                ]
+              },
+              {
+                "explanation": "Copay: up to 0 cents after deductible, then OOP cap.",
+                "amount_cents": 0,
+                "clause_ids": [
+                  "B1",
+                  "ORDER",
+                  "O-in"
+                ]
+              },
+              {
+                "explanation": "Coinsurance: 2000/10000 × 100000 cents, half-up rounding, then OOP cap.",
+                "amount_cents": 5000,
+                "clause_ids": [
+                  "B1",
+                  "ORDER",
+                  "O-in"
+                ]
+              },
+              {
+                "explanation": "Covered cost sharing capped by 5000 cents remaining OOP; exclusions and permitted balance bills do not count.",
+                "amount_cents": 5000,
+                "clause_ids": [
+                  "O-in"
+                ]
+              },
+              {
+                "explanation": "Network rule: excess charge is patient balance billing if permitted; otherwise a contractual write-off.",
+                "amount_cents": 0,
+                "clause_ids": [
+                  "N-in"
+                ]
+              }
+            ],
+            "policy_patient_cents": 5000,
+            "policy_insurer_paid_cents": 95000
+          },
+          {
+            "claim_line_id": "M2",
+            "network": "in",
+            "benefit_id": "X1-in",
+            "allowed_cents": 0,
+            "deductible_cents": 0,
+            "copay_cents": 0,
+            "coinsurance_cents": 0,
+            "noncovered_cents": 30000,
+            "balance_cents": 0,
+            "patient_cents": 30000,
+            "insurer_paid_cents": 0,
+            "adjustment_cents": 0,
+            "opening_deductible_cents": 50000,
+            "opening_oop_cents": 150000,
+            "closing_deductible_cents": 50000,
+            "closing_oop_cents": 150000,
+            "trace": [
+              {
+                "explanation": "Allowance supplied as evidence; it is not derived from policy cost-sharing rules.",
+                "amount_cents": 0,
+                "clause_ids": [
+                  "X1",
+                  "ORDER"
+                ]
+              },
+              {
+                "explanation": "Explicit exclusion: full charge is patient responsibility and does not accrue to deductible or OOP.",
+                "amount_cents": 30000,
+                "clause_ids": [
+                  "X1",
+                  "ORDER"
+                ]
+              }
+            ],
+            "policy_patient_cents": 30000,
+            "policy_insurer_paid_cents": 0
+          },
+          {
+            "claim_line_id": "M3",
+            "network": "out",
+            "benefit_id": "B2-out",
+            "allowed_cents": 40000,
+            "deductible_cents": 40000,
+            "copay_cents": 0,
+            "coinsurance_cents": 0,
+            "noncovered_cents": 0,
+            "balance_cents": 25000,
+            "patient_cents": 65000,
+            "insurer_paid_cents": 0,
+            "adjustment_cents": 0,
+            "opening_deductible_cents": 0,
+            "opening_oop_cents": 0,
+            "closing_deductible_cents": 40000,
+            "closing_oop_cents": 40000,
+            "trace": [
+              {
+                "explanation": "Allowance supplied as evidence; it is not derived from policy cost-sharing rules.",
+                "amount_cents": 40000,
+                "clause_ids": [
+                  "B2",
+                  "ORDER"
+                ]
+              },
+              {
+                "explanation": "Deductible: min(allowance, remaining deductible 100000 cents), then OOP cap; applies=True.",
+                "amount_cents": 40000,
+                "clause_ids": [
+                  "D-out",
+                  "O-out",
+                  "B2",
+                  "ORDER"
+                ]
+              },
+              {
+                "explanation": "Copay: up to 0 cents after deductible, then OOP cap.",
+                "amount_cents": 0,
+                "clause_ids": [
+                  "B2",
+                  "ORDER",
+                  "O-out"
+                ]
+              },
+              {
+                "explanation": "Coinsurance: 5000/10000 × 0 cents, half-up rounding, then OOP cap.",
+                "amount_cents": 0,
+                "clause_ids": [
+                  "B2",
+                  "ORDER",
+                  "O-out"
+                ]
+              },
+              {
+                "explanation": "Covered cost sharing capped by 300000 cents remaining OOP; exclusions and permitted balance bills do not count.",
+                "amount_cents": 40000,
+                "clause_ids": [
+                  "O-out"
+                ]
+              },
+              {
+                "explanation": "Network rule: excess charge is patient balance billing if permitted; otherwise a contractual write-off.",
+                "amount_cents": 25000,
+                "clause_ids": [
+                  "N-out"
+                ]
+              }
+            ],
+            "policy_patient_cents": 65000,
+            "policy_insurer_paid_cents": 0
+          }
+        ],
+        "patient_cents": 100000,
+        "insurer_paid_cents": 95000,
+        "closing_accumulators": {
+          "in": {
+            "deductible_paid_cents": 50000,
+            "oop_paid_cents": 150000
+          },
+          "out": {
+            "deductible_paid_cents": 40000,
+            "oop_paid_cents": 40000
+          }
+        }
+      }
+    ],
+    "comparisons": [
+      {
+        "scenario_id": "scenario-1",
+        "conditional": false,
+        "lines": [
+          {
+            "claim_line_id": "M1",
+            "code": "29881",
+            "description": "Synthetic ambulatory procedure",
+            "fineprint_patient_cents": 5000,
+            "eob_patient_cents": 20000,
+            "bill_patient_cents": 20000,
+            "already_paid_cents": 0,
+            "bill_balance_due_cents": 20000,
+            "fineprint_remaining_cents": 5000,
+            "potential_refund_cents": 0,
+            "potential_overpayment_cents": 15000,
+            "eob_difference_cents": 15000,
+            "bill_eob_difference_cents": 0,
+            "explanations": [
+              {
+                "kind": "eob_vs_fineprint",
+                "component": "coinsurance_cents",
+                "difference_cents": 15000,
+                "message": "EOB coinsurance is 20000 cents; policy evaluation gives 5000 cents under this scenario.",
+                "clause_ids": [
+                  "B1",
+                  "ORDER",
+                  "D-in",
+                  "O-in"
+                ]
+              },
+              {
+                "kind": "eob_vs_fineprint",
+                "component": "insurer_paid_cents",
+                "difference_cents": -15000,
+                "message": "EOB insurer payment is 80000 cents; policy evaluation gives 95000 cents under this scenario.",
+                "clause_ids": [
+                  "B1",
+                  "D-in",
+                  "N-in",
+                  "O-in",
+                  "ORDER"
+                ]
+              },
+              {
+                "kind": "bill_vs_fineprint",
+                "component": "patient_cents",
+                "difference_cents": 15000,
+                "message": "Hospital patient responsibility differs from policy evaluation. Request itemized adjudication and review the cited terms.",
+                "clause_ids": [
+                  "B1",
+                  "D-in",
+                  "N-in",
+                  "O-in",
+                  "ORDER"
+                ]
+              }
+            ]
+          },
+          {
+            "claim_line_id": "M2",
+            "code": "15820",
+            "description": "Synthetic excluded cosmetic service",
+            "fineprint_patient_cents": 30000,
+            "eob_patient_cents": 30000,
+            "bill_patient_cents": 30000,
+            "already_paid_cents": 0,
+            "bill_balance_due_cents": 30000,
+            "fineprint_remaining_cents": 30000,
+            "potential_refund_cents": 0,
+            "potential_overpayment_cents": 0,
+            "eob_difference_cents": 0,
+            "bill_eob_difference_cents": 0,
+            "explanations": [
+              {
+                "kind": "match",
+                "component": "patient_cents",
+                "difference_cents": 0,
+                "message": "Independent cost-sharing calculation, EOB, and bill agree under the stated inputs.",
+                "clause_ids": [
+                  "ORDER",
+                  "X1"
+                ]
+              }
+            ]
+          },
+          {
+            "claim_line_id": "M3",
+            "code": "A0428",
+            "description": "Synthetic nonemergency transport",
+            "fineprint_patient_cents": 65000,
+            "eob_patient_cents": 65000,
+            "bill_patient_cents": 65000,
+            "already_paid_cents": 0,
+            "bill_balance_due_cents": 65000,
+            "fineprint_remaining_cents": 65000,
+            "potential_refund_cents": 0,
+            "potential_overpayment_cents": 0,
+            "eob_difference_cents": 0,
+            "bill_eob_difference_cents": 0,
+            "explanations": [
+              {
+                "kind": "match",
+                "component": "patient_cents",
+                "difference_cents": 0,
+                "message": "Independent cost-sharing calculation, EOB, and bill agree under the stated inputs.",
+                "clause_ids": [
+                  "B2",
+                  "D-out",
+                  "N-out",
+                  "O-out",
+                  "ORDER"
+                ]
+              }
+            ]
+          }
+        ],
+        "fineprint_patient_cents": 100000,
+        "eob_patient_cents": 115000,
+        "bill_patient_cents": 115000,
+        "already_paid_cents": 0,
+        "bill_balance_due_cents": 115000,
+        "fineprint_remaining_cents": 100000,
+        "potential_refund_cents": 0,
+        "potential_overpayment_cents": 15000,
+        "eob_difference_cents": 15000,
+        "bill_eob_difference_cents": 0
+      }
+    ]
+  },
+  "mosaic-therapy": {
+    "status": "ready",
+    "summary": {
+      "scenario_count": 3,
+      "conditional": true,
+      "illustrated_min_patient_cents": 4000,
+      "illustrated_max_patient_cents": 4000,
+      "eob_patient_cents": 4000,
+      "bill_patient_cents": 4000,
+      "potential_overpayment_min_cents": 0,
+      "potential_overpayment_max_cents": 0,
+      "bill_status": "consistent",
+      "unconfirmed_facts": [
+        "Your earlier deductible or out-of-pocket spending is missing.",
+        "Whether this provider is in your plan's network is not confirmed.",
+        "The contracted price is not independently confirmed; use the insurer statement's allowed price and recorded payments to constrain the check."
+      ]
+    },
+    "scenarios": [
+      {
+        "id": "scenario-1",
+        "assumptions": [
+          "in-network opening deductible $0.00, OOP $0.00 (missing history: endpoint assumption)",
+          "The policy gives different prices for Synthetic therapeutic exercise (one unit); this reading uses Therapy endorsement.",
+          "Line T1: assume in-network",
+          "Line T1: using the insurer statement's allowed price $200.00; the contracted price is not independently confirmed.",
+          "Missing facts were narrowed using the allowed price and insurance payment recorded on the insurer statement and bill."
+        ],
+        "conditional": true,
+        "lines": [
+          {
+            "claim_line_id": "T1",
+            "network": "in",
+            "benefit_id": "T2-in",
+            "allowed_cents": 20000,
+            "deductible_cents": 0,
+            "copay_cents": 4000,
+            "coinsurance_cents": 0,
+            "noncovered_cents": 0,
+            "balance_cents": 0,
+            "patient_cents": 4000,
+            "insurer_paid_cents": 16000,
+            "adjustment_cents": 10000,
+            "opening_deductible_cents": 0,
+            "opening_oop_cents": 0,
+            "closing_deductible_cents": 0,
+            "closing_oop_cents": 4000,
+            "trace": [
+              {
+                "explanation": "Allowance supplied as evidence; it is not derived from policy cost-sharing rules.",
+                "amount_cents": 20000,
+                "clause_ids": [
+                  "T2",
+                  "ORDER"
+                ]
+              },
+              {
+                "explanation": "Deductible: min(allowance, remaining deductible 50000 cents), then OOP cap; applies=False.",
+                "amount_cents": 0,
+                "clause_ids": [
+                  "D-in",
+                  "O-in",
+                  "T2",
+                  "ORDER"
+                ]
+              },
+              {
+                "explanation": "Copay: up to 4000 cents after deductible, then OOP cap.",
+                "amount_cents": 4000,
+                "clause_ids": [
+                  "T2",
+                  "ORDER",
+                  "O-in"
+                ]
+              },
+              {
+                "explanation": "Coinsurance: 0/10000 × 16000 cents, half-up rounding, then OOP cap.",
+                "amount_cents": 0,
+                "clause_ids": [
+                  "T2",
+                  "ORDER",
+                  "O-in"
+                ]
+              },
+              {
+                "explanation": "Covered cost sharing capped by 150000 cents remaining OOP; exclusions and permitted balance bills do not count.",
+                "amount_cents": 4000,
+                "clause_ids": [
+                  "O-in"
+                ]
+              },
+              {
+                "explanation": "Network rule: excess charge is patient balance billing if permitted; otherwise a contractual write-off.",
+                "amount_cents": 0,
+                "clause_ids": [
+                  "N-in"
+                ]
+              }
+            ],
+            "policy_patient_cents": 4000,
+            "policy_insurer_paid_cents": 16000
+          }
+        ],
+        "patient_cents": 4000,
+        "insurer_paid_cents": 16000,
+        "closing_accumulators": {
+          "in": {
+            "deductible_paid_cents": 0,
+            "oop_paid_cents": 4000
+          },
+          "out": {
+            "deductible_paid_cents": 0,
+            "oop_paid_cents": 0
+          }
+        }
+      },
+      {
+        "id": "scenario-2",
+        "assumptions": [
+          "in-network opening deductible $500.00, OOP $500.00 (missing history: endpoint assumption)",
+          "The policy gives different prices for Synthetic therapeutic exercise (one unit); this reading uses Therapy schedule.",
+          "Line T1: assume in-network",
+          "Line T1: using the insurer statement's allowed price $200.00; the contracted price is not independently confirmed.",
+          "Missing facts were narrowed using the allowed price and insurance payment recorded on the insurer statement and bill."
+        ],
+        "conditional": true,
+        "lines": [
+          {
+            "claim_line_id": "T1",
+            "network": "in",
+            "benefit_id": "T1-in",
+            "allowed_cents": 20000,
+            "deductible_cents": 0,
+            "copay_cents": 0,
+            "coinsurance_cents": 4000,
+            "noncovered_cents": 0,
+            "balance_cents": 0,
+            "patient_cents": 4000,
+            "insurer_paid_cents": 16000,
+            "adjustment_cents": 10000,
+            "opening_deductible_cents": 50000,
+            "opening_oop_cents": 50000,
+            "closing_deductible_cents": 50000,
+            "closing_oop_cents": 54000,
+            "trace": [
+              {
+                "explanation": "Allowance supplied as evidence; it is not derived from policy cost-sharing rules.",
+                "amount_cents": 20000,
+                "clause_ids": [
+                  "T1",
+                  "ORDER"
+                ]
+              },
+              {
+                "explanation": "Deductible: min(allowance, remaining deductible 0 cents), then OOP cap; applies=True.",
+                "amount_cents": 0,
+                "clause_ids": [
+                  "D-in",
+                  "O-in",
+                  "T1",
+                  "ORDER"
+                ]
+              },
+              {
+                "explanation": "Copay: up to 0 cents after deductible, then OOP cap.",
+                "amount_cents": 0,
+                "clause_ids": [
+                  "T1",
+                  "ORDER",
+                  "O-in"
+                ]
+              },
+              {
+                "explanation": "Coinsurance: 2000/10000 × 20000 cents, half-up rounding, then OOP cap.",
+                "amount_cents": 4000,
+                "clause_ids": [
+                  "T1",
+                  "ORDER",
+                  "O-in"
+                ]
+              },
+              {
+                "explanation": "Covered cost sharing capped by 100000 cents remaining OOP; exclusions and permitted balance bills do not count.",
+                "amount_cents": 4000,
+                "clause_ids": [
+                  "O-in"
+                ]
+              },
+              {
+                "explanation": "Network rule: excess charge is patient balance billing if permitted; otherwise a contractual write-off.",
+                "amount_cents": 0,
+                "clause_ids": [
+                  "N-in"
+                ]
+              }
+            ],
+            "policy_patient_cents": 4000,
+            "policy_insurer_paid_cents": 16000
+          }
+        ],
+        "patient_cents": 4000,
+        "insurer_paid_cents": 16000,
+        "closing_accumulators": {
+          "in": {
+            "deductible_paid_cents": 50000,
+            "oop_paid_cents": 54000
+          },
+          "out": {
+            "deductible_paid_cents": 0,
+            "oop_paid_cents": 0
+          }
+        }
+      },
+      {
+        "id": "scenario-3",
+        "assumptions": [
+          "in-network opening deductible $500.00, OOP $500.00 (missing history: endpoint assumption)",
+          "The policy gives different prices for Synthetic therapeutic exercise (one unit); this reading uses Therapy endorsement.",
+          "Line T1: assume in-network",
+          "Line T1: using the insurer statement's allowed price $200.00; the contracted price is not independently confirmed.",
+          "Missing facts were narrowed using the allowed price and insurance payment recorded on the insurer statement and bill."
+        ],
+        "conditional": true,
+        "lines": [
+          {
+            "claim_line_id": "T1",
+            "network": "in",
+            "benefit_id": "T2-in",
+            "allowed_cents": 20000,
+            "deductible_cents": 0,
+            "copay_cents": 4000,
+            "coinsurance_cents": 0,
+            "noncovered_cents": 0,
+            "balance_cents": 0,
+            "patient_cents": 4000,
+            "insurer_paid_cents": 16000,
+            "adjustment_cents": 10000,
+            "opening_deductible_cents": 50000,
+            "opening_oop_cents": 50000,
+            "closing_deductible_cents": 50000,
+            "closing_oop_cents": 54000,
+            "trace": [
+              {
+                "explanation": "Allowance supplied as evidence; it is not derived from policy cost-sharing rules.",
+                "amount_cents": 20000,
+                "clause_ids": [
+                  "T2",
+                  "ORDER"
+                ]
+              },
+              {
+                "explanation": "Deductible: min(allowance, remaining deductible 0 cents), then OOP cap; applies=False.",
+                "amount_cents": 0,
+                "clause_ids": [
+                  "D-in",
+                  "O-in",
+                  "T2",
+                  "ORDER"
+                ]
+              },
+              {
+                "explanation": "Copay: up to 4000 cents after deductible, then OOP cap.",
+                "amount_cents": 4000,
+                "clause_ids": [
+                  "T2",
+                  "ORDER",
+                  "O-in"
+                ]
+              },
+              {
+                "explanation": "Coinsurance: 0/10000 × 16000 cents, half-up rounding, then OOP cap.",
+                "amount_cents": 0,
+                "clause_ids": [
+                  "T2",
+                  "ORDER",
+                  "O-in"
+                ]
+              },
+              {
+                "explanation": "Covered cost sharing capped by 100000 cents remaining OOP; exclusions and permitted balance bills do not count.",
+                "amount_cents": 4000,
+                "clause_ids": [
+                  "O-in"
+                ]
+              },
+              {
+                "explanation": "Network rule: excess charge is patient balance billing if permitted; otherwise a contractual write-off.",
+                "amount_cents": 0,
+                "clause_ids": [
+                  "N-in"
+                ]
+              }
+            ],
+            "policy_patient_cents": 4000,
+            "policy_insurer_paid_cents": 16000
+          }
+        ],
+        "patient_cents": 4000,
+        "insurer_paid_cents": 16000,
+        "closing_accumulators": {
+          "in": {
+            "deductible_paid_cents": 50000,
+            "oop_paid_cents": 54000
+          },
+          "out": {
+            "deductible_paid_cents": 0,
+            "oop_paid_cents": 0
+          }
+        }
+      }
+    ],
+    "comparisons": [
+      {
+        "scenario_id": "scenario-1",
+        "conditional": true,
+        "lines": [
+          {
+            "claim_line_id": "T1",
+            "code": "97110",
+            "description": "Synthetic therapeutic exercise (one unit)",
+            "fineprint_patient_cents": 4000,
+            "eob_patient_cents": 4000,
+            "bill_patient_cents": 4000,
+            "already_paid_cents": 0,
+            "bill_balance_due_cents": 4000,
+            "fineprint_remaining_cents": 4000,
+            "potential_refund_cents": 0,
+            "potential_overpayment_cents": 0,
+            "eob_difference_cents": 0,
+            "bill_eob_difference_cents": 0,
+            "explanations": [
+              {
+                "kind": "eob_vs_fineprint",
+                "component": "copay_cents",
+                "difference_cents": -4000,
+                "message": "EOB copay is 0 cents; policy evaluation gives 4000 cents under this scenario.",
+                "clause_ids": [
+                  "T2",
+                  "ORDER",
+                  "O-in"
+                ]
+              },
+              {
+                "kind": "eob_vs_fineprint",
+                "component": "coinsurance_cents",
+                "difference_cents": 4000,
+                "message": "EOB coinsurance is 4000 cents; policy evaluation gives 0 cents under this scenario.",
+                "clause_ids": [
+                  "T2",
+                  "ORDER",
+                  "D-in",
+                  "O-in"
+                ]
+              }
+            ]
+          }
+        ],
+        "fineprint_patient_cents": 4000,
+        "eob_patient_cents": 4000,
+        "bill_patient_cents": 4000,
+        "already_paid_cents": 0,
+        "bill_balance_due_cents": 4000,
+        "fineprint_remaining_cents": 4000,
+        "potential_refund_cents": 0,
+        "potential_overpayment_cents": 0,
+        "eob_difference_cents": 0,
+        "bill_eob_difference_cents": 0
+      },
+      {
+        "scenario_id": "scenario-2",
+        "conditional": true,
+        "lines": [
+          {
+            "claim_line_id": "T1",
+            "code": "97110",
+            "description": "Synthetic therapeutic exercise (one unit)",
+            "fineprint_patient_cents": 4000,
+            "eob_patient_cents": 4000,
+            "bill_patient_cents": 4000,
+            "already_paid_cents": 0,
+            "bill_balance_due_cents": 4000,
+            "fineprint_remaining_cents": 4000,
+            "potential_refund_cents": 0,
+            "potential_overpayment_cents": 0,
+            "eob_difference_cents": 0,
+            "bill_eob_difference_cents": 0,
+            "explanations": [
+              {
+                "kind": "match",
+                "component": "patient_cents",
+                "difference_cents": 0,
+                "message": "Independent cost-sharing calculation, EOB, and bill agree under the stated inputs.",
+                "clause_ids": [
+                  "D-in",
+                  "N-in",
+                  "O-in",
+                  "ORDER",
+                  "T1"
+                ]
+              }
+            ]
+          }
+        ],
+        "fineprint_patient_cents": 4000,
+        "eob_patient_cents": 4000,
+        "bill_patient_cents": 4000,
+        "already_paid_cents": 0,
+        "bill_balance_due_cents": 4000,
+        "fineprint_remaining_cents": 4000,
+        "potential_refund_cents": 0,
+        "potential_overpayment_cents": 0,
+        "eob_difference_cents": 0,
+        "bill_eob_difference_cents": 0
+      },
+      {
+        "scenario_id": "scenario-3",
+        "conditional": true,
+        "lines": [
+          {
+            "claim_line_id": "T1",
+            "code": "97110",
+            "description": "Synthetic therapeutic exercise (one unit)",
+            "fineprint_patient_cents": 4000,
+            "eob_patient_cents": 4000,
+            "bill_patient_cents": 4000,
+            "already_paid_cents": 0,
+            "bill_balance_due_cents": 4000,
+            "fineprint_remaining_cents": 4000,
+            "potential_refund_cents": 0,
+            "potential_overpayment_cents": 0,
+            "eob_difference_cents": 0,
+            "bill_eob_difference_cents": 0,
+            "explanations": [
+              {
+                "kind": "eob_vs_fineprint",
+                "component": "copay_cents",
+                "difference_cents": -4000,
+                "message": "EOB copay is 0 cents; policy evaluation gives 4000 cents under this scenario.",
+                "clause_ids": [
+                  "T2",
+                  "ORDER",
+                  "O-in"
+                ]
+              },
+              {
+                "kind": "eob_vs_fineprint",
+                "component": "coinsurance_cents",
+                "difference_cents": 4000,
+                "message": "EOB coinsurance is 4000 cents; policy evaluation gives 0 cents under this scenario.",
+                "clause_ids": [
+                  "T2",
+                  "ORDER",
+                  "D-in",
+                  "O-in"
+                ]
+              }
+            ]
+          }
+        ],
+        "fineprint_patient_cents": 4000,
+        "eob_patient_cents": 4000,
+        "bill_patient_cents": 4000,
+        "already_paid_cents": 0,
+        "bill_balance_due_cents": 4000,
+        "fineprint_remaining_cents": 4000,
+        "potential_refund_cents": 0,
+        "potential_overpayment_cents": 0,
+        "eob_difference_cents": 0,
+        "bill_eob_difference_cents": 0
+      }
+    ]
+  }
+}

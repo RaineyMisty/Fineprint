@@ -1,0 +1,769 @@
+{
+  "case_id": "blind-36",
+  "started_at_utc": "2026-11-15T12:31:36.594827+00:00",
+  "compilation": {
+    "output": {
+      "policy": {
+        "id": "SYN-B36",
+        "insurer": "SYNTHETIC Opal Orchard Cooperative",
+        "name": "SYNTHETIC — fictional Summary of Benefits and Coverage",
+        "member_id": "SYN-M36",
+        "effective_from": "2026-01-01",
+        "effective_to": "2026-12-31",
+        "currency": "USD",
+        "networks": {
+          "in": {
+            "deductible_cents": 100000,
+            "oop_max_cents": 500000,
+            "balance_billing": false,
+            "deductible_clause": "source-1",
+            "oop_clause": "source-1",
+            "network_clause": "source-1"
+          },
+          "out": {
+            "deductible_cents": 200000,
+            "oop_max_cents": 1000000,
+            "balance_billing": true,
+            "deductible_clause": "source-1",
+            "oop_clause": "source-1",
+            "network_clause": "source-1"
+          }
+        },
+        "benefits": [
+          {
+            "id": "B1",
+            "label": "Cosmetic exclusion (CPT/HCPCS 15829)",
+            "codes": [
+              "15829"
+            ],
+            "network": "in",
+            "covered": false,
+            "deductible_applies": false,
+            "copay_cents": 0,
+            "coinsurance_bps": 0,
+            "clause_ids": [
+              "source-3",
+              "source-5"
+            ],
+            "ambiguity_group": ""
+          },
+          {
+            "id": "B2",
+            "label": "CT (CPT/HCPCS 74177)",
+            "codes": [
+              "74177"
+            ],
+            "network": "in",
+            "covered": true,
+            "deductible_applies": false,
+            "copay_cents": 0,
+            "coinsurance_bps": 2000,
+            "clause_ids": [
+              "source-3",
+              "source-6"
+            ],
+            "ambiguity_group": ""
+          }
+        ],
+        "clauses": [
+          {
+            "id": "source-1",
+            "text": "| Network | Annual deductible | Annual out-of-pocket maximum | Excess balance billing |",
+            "location": "Financial overview"
+          },
+          {
+            "id": "source-3",
+            "text": "Calculation and accumulation rules: For covered care apply any remaining deductible first, then the stated copay, then member coinsurance to the remaining allowed amount. Round coinsurance half up to cents. Apply the remaining annual OOP cap to deductible, copay and coinsurance in that order. Only actually assessed covered sharing accrues. In- and out-of-network annual pools are separate. Permitted excess equals charge minus allowance and is outside OOP. Excluded care is full-charge patient liability outside deductible and OOP, with no insurer payment. No excess billing is allowed in network. A waived deductible means no deductible applies to that benefit.",
+            "location": "Calculation and accumulation rules"
+          },
+          {
+            "id": "source-5",
+            "text": "B1: Cosmetic exclusion (CPT/HCPCS 15829), in-network: excluded; full charge, no covered sharing; deductible waived; member copay $0.00; member coinsurance 0%.",
+            "location": "Benefits — amounts are per visit/unit"
+          },
+          {
+            "id": "source-6",
+            "text": "B2: CT (CPT/HCPCS 74177), in-network: covered; deductible waived; member copay $0.00; member coinsurance 20%.",
+            "location": "Benefits — amounts are per visit/unit"
+          }
+        ]
+      },
+      "rule_evidence": [
+        {
+          "rule_path": "networks.in.deductible_cents",
+          "evidence": [
+            {
+              "source_document_id": "blind-36/policy.md",
+              "section": "Financial overview",
+              "quote": "| Network | Annual deductible | Annual out-of-pocket maximum | Excess balance billing |",
+              "start": 333,
+              "end": 420
+            },
+            {
+              "source_document_id": "blind-36/policy.md",
+              "section": "Financial overview",
+              "quote": "| In-network | $1,000.00 | $5,000.00 | prohibited |",
+              "start": 447,
+              "end": 498
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "networks.in.oop_max_cents",
+          "evidence": [
+            {
+              "source_document_id": "blind-36/policy.md",
+              "section": "Financial overview",
+              "quote": "| Network | Annual deductible | Annual out-of-pocket maximum | Excess balance billing |",
+              "start": 333,
+              "end": 420
+            },
+            {
+              "source_document_id": "blind-36/policy.md",
+              "section": "Financial overview",
+              "quote": "| In-network | $1,000.00 | $5,000.00 | prohibited |",
+              "start": 447,
+              "end": 498
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "networks.in.balance_billing",
+          "evidence": [
+            {
+              "source_document_id": "blind-36/policy.md",
+              "section": "Financial overview",
+              "quote": "| Network | Annual deductible | Annual out-of-pocket maximum | Excess balance billing |",
+              "start": 333,
+              "end": 420
+            },
+            {
+              "source_document_id": "blind-36/policy.md",
+              "section": "Financial overview",
+              "quote": "| In-network | $1,000.00 | $5,000.00 | prohibited |",
+              "start": 447,
+              "end": 498
+            },
+            {
+              "source_document_id": "blind-36/policy.md",
+              "section": "Calculation and accumulation rules",
+              "quote": "Calculation and accumulation rules: For covered care apply any remaining deductible first, then the stated copay, then member coinsurance to the remaining allowed amount. Round coinsurance half up to cents. Apply the remaining annual OOP cap to deductible, copay and coinsurance in that order. Only actually assessed covered sharing accrues. In- and out-of-network annual pools are separate. Permitted excess equals charge minus allowance and is outside OOP. Excluded care is full-charge patient liability outside deductible and OOP, with no insurer payment. No excess billing is allowed in network. A waived deductible means no deductible applies to that benefit.",
+              "start": 555,
+              "end": 1219
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "networks.out.deductible_cents",
+          "evidence": [
+            {
+              "source_document_id": "blind-36/policy.md",
+              "section": "Financial overview",
+              "quote": "| Network | Annual deductible | Annual out-of-pocket maximum | Excess balance billing |",
+              "start": 333,
+              "end": 420
+            },
+            {
+              "source_document_id": "blind-36/policy.md",
+              "section": "Financial overview",
+              "quote": "| Out-of-network | $2,000.00 | $10,000.00 | permitted |",
+              "start": 499,
+              "end": 554
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "networks.out.oop_max_cents",
+          "evidence": [
+            {
+              "source_document_id": "blind-36/policy.md",
+              "section": "Financial overview",
+              "quote": "| Network | Annual deductible | Annual out-of-pocket maximum | Excess balance billing |",
+              "start": 333,
+              "end": 420
+            },
+            {
+              "source_document_id": "blind-36/policy.md",
+              "section": "Financial overview",
+              "quote": "| Out-of-network | $2,000.00 | $10,000.00 | permitted |",
+              "start": 499,
+              "end": 554
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "networks.out.balance_billing",
+          "evidence": [
+            {
+              "source_document_id": "blind-36/policy.md",
+              "section": "Financial overview",
+              "quote": "| Network | Annual deductible | Annual out-of-pocket maximum | Excess balance billing |",
+              "start": 333,
+              "end": 420
+            },
+            {
+              "source_document_id": "blind-36/policy.md",
+              "section": "Financial overview",
+              "quote": "| Out-of-network | $2,000.00 | $10,000.00 | permitted |",
+              "start": 499,
+              "end": 554
+            },
+            {
+              "source_document_id": "blind-36/policy.md",
+              "section": "Calculation and accumulation rules",
+              "quote": "Calculation and accumulation rules: For covered care apply any remaining deductible first, then the stated copay, then member coinsurance to the remaining allowed amount. Round coinsurance half up to cents. Apply the remaining annual OOP cap to deductible, copay and coinsurance in that order. Only actually assessed covered sharing accrues. In- and out-of-network annual pools are separate. Permitted excess equals charge minus allowance and is outside OOP. Excluded care is full-charge patient liability outside deductible and OOP, with no insurer payment. No excess billing is allowed in network. A waived deductible means no deductible applies to that benefit.",
+              "start": 555,
+              "end": 1219
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "benefits.B1",
+          "evidence": [
+            {
+              "source_document_id": "blind-36/policy.md",
+              "section": "Calculation and accumulation rules",
+              "quote": "Calculation and accumulation rules: For covered care apply any remaining deductible first, then the stated copay, then member coinsurance to the remaining allowed amount. Round coinsurance half up to cents. Apply the remaining annual OOP cap to deductible, copay and coinsurance in that order. Only actually assessed covered sharing accrues. In- and out-of-network annual pools are separate. Permitted excess equals charge minus allowance and is outside OOP. Excluded care is full-charge patient liability outside deductible and OOP, with no insurer payment. No excess billing is allowed in network. A waived deductible means no deductible applies to that benefit.",
+              "start": 555,
+              "end": 1219
+            },
+            {
+              "source_document_id": "blind-36/policy.md",
+              "section": "Benefits — amounts are per visit/unit",
+              "quote": "B1: Cosmetic exclusion (CPT/HCPCS 15829), in-network: excluded; full charge, no covered sharing; deductible waived; member copay $0.00; member coinsurance 0%.",
+              "start": 1259,
+              "end": 1417
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "benefits.B2",
+          "evidence": [
+            {
+              "source_document_id": "blind-36/policy.md",
+              "section": "Calculation and accumulation rules",
+              "quote": "Calculation and accumulation rules: For covered care apply any remaining deductible first, then the stated copay, then member coinsurance to the remaining allowed amount. Round coinsurance half up to cents. Apply the remaining annual OOP cap to deductible, copay and coinsurance in that order. Only actually assessed covered sharing accrues. In- and out-of-network annual pools are separate. Permitted excess equals charge minus allowance and is outside OOP. Excluded care is full-charge patient liability outside deductible and OOP, with no insurer payment. No excess billing is allowed in network. A waived deductible means no deductible applies to that benefit.",
+              "start": 555,
+              "end": 1219
+            },
+            {
+              "source_document_id": "blind-36/policy.md",
+              "section": "Benefits — amounts are per visit/unit",
+              "quote": "B2: CT (CPT/HCPCS 74177), in-network: covered; deductible waived; member copay $0.00; member coinsurance 20%.",
+              "start": 1418,
+              "end": 1527
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        }
+      ],
+      "warnings": [
+        "Synthetic data notice: This document is fictional and for testing purposes only.",
+        "Rounding convention: Coinsurance is rounded half-up to cents as an engine convention; the source does not specify rounding."
+      ],
+      "unresolved": [],
+      "coverage_gaps": [
+        "No out-of-network benefits are listed; only in-network benefits B1 and B2 are compiled.",
+        "No balance billing information is provided for out-of-network benefits beyond the general network-level statement; benefit-level balance billing is not specified.",
+        "No other services (e.g., office visits, urgent care, emergency room, diagnostic tests, imaging, drugs) are listed in the source; only the two provided benefits are compiled."
+      ]
+    },
+    "backend": "deepseek",
+    "source_document_id": "blind-36/policy.md",
+    "source_sha256": "1b84072fef7bda42ea11e742f0662eaeb3c64ac458c79a9a3c033eb77638b077",
+    "attempts": 1
+  },
+  "normalized_case": {
+    "schema_version": "1.0",
+    "id": "blind-36",
+    "title": "Excluded cosmetic spending wrongly consumes OOP",
+    "synthetic": true,
+    "policy": {
+      "id": "SYN-B36",
+      "insurer": "SYNTHETIC Opal Orchard Cooperative",
+      "name": "SYNTHETIC — fictional Summary of Benefits and Coverage",
+      "member_id": "SYN-M36",
+      "effective_from": "2026-01-01",
+      "effective_to": "2026-12-31",
+      "currency": "USD",
+      "networks": {
+        "in": {
+          "deductible_cents": 100000,
+          "oop_max_cents": 500000,
+          "balance_billing": false,
+          "deductible_clause": "source-1",
+          "oop_clause": "source-1",
+          "network_clause": "source-1"
+        },
+        "out": {
+          "deductible_cents": 200000,
+          "oop_max_cents": 1000000,
+          "balance_billing": true,
+          "deductible_clause": "source-1",
+          "oop_clause": "source-1",
+          "network_clause": "source-1"
+        }
+      },
+      "benefits": [
+        {
+          "id": "B1",
+          "label": "Cosmetic exclusion (CPT/HCPCS 15829)",
+          "codes": [
+            "15829"
+          ],
+          "network": "in",
+          "covered": false,
+          "deductible_applies": false,
+          "copay_cents": 0,
+          "coinsurance_bps": 0,
+          "clause_ids": [
+            "source-3",
+            "source-5"
+          ],
+          "ambiguity_group": ""
+        },
+        {
+          "id": "B2",
+          "label": "CT (CPT/HCPCS 74177)",
+          "codes": [
+            "74177"
+          ],
+          "network": "in",
+          "covered": true,
+          "deductible_applies": false,
+          "copay_cents": 0,
+          "coinsurance_bps": 2000,
+          "clause_ids": [
+            "source-3",
+            "source-6"
+          ],
+          "ambiguity_group": ""
+        }
+      ],
+      "clauses": [
+        {
+          "id": "source-1",
+          "text": "| Network | Annual deductible | Annual out-of-pocket maximum | Excess balance billing |",
+          "location": "Financial overview"
+        },
+        {
+          "id": "source-3",
+          "text": "Calculation and accumulation rules: For covered care apply any remaining deductible first, then the stated copay, then member coinsurance to the remaining allowed amount. Round coinsurance half up to cents. Apply the remaining annual OOP cap to deductible, copay and coinsurance in that order. Only actually assessed covered sharing accrues. In- and out-of-network annual pools are separate. Permitted excess equals charge minus allowance and is outside OOP. Excluded care is full-charge patient liability outside deductible and OOP, with no insurer payment. No excess billing is allowed in network. A waived deductible means no deductible applies to that benefit.",
+          "location": "Calculation and accumulation rules"
+        },
+        {
+          "id": "source-5",
+          "text": "B1: Cosmetic exclusion (CPT/HCPCS 15829), in-network: excluded; full charge, no covered sharing; deductible waived; member copay $0.00; member coinsurance 0%.",
+          "location": "Benefits — amounts are per visit/unit"
+        },
+        {
+          "id": "source-6",
+          "text": "B2: CT (CPT/HCPCS 74177), in-network: covered; deductible waived; member copay $0.00; member coinsurance 20%.",
+          "location": "Benefits — amounts are per visit/unit"
+        }
+      ]
+    },
+    "claim": {
+      "id": "SYN-C36",
+      "policy_id": "SYN-B36",
+      "member_id": "SYN-M36",
+      "accumulators": {
+        "in": {
+          "deductible_paid_cents": 100000,
+          "oop_paid_cents": 450000
+        },
+        "out": {
+          "deductible_paid_cents": 0,
+          "oop_paid_cents": 0
+        }
+      },
+      "lines": [
+        {
+          "id": "L01",
+          "provider_id": "SYN-P36",
+          "service_date": "2026-06-11",
+          "code": "15829",
+          "description": "SYNTHETIC submitted service 15829; documented actual service code 15829; no additional clinical facts",
+          "network": "in",
+          "billed_cents": 60000,
+          "confirmed_conditions": [],
+          "insurer": {
+            "allowed_cents": 60000,
+            "deductible_cents": 0,
+            "copay_cents": 0,
+            "coinsurance_cents": 0,
+            "noncovered_cents": 60000,
+            "balance_cents": 0,
+            "insurer_paid_cents": 0,
+            "adjustment_cents": 0
+          }
+        },
+        {
+          "id": "L02",
+          "provider_id": "SYN-P36",
+          "service_date": "2026-06-12",
+          "code": "74177",
+          "description": "SYNTHETIC submitted service 74177; documented actual service code 74177; no additional clinical facts",
+          "network": "in",
+          "billed_cents": 180000,
+          "confirmed_conditions": [],
+          "insurer": {
+            "allowed_cents": 100000,
+            "deductible_cents": 0,
+            "copay_cents": 0,
+            "coinsurance_cents": 0,
+            "noncovered_cents": 0,
+            "balance_cents": 0,
+            "insurer_paid_cents": 100000,
+            "adjustment_cents": 80000
+          }
+        }
+      ]
+    },
+    "bill": {
+      "id": "SYN-I36",
+      "claim_id": "SYN-C36",
+      "member_id": "SYN-M36",
+      "lines": [
+        {
+          "id": "B-L01",
+          "claim_line_id": "L01",
+          "provider_id": "SYN-P36",
+          "service_date": "2026-06-11",
+          "code": "15829",
+          "charged_cents": 60000,
+          "insurance_paid_cents": 0,
+          "adjustment_cents": 0,
+          "patient_paid_cents": 0,
+          "balance_due_cents": 60000
+        },
+        {
+          "id": "B-L02",
+          "claim_line_id": "L02",
+          "provider_id": "SYN-P36",
+          "service_date": "2026-06-12",
+          "code": "74177",
+          "charged_cents": 180000,
+          "insurance_paid_cents": 100000,
+          "adjustment_cents": 80000,
+          "patient_paid_cents": 0,
+          "balance_due_cents": 0
+        }
+      ]
+    },
+    "allowed_evidence": {
+      "L01": {
+        "allowed_cents": 60000,
+        "source": "contract",
+        "reference": "SYNTHETIC signed rate schedule SYN-R36, line L01; protected recognized amount where stipulated"
+      },
+      "L02": {
+        "allowed_cents": 100000,
+        "source": "contract",
+        "reference": "SYNTHETIC signed rate schedule SYN-R36, line L02; protected recognized amount where stipulated"
+      }
+    }
+  },
+  "report": {
+    "validation": [],
+    "links": [
+      {
+        "claim_line_id": "L01",
+        "member_id": "SYN-M36",
+        "provider_id": "SYN-P36",
+        "service_date": "2026-06-11",
+        "code": "15829",
+        "claim_id": "SYN-C36",
+        "bill_line_ids": [
+          "B-L01"
+        ]
+      },
+      {
+        "claim_line_id": "L02",
+        "member_id": "SYN-M36",
+        "provider_id": "SYN-P36",
+        "service_date": "2026-06-12",
+        "code": "74177",
+        "claim_id": "SYN-C36",
+        "bill_line_ids": [
+          "B-L02"
+        ]
+      }
+    ],
+    "status": "ready",
+    "scenarios": [
+      {
+        "id": "scenario-1",
+        "assumptions": [],
+        "conditional": false,
+        "lines": [
+          {
+            "claim_line_id": "L01",
+            "network": "in",
+            "benefit_id": "B1",
+            "allowed_cents": 60000,
+            "deductible_cents": 0,
+            "copay_cents": 0,
+            "coinsurance_cents": 0,
+            "noncovered_cents": 60000,
+            "balance_cents": 0,
+            "patient_cents": 60000,
+            "insurer_paid_cents": 0,
+            "adjustment_cents": 0,
+            "opening_deductible_cents": 100000,
+            "opening_oop_cents": 450000,
+            "closing_deductible_cents": 100000,
+            "closing_oop_cents": 450000,
+            "trace": [
+              {
+                "explanation": "Allowance supplied as evidence; it is not derived from policy cost-sharing rules.",
+                "amount_cents": 60000,
+                "clause_ids": [
+                  "source-3",
+                  "source-5"
+                ]
+              },
+              {
+                "explanation": "Explicit exclusion: full charge is patient responsibility and does not accrue to deductible or OOP.",
+                "amount_cents": 60000,
+                "clause_ids": [
+                  "source-3",
+                  "source-5"
+                ]
+              }
+            ],
+            "policy_patient_cents": 60000,
+            "policy_insurer_paid_cents": 0
+          },
+          {
+            "claim_line_id": "L02",
+            "network": "in",
+            "benefit_id": "B2",
+            "allowed_cents": 100000,
+            "deductible_cents": 0,
+            "copay_cents": 0,
+            "coinsurance_cents": 0,
+            "noncovered_cents": 0,
+            "balance_cents": 0,
+            "patient_cents": 0,
+            "insurer_paid_cents": 100000,
+            "adjustment_cents": 80000,
+            "opening_deductible_cents": 100000,
+            "opening_oop_cents": 450000,
+            "closing_deductible_cents": 100000,
+            "closing_oop_cents": 450000,
+            "trace": [
+              {
+                "explanation": "Allowance supplied as evidence; it is not derived from policy cost-sharing rules.",
+                "amount_cents": 100000,
+                "clause_ids": [
+                  "source-3",
+                  "source-6"
+                ]
+              },
+              {
+                "explanation": "Deductible: min(allowance, remaining deductible 0 cents), then OOP cap; applies=False.",
+                "amount_cents": 0,
+                "clause_ids": [
+                  "source-1",
+                  "source-1",
+                  "source-3",
+                  "source-6"
+                ]
+              },
+              {
+                "explanation": "Copay: up to 0 cents after deductible, then OOP cap.",
+                "amount_cents": 0,
+                "clause_ids": [
+                  "source-3",
+                  "source-6",
+                  "source-1"
+                ]
+              },
+              {
+                "explanation": "Coinsurance: 2000/10000 × 100000 cents, half-up rounding, then OOP cap.",
+                "amount_cents": 20000,
+                "clause_ids": [
+                  "source-3",
+                  "source-6",
+                  "source-1"
+                ]
+              },
+              {
+                "explanation": "Covered cost sharing capped by 50000 cents remaining OOP; exclusions and permitted balance bills do not count.",
+                "amount_cents": 20000,
+                "clause_ids": [
+                  "source-1"
+                ]
+              },
+              {
+                "explanation": "Network rule: excess charge is patient balance billing if permitted; otherwise a contractual write-off.",
+                "amount_cents": 0,
+                "clause_ids": [
+                  "source-1"
+                ]
+              },
+              {
+                "explanation": "Patient amount limited by the recorded bill, insurer payments and credits; the uncapped policy calculation is retained for review.",
+                "amount_cents": 0,
+                "clause_ids": [
+                  "source-3",
+                  "source-6"
+                ]
+              }
+            ],
+            "policy_patient_cents": 20000,
+            "policy_insurer_paid_cents": 80000
+          }
+        ],
+        "patient_cents": 60000,
+        "insurer_paid_cents": 100000,
+        "closing_accumulators": {
+          "in": {
+            "deductible_paid_cents": 100000,
+            "oop_paid_cents": 450000
+          }
+        }
+      }
+    ],
+    "comparisons": [
+      {
+        "scenario_id": "scenario-1",
+        "conditional": false,
+        "lines": [
+          {
+            "claim_line_id": "L01",
+            "code": "15829",
+            "description": "SYNTHETIC submitted service 15829; documented actual service code 15829; no additional clinical facts",
+            "fineprint_patient_cents": 60000,
+            "eob_patient_cents": 60000,
+            "bill_patient_cents": 60000,
+            "already_paid_cents": 0,
+            "bill_balance_due_cents": 60000,
+            "fineprint_remaining_cents": 60000,
+            "potential_refund_cents": 0,
+            "potential_overpayment_cents": 0,
+            "eob_difference_cents": 0,
+            "bill_eob_difference_cents": 0,
+            "explanations": [
+              {
+                "kind": "match",
+                "component": "patient_cents",
+                "difference_cents": 0,
+                "message": "Independent cost-sharing calculation, EOB, and bill agree under the stated inputs.",
+                "clause_ids": [
+                  "source-3",
+                  "source-5"
+                ]
+              }
+            ]
+          },
+          {
+            "claim_line_id": "L02",
+            "code": "74177",
+            "description": "SYNTHETIC submitted service 74177; documented actual service code 74177; no additional clinical facts",
+            "fineprint_patient_cents": 0,
+            "eob_patient_cents": 0,
+            "bill_patient_cents": 0,
+            "already_paid_cents": 0,
+            "bill_balance_due_cents": 0,
+            "fineprint_remaining_cents": 0,
+            "potential_refund_cents": 0,
+            "potential_overpayment_cents": 0,
+            "eob_difference_cents": 0,
+            "bill_eob_difference_cents": 0,
+            "explanations": [
+              {
+                "kind": "match",
+                "component": "patient_cents",
+                "difference_cents": 0,
+                "message": "Independent cost-sharing calculation, EOB, and bill agree under the stated inputs.",
+                "clause_ids": [
+                  "source-1",
+                  "source-3",
+                  "source-6"
+                ]
+              }
+            ]
+          }
+        ],
+        "fineprint_patient_cents": 60000,
+        "eob_patient_cents": 60000,
+        "bill_patient_cents": 60000,
+        "already_paid_cents": 0,
+        "bill_balance_due_cents": 60000,
+        "fineprint_remaining_cents": 60000,
+        "potential_refund_cents": 0,
+        "potential_overpayment_cents": 0,
+        "eob_difference_cents": 0,
+        "bill_eob_difference_cents": 0
+      }
+    ],
+    "summary": {
+      "scenario_count": 1,
+      "conditional": false,
+      "illustrated_min_patient_cents": 60000,
+      "illustrated_max_patient_cents": 60000,
+      "eob_patient_cents": 60000,
+      "bill_patient_cents": 60000,
+      "potential_overpayment_min_cents": 0,
+      "potential_overpayment_max_cents": 0,
+      "bill_status": "consistent",
+      "unconfirmed_facts": []
+    },
+    "method": "Deterministic policy evaluation; no LLM is used for arithmetic. All figures are USD cents.",
+    "limitations": [
+      "Individual annual, separate network accumulators; one unit/visit per claim line.",
+      "Allowed amounts must be supplied; rates are not inferred from an SBC.",
+      "Missing-fact endpoints are illustrative, not exhaustive outcomes or guaranteed savings.",
+      "Legal billing protections, family coordination, prior authorization, coding and medical necessity are not evaluated.",
+      "No out-of-network benefits are listed; only in-network benefits B1 and B2 are compiled.",
+      "No balance billing information is provided for out-of-network benefits beyond the general network-level statement; benefit-level balance billing is not specified.",
+      "No other services (e.g., office visits, urgent care, emergency room, diagnostic tests, imaging, drugs) are listed in the source; only the two provided benefits are compiled."
+    ]
+  },
+  "provider_attempt_audit": [
+    {
+      "attempt": 1,
+      "proposed_rules": 8,
+      "validated_rules": 8,
+      "validated_quote_spans": 18
+    }
+  ],
+  "provider_transport_audit": [
+    {
+      "status": "ok",
+      "elapsed_seconds": 9.556
+    }
+  ],
+  "provider_request_config": {
+    "response_format": "json_object",
+    "max_tokens_initial": 32768,
+    "max_tokens": 32768,
+    "max_tokens_ceiling": 65536,
+    "thinking": "disabled",
+    "timeout_seconds": 120,
+    "attempt_limit": 1,
+    "transport_attempt_limit": 1,
+    "temperature": 0,
+    "no_supported_rule_retry_limit": 1,
+    "evidence_spans": "selected original source lines with local offsets; legacy quotes use whitespace-normalized search"
+  },
+  "completed_at_utc": "2026-11-15T12:31:46.154640+00:00",
+  "elapsed_seconds": 9.56
+}

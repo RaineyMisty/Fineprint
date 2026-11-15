@@ -1,0 +1,569 @@
+{
+  "case_id": "blind-31",
+  "started_at_utc": "2026-11-15T12:31:24.212314+00:00",
+  "compilation": {
+    "output": {
+      "policy": {
+        "id": "SYN-B31",
+        "insurer": "SYNTHETIC Copper Meadow Assurance",
+        "name": "SYNTHETIC — fictional Summary of Benefits and Coverage",
+        "member_id": "SYN-M31",
+        "effective_from": "2026-01-01",
+        "effective_to": "2026-12-31",
+        "currency": "USD",
+        "networks": {
+          "in": {
+            "deductible_cents": 100000,
+            "oop_max_cents": 500000,
+            "balance_billing": false,
+            "deductible_clause": "source-1",
+            "oop_clause": "source-2",
+            "network_clause": "source-3"
+          },
+          "out": {
+            "deductible_cents": 200000,
+            "oop_max_cents": 1000000,
+            "balance_billing": true,
+            "deductible_clause": "source-1",
+            "oop_clause": "source-2",
+            "network_clause": "source-3"
+          }
+        },
+        "benefits": [
+          {
+            "id": "B1",
+            "label": "Specialist visit",
+            "codes": [
+              "99214"
+            ],
+            "network": "in",
+            "covered": true,
+            "deductible_applies": false,
+            "copay_cents": 5500,
+            "coinsurance_bps": 0,
+            "clause_ids": [
+              "source-4",
+              "source-5"
+            ],
+            "ambiguity_group": ""
+          }
+        ],
+        "clauses": [
+          {
+            "id": "source-1",
+            "text": "What must I pay before benefits? The individual deductible is $1,000.00 in network and $2,000.00 out of network.",
+            "location": "What must I pay before benefits?"
+          },
+          {
+            "id": "source-2",
+            "text": "What is my annual limit? Covered sharing stops at $5,000.00 in network and $10,000.00 out of network.",
+            "location": "What is my annual limit?"
+          },
+          {
+            "id": "source-3",
+            "text": "Can providers collect excess charges? Participating providers cannot. Nonparticipating providers may.",
+            "location": "Can providers collect excess charges?"
+          },
+          {
+            "id": "source-4",
+            "text": "Calculation and accumulation rules: For covered care apply any remaining deductible first, then the stated copay, then member coinsurance to the remaining allowed amount. Round coinsurance half up to cents. Apply the remaining annual OOP cap to deductible, copay and coinsurance in that order. Only actually assessed covered sharing accrues. In- and out-of-network annual pools are separate. Permitted excess equals charge minus allowance and is outside OOP. Excluded care is full-charge patient liability outside deductible and OOP, with no insurer payment. No excess billing is allowed in network. A waived deductible means no deductible applies to that benefit.",
+            "location": "Calculation and accumulation rules"
+          },
+          {
+            "id": "source-5",
+            "text": "B1: Specialist visit (CPT/HCPCS 99214), in-network: covered; deductible waived; member copay $55.00; member coinsurance 0%.",
+            "location": "Benefits — amounts are per visit/unit"
+          }
+        ]
+      },
+      "rule_evidence": [
+        {
+          "rule_path": "networks.in.deductible_cents",
+          "evidence": [
+            {
+              "source_document_id": "blind-31/policy.md",
+              "section": "What must I pay before benefits?",
+              "quote": "What must I pay before benefits? The individual deductible is $1,000.00 in network and $2,000.00 out of network.",
+              "start": 313,
+              "end": 425
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "networks.in.oop_max_cents",
+          "evidence": [
+            {
+              "source_document_id": "blind-31/policy.md",
+              "section": "What is my annual limit?",
+              "quote": "What is my annual limit? Covered sharing stops at $5,000.00 in network and $10,000.00 out of network.",
+              "start": 426,
+              "end": 527
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "networks.in.balance_billing",
+          "evidence": [
+            {
+              "source_document_id": "blind-31/policy.md",
+              "section": "Can providers collect excess charges?",
+              "quote": "Can providers collect excess charges? Participating providers cannot. Nonparticipating providers may.",
+              "start": 528,
+              "end": 629
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "networks.out.deductible_cents",
+          "evidence": [
+            {
+              "source_document_id": "blind-31/policy.md",
+              "section": "What must I pay before benefits?",
+              "quote": "What must I pay before benefits? The individual deductible is $1,000.00 in network and $2,000.00 out of network.",
+              "start": 313,
+              "end": 425
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "networks.out.oop_max_cents",
+          "evidence": [
+            {
+              "source_document_id": "blind-31/policy.md",
+              "section": "What is my annual limit?",
+              "quote": "What is my annual limit? Covered sharing stops at $5,000.00 in network and $10,000.00 out of network.",
+              "start": 426,
+              "end": 527
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "networks.out.balance_billing",
+          "evidence": [
+            {
+              "source_document_id": "blind-31/policy.md",
+              "section": "Can providers collect excess charges?",
+              "quote": "Can providers collect excess charges? Participating providers cannot. Nonparticipating providers may.",
+              "start": 528,
+              "end": 629
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "benefits.B1",
+          "evidence": [
+            {
+              "source_document_id": "blind-31/policy.md",
+              "section": "Calculation and accumulation rules",
+              "quote": "Calculation and accumulation rules: For covered care apply any remaining deductible first, then the stated copay, then member coinsurance to the remaining allowed amount. Round coinsurance half up to cents. Apply the remaining annual OOP cap to deductible, copay and coinsurance in that order. Only actually assessed covered sharing accrues. In- and out-of-network annual pools are separate. Permitted excess equals charge minus allowance and is outside OOP. Excluded care is full-charge patient liability outside deductible and OOP, with no insurer payment. No excess billing is allowed in network. A waived deductible means no deductible applies to that benefit.",
+              "start": 631,
+              "end": 1295
+            },
+            {
+              "source_document_id": "blind-31/policy.md",
+              "section": "Benefits — amounts are per visit/unit",
+              "quote": "B1: Specialist visit (CPT/HCPCS 99214), in-network: covered; deductible waived; member copay $55.00; member coinsurance 0%.",
+              "start": 1335,
+              "end": 1458
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        }
+      ],
+      "warnings": [
+        "Synthetic data notice: This document is a fictional SBC for testing purposes.",
+        "Rounding convention: Coinsurance is rounded half-up to cents as an engine convention; the source does not specify rounding."
+      ],
+      "unresolved": [],
+      "coverage_gaps": [
+        "No out-of-network benefits are listed; only in-network specialist visit is compiled.",
+        "No other service categories (e.g., office visits, urgent care, ER, drugs) are present in the source.",
+        "No balance billing information for out-of-network beyond the general statement; specific provider contracts may vary."
+      ]
+    },
+    "backend": "deepseek",
+    "source_document_id": "blind-31/policy.md",
+    "source_sha256": "81db29873f7317a6d18656ecbbf39876264d6570a3b0b145f64d0adaf268de55",
+    "attempts": 1
+  },
+  "normalized_case": {
+    "schema_version": "1.0",
+    "id": "blind-31",
+    "title": "Correct EOB but unexplained bill surcharge",
+    "synthetic": true,
+    "policy": {
+      "id": "SYN-B31",
+      "insurer": "SYNTHETIC Copper Meadow Assurance",
+      "name": "SYNTHETIC — fictional Summary of Benefits and Coverage",
+      "member_id": "SYN-M31",
+      "effective_from": "2026-01-01",
+      "effective_to": "2026-12-31",
+      "currency": "USD",
+      "networks": {
+        "in": {
+          "deductible_cents": 100000,
+          "oop_max_cents": 500000,
+          "balance_billing": false,
+          "deductible_clause": "source-1",
+          "oop_clause": "source-2",
+          "network_clause": "source-3"
+        },
+        "out": {
+          "deductible_cents": 200000,
+          "oop_max_cents": 1000000,
+          "balance_billing": true,
+          "deductible_clause": "source-1",
+          "oop_clause": "source-2",
+          "network_clause": "source-3"
+        }
+      },
+      "benefits": [
+        {
+          "id": "B1",
+          "label": "Specialist visit",
+          "codes": [
+            "99214"
+          ],
+          "network": "in",
+          "covered": true,
+          "deductible_applies": false,
+          "copay_cents": 5500,
+          "coinsurance_bps": 0,
+          "clause_ids": [
+            "source-4",
+            "source-5"
+          ],
+          "ambiguity_group": ""
+        }
+      ],
+      "clauses": [
+        {
+          "id": "source-1",
+          "text": "What must I pay before benefits? The individual deductible is $1,000.00 in network and $2,000.00 out of network.",
+          "location": "What must I pay before benefits?"
+        },
+        {
+          "id": "source-2",
+          "text": "What is my annual limit? Covered sharing stops at $5,000.00 in network and $10,000.00 out of network.",
+          "location": "What is my annual limit?"
+        },
+        {
+          "id": "source-3",
+          "text": "Can providers collect excess charges? Participating providers cannot. Nonparticipating providers may.",
+          "location": "Can providers collect excess charges?"
+        },
+        {
+          "id": "source-4",
+          "text": "Calculation and accumulation rules: For covered care apply any remaining deductible first, then the stated copay, then member coinsurance to the remaining allowed amount. Round coinsurance half up to cents. Apply the remaining annual OOP cap to deductible, copay and coinsurance in that order. Only actually assessed covered sharing accrues. In- and out-of-network annual pools are separate. Permitted excess equals charge minus allowance and is outside OOP. Excluded care is full-charge patient liability outside deductible and OOP, with no insurer payment. No excess billing is allowed in network. A waived deductible means no deductible applies to that benefit.",
+          "location": "Calculation and accumulation rules"
+        },
+        {
+          "id": "source-5",
+          "text": "B1: Specialist visit (CPT/HCPCS 99214), in-network: covered; deductible waived; member copay $55.00; member coinsurance 0%.",
+          "location": "Benefits — amounts are per visit/unit"
+        }
+      ]
+    },
+    "claim": {
+      "id": "SYN-C31",
+      "policy_id": "SYN-B31",
+      "member_id": "SYN-M31",
+      "accumulators": {
+        "in": {
+          "deductible_paid_cents": 0,
+          "oop_paid_cents": 0
+        },
+        "out": {
+          "deductible_paid_cents": 0,
+          "oop_paid_cents": 0
+        }
+      },
+      "lines": [
+        {
+          "id": "L01",
+          "provider_id": "SYN-P31",
+          "service_date": "2026-06-11",
+          "code": "99214",
+          "description": "SYNTHETIC submitted service 99214; documented actual service code 99214; no additional clinical facts",
+          "network": "in",
+          "billed_cents": 40000,
+          "confirmed_conditions": [],
+          "insurer": {
+            "allowed_cents": 24000,
+            "deductible_cents": 0,
+            "copay_cents": 5500,
+            "coinsurance_cents": 0,
+            "noncovered_cents": 0,
+            "balance_cents": 0,
+            "insurer_paid_cents": 18500,
+            "adjustment_cents": 16000
+          }
+        }
+      ]
+    },
+    "bill": {
+      "id": "SYN-I31",
+      "claim_id": "SYN-C31",
+      "member_id": "SYN-M31",
+      "lines": [
+        {
+          "id": "B-L01",
+          "claim_line_id": "L01",
+          "provider_id": "SYN-P31",
+          "service_date": "2026-06-11",
+          "code": "99214",
+          "charged_cents": 40000,
+          "insurance_paid_cents": 18500,
+          "adjustment_cents": 12000,
+          "patient_paid_cents": 0,
+          "balance_due_cents": 9500
+        }
+      ]
+    },
+    "allowed_evidence": {
+      "L01": {
+        "allowed_cents": 24000,
+        "source": "contract",
+        "reference": "SYNTHETIC signed rate schedule SYN-R31, line L01; protected recognized amount where stipulated"
+      }
+    }
+  },
+  "report": {
+    "validation": [
+      {
+        "severity": "warning",
+        "code": "bill_eob_difference",
+        "path": "bill.lines.B-L01",
+        "message": "Bill total patient responsibility differs from EOB; review comparison."
+      }
+    ],
+    "links": [
+      {
+        "claim_line_id": "L01",
+        "member_id": "SYN-M31",
+        "provider_id": "SYN-P31",
+        "service_date": "2026-06-11",
+        "code": "99214",
+        "claim_id": "SYN-C31",
+        "bill_line_ids": [
+          "B-L01"
+        ]
+      }
+    ],
+    "status": "ready",
+    "scenarios": [
+      {
+        "id": "scenario-1",
+        "assumptions": [],
+        "conditional": false,
+        "lines": [
+          {
+            "claim_line_id": "L01",
+            "network": "in",
+            "benefit_id": "B1",
+            "allowed_cents": 24000,
+            "deductible_cents": 0,
+            "copay_cents": 5500,
+            "coinsurance_cents": 0,
+            "noncovered_cents": 0,
+            "balance_cents": 0,
+            "patient_cents": 5500,
+            "insurer_paid_cents": 18500,
+            "adjustment_cents": 16000,
+            "opening_deductible_cents": 0,
+            "opening_oop_cents": 0,
+            "closing_deductible_cents": 0,
+            "closing_oop_cents": 5500,
+            "trace": [
+              {
+                "explanation": "Allowance supplied as evidence; it is not derived from policy cost-sharing rules.",
+                "amount_cents": 24000,
+                "clause_ids": [
+                  "source-4",
+                  "source-5"
+                ]
+              },
+              {
+                "explanation": "Deductible: min(allowance, remaining deductible 100000 cents), then OOP cap; applies=False.",
+                "amount_cents": 0,
+                "clause_ids": [
+                  "source-1",
+                  "source-2",
+                  "source-4",
+                  "source-5"
+                ]
+              },
+              {
+                "explanation": "Copay: up to 5500 cents after deductible, then OOP cap.",
+                "amount_cents": 5500,
+                "clause_ids": [
+                  "source-4",
+                  "source-5",
+                  "source-2"
+                ]
+              },
+              {
+                "explanation": "Coinsurance: 0/10000 × 18500 cents, half-up rounding, then OOP cap.",
+                "amount_cents": 0,
+                "clause_ids": [
+                  "source-4",
+                  "source-5",
+                  "source-2"
+                ]
+              },
+              {
+                "explanation": "Covered cost sharing capped by 500000 cents remaining OOP; exclusions and permitted balance bills do not count.",
+                "amount_cents": 5500,
+                "clause_ids": [
+                  "source-2"
+                ]
+              },
+              {
+                "explanation": "Network rule: excess charge is patient balance billing if permitted; otherwise a contractual write-off.",
+                "amount_cents": 0,
+                "clause_ids": [
+                  "source-3"
+                ]
+              }
+            ],
+            "policy_patient_cents": 5500,
+            "policy_insurer_paid_cents": 18500
+          }
+        ],
+        "patient_cents": 5500,
+        "insurer_paid_cents": 18500,
+        "closing_accumulators": {
+          "in": {
+            "deductible_paid_cents": 0,
+            "oop_paid_cents": 5500
+          }
+        }
+      }
+    ],
+    "comparisons": [
+      {
+        "scenario_id": "scenario-1",
+        "conditional": false,
+        "lines": [
+          {
+            "claim_line_id": "L01",
+            "code": "99214",
+            "description": "SYNTHETIC submitted service 99214; documented actual service code 99214; no additional clinical facts",
+            "fineprint_patient_cents": 5500,
+            "eob_patient_cents": 5500,
+            "bill_patient_cents": 9500,
+            "already_paid_cents": 0,
+            "bill_balance_due_cents": 9500,
+            "fineprint_remaining_cents": 5500,
+            "potential_refund_cents": 0,
+            "potential_overpayment_cents": 4000,
+            "eob_difference_cents": 0,
+            "bill_eob_difference_cents": 4000,
+            "explanations": [
+              {
+                "kind": "bill_vs_eob",
+                "component": "patient_cents",
+                "difference_cents": 4000,
+                "message": "Hospital patient payments plus balance due differ from EOB patient responsibility. Check credits and adjustments.",
+                "clause_ids": [
+                  "source-1",
+                  "source-2",
+                  "source-3",
+                  "source-4",
+                  "source-5"
+                ]
+              },
+              {
+                "kind": "bill_vs_fineprint",
+                "component": "patient_cents",
+                "difference_cents": 4000,
+                "message": "Hospital patient responsibility differs from policy evaluation. Request itemized adjudication and review the cited terms.",
+                "clause_ids": [
+                  "source-1",
+                  "source-2",
+                  "source-3",
+                  "source-4",
+                  "source-5"
+                ]
+              }
+            ]
+          }
+        ],
+        "fineprint_patient_cents": 5500,
+        "eob_patient_cents": 5500,
+        "bill_patient_cents": 9500,
+        "already_paid_cents": 0,
+        "bill_balance_due_cents": 9500,
+        "fineprint_remaining_cents": 5500,
+        "potential_refund_cents": 0,
+        "potential_overpayment_cents": 4000,
+        "eob_difference_cents": 0,
+        "bill_eob_difference_cents": 4000
+      }
+    ],
+    "summary": {
+      "scenario_count": 1,
+      "conditional": false,
+      "illustrated_min_patient_cents": 5500,
+      "illustrated_max_patient_cents": 5500,
+      "eob_patient_cents": 5500,
+      "bill_patient_cents": 9500,
+      "potential_overpayment_min_cents": 4000,
+      "potential_overpayment_max_cents": 4000,
+      "bill_status": "overcharge",
+      "unconfirmed_facts": []
+    },
+    "method": "Deterministic policy evaluation; no LLM is used for arithmetic. All figures are USD cents.",
+    "limitations": [
+      "Individual annual, separate network accumulators; one unit/visit per claim line.",
+      "Allowed amounts must be supplied; rates are not inferred from an SBC.",
+      "Missing-fact endpoints are illustrative, not exhaustive outcomes or guaranteed savings.",
+      "Legal billing protections, family coordination, prior authorization, coding and medical necessity are not evaluated.",
+      "No out-of-network benefits are listed; only in-network specialist visit is compiled.",
+      "No other service categories (e.g., office visits, urgent care, ER, drugs) are present in the source.",
+      "No balance billing information for out-of-network beyond the general statement; specific provider contracts may vary."
+    ]
+  },
+  "provider_attempt_audit": [
+    {
+      "attempt": 1,
+      "proposed_rules": 7,
+      "validated_rules": 7,
+      "validated_quote_spans": 8
+    }
+  ],
+  "provider_transport_audit": [
+    {
+      "status": "ok",
+      "elapsed_seconds": 7.815
+    }
+  ],
+  "provider_request_config": {
+    "response_format": "json_object",
+    "max_tokens_initial": 32768,
+    "max_tokens": 32768,
+    "max_tokens_ceiling": 65536,
+    "thinking": "disabled",
+    "timeout_seconds": 120,
+    "attempt_limit": 1,
+    "transport_attempt_limit": 1,
+    "temperature": 0,
+    "no_supported_rule_retry_limit": 1,
+    "evidence_spans": "selected original source lines with local offsets; legacy quotes use whitespace-normalized search"
+  },
+  "completed_at_utc": "2026-11-15T12:31:32.030370+00:00",
+  "elapsed_seconds": 7.818
+}
