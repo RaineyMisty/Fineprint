@@ -81,6 +81,44 @@ class ServerTests(unittest.TestCase):
     def test_cross_site_browser_requests_rejected(self):
         self.assertEqual(self.request("POST", "/api/analyze", "{}", {"Content-Type": "application/json", "Sec-Fetch-Site": "cross-site"})[0], 403)
 
+    def test_ping_health_check(self):
+        status, content_type, body = self.request("GET", "/ping")
+        self.assertEqual(status, 200)
+        self.assertTrue(content_type.startswith("application/json"))
+        self.assertEqual(body, {"ok": True})
+        status, _, body = self.request("GET", "/ping", headers={"Host": "fineprint.example.com"})
+        self.assertEqual(status, 200)
+        self.assertEqual(body, {"ok": True})
+
+    def test_same_origin_post_accepted_with_public_host(self):
+        status, _, result = self.request(
+            "POST",
+            "/api/analyze",
+            json.dumps(payload()),
+            {
+                "Content-Type": "application/json",
+                "Host": "fineprint.example.com",
+                "Origin": "https://fineprint.example.com",
+                "Sec-Fetch-Site": "same-origin",
+            },
+        )
+        self.assertEqual(status, 200)
+        self.assertEqual(result["report"]["status"], "ready")
+        self.assertEqual(
+            self.request(
+                "POST",
+                "/api/analyze",
+                json.dumps(payload()),
+                {
+                    "Content-Type": "application/json",
+                    "Host": "fineprint.example.com",
+                    "Origin": "https://evil.example",
+                    "Sec-Fetch-Site": "cross-site",
+                },
+            )[0],
+            403,
+        )
+
 
 class CompilerServerTests(unittest.TestCase):
     setUpClass = classmethod(ServerTests.setUpClass.__func__)

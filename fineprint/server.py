@@ -40,6 +40,8 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         path = urlsplit(self.path).path
         try:
+            if path == "/ping":
+                return self.reply(200, {"ok": True})
             if path == "/api/cases":
                 return self.reply(200, list_cases())
             if path == "/api/status":
