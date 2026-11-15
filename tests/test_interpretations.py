@@ -43,3 +43,16 @@ class InterpretationTests(unittest.TestCase):
         r=analyze(case(p));self.assertEqual(r['status'],'blocked')
         self.assertNotIn('identity_mismatch',r['blocked_reason'])
         self.assertNotIn('duplicate_interpretation',r['blocked_reason'])
+
+    def test_duplicate_machine_id_with_different_meaning_gets_distinct_readings(self):
+        p=payload();original=p['policy']['benefits'][0]
+        p['policy']['benefits'].append({**deepcopy(original),'deductible_applies':False})
+        result=analyze(case(p))
+        self.assertEqual(result['status'],'ready')
+        self.assertEqual({s['patient_cents'] for s in result['scenarios']},{4000,12000})
+
+    def test_normalization_is_idempotent_with_repeated_display_labels(self):
+        from fineprint.interpretations import normalize_case
+        p=payload();p['policy']['benefits'].append({**deepcopy(p['policy']['benefits'][0]),'id':'other','deductible_applies':False})
+        first=normalize_case(case(p))
+        self.assertEqual(normalize_case(first),first)

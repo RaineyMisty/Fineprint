@@ -387,8 +387,11 @@
   const LABEL = {allowed_cents: "allowed price", deductible_cents: "deductible", copay_cents: "copay", coinsurance_cents: "coinsurance", noncovered_cents: "uncovered charge", balance_cents: "extra billing"};
   function verdict() {
     const r = S.data.report;
-    if (r.status === "blocked") return {kind: "ask", k: "Needs clarification", title: "We can’t give you an answer yet",
-      text: r.blocked_reason + " Fix the policy text or the claim facts and check again."};
+    if (r.status === "blocked") {
+      const reasons = r.validation.filter((i) => i.severity === "error").map((i) => i.message);
+      return {kind: "ask", k: "Needs clarification", title: "Some document details need review",
+        text: (reasons.length ? [...new Set(reasons)].join(" ") : "We couldn’t confirm enough policy details to calculate this safely.") + " Check the highlighted policy details and claim facts below."};
+    }
     const s = r.summary, min = s.potential_overpayment_min_cents, max = s.potential_overpayment_max_cents;
     const refund = Math.min(...r.comparisons.map((c) => c.lines.reduce((a, l) => a + l.potential_refund_cents, 0)));
     if (min > 0) return {kind: "over", k: "Possible overcharge", title: s.conditional ? `You may be overcharged at least ${money(min)}` : `You may be overcharged ${money(min)}`,

@@ -402,12 +402,13 @@ def recover_evidence(value, document, document_id):
     normalized, aliases = normalize_benefits([decode(Benefit, b, "benefit") for b in retained])
     remapped = {}
     for path, rule in merged.items():
-        target = "benefits." + aliases[path[9:]] if path.startswith("benefits.") and path[9:] in aliases else path
-        if target not in remapped:
-            remapped[target] = {**rule, "rule_path": target, "evidence": []}
-        for evidence in rule["evidence"]:
-            if evidence not in remapped[target]["evidence"]:
-                remapped[target]["evidence"].append(evidence)
+        targets = ["benefits." + identity for identity in aliases[path[9:]]] if path.startswith("benefits.") and path[9:] in aliases else [path]
+        for target in targets:
+            if target not in remapped:
+                remapped[target] = {**rule, "rule_path": target, "evidence": []}
+            for evidence in rule["evidence"]:
+                if evidence not in remapped[target]["evidence"]:
+                    remapped[target]["evidence"].append(evidence)
     retained = [to_dict(b) for b in normalized]
     merged = remapped
     value["policy"]["benefits"] = retained

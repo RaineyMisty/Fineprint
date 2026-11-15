@@ -80,8 +80,10 @@ class ValidationTests(unittest.TestCase):
         self.assert_issue(lambda p: p["claim"]["accumulators"]["in"].update(deductible_paid_cents=1), "accumulator_order")
         self.assert_issue(lambda p: p["claim"]["accumulators"].pop("out"), "accumulators")
 
-    def test_ambiguity_requires_intentional_alternatives(self):
-        self.assert_issue(lambda p: p["policy"]["benefits"].append({**p["policy"]["benefits"][0], "id": "new", "label": "Other"}), "overlapping_rules")
+    def test_equivalent_rule_does_not_create_an_ambiguity_error(self):
+        p = payload()
+        p["policy"]["benefits"].append({**p["policy"]["benefits"][0], "id": "new", "label": "Other"})
+        self.assertFalse(any(i.severity == 'error' for i in validate(case(p))))
 
     def test_allowance_provenance(self):
         self.assert_issue(lambda p: p["allowed_evidence"]["L1"].update(source="unknown"), "evidence_source")
