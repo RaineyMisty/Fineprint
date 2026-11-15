@@ -112,7 +112,7 @@ class CompilerTests(unittest.TestCase):
         first['evidence'][0]['quote'] = 'This quote is not in the source.'
         result = LLMCompiler('deepseek', transport=lambda *_:good, sleep=lambda _:None).compile(DOC)
         self.assertEqual(len(result.policy.benefits), 2)
-        self.assertTrue(any(benefit_rule['rule_path'] in warning for warning in result.output.unresolved))
+        self.assertTrue(any(benefit_rule['rule_path'] in warning for warning in result.output.coverage_gaps))
         self.assertNotIn(benefit_rule['rule_path'], {r.rule_path for r in result.output.rule_evidence})
 
     def test_plan_level_null_metadata_and_partial_network_remain_explicit(self):
@@ -126,7 +126,7 @@ class CompilerTests(unittest.TestCase):
         self.assertIsNone(result.policy.effective_from)
         self.assertEqual(set(result.policy.networks), {'in'})
         self.assertTrue(all(b.network == 'in' for b in result.policy.benefits))
-        self.assertTrue(any('networks.out' in issue for issue in result.output.unresolved))
+        self.assertTrue(any('networks.out' in issue for issue in result.output.coverage_gaps))
 
     def test_llm_path_errors_give_exact_contract_on_retry(self):
         good = to_dict(FallbackCompiler().compile(DOC).output)
@@ -165,11 +165,11 @@ class CompilerTests(unittest.TestCase):
         good['policy']['benefits'][0]['codes'] = ['99999']
         result = LLMCompiler('deepseek', transport=lambda *_:good, sleep=lambda _:None).compile(DOC)
         self.assertEqual(len(result.policy.benefits), 2)
-        self.assertTrue(any('code' in warning for warning in result.output.unresolved))
+        self.assertTrue(any('code' in warning for warning in result.output.coverage_gaps))
         good['policy']['benefits'][0]['codes'] = []
         result = LLMCompiler('deepseek', transport=lambda *_:good, sleep=lambda _:None).compile(DOC)
         self.assertEqual(len(result.policy.benefits), 2)
-        self.assertTrue(result.output.unresolved)
+        self.assertTrue(result.output.coverage_gaps)
 
     def test_explicit_policy_id_is_validated_from_source_not_claim_or_gold(self):
         good = to_dict(FallbackCompiler().compile(DOC).output)
@@ -211,7 +211,7 @@ class CompilerTests(unittest.TestCase):
         for terms in result.policy.networks.values():
             references.update(ref for ref in (terms.deductible_clause, terms.oop_clause, terms.network_clause) if ref)
         self.assertEqual({clause.id for clause in result.policy.clauses}, references)
-        self.assertTrue(result.output.unresolved)
+        self.assertTrue(result.output.coverage_gaps)
         original, _ = load_case('aurora-imaging')
         report = analyze(replace(original, policy=result.policy))
         self.assertEqual(report['status'], 'blocked')
@@ -235,7 +235,7 @@ class CompilerTests(unittest.TestCase):
         replies = iter([partial, {}])
         result = LLMCompiler('deepseek', transport=lambda *_:next(replies), retries=2, sleep=lambda _:None).compile(DOC)
         self.assertEqual(len(result.policy.benefits), 2)
-        self.assertTrue(result.output.unresolved)
+        self.assertTrue(result.output.coverage_gaps)
         self.assertTrue(any('from attempt 1 after 2 attempts' in w for w in result.output.warnings))
 
     def test_out_of_network_limit_cannot_reuse_an_unqualified_in_network_quote(self):
@@ -246,7 +246,7 @@ class CompilerTests(unittest.TestCase):
         value['policy']['networks']['out']['deductible_clause'] = value['policy']['networks']['in']['deductible_clause']
         result = LLMCompiler('deepseek', transport=lambda *_:value, retries=1).compile(DOC)
         self.assertNotIn('out', result.policy.networks)
-        self.assertTrue(result.output.unresolved)
+        self.assertTrue(result.output.coverage_gaps)
 
     def test_live_request_payload_contracts_with_test_http(self):
         good = to_dict(FallbackCompiler().compile(DOC).output)

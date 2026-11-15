@@ -109,6 +109,15 @@ _evidence_schema = PROVIDER_SCHEMA["properties"]["rule_evidence"]["items"]["prop
 for _key in ("start", "end"):
     del _evidence_schema["properties"][_key]
     _evidence_schema["required"].remove(_key)
+# New requests select numbered source lines; quote-only clients remain accepted.
+_line_evidence_schema = deepcopy(_evidence_schema)
+del _line_evidence_schema["properties"]["quote"]
+_line_evidence_schema["required"].remove("quote")
+_line_evidence_schema["properties"]["source_lines"] = {"type": "array", "items": {"type": "integer", "minimum": 1}}
+_line_evidence_schema["required"].append("source_lines")
+PROVIDER_SCHEMA["properties"]["rule_evidence"]["items"]["properties"]["evidence"]["items"] = {
+    "anyOf": [_line_evidence_schema, _evidence_schema]
+}
 PROVIDER_SCHEMA["properties"]["rule_evidence"]["items"]["properties"]["rule_path"]["description"] = (
     "Relative policy rule path, with NO policy. prefix: networks.in.deductible_cents, "
     "networks.in.oop_max_cents, networks.in.balance_billing (or networks.out.*); "
@@ -137,18 +146,42 @@ def _selector_supported(benefit, quotes):
     category = benefit.get("service_category")
     codes = benefit["codes"]
     if category is not None:
-        return not codes and any(_normalized_text(category).casefold() in _normalized_text(q).casefold() for q in quotes)
+        # Wrapped table headings can have other columns between their words.
+        # Only the selector is reconstructed; every evidence quote remains an
+        # exact source slice. Require the heading's literal tokens in order.
+        tokens = re.findall(r"\w+|[^\w\s]", category.casefold())
+        source = iter(re.findall(r"\w+|[^\w\s]", " ".join(quotes).casefold()))
+        return not codes and bool(tokens) and all(any(word == token for word in source) for token in tokens)
     return bool(codes) and all(re.fullmatch(r"(?:\d{5}|[A-Z]\d{4})", code) and any(
         re.search(r"(?<!\w)" + re.escape(code) + r"(?!\w)", q) for q in quotes) for code in codes)
 
 
+def _amount_supported(cents, quotes):
+    text = " ".join(quotes)
+    amounts = {int(Decimal(m.replace(",", "")) * 100) for m in re.findall(r"\$\s*([\d,]+(?:\.\d{1,2})?)", text)}
+    return cents in amounts or (cents == 0 and bool(re.search(r"\b(?:no deductible|deductible does not apply|none)\b", text, re.I)))
+
+
 def _costs_supported(benefit, quotes):
-    """Necessary numeric support, not a claim of semantic equivalence of a table."""
+    """Necessary numeric support; reject known arithmetic outside the engine."""
     text = " ".join(quotes)
     amounts = {int(Decimal(m.replace(",", "")) * 100) for m in re.findall(r"\$\s*([\d,]+(?:\.\d{1,2})?)", text)}
     rates = {int(Decimal(m) * 100) for m in re.findall(r"(\d+(?:\.\d+)?)\s*%", text)}
-    return ((not benefit["copay_cents"] or benefit["copay_cents"] in amounts)
-            and (not benefit["coinsurance_bps"] or benefit["coinsurance_bps"] in rates))
+    copay, coin = benefit["copay_cents"], benefit["coinsurance_bps"]
+    for quote in quotes:
+        # Per-day episode limits cannot be converted to a single visit copay.
+        for match in re.finditer(r"\$\s*([\d,]+(?:\.\d{1,2})?)\s*(?:copay\s*)?(?:/|per)\s*day", quote, re.I):
+            if copay and copay == int(Decimal(match[1].replace(",", "")) * 100):
+                return False
+        if coin and (re.search(r"%\s*coinsurance.{0,80}(?:up to|minimum|maximum)", quote, re.I)
+                     or re.search(r"\$[\d,/. $]+\s*(?:min|max)\b", quote, re.I)):
+            return False
+    if benefit.get("covered", True) and not copay and not coin and not benefit.get("deductible_applies", False):
+        if not re.search(r"no charge|\$\s*0(?:[\s/.,]|$)|0\s*%", text, re.I):
+            return False
+    if benefit.get("covered") is False and not re.search(r"not covered|exclu(?:ded|sion)", text, re.I):
+        return False
+    return (not copay or copay in amounts) and (not coin or coin in rates)
 
 
 def recover_evidence(value, document, document_id):
@@ -166,6 +199,19 @@ def recover_evidence(value, document, document_id):
     # supplied by old clients are deliberately discarded before checking types.
     if compact:
         validate_schema(value, PROVIDER_SCHEMA)
+        source_lines = document.splitlines(keepends=True)
+        for rule in value["rule_evidence"]:
+            expanded = []
+            for evidence in rule["evidence"]:
+                if "source_lines" not in evidence:
+                    expanded.append(evidence)
+                    continue
+                for number in evidence["source_lines"]:
+                    if not 1 <= number <= len(source_lines) or not source_lines[number - 1].strip():
+                        raise ModelError("Evidence selected a nonexistent or blank source line")
+                    expanded.append(dict(source_document_id=evidence["source_document_id"], section=evidence["section"],
+                                         quote=source_lines[number - 1].strip()))
+            rule["evidence"] = expanded
     else:
         if isinstance(value.get("rule_evidence"), list):
             for rule in value["rule_evidence"]:
@@ -179,9 +225,10 @@ def recover_evidence(value, document, document_id):
             if terms["deductible_cents"] is None or terms["oop_max_cents"] is None:
                 del value["policy"]["networks"][net]
                 value["policy"]["benefits"] = [b for b in value["policy"]["benefits"] if b["network"] != net]
-                value["rule_evidence"] = [r for r in value["rule_evidence"] if not r["rule_path"].startswith(f"networks.{net}.")
-                                          and not r["rule_path"].startswith("benefits.") or
-                                          r["rule_path"] in {"benefits." + b["id"] for b in value["policy"]["benefits"]}]
+                benefit_paths = {"benefits." + b["id"] for b in value["policy"]["benefits"]}
+                value["rule_evidence"] = [r for r in value["rule_evidence"] if
+                    (r["rule_path"].startswith("benefits.") and r["rule_path"] in benefit_paths) or
+                    (not r["rule_path"].startswith("benefits.") and not r["rule_path"].startswith(f"networks.{net}."))]
                 value.setdefault("coverage_gaps", []).append(f"Network {net} omitted: deductible or OOP limit is not established. Claims in that network require separate review, including emergency exceptions.")
     expected_paths = {f"networks.{net}.{field}" for net in value["policy"]["networks"]
                       for field in ("deductible_cents", "oop_max_cents", "balance_billing")}
@@ -256,7 +303,8 @@ def recover_evidence(value, document, document_id):
         for field, ref_field in (("deductible_cents", "deductible_clause"), ("oop_max_cents", "oop_clause")):
             rule = merged.get(f"networks.{net}.{field}")
             ref = terms[ref_field]
-            if not rule or ref not in clauses or clauses[ref]["text"] not in {e["quote"] for e in rule["evidence"]}:
+            if (not rule or ref not in clauses or clauses[ref]["text"] not in {e["quote"] for e in rule["evidence"]}
+                    or not _amount_supported(terms[field], [e["quote"] for e in rule["evidence"]])):
                 supported = False
             if net == "out" and rule and not any(re.search(
                     r"out[\s-]*(?:of[\s-]*)?network|non[\s-]*participating", e["quote"], re.I)
@@ -301,9 +349,9 @@ def recover_evidence(value, document, document_id):
     referenced.update(ref for benefit in retained for ref in benefit["clause_ids"])
     value["policy"]["clauses"] = [clause for clause in value["policy"]["clauses"] if clause["id"] in referenced]
     for path in sorted(set(dropped) - set(merged)):
-        message = f"Dropped rule {path}: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained."
+        message = f"Dropped rule {path}: missing or unmatched source quote/clause/code/category/amount, or unsupported network; no executable rule retained."
         value["warnings"].append(message)
-        value["unresolved"].append(message)
+        value.setdefault("coverage_gaps", []).append(message)
     return value
 
 
@@ -375,6 +423,9 @@ def validate_output(value, document, document_id):
                 continue
             if ref not in clauses or clauses[ref].text not in [e.quote for e in evidence_by_path[f"networks.{net}.{field}"].evidence]:
                 raise ModelError("Network clause must match its rule evidence")
+            if field in ("deductible_cents", "oop_max_cents") and not _amount_supported(getattr(terms, field),
+                    [e.quote for e in evidence_by_path[f"networks.{net}.{field}"].evidence]):
+                raise ModelError("Network amount is not present in its source evidence")
             if field == "balance_billing" and not _balance_supported(terms.balance_billing,
                     [e.quote for e in evidence_by_path[f"networks.{net}.{field}"].evidence]):
                 raise ModelError("Balance billing requires explicit source billing language")

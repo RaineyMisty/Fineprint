@@ -50,3 +50,15 @@ def select_sections(document, *, threshold=24000, budget=60000):
                       source_characters=len(document), selected_characters=selected_chars,
                       omitted=omitted, selected_ranges=[dict(start=s, end=e, page=p) for s, e, p in ranges],
                       evidence_validation="Full original source; whitespace normalization only")
+
+
+def numbered_source_lines(document, selection):
+    """Number original physical lines so providers can cite without transcribing tables."""
+    result, offset = [], 0
+    ranges = selection["selected_ranges"]
+    for number, line in enumerate(document.splitlines(keepends=True), 1):
+        end = offset + len(line)
+        if line.strip() and any(offset < r["end"] and end > r["start"] for r in ranges):
+            result.append(dict(line=number, text=line.rstrip()))
+        offset = end
+    return result

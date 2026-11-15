@@ -15,7 +15,7 @@ from urllib.request import Request, urlopen
 
 from .compiler import Compilation, PROVIDER_SCHEMA, recover_evidence, validate_output
 from .models import ModelError
-from .policy_sections import select_sections
+from .policy_sections import select_sections, numbered_source_lines
 
 
 class ProviderError(ModelError):
@@ -66,6 +66,7 @@ class LLMCompiler:
                     evidence_spans="local whitespace-normalized quote search")
 
     def compile(self, document, document_id="uploaded-policy"):
+        self.attempt_audit = []
         selected_document, self.input_selection = select_sections(document)
         prompt = (
             "Compile this insurance policy into executable rules, with integer USD cents and coinsurance basis points. "
@@ -76,7 +77,10 @@ class LLMCompiler:
             "networks.in.deductible_cents, networks.in.oop_max_cents, networks.in.balance_billing and the corresponding networks.out paths. "
             "For each benefit use exactly benefits.<its id> (for example benefits.B1), grouping ALL supporting clauses there; "
             "NEVER append a benefit field such as .copay_cents or .deductible_applies. "
-            "Copy each quote verbatim from the document with its document id and section. Do not return character offsets; local code locates quotes. "
+            "Evidence MUST use source_lines: an array of integer line IDs from SOURCE_LINES, plus source_document_id and section. "
+            "Select all lines necessary to establish the service, cost, network and exceptions. Local code copies their exact text as quotes and validates offsets. "
+            "Do NOT write a quote field or character offsets; never reconstruct table rows by joining cells into invented sentences. "
+            "Do not select only a bare amount: include the relevant question, service label, table network header and limitation lines. "
             "Do not emit policy.clauses, clause_ids, deductible_clause, oop_clause, or network_clause: local code derives these from matched quotes. "
             "Include both the service clause and any applicable calculation-order clause as evidence. "
             "Do not list a supported calculation-order clause as unresolved. Retain conflicting benefits with a shared "
@@ -99,12 +103,20 @@ class LLMCompiler:
             "Benefits can use either explicit source CPT/HCPCS codes (service_category null), OR codes [] and a service_category copied exactly from a short source service heading. "
             "Never invent procedure codes or map a category to CPT. Category claims require a reviewer to assign the category explicitly. "
             "Compile the main simple in-network service rows, including office visits, urgent care, ER, diagnostic tests, imaging and first-tier drugs when supported. "
-            "For split rows, use a verbatim subheading (for example a lab or x-ray label) as the category and copy enough of the surrounding row to establish its meaning. "
+            "For split rows, use a verbatim subheading (for example a lab or x-ray label) as the category and select enough surrounding lines to establish its meaning. "
+            "service_category uses the exact words of the source service heading, with whitespace normalized; select all lines of a wrapped heading in source order. "
             "Do not combine a copied heading with invented qualifiers in service_category. Put qualifiers in label and conditions. "
             "conditions is a list of claim facts that MUST be confirmed before applying this benefit: e.g. no inpatient admission for an ER copay waived on admission, "
             "retail supply within the stated days and non-exempt medication for a drug copay, referral where required, non-mental-health treatment where a copay exemption applies. "
-            "Retain the exact source row and limitations as evidence for each condition. Conditions must describe eligibility facts, NEVER assumed rates or calculation semantics. "
+            "Select the exact source row and limitations as evidence for each condition. Conditions must describe eligibility facts, NEVER assumed rates or calculation semantics. "
+            "Read the plan-wide referral question: if referrals are required, specialist benefits must include a referral-or-permitted-self-referral condition and cite that question/answer. "
+            "Per-day amounts and per-episode day caps MUST be omitted, even if you could restate them in conditions. Restating unsupported arithmetic in conditions does NOT implement it. "
             "Prefer one common simple variant per category (e.g. retail prescription) and list other variants in coverage_gaps. "
+            "Compile an ER copay for the not-admitted case using conditions; a waiver on admission does not require dropping the entire ER row. "
+            "Similarly a referral, precertification or drug supply restriction is a condition, not a reason to omit an otherwise simple flat copay/coinsurance. "
+            "When the overall deductible is zero, deductible_applies false is arithmetically supported without a separate waiver quote; cite the zero deductible line. "
+            "For every benefit, ambiguity_group is an empty STRING unless explicit conflicting alternatives exist. copay_cents and coinsurance_bps are always integers: "
+            "a copay-only benefit has coinsurance_bps 0, a coinsurance-only benefit has copay_cents 0, and no charge has both 0. Never use null for these fields. "
             "Omit per-day multi-day caps, tiered copay schedules, combined fees and minimum/maximum coinsurance the engine cannot represent; list each omitted row and reason in coverage_gaps. "
             "coverage_gaps lists omitted rows/networks and missing billing terms; it does not invalidate independently supported benefits. "
             "unresolved is ONLY for uncertainty that affects the numeric rules actually emitted; omit those uncertain benefits instead when possible. "
@@ -112,13 +124,15 @@ class LLMCompiler:
             "For absent/not-applicable network deductible or OOP, either omit that network entirely or use null (local code will omit it); NEVER substitute zero or an in-network limit. "
             "An omitted network must NOT be interpreted as a blanket exclusion; emergency exceptions remain uncompiled. "
             "Do not treat coverage-example totals as policy rules. "
-            "Keep quotes short but sufficient; do not reproduce whole pages or enumerate unsupported categories as executable rules. "
+            "Select sufficient line IDs; do not enumerate unsupported categories as executable rules. "
             "Supported arithmetic is individual annual separate network pools: deductible, copay, coinsurance on remainder, half-up cents, OOP cap; "
-            "full-charge exclusions and permitted balance bills outside pools. If the document does not establish those semantics, mark unresolved. "
+            "full-charge exclusions and permitted balance bills outside pools. Omit benefits whose calculation order cannot be established. "
+            "For a copay-only or coinsurance-only benefit no mixed copay/coinsurance ordering assumption is required. "
+            "Half-up cent rounding is an engine convention disclosed in warnings, not an extracted policy fact; missing rounding text alone does not make an SBC benefit unresolved. "
             "Return only JSON.\nSCHEMA:\n" + json.dumps(PROVIDER_SCHEMA)
             + "\nDOCUMENT_ID:\n" + json.dumps(document_id)
             + "\nINPUT_SELECTION:\n" + json.dumps(self.input_selection)
-            + "\nDOCUMENT:\n" + json.dumps(selected_document)
+            + "\nSOURCE_LINES:\n" + json.dumps(numbered_source_lines(document, self.input_selection), ensure_ascii=False)
         )
         last = ""
         best_partial = None
@@ -127,6 +141,8 @@ class LLMCompiler:
             try:
                 response = self.transport(prompt + ("\nPrevious attempt failed validation: " + last if last else ""), PROVIDER_SCHEMA)
                 value = json.loads(response) if isinstance(response, str) else response
+                audit = dict(attempt=attempt, proposed_rules=len(value.get("rule_evidence", []))) if isinstance(value, dict) else dict(attempt=attempt, proposed_rules=0)
+                self.attempt_audit.append(audit)
                 if self.input_selection["omitted"]:
                     value.setdefault("coverage_gaps", []).append("Partial source review: sections were selected locally; omitted services require review and have no executable rules.")
                 output = validate_output(recover_evidence(value, document, document_id), document, document_id)
@@ -134,6 +150,7 @@ class LLMCompiler:
                         "none", "no unresolved issues", "no unresolved clauses", "no unsupported service categories or missing codes")
                         for message in output.unresolved):
                     raise ModelError("unresolved must contain actual missing/unsupported terms only. Put affirmative status messages in warnings and use [] when nothing is unresolved.")
+                audit.update(validated_rules=len(output.rule_evidence), validated_quote_spans=sum(len(r.evidence) for r in output.rule_evidence))
                 dropped = [message for message in output.warnings if message.startswith("Dropped rule ")]
                 if dropped:
                     if best_partial is None or len(output.rule_evidence) > len(best_partial.rule_evidence):
@@ -147,6 +164,10 @@ class LLMCompiler:
                 if isinstance(exc, json.JSONDecodeError):
                     self.max_tokens = min(self.max_tokens * 2, 65536)
                 last = str(exc) if isinstance(exc, ModelError) else "Malformed provider JSON response"
+                if self.attempt_audit and self.attempt_audit[-1]["attempt"] == attempt:
+                    self.attempt_audit[-1]["error"] = last[:600]
+                else:
+                    self.attempt_audit.append(dict(attempt=attempt, proposed_rules=None, error=last[:600]))
                 if attempt < self.attempt_limit:
                     self.sleep(min(2 ** (attempt - 1), 4))
         if best_partial is not None:
