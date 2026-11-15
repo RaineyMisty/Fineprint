@@ -1,5 +1,7 @@
 # Fineprint
 
+[Live demo](https://raineymisty.github.io/Fineprint/)
+
 **The fine print, finally on your side.** [中文](README_zh.md)
 
 Fineprint helps **patients, caregivers and benefits advocates** check an insurer’s patient-responsibility calculation against the actual insurance contract, then reconcile the hospital bill. Built for **HackPrinceton Fall 2026 · Healthcare** and **Amazon Best Practical AI Innovation**.

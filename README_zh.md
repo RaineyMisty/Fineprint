@@ -1,5 +1,7 @@
 # Fineprint
 
+[在线演示](https://raineymisty.github.io/Fineprint/)
+
 **让保单细则，真正站在用户这一边。** [English](README.md)
 
 Fineprint 面向 **患者、照护者及医保权益协助人员**：根据保险合同独立核算患者责任金额，与保险公司的 EOB 对比，再核对医院账单。项目参加 **HackPrinceton Fall 2026 · Healthcare** 和 **Amazon Best Practical AI Innovation** 赛道。
