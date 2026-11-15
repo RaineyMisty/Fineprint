@@ -1,0 +1,425 @@
+{
+  "case_id": "blind-32",
+  "started_at_utc": "2026-11-15T11:57:15.615398+00:00",
+  "compilation": {
+    "output": {
+      "policy": {
+        "id": "SYN-B32",
+        "insurer": "SYNTHETIC Linden Comet Health",
+        "name": "SYNTHETIC — fictional Summary of Benefits and Coverage",
+        "member_id": "SYN-M32",
+        "effective_from": "2026-01-01",
+        "effective_to": "2026-12-31",
+        "currency": "USD",
+        "networks": {
+          "in": {
+            "deductible_cents": 100000,
+            "oop_max_cents": 500000,
+            "balance_billing": null,
+            "deductible_clause": "source-1",
+            "oop_clause": "source-1",
+            "network_clause": null
+          },
+          "out": {
+            "deductible_cents": 200000,
+            "oop_max_cents": 1000000,
+            "balance_billing": null,
+            "deductible_clause": "source-1",
+            "oop_clause": "source-1",
+            "network_clause": null
+          }
+        },
+        "benefits": [
+          {
+            "id": "B1",
+            "label": "CT",
+            "codes": [
+              "74177"
+            ],
+            "network": "in",
+            "covered": true,
+            "deductible_applies": false,
+            "copay_cents": 0,
+            "coinsurance_bps": 2000,
+            "clause_ids": [
+              "source-5",
+              "source-6"
+            ],
+            "ambiguity_group": ""
+          }
+        ],
+        "clauses": [
+          {
+            "id": "source-1",
+            "text": "| Network | Annual deductible | Annual out-of-pocket maximum | Excess balance billing |",
+            "location": "Financial overview"
+          },
+          {
+            "id": "source-5",
+            "text": "Calculation and accumulation rules: For covered care apply any remaining deductible first, then the stated copay, then member coinsurance to the remaining allowed amount. Round coinsurance half up to cents. Apply the remaining annual OOP cap to deductible, copay and coinsurance in that order. Only actually assessed covered sharing accrues. In- and out-of-network annual pools are separate. Permitted excess equals charge minus allowance and is outside OOP. Excluded care is full-charge patient liability outside deductible and OOP, with no insurer payment. No excess billing is allowed in network. A waived deductible means no deductible applies to that benefit.",
+            "location": "Calculation and accumulation rules"
+          },
+          {
+            "id": "source-6",
+            "text": "B1: CT (CPT/HCPCS 74177), in-network: covered; deductible waived; member copay $0.00; member coinsurance 20%.",
+            "location": "Benefits — amounts are per visit/unit"
+          }
+        ]
+      },
+      "rule_evidence": [
+        {
+          "rule_path": "networks.in.deductible_cents",
+          "evidence": [
+            {
+              "source_document_id": "blind-32/policy.md",
+              "section": "Financial overview",
+              "quote": "| Network | Annual deductible | Annual out-of-pocket maximum | Excess balance billing |",
+              "start": 328,
+              "end": 415
+            },
+            {
+              "source_document_id": "blind-32/policy.md",
+              "section": "Financial overview",
+              "quote": "| --- | --- | --- | --- |",
+              "start": 416,
+              "end": 441
+            },
+            {
+              "source_document_id": "blind-32/policy.md",
+              "section": "Financial overview",
+              "quote": "| In-network | $1,000.00 | $5,000.00 | prohibited |",
+              "start": 442,
+              "end": 493
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "networks.in.oop_max_cents",
+          "evidence": [
+            {
+              "source_document_id": "blind-32/policy.md",
+              "section": "Financial overview",
+              "quote": "| Network | Annual deductible | Annual out-of-pocket maximum | Excess balance billing |",
+              "start": 328,
+              "end": 415
+            },
+            {
+              "source_document_id": "blind-32/policy.md",
+              "section": "Financial overview",
+              "quote": "| --- | --- | --- | --- |",
+              "start": 416,
+              "end": 441
+            },
+            {
+              "source_document_id": "blind-32/policy.md",
+              "section": "Financial overview",
+              "quote": "| In-network | $1,000.00 | $5,000.00 | prohibited |",
+              "start": 442,
+              "end": 493
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "networks.out.deductible_cents",
+          "evidence": [
+            {
+              "source_document_id": "blind-32/policy.md",
+              "section": "Financial overview",
+              "quote": "| Network | Annual deductible | Annual out-of-pocket maximum | Excess balance billing |",
+              "start": 328,
+              "end": 415
+            },
+            {
+              "source_document_id": "blind-32/policy.md",
+              "section": "Financial overview",
+              "quote": "| --- | --- | --- | --- |",
+              "start": 416,
+              "end": 441
+            },
+            {
+              "source_document_id": "blind-32/policy.md",
+              "section": "Financial overview",
+              "quote": "| Out-of-network | $2,000.00 | $10,000.00 | permitted |",
+              "start": 494,
+              "end": 549
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "networks.out.oop_max_cents",
+          "evidence": [
+            {
+              "source_document_id": "blind-32/policy.md",
+              "section": "Financial overview",
+              "quote": "| Network | Annual deductible | Annual out-of-pocket maximum | Excess balance billing |",
+              "start": 328,
+              "end": 415
+            },
+            {
+              "source_document_id": "blind-32/policy.md",
+              "section": "Financial overview",
+              "quote": "| --- | --- | --- | --- |",
+              "start": 416,
+              "end": 441
+            },
+            {
+              "source_document_id": "blind-32/policy.md",
+              "section": "Financial overview",
+              "quote": "| Out-of-network | $2,000.00 | $10,000.00 | permitted |",
+              "start": 494,
+              "end": 549
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "benefits.B1",
+          "evidence": [
+            {
+              "source_document_id": "blind-32/policy.md",
+              "section": "Calculation and accumulation rules",
+              "quote": "Calculation and accumulation rules: For covered care apply any remaining deductible first, then the stated copay, then member coinsurance to the remaining allowed amount. Round coinsurance half up to cents. Apply the remaining annual OOP cap to deductible, copay and coinsurance in that order. Only actually assessed covered sharing accrues. In- and out-of-network annual pools are separate. Permitted excess equals charge minus allowance and is outside OOP. Excluded care is full-charge patient liability outside deductible and OOP, with no insurer payment. No excess billing is allowed in network. A waived deductible means no deductible applies to that benefit.",
+              "start": 550,
+              "end": 1214
+            },
+            {
+              "source_document_id": "blind-32/policy.md",
+              "section": "Benefits — amounts are per visit/unit",
+              "quote": "B1: CT (CPT/HCPCS 74177), in-network: covered; deductible waived; member copay $0.00; member coinsurance 20%.",
+              "start": 1254,
+              "end": 1363
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        }
+      ],
+      "warnings": [
+        "Synthetic data notice: document marked as SYNTHETIC fictional SBC.",
+        "Rounding convention: half-up cent rounding is an engine convention, not documented in this policy, but is applied per calculation rules.",
+        "Benefit B1 has deductible waived, so deductible_applies set to false.",
+        "Dropped rule networks.in.balance_billing: missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+        "Dropped rule networks.out.balance_billing: missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+        "Retained validated partial output from attempt 1 after 1 attempts; selection used supported-rule count only, never gold answers."
+      ],
+      "unresolved": [],
+      "coverage_gaps": [
+        "Only benefit B1 (CT CPT 74177) is compiled; no other benefits are listed in the document.",
+        "No balance billing language beyond the financial overview table; network balance billing rules are captured directly from that table.",
+        "No out-of-network benefit rows are provided.",
+        "Dropped rule networks.in.balance_billing: missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+        "Dropped rule networks.out.balance_billing: missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained."
+      ]
+    },
+    "backend": "deepseek",
+    "source_document_id": "blind-32/policy.md",
+    "source_sha256": "01a004ba33de699ea4692ff5b1de8c5fa9d2d54632de883a50f22914ef390be2",
+    "attempts": 1
+  },
+  "normalized_case": {
+    "schema_version": "1.0",
+    "id": "blind-32",
+    "title": "Insurance credit omitted from statement",
+    "synthetic": true,
+    "policy": {
+      "id": "SYN-B32",
+      "insurer": "SYNTHETIC Linden Comet Health",
+      "name": "SYNTHETIC — fictional Summary of Benefits and Coverage",
+      "member_id": "SYN-M32",
+      "effective_from": "2026-01-01",
+      "effective_to": "2026-12-31",
+      "currency": "USD",
+      "networks": {
+        "in": {
+          "deductible_cents": 100000,
+          "oop_max_cents": 500000,
+          "balance_billing": null,
+          "deductible_clause": "source-1",
+          "oop_clause": "source-1",
+          "network_clause": null
+        },
+        "out": {
+          "deductible_cents": 200000,
+          "oop_max_cents": 1000000,
+          "balance_billing": null,
+          "deductible_clause": "source-1",
+          "oop_clause": "source-1",
+          "network_clause": null
+        }
+      },
+      "benefits": [
+        {
+          "id": "B1",
+          "label": "CT",
+          "codes": [
+            "74177"
+          ],
+          "network": "in",
+          "covered": true,
+          "deductible_applies": false,
+          "copay_cents": 0,
+          "coinsurance_bps": 2000,
+          "clause_ids": [
+            "source-5",
+            "source-6"
+          ],
+          "ambiguity_group": ""
+        }
+      ],
+      "clauses": [
+        {
+          "id": "source-1",
+          "text": "| Network | Annual deductible | Annual out-of-pocket maximum | Excess balance billing |",
+          "location": "Financial overview"
+        },
+        {
+          "id": "source-5",
+          "text": "Calculation and accumulation rules: For covered care apply any remaining deductible first, then the stated copay, then member coinsurance to the remaining allowed amount. Round coinsurance half up to cents. Apply the remaining annual OOP cap to deductible, copay and coinsurance in that order. Only actually assessed covered sharing accrues. In- and out-of-network annual pools are separate. Permitted excess equals charge minus allowance and is outside OOP. Excluded care is full-charge patient liability outside deductible and OOP, with no insurer payment. No excess billing is allowed in network. A waived deductible means no deductible applies to that benefit.",
+          "location": "Calculation and accumulation rules"
+        },
+        {
+          "id": "source-6",
+          "text": "B1: CT (CPT/HCPCS 74177), in-network: covered; deductible waived; member copay $0.00; member coinsurance 20%.",
+          "location": "Benefits — amounts are per visit/unit"
+        }
+      ]
+    },
+    "claim": {
+      "id": "SYN-C32",
+      "policy_id": "SYN-B32",
+      "member_id": "SYN-M32",
+      "accumulators": {
+        "in": {
+          "deductible_paid_cents": 0,
+          "oop_paid_cents": 0
+        },
+        "out": {
+          "deductible_paid_cents": 0,
+          "oop_paid_cents": 0
+        }
+      },
+      "lines": [
+        {
+          "id": "L01",
+          "provider_id": "SYN-P32",
+          "service_date": "2026-06-11",
+          "code": "74177",
+          "description": "SYNTHETIC submitted service 74177; documented actual service code 74177; no additional clinical facts",
+          "network": "in",
+          "billed_cents": 150000,
+          "confirmed_conditions": [],
+          "insurer": {
+            "allowed_cents": 100000,
+            "deductible_cents": 0,
+            "copay_cents": 0,
+            "coinsurance_cents": 20000,
+            "noncovered_cents": 0,
+            "balance_cents": 0,
+            "insurer_paid_cents": 80000,
+            "adjustment_cents": 50000
+          }
+        }
+      ]
+    },
+    "bill": {
+      "id": "SYN-I32",
+      "claim_id": "SYN-C32",
+      "member_id": "SYN-M32",
+      "lines": [
+        {
+          "id": "B-L01",
+          "claim_line_id": "L01",
+          "provider_id": "SYN-P32",
+          "service_date": "2026-06-11",
+          "code": "74177",
+          "charged_cents": 150000,
+          "insurance_paid_cents": 80000,
+          "adjustment_cents": 0,
+          "patient_paid_cents": 0,
+          "balance_due_cents": 70000
+        }
+      ]
+    },
+    "allowed_evidence": {
+      "L01": {
+        "allowed_cents": 100000,
+        "source": "contract",
+        "reference": "SYNTHETIC signed rate schedule SYN-R32, line L01; protected recognized amount where stipulated"
+      }
+    }
+  },
+  "report": {
+    "validation": [
+      {
+        "severity": "error",
+        "code": "incomplete_network",
+        "path": "policy.networks.in.balance_billing",
+        "message": "Balance-billing terms are unknown; supply independent contract evidence for each affected line."
+      },
+      {
+        "severity": "warning",
+        "code": "bill_eob_difference",
+        "path": "bill.lines.B-L01",
+        "message": "Bill total patient responsibility differs from EOB; review comparison."
+      }
+    ],
+    "links": [
+      {
+        "claim_line_id": "L01",
+        "member_id": "SYN-M32",
+        "provider_id": "SYN-P32",
+        "service_date": "2026-06-11",
+        "code": "74177",
+        "claim_id": "SYN-C32",
+        "bill_line_ids": [
+          "B-L01"
+        ]
+      }
+    ],
+    "status": "blocked",
+    "scenarios": [],
+    "comparisons": [],
+    "summary": null,
+    "method": "Deterministic policy evaluation; no LLM is used for arithmetic. All figures are USD cents.",
+    "limitations": [
+      "Individual annual, separate network accumulators; one unit/visit per claim line.",
+      "Allowed amounts must be supplied; rates are not inferred from an SBC.",
+      "Missing-fact endpoints are illustrative, not exhaustive outcomes or guaranteed savings.",
+      "Legal billing protections, family coordination, prior authorization, coding and medical necessity are not evaluated.",
+      "Only benefit B1 (CT CPT 74177) is compiled; no other benefits are listed in the document.",
+      "No balance billing language beyond the financial overview table; network balance billing rules are captured directly from that table.",
+      "No out-of-network benefit rows are provided.",
+      "Dropped rule networks.in.balance_billing: missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+      "Dropped rule networks.out.balance_billing: missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained."
+    ],
+    "blocked_reason": "Resolve validation errors before recalculation: incomplete_network"
+  },
+  "provider_attempt_audit": [
+    {
+      "attempt": 1,
+      "proposed_rules": 7,
+      "validated_rules": 5,
+      "validated_quote_spans": 14
+    }
+  ],
+  "provider_request_config": {
+    "response_format": "json_object",
+    "max_tokens_initial": 32768,
+    "max_tokens": 32768,
+    "max_tokens_ceiling": 65536,
+    "thinking": "disabled",
+    "timeout_seconds": 120,
+    "attempt_limit": 1,
+    "transport_attempt_limit": 1,
+    "evidence_spans": "selected original source lines with local offsets; legacy quotes use whitespace-normalized search"
+  },
+  "elapsed_seconds": 8.915,
+  "completed_at_utc": "2026-11-15T11:57:24.529978+00:00"
+}

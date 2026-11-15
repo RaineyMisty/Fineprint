@@ -1,0 +1,417 @@
+{
+  "case_id": "blind-16",
+  "started_at_utc": "2026-11-15T11:56:41.026021+00:00",
+  "compilation": {
+    "output": {
+      "policy": {
+        "id": "SYN-B16",
+        "insurer": "SYNTHETIC Linden Comet Health",
+        "name": "SYNTHETIC — fictional Summary of Benefits and Coverage",
+        "member_id": "SYN-M16",
+        "effective_from": "2026-01-01",
+        "effective_to": "2026-12-31",
+        "currency": "USD",
+        "networks": {
+          "in": {
+            "deductible_cents": 100000,
+            "oop_max_cents": 500000,
+            "balance_billing": null,
+            "deductible_clause": "source-1",
+            "oop_clause": "source-1",
+            "network_clause": null
+          },
+          "out": {
+            "deductible_cents": 200000,
+            "oop_max_cents": 1000000,
+            "balance_billing": null,
+            "deductible_clause": "source-1",
+            "oop_clause": "source-1",
+            "network_clause": null
+          }
+        },
+        "benefits": [
+          {
+            "id": "B1",
+            "label": "Authorized MRI",
+            "codes": [
+              "70553"
+            ],
+            "network": "in",
+            "covered": true,
+            "deductible_applies": false,
+            "copay_cents": 0,
+            "coinsurance_bps": 2000,
+            "clause_ids": [
+              "source-5",
+              "source-6",
+              "source-7"
+            ],
+            "ambiguity_group": "",
+            "conditions": [
+              "Prior authorization required"
+            ]
+          }
+        ],
+        "clauses": [
+          {
+            "id": "source-1",
+            "text": "| --- | --- | --- | --- |",
+            "location": "Financial overview"
+          },
+          {
+            "id": "source-5",
+            "text": "Benefits — amounts are per visit/unit",
+            "location": "Benefits — amounts are per visit/unit"
+          },
+          {
+            "id": "source-6",
+            "text": "B1: Authorized MRI (CPT/HCPCS 70553), in-network: covered; deductible waived; member copay $0.00; member coinsurance 20%.",
+            "location": "Benefits — amounts are per visit/unit"
+          },
+          {
+            "id": "source-7",
+            "text": "Special provisions: Advanced MRI code 70553 requires prior authorization; this member has approval SYN-A16.",
+            "location": "Special provisions"
+          }
+        ]
+      },
+      "rule_evidence": [
+        {
+          "rule_path": "networks.in.deductible_cents",
+          "evidence": [
+            {
+              "source_document_id": "blind-16/policy.md",
+              "section": "Financial overview",
+              "quote": "| --- | --- | --- | --- |",
+              "start": 416,
+              "end": 441
+            },
+            {
+              "source_document_id": "blind-16/policy.md",
+              "section": "Financial overview",
+              "quote": "| In-network | $1,000.00 | $5,000.00 | prohibited |",
+              "start": 442,
+              "end": 493
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "networks.in.oop_max_cents",
+          "evidence": [
+            {
+              "source_document_id": "blind-16/policy.md",
+              "section": "Financial overview",
+              "quote": "| --- | --- | --- | --- |",
+              "start": 416,
+              "end": 441
+            },
+            {
+              "source_document_id": "blind-16/policy.md",
+              "section": "Financial overview",
+              "quote": "| In-network | $1,000.00 | $5,000.00 | prohibited |",
+              "start": 442,
+              "end": 493
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "networks.out.deductible_cents",
+          "evidence": [
+            {
+              "source_document_id": "blind-16/policy.md",
+              "section": "Financial overview",
+              "quote": "| --- | --- | --- | --- |",
+              "start": 416,
+              "end": 441
+            },
+            {
+              "source_document_id": "blind-16/policy.md",
+              "section": "Financial overview",
+              "quote": "| Out-of-network | $2,000.00 | $10,000.00 | permitted |",
+              "start": 494,
+              "end": 549
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "networks.out.oop_max_cents",
+          "evidence": [
+            {
+              "source_document_id": "blind-16/policy.md",
+              "section": "Financial overview",
+              "quote": "| --- | --- | --- | --- |",
+              "start": 416,
+              "end": 441
+            },
+            {
+              "source_document_id": "blind-16/policy.md",
+              "section": "Financial overview",
+              "quote": "| Out-of-network | $2,000.00 | $10,000.00 | permitted |",
+              "start": 494,
+              "end": 549
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "benefits.B1",
+          "evidence": [
+            {
+              "source_document_id": "blind-16/policy.md",
+              "section": "Benefits — amounts are per visit/unit",
+              "quote": "Benefits — amounts are per visit/unit",
+              "start": 1216,
+              "end": 1253
+            },
+            {
+              "source_document_id": "blind-16/policy.md",
+              "section": "Benefits — amounts are per visit/unit",
+              "quote": "B1: Authorized MRI (CPT/HCPCS 70553), in-network: covered; deductible waived; member copay $0.00; member coinsurance 20%.",
+              "start": 1254,
+              "end": 1375
+            },
+            {
+              "source_document_id": "blind-16/policy.md",
+              "section": "Special provisions",
+              "quote": "Special provisions: Advanced MRI code 70553 requires prior authorization; this member has approval SYN-A16.",
+              "start": 1377,
+              "end": 1484
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        }
+      ],
+      "warnings": [
+        "Synthetic data notice: This is a fictional SBC for testing.",
+        "Rounding: half-up to cents is an engine convention, not an extracted policy fact.",
+        "Dropped rule networks.in.balance_billing: missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+        "Dropped rule networks.out.balance_billing: missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+        "Retained validated partial output from attempt 1 after 1 attempts; selection used supported-rule count only, never gold answers."
+      ],
+      "unresolved": [],
+      "coverage_gaps": [
+        "Dropped rule networks.in.balance_billing: missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+        "Dropped rule networks.out.balance_billing: missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained."
+      ]
+    },
+    "backend": "deepseek",
+    "source_document_id": "blind-16/policy.md",
+    "source_sha256": "56c9b6ef5d5b04c756339d04c464656d66dd0206cd5a4688e7b588d3418759d7",
+    "attempts": 1
+  },
+  "normalized_case": {
+    "schema_version": "1.0",
+    "id": "blind-16",
+    "title": "Authorized advanced imaging",
+    "synthetic": true,
+    "policy": {
+      "id": "SYN-B16",
+      "insurer": "SYNTHETIC Linden Comet Health",
+      "name": "SYNTHETIC — fictional Summary of Benefits and Coverage",
+      "member_id": "SYN-M16",
+      "effective_from": "2026-01-01",
+      "effective_to": "2026-12-31",
+      "currency": "USD",
+      "networks": {
+        "in": {
+          "deductible_cents": 100000,
+          "oop_max_cents": 500000,
+          "balance_billing": null,
+          "deductible_clause": "source-1",
+          "oop_clause": "source-1",
+          "network_clause": null
+        },
+        "out": {
+          "deductible_cents": 200000,
+          "oop_max_cents": 1000000,
+          "balance_billing": null,
+          "deductible_clause": "source-1",
+          "oop_clause": "source-1",
+          "network_clause": null
+        }
+      },
+      "benefits": [
+        {
+          "id": "B1",
+          "label": "Authorized MRI",
+          "codes": [
+            "70553"
+          ],
+          "network": "in",
+          "covered": true,
+          "deductible_applies": false,
+          "copay_cents": 0,
+          "coinsurance_bps": 2000,
+          "clause_ids": [
+            "source-5",
+            "source-6",
+            "source-7"
+          ],
+          "ambiguity_group": "",
+          "conditions": [
+            "Prior authorization required"
+          ]
+        }
+      ],
+      "clauses": [
+        {
+          "id": "source-1",
+          "text": "| --- | --- | --- | --- |",
+          "location": "Financial overview"
+        },
+        {
+          "id": "source-5",
+          "text": "Benefits — amounts are per visit/unit",
+          "location": "Benefits — amounts are per visit/unit"
+        },
+        {
+          "id": "source-6",
+          "text": "B1: Authorized MRI (CPT/HCPCS 70553), in-network: covered; deductible waived; member copay $0.00; member coinsurance 20%.",
+          "location": "Benefits — amounts are per visit/unit"
+        },
+        {
+          "id": "source-7",
+          "text": "Special provisions: Advanced MRI code 70553 requires prior authorization; this member has approval SYN-A16.",
+          "location": "Special provisions"
+        }
+      ]
+    },
+    "claim": {
+      "id": "SYN-C16",
+      "policy_id": "SYN-B16",
+      "member_id": "SYN-M16",
+      "accumulators": {
+        "in": {
+          "deductible_paid_cents": 0,
+          "oop_paid_cents": 0
+        },
+        "out": {
+          "deductible_paid_cents": 0,
+          "oop_paid_cents": 0
+        }
+      },
+      "lines": [
+        {
+          "id": "L01",
+          "provider_id": "SYN-P16",
+          "service_date": "2026-06-11",
+          "code": "70553",
+          "description": "SYNTHETIC submitted service 70553; documented actual service code 70553; Prior authorization SYN-A16 approved before service.",
+          "network": "in",
+          "billed_cents": 140000,
+          "confirmed_conditions": [
+            "Prior authorization SYN-A16 approved before service."
+          ],
+          "insurer": {
+            "allowed_cents": 60000,
+            "deductible_cents": 0,
+            "copay_cents": 0,
+            "coinsurance_cents": 12000,
+            "noncovered_cents": 0,
+            "balance_cents": 0,
+            "insurer_paid_cents": 48000,
+            "adjustment_cents": 80000
+          }
+        }
+      ]
+    },
+    "bill": {
+      "id": "SYN-I16",
+      "claim_id": "SYN-C16",
+      "member_id": "SYN-M16",
+      "lines": [
+        {
+          "id": "B-L01",
+          "claim_line_id": "L01",
+          "provider_id": "SYN-P16",
+          "service_date": "2026-06-11",
+          "code": "70553",
+          "charged_cents": 140000,
+          "insurance_paid_cents": 48000,
+          "adjustment_cents": 80000,
+          "patient_paid_cents": 0,
+          "balance_due_cents": 12000
+        }
+      ]
+    },
+    "allowed_evidence": {
+      "L01": {
+        "allowed_cents": 60000,
+        "source": "contract",
+        "reference": "SYNTHETIC signed rate schedule SYN-R16, line L01; protected recognized amount where stipulated"
+      }
+    }
+  },
+  "report": {
+    "validation": [
+      {
+        "severity": "error",
+        "code": "incomplete_network",
+        "path": "policy.networks.in.balance_billing",
+        "message": "Balance-billing terms are unknown; supply independent contract evidence for each affected line."
+      },
+      {
+        "severity": "error",
+        "code": "missing_rule",
+        "path": "claim.lines.L01",
+        "message": "No explicit coverage rule with confirmed conditions for 70553/in; calculation blocked."
+      }
+    ],
+    "links": [
+      {
+        "claim_line_id": "L01",
+        "member_id": "SYN-M16",
+        "provider_id": "SYN-P16",
+        "service_date": "2026-06-11",
+        "code": "70553",
+        "claim_id": "SYN-C16",
+        "bill_line_ids": [
+          "B-L01"
+        ]
+      }
+    ],
+    "status": "blocked",
+    "scenarios": [],
+    "comparisons": [],
+    "summary": null,
+    "method": "Deterministic policy evaluation; no LLM is used for arithmetic. All figures are USD cents.",
+    "limitations": [
+      "Individual annual, separate network accumulators; one unit/visit per claim line.",
+      "Allowed amounts must be supplied; rates are not inferred from an SBC.",
+      "Missing-fact endpoints are illustrative, not exhaustive outcomes or guaranteed savings.",
+      "Legal billing protections, family coordination, prior authorization, coding and medical necessity are not evaluated.",
+      "Dropped rule networks.in.balance_billing: missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+      "Dropped rule networks.out.balance_billing: missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained."
+    ],
+    "blocked_reason": "Resolve validation errors before recalculation: incomplete_network; missing_rule"
+  },
+  "provider_attempt_audit": [
+    {
+      "attempt": 1,
+      "proposed_rules": 7,
+      "validated_rules": 5,
+      "validated_quote_spans": 11
+    }
+  ],
+  "provider_request_config": {
+    "response_format": "json_object",
+    "max_tokens_initial": 32768,
+    "max_tokens": 32768,
+    "max_tokens_ceiling": 65536,
+    "thinking": "disabled",
+    "timeout_seconds": 120,
+    "attempt_limit": 1,
+    "transport_attempt_limit": 1,
+    "evidence_spans": "selected original source lines with local offsets; legacy quotes use whitespace-normalized search"
+  },
+  "elapsed_seconds": 7.255,
+  "completed_at_utc": "2026-11-15T11:56:48.280994+00:00"
+}

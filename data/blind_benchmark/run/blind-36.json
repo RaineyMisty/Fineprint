@@ -1,0 +1,478 @@
+{
+  "case_id": "blind-36",
+  "started_at_utc": "2026-11-15T11:57:24.532660+00:00",
+  "compilation": {
+    "output": {
+      "policy": {
+        "id": "SYN-B36",
+        "insurer": "SYNTHETIC Opal Orchard Cooperative",
+        "name": "SYNTHETIC Opal Orchard Cooperative Policy SYN-B36",
+        "member_id": "SYN-M36",
+        "effective_from": "2026-01-01",
+        "effective_to": "2026-12-31",
+        "currency": "USD",
+        "networks": {
+          "in": {
+            "deductible_cents": 100000,
+            "oop_max_cents": 500000,
+            "balance_billing": null,
+            "deductible_clause": "source-1",
+            "oop_clause": "source-1",
+            "network_clause": null
+          },
+          "out": {
+            "deductible_cents": 200000,
+            "oop_max_cents": 1000000,
+            "balance_billing": null,
+            "deductible_clause": "source-1",
+            "oop_clause": "source-1",
+            "network_clause": null
+          }
+        },
+        "benefits": [
+          {
+            "id": "B1",
+            "label": "Cosmetic exclusion (CPT/HCPCS 15829)",
+            "codes": [
+              "15829"
+            ],
+            "network": "in",
+            "covered": false,
+            "deductible_applies": false,
+            "copay_cents": 0,
+            "coinsurance_bps": 0,
+            "clause_ids": [
+              "source-5"
+            ],
+            "ambiguity_group": ""
+          },
+          {
+            "id": "B2",
+            "label": "CT (CPT/HCPCS 74177)",
+            "codes": [
+              "74177"
+            ],
+            "network": "in",
+            "covered": true,
+            "deductible_applies": false,
+            "copay_cents": 0,
+            "coinsurance_bps": 2000,
+            "clause_ids": [
+              "source-6"
+            ],
+            "ambiguity_group": ""
+          }
+        ],
+        "clauses": [
+          {
+            "id": "source-1",
+            "text": "| Network | Annual deductible | Annual out-of-pocket maximum | Excess balance billing |",
+            "location": "Financial overview"
+          },
+          {
+            "id": "source-5",
+            "text": "B1: Cosmetic exclusion (CPT/HCPCS 15829), in-network: excluded; full charge, no covered sharing; deductible waived; member copay $0.00; member coinsurance 0%.",
+            "location": "Benefits — amounts are per visit/unit"
+          },
+          {
+            "id": "source-6",
+            "text": "B2: CT (CPT/HCPCS 74177), in-network: covered; deductible waived; member copay $0.00; member coinsurance 20%.",
+            "location": "Benefits — amounts are per visit/unit"
+          }
+        ]
+      },
+      "rule_evidence": [
+        {
+          "rule_path": "networks.in.deductible_cents",
+          "evidence": [
+            {
+              "source_document_id": "blind-36/policy.md",
+              "section": "Financial overview",
+              "quote": "| Network | Annual deductible | Annual out-of-pocket maximum | Excess balance billing |",
+              "start": 333,
+              "end": 420
+            },
+            {
+              "source_document_id": "blind-36/policy.md",
+              "section": "Financial overview",
+              "quote": "| In-network | $1,000.00 | $5,000.00 | prohibited |",
+              "start": 447,
+              "end": 498
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "networks.in.oop_max_cents",
+          "evidence": [
+            {
+              "source_document_id": "blind-36/policy.md",
+              "section": "Financial overview",
+              "quote": "| Network | Annual deductible | Annual out-of-pocket maximum | Excess balance billing |",
+              "start": 333,
+              "end": 420
+            },
+            {
+              "source_document_id": "blind-36/policy.md",
+              "section": "Financial overview",
+              "quote": "| In-network | $1,000.00 | $5,000.00 | prohibited |",
+              "start": 447,
+              "end": 498
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "networks.out.deductible_cents",
+          "evidence": [
+            {
+              "source_document_id": "blind-36/policy.md",
+              "section": "Financial overview",
+              "quote": "| Network | Annual deductible | Annual out-of-pocket maximum | Excess balance billing |",
+              "start": 333,
+              "end": 420
+            },
+            {
+              "source_document_id": "blind-36/policy.md",
+              "section": "Financial overview",
+              "quote": "| Out-of-network | $2,000.00 | $10,000.00 | permitted |",
+              "start": 499,
+              "end": 554
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "networks.out.oop_max_cents",
+          "evidence": [
+            {
+              "source_document_id": "blind-36/policy.md",
+              "section": "Financial overview",
+              "quote": "| Network | Annual deductible | Annual out-of-pocket maximum | Excess balance billing |",
+              "start": 333,
+              "end": 420
+            },
+            {
+              "source_document_id": "blind-36/policy.md",
+              "section": "Financial overview",
+              "quote": "| Out-of-network | $2,000.00 | $10,000.00 | permitted |",
+              "start": 499,
+              "end": 554
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "benefits.B1",
+          "evidence": [
+            {
+              "source_document_id": "blind-36/policy.md",
+              "section": "Benefits — amounts are per visit/unit",
+              "quote": "B1: Cosmetic exclusion (CPT/HCPCS 15829), in-network: excluded; full charge, no covered sharing; deductible waived; member copay $0.00; member coinsurance 0%.",
+              "start": 1259,
+              "end": 1417
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "benefits.B2",
+          "evidence": [
+            {
+              "source_document_id": "blind-36/policy.md",
+              "section": "Benefits — amounts are per visit/unit",
+              "quote": "B2: CT (CPT/HCPCS 74177), in-network: covered; deductible waived; member copay $0.00; member coinsurance 20%.",
+              "start": 1418,
+              "end": 1527
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        }
+      ],
+      "warnings": [
+        "Synthetic-data notice: this document is fictional and provided for testing only.",
+        "Half-up cent rounding is an engine convention; no explicit rounding rule found in source.",
+        "All cost-sharing figures are per visit/unit unless noted; no multi-visit accumulation was compiled.",
+        "Dropped rule networks.in.balance_billing: missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+        "Dropped rule networks.out.balance_billing: missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+        "Retained validated partial output from attempt 1 after 1 attempts; selection used supported-rule count only, never gold answers."
+      ],
+      "unresolved": [],
+      "coverage_gaps": [
+        "No out-of-network benefit rows were present in the document.",
+        "No dental, vision, pharmacy, or other common service categories were found in the source.",
+        "Balance billing for out-of-network is explicitly permitted; no additional protection is provided.",
+        "No exclusions for other services are compiled beyond the cosmetic exclusion row B1.",
+        "Dropped rule networks.in.balance_billing: missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+        "Dropped rule networks.out.balance_billing: missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained."
+      ]
+    },
+    "backend": "deepseek",
+    "source_document_id": "blind-36/policy.md",
+    "source_sha256": "1b84072fef7bda42ea11e742f0662eaeb3c64ac458c79a9a3c033eb77638b077",
+    "attempts": 1
+  },
+  "normalized_case": {
+    "schema_version": "1.0",
+    "id": "blind-36",
+    "title": "Excluded cosmetic spending wrongly consumes OOP",
+    "synthetic": true,
+    "policy": {
+      "id": "SYN-B36",
+      "insurer": "SYNTHETIC Opal Orchard Cooperative",
+      "name": "SYNTHETIC Opal Orchard Cooperative Policy SYN-B36",
+      "member_id": "SYN-M36",
+      "effective_from": "2026-01-01",
+      "effective_to": "2026-12-31",
+      "currency": "USD",
+      "networks": {
+        "in": {
+          "deductible_cents": 100000,
+          "oop_max_cents": 500000,
+          "balance_billing": null,
+          "deductible_clause": "source-1",
+          "oop_clause": "source-1",
+          "network_clause": null
+        },
+        "out": {
+          "deductible_cents": 200000,
+          "oop_max_cents": 1000000,
+          "balance_billing": null,
+          "deductible_clause": "source-1",
+          "oop_clause": "source-1",
+          "network_clause": null
+        }
+      },
+      "benefits": [
+        {
+          "id": "B1",
+          "label": "Cosmetic exclusion (CPT/HCPCS 15829)",
+          "codes": [
+            "15829"
+          ],
+          "network": "in",
+          "covered": false,
+          "deductible_applies": false,
+          "copay_cents": 0,
+          "coinsurance_bps": 0,
+          "clause_ids": [
+            "source-5"
+          ],
+          "ambiguity_group": ""
+        },
+        {
+          "id": "B2",
+          "label": "CT (CPT/HCPCS 74177)",
+          "codes": [
+            "74177"
+          ],
+          "network": "in",
+          "covered": true,
+          "deductible_applies": false,
+          "copay_cents": 0,
+          "coinsurance_bps": 2000,
+          "clause_ids": [
+            "source-6"
+          ],
+          "ambiguity_group": ""
+        }
+      ],
+      "clauses": [
+        {
+          "id": "source-1",
+          "text": "| Network | Annual deductible | Annual out-of-pocket maximum | Excess balance billing |",
+          "location": "Financial overview"
+        },
+        {
+          "id": "source-5",
+          "text": "B1: Cosmetic exclusion (CPT/HCPCS 15829), in-network: excluded; full charge, no covered sharing; deductible waived; member copay $0.00; member coinsurance 0%.",
+          "location": "Benefits — amounts are per visit/unit"
+        },
+        {
+          "id": "source-6",
+          "text": "B2: CT (CPT/HCPCS 74177), in-network: covered; deductible waived; member copay $0.00; member coinsurance 20%.",
+          "location": "Benefits — amounts are per visit/unit"
+        }
+      ]
+    },
+    "claim": {
+      "id": "SYN-C36",
+      "policy_id": "SYN-B36",
+      "member_id": "SYN-M36",
+      "accumulators": {
+        "in": {
+          "deductible_paid_cents": 100000,
+          "oop_paid_cents": 450000
+        },
+        "out": {
+          "deductible_paid_cents": 0,
+          "oop_paid_cents": 0
+        }
+      },
+      "lines": [
+        {
+          "id": "L01",
+          "provider_id": "SYN-P36",
+          "service_date": "2026-06-11",
+          "code": "15829",
+          "description": "SYNTHETIC submitted service 15829; documented actual service code 15829; no additional clinical facts",
+          "network": "in",
+          "billed_cents": 60000,
+          "confirmed_conditions": [],
+          "insurer": {
+            "allowed_cents": 60000,
+            "deductible_cents": 0,
+            "copay_cents": 0,
+            "coinsurance_cents": 0,
+            "noncovered_cents": 60000,
+            "balance_cents": 0,
+            "insurer_paid_cents": 0,
+            "adjustment_cents": 0
+          }
+        },
+        {
+          "id": "L02",
+          "provider_id": "SYN-P36",
+          "service_date": "2026-06-12",
+          "code": "74177",
+          "description": "SYNTHETIC submitted service 74177; documented actual service code 74177; no additional clinical facts",
+          "network": "in",
+          "billed_cents": 180000,
+          "confirmed_conditions": [],
+          "insurer": {
+            "allowed_cents": 100000,
+            "deductible_cents": 0,
+            "copay_cents": 0,
+            "coinsurance_cents": 0,
+            "noncovered_cents": 0,
+            "balance_cents": 0,
+            "insurer_paid_cents": 100000,
+            "adjustment_cents": 80000
+          }
+        }
+      ]
+    },
+    "bill": {
+      "id": "SYN-I36",
+      "claim_id": "SYN-C36",
+      "member_id": "SYN-M36",
+      "lines": [
+        {
+          "id": "B-L01",
+          "claim_line_id": "L01",
+          "provider_id": "SYN-P36",
+          "service_date": "2026-06-11",
+          "code": "15829",
+          "charged_cents": 60000,
+          "insurance_paid_cents": 0,
+          "adjustment_cents": 0,
+          "patient_paid_cents": 0,
+          "balance_due_cents": 60000
+        },
+        {
+          "id": "B-L02",
+          "claim_line_id": "L02",
+          "provider_id": "SYN-P36",
+          "service_date": "2026-06-12",
+          "code": "74177",
+          "charged_cents": 180000,
+          "insurance_paid_cents": 100000,
+          "adjustment_cents": 80000,
+          "patient_paid_cents": 0,
+          "balance_due_cents": 0
+        }
+      ]
+    },
+    "allowed_evidence": {
+      "L01": {
+        "allowed_cents": 60000,
+        "source": "contract",
+        "reference": "SYNTHETIC signed rate schedule SYN-R36, line L01; protected recognized amount where stipulated"
+      },
+      "L02": {
+        "allowed_cents": 100000,
+        "source": "contract",
+        "reference": "SYNTHETIC signed rate schedule SYN-R36, line L02; protected recognized amount where stipulated"
+      }
+    }
+  },
+  "report": {
+    "validation": [
+      {
+        "severity": "error",
+        "code": "incomplete_network",
+        "path": "policy.networks.in.balance_billing",
+        "message": "Balance-billing terms are unknown; supply independent contract evidence for each affected line."
+      }
+    ],
+    "links": [
+      {
+        "claim_line_id": "L01",
+        "member_id": "SYN-M36",
+        "provider_id": "SYN-P36",
+        "service_date": "2026-06-11",
+        "code": "15829",
+        "claim_id": "SYN-C36",
+        "bill_line_ids": [
+          "B-L01"
+        ]
+      },
+      {
+        "claim_line_id": "L02",
+        "member_id": "SYN-M36",
+        "provider_id": "SYN-P36",
+        "service_date": "2026-06-12",
+        "code": "74177",
+        "claim_id": "SYN-C36",
+        "bill_line_ids": [
+          "B-L02"
+        ]
+      }
+    ],
+    "status": "blocked",
+    "scenarios": [],
+    "comparisons": [],
+    "summary": null,
+    "method": "Deterministic policy evaluation; no LLM is used for arithmetic. All figures are USD cents.",
+    "limitations": [
+      "Individual annual, separate network accumulators; one unit/visit per claim line.",
+      "Allowed amounts must be supplied; rates are not inferred from an SBC.",
+      "Missing-fact endpoints are illustrative, not exhaustive outcomes or guaranteed savings.",
+      "Legal billing protections, family coordination, prior authorization, coding and medical necessity are not evaluated.",
+      "No out-of-network benefit rows were present in the document.",
+      "No dental, vision, pharmacy, or other common service categories were found in the source.",
+      "Balance billing for out-of-network is explicitly permitted; no additional protection is provided.",
+      "No exclusions for other services are compiled beyond the cosmetic exclusion row B1.",
+      "Dropped rule networks.in.balance_billing: missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+      "Dropped rule networks.out.balance_billing: missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained."
+    ],
+    "blocked_reason": "Resolve validation errors before recalculation: incomplete_network"
+  },
+  "provider_attempt_audit": [
+    {
+      "attempt": 1,
+      "proposed_rules": 8,
+      "validated_rules": 6,
+      "validated_quote_spans": 10
+    }
+  ],
+  "provider_request_config": {
+    "response_format": "json_object",
+    "max_tokens_initial": 32768,
+    "max_tokens": 32768,
+    "max_tokens_ceiling": 65536,
+    "thinking": "disabled",
+    "timeout_seconds": 120,
+    "attempt_limit": 1,
+    "transport_attempt_limit": 1,
+    "evidence_spans": "selected original source lines with local offsets; legacy quotes use whitespace-normalized search"
+  },
+  "elapsed_seconds": 9.284,
+  "completed_at_utc": "2026-11-15T11:57:33.816971+00:00"
+}

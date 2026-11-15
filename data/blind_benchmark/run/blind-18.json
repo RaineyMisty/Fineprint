@@ -1,0 +1,355 @@
+{
+  "case_id": "blind-18",
+  "started_at_utc": "2026-11-15T11:56:45.693257+00:00",
+  "compilation": {
+    "output": {
+      "policy": {
+        "id": "SYN-B18",
+        "insurer": "SYNTHETIC Juniper Kite Assurance",
+        "name": "SYN-B18",
+        "member_id": "SYN-M18",
+        "effective_from": "2026-01-01",
+        "effective_to": "2026-12-31",
+        "currency": "USD",
+        "networks": {
+          "in": {
+            "deductible_cents": 100000,
+            "oop_max_cents": 500000,
+            "balance_billing": null,
+            "deductible_clause": "source-1",
+            "oop_clause": "source-1",
+            "network_clause": null
+          },
+          "out": {
+            "deductible_cents": 200000,
+            "oop_max_cents": 1000000,
+            "balance_billing": null,
+            "deductible_clause": "source-2",
+            "oop_clause": "source-2",
+            "network_clause": null
+          }
+        },
+        "benefits": [
+          {
+            "id": "B1",
+            "label": "Office visit (CPT/HCPCS 99213)",
+            "codes": [
+              "99213"
+            ],
+            "network": "in",
+            "covered": true,
+            "deductible_applies": false,
+            "copay_cents": 3000,
+            "coinsurance_bps": 0,
+            "clause_ids": [
+              "source-3"
+            ],
+            "ambiguity_group": ""
+          }
+        ],
+        "clauses": [
+          {
+            "id": "source-1",
+            "text": "IN NETWORK: deductible = $1,000.00; OOP maximum = $5,000.00; balance billing = no.",
+            "location": "Financial reference card"
+          },
+          {
+            "id": "source-2",
+            "text": "OUT OF NETWORK: deductible = $2,000.00; OOP maximum = $10,000.00; balance billing = yes.",
+            "location": "Financial reference card"
+          },
+          {
+            "id": "source-3",
+            "text": "B1: Office visit (CPT/HCPCS 99213), in-network: covered; deductible waived; member copay $30.00; member coinsurance 0%.",
+            "location": "Benefits — amounts are per visit/unit"
+          }
+        ]
+      },
+      "rule_evidence": [
+        {
+          "rule_path": "networks.in.deductible_cents",
+          "evidence": [
+            {
+              "source_document_id": "blind-18/policy.md",
+              "section": "Financial reference card",
+              "quote": "IN NETWORK: deductible = $1,000.00; OOP maximum = $5,000.00; balance billing = no.",
+              "start": 337,
+              "end": 419
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "networks.in.oop_max_cents",
+          "evidence": [
+            {
+              "source_document_id": "blind-18/policy.md",
+              "section": "Financial reference card",
+              "quote": "IN NETWORK: deductible = $1,000.00; OOP maximum = $5,000.00; balance billing = no.",
+              "start": 337,
+              "end": 419
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "networks.out.deductible_cents",
+          "evidence": [
+            {
+              "source_document_id": "blind-18/policy.md",
+              "section": "Financial reference card",
+              "quote": "OUT OF NETWORK: deductible = $2,000.00; OOP maximum = $10,000.00; balance billing = yes.",
+              "start": 420,
+              "end": 508
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "networks.out.oop_max_cents",
+          "evidence": [
+            {
+              "source_document_id": "blind-18/policy.md",
+              "section": "Financial reference card",
+              "quote": "OUT OF NETWORK: deductible = $2,000.00; OOP maximum = $10,000.00; balance billing = yes.",
+              "start": 420,
+              "end": 508
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "benefits.B1",
+          "evidence": [
+            {
+              "source_document_id": "blind-18/policy.md",
+              "section": "Benefits — amounts are per visit/unit",
+              "quote": "B1: Office visit (CPT/HCPCS 99213), in-network: covered; deductible waived; member copay $30.00; member coinsurance 0%.",
+              "start": 1214,
+              "end": 1333
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        }
+      ],
+      "warnings": [
+        "SYNTHETIC DATA: This document is a fictional Summary of Benefits and Coverage for testing purposes.",
+        "Half-up cent rounding is an engine convention, not explicitly stated in the policy.",
+        "Dropped rule networks.in.balance_billing: missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+        "Dropped rule networks.out.balance_billing: missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+        "Retained validated partial output from attempt 1 after 1 attempts; selection used supported-rule count only, never gold answers."
+      ],
+      "unresolved": [],
+      "coverage_gaps": [
+        "No other in-network service benefits are provided in the document.",
+        "No out-of-network service benefits are provided in the document.",
+        "No balance billing term is established for out-of-network services beyond the explicit 'yes' in the financial reference card.",
+        "No in-network deductible waiver for office visit is mentioned in the financial reference card; the benefit row B1 explicitly states 'deductible waived', which is supported by the calculation rules line 11.",
+        "Dropped rule networks.in.balance_billing: missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+        "Dropped rule networks.out.balance_billing: missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained."
+      ]
+    },
+    "backend": "deepseek",
+    "source_document_id": "blind-18/policy.md",
+    "source_sha256": "e3c3a03909bb5bde71a2a37c7c732cff5142d346dc0b708bf286638cf0f6180f",
+    "attempts": 1
+  },
+  "normalized_case": {
+    "schema_version": "1.0",
+    "id": "blind-18",
+    "title": "Coinsurance added to an exclusive copay",
+    "synthetic": true,
+    "policy": {
+      "id": "SYN-B18",
+      "insurer": "SYNTHETIC Juniper Kite Assurance",
+      "name": "SYN-B18",
+      "member_id": "SYN-M18",
+      "effective_from": "2026-01-01",
+      "effective_to": "2026-12-31",
+      "currency": "USD",
+      "networks": {
+        "in": {
+          "deductible_cents": 100000,
+          "oop_max_cents": 500000,
+          "balance_billing": null,
+          "deductible_clause": "source-1",
+          "oop_clause": "source-1",
+          "network_clause": null
+        },
+        "out": {
+          "deductible_cents": 200000,
+          "oop_max_cents": 1000000,
+          "balance_billing": null,
+          "deductible_clause": "source-2",
+          "oop_clause": "source-2",
+          "network_clause": null
+        }
+      },
+      "benefits": [
+        {
+          "id": "B1",
+          "label": "Office visit (CPT/HCPCS 99213)",
+          "codes": [
+            "99213"
+          ],
+          "network": "in",
+          "covered": true,
+          "deductible_applies": false,
+          "copay_cents": 3000,
+          "coinsurance_bps": 0,
+          "clause_ids": [
+            "source-3"
+          ],
+          "ambiguity_group": ""
+        }
+      ],
+      "clauses": [
+        {
+          "id": "source-1",
+          "text": "IN NETWORK: deductible = $1,000.00; OOP maximum = $5,000.00; balance billing = no.",
+          "location": "Financial reference card"
+        },
+        {
+          "id": "source-2",
+          "text": "OUT OF NETWORK: deductible = $2,000.00; OOP maximum = $10,000.00; balance billing = yes.",
+          "location": "Financial reference card"
+        },
+        {
+          "id": "source-3",
+          "text": "B1: Office visit (CPT/HCPCS 99213), in-network: covered; deductible waived; member copay $30.00; member coinsurance 0%.",
+          "location": "Benefits — amounts are per visit/unit"
+        }
+      ]
+    },
+    "claim": {
+      "id": "SYN-C18",
+      "policy_id": "SYN-B18",
+      "member_id": "SYN-M18",
+      "accumulators": {
+        "in": {
+          "deductible_paid_cents": 0,
+          "oop_paid_cents": 0
+        },
+        "out": {
+          "deductible_paid_cents": 0,
+          "oop_paid_cents": 0
+        }
+      },
+      "lines": [
+        {
+          "id": "L01",
+          "provider_id": "SYN-P18",
+          "service_date": "2026-06-11",
+          "code": "99213",
+          "description": "SYNTHETIC submitted service 99213; documented actual service code 99213; no additional clinical facts",
+          "network": "in",
+          "billed_cents": 40000,
+          "confirmed_conditions": [],
+          "insurer": {
+            "allowed_cents": 30000,
+            "deductible_cents": 0,
+            "copay_cents": 3000,
+            "coinsurance_cents": 5400,
+            "noncovered_cents": 0,
+            "balance_cents": 0,
+            "insurer_paid_cents": 21600,
+            "adjustment_cents": 10000
+          }
+        }
+      ]
+    },
+    "bill": {
+      "id": "SYN-I18",
+      "claim_id": "SYN-C18",
+      "member_id": "SYN-M18",
+      "lines": [
+        {
+          "id": "B-L01",
+          "claim_line_id": "L01",
+          "provider_id": "SYN-P18",
+          "service_date": "2026-06-11",
+          "code": "99213",
+          "charged_cents": 40000,
+          "insurance_paid_cents": 21600,
+          "adjustment_cents": 10000,
+          "patient_paid_cents": 0,
+          "balance_due_cents": 8400
+        }
+      ]
+    },
+    "allowed_evidence": {
+      "L01": {
+        "allowed_cents": 30000,
+        "source": "contract",
+        "reference": "SYNTHETIC signed rate schedule SYN-R18, line L01; protected recognized amount where stipulated"
+      }
+    }
+  },
+  "report": {
+    "validation": [
+      {
+        "severity": "error",
+        "code": "incomplete_network",
+        "path": "policy.networks.in.balance_billing",
+        "message": "Balance-billing terms are unknown; supply independent contract evidence for each affected line."
+      }
+    ],
+    "links": [
+      {
+        "claim_line_id": "L01",
+        "member_id": "SYN-M18",
+        "provider_id": "SYN-P18",
+        "service_date": "2026-06-11",
+        "code": "99213",
+        "claim_id": "SYN-C18",
+        "bill_line_ids": [
+          "B-L01"
+        ]
+      }
+    ],
+    "status": "blocked",
+    "scenarios": [],
+    "comparisons": [],
+    "summary": null,
+    "method": "Deterministic policy evaluation; no LLM is used for arithmetic. All figures are USD cents.",
+    "limitations": [
+      "Individual annual, separate network accumulators; one unit/visit per claim line.",
+      "Allowed amounts must be supplied; rates are not inferred from an SBC.",
+      "Missing-fact endpoints are illustrative, not exhaustive outcomes or guaranteed savings.",
+      "Legal billing protections, family coordination, prior authorization, coding and medical necessity are not evaluated.",
+      "No other in-network service benefits are provided in the document.",
+      "No out-of-network service benefits are provided in the document.",
+      "No balance billing term is established for out-of-network services beyond the explicit 'yes' in the financial reference card.",
+      "No in-network deductible waiver for office visit is mentioned in the financial reference card; the benefit row B1 explicitly states 'deductible waived', which is supported by the calculation rules line 11.",
+      "Dropped rule networks.in.balance_billing: missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+      "Dropped rule networks.out.balance_billing: missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained."
+    ],
+    "blocked_reason": "Resolve validation errors before recalculation: incomplete_network"
+  },
+  "provider_attempt_audit": [
+    {
+      "attempt": 1,
+      "proposed_rules": 7,
+      "validated_rules": 5,
+      "validated_quote_spans": 5
+    }
+  ],
+  "provider_request_config": {
+    "response_format": "json_object",
+    "max_tokens_initial": 32768,
+    "max_tokens": 32768,
+    "max_tokens_ceiling": 65536,
+    "thinking": "disabled",
+    "timeout_seconds": 120,
+    "attempt_limit": 1,
+    "transport_attempt_limit": 1,
+    "evidence_spans": "selected original source lines with local offsets; legacy quotes use whitespace-normalized search"
+  },
+  "elapsed_seconds": 7.812,
+  "completed_at_utc": "2026-11-15T11:56:53.505712+00:00"
+}

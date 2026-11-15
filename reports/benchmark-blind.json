@@ -1,0 +1,2099 @@
+{
+  "synthetic": true,
+  "generated_at_utc": "2026-11-15T11:57:44.899646+00:00",
+  "method": {
+    "blinding": "Independent writer read root README and docs/architecture.md only before authoring; no product source, tests, existing benchmark cases or gold. README disclosed prior examples/aggregate results. All 40 expectations were hand-authored and pushed before interface inspection and inference.",
+    "freeze_commit": "79d98f80dda182e76dd8a0dfaf9a21133ac2d7e6",
+    "cases_directory_sha256": "6b170685afb68afa0d64d49b4313b4eb9eba5283ae187759888a16a4dc4c7679",
+    "single_run": "One compiler invocation and at most one DeepSeek HTTP request per case; four concurrent workers; both provider and transport attempt limits one; no fallback, repairs, reruns or tuning. All raw records saved before gold scoring.",
+    "runtime": "Unmodified real pipeline imported from a temporary git archive of the freeze revision to isolate concurrent repo edits. Compiler receives original policy only. Compiled policy is the only policy supplied to the deterministic app analysis.",
+    "input_scope": "Text policy compilation plus mechanical schema normalization of independently supplied EOB, bill, contract allowance and opening accumulators. This does not evaluate PDF/OCR or automatic raw-document extraction.",
+    "fact_limitations": "Narrative clinical/legal/coding facts are retained in claim descriptions and literal confirmation strings. No hand-written benefit corrections, category inference, legal protection override, duplicate removal or semantic mapping of compiled condition labels. Unsupported cases can block or fail; they stay in denominators.",
+    "exact": "Nonconditional answer within 100 cents inclusive, denominator 40; range results are not exact answers. Patient responsibility is pre-payment liability; remaining balance is separately reported.",
+    "range": "Inclusive illustrative scenario extrema, no tolerance; rate denominator is range cases. Also report point/range containment over all 40. Scenario endpoints are not proven exhaustive bounds.",
+    "abstain": "Needs clarification or error / 40. A separate without-confirmed-answer rate includes conditional ranges.",
+    "detection": "Only nonconditional answers yield a binary flag. An explicit per-line total patient difference versus EOB or statement establishes a flag; component reallocations alone do not. Failed positive cases count as FN; failed negatives abstain, not TN. Precision TP/(TP+FP), recall TP/24, FPR FP/16, resolved-negative coverage separately. Null indicates a zero denominator.",
+    "billed_comparison": "List predictions above statement patient-paid-plus-balance, and separately above gross charges. Also retain remaining-balance comparisons. Some gold cases intentionally underbill, so a higher prediction is not automatically incorrect."
+  },
+  "run_metadata": {
+    "synthetic": true,
+    "started_at_utc": "2026-11-15T11:56:15.461604+00:00",
+    "freeze_commit": "79d98f80dda182e76dd8a0dfaf9a21133ac2d7e6",
+    "product_revision": "79d98f80dda182e76dd8a0dfaf9a21133ac2d7e6",
+    "freeze_pushed_before_run": true,
+    "cases_directory_sha256": "6b170685afb68afa0d64d49b4313b4eb9eba5283ae187759888a16a4dc4c7679",
+    "runner_sha256": "3eac962135c8ae6bf211e6c7fce07219d18df7378097ead2f23287e2b97f698b",
+    "product_source_sha256": {
+      "fineprint/__init__.py": "678be908957989b1b6ffc1d6f97fd41b72867270e5fad11abfc08126edaf85a1",
+      "fineprint/adapters.py": "c2fcab63539ccefaf701f96fed54acb0886a853f2e797b4ff44721b46255972b",
+      "fineprint/comparison.py": "62e96e8f8bce1fa75f90fa25e1933d90a617cf7ee6452b10ef7c5a71c7f93768",
+      "fineprint/compilation_receipts.py": "9be780afef314c4c783c3c696d3049be8a037f8d53b1e7417e771b4a86ba263e",
+      "fineprint/compiler.py": "09205eee6bf91900dae310850041927d50358bef647b18ca0dcc19213873f01b",
+      "fineprint/documents_pdf.py": "5ffef3e215b6a4816ce1771c5c0a0e620642acfcd4c6739fcf66d9b33f10d495",
+      "fineprint/engine.py": "0ccd1c04e030fdf727fd2adf9e88461c333dcbefb6af8433f97021e16fc09686",
+      "fineprint/eval.py": "2d17ff49ba6678c642c722682fc20dab57c88a7eaae3aa2a896b173d698026fb",
+      "fineprint/extraction.py": "9123168c279eb6390a50a8cbe5c661722cf1a913d0630759d8386dc03855d45b",
+      "fineprint/models.py": "598d67c60cc9831de0b9b54970fcc96037ab8d5e22ae2df1f3a5f99d42c68653",
+      "fineprint/policy_sections.py": "7c4e71bfd70d9bf67036089c7bd8f2684b15aa36a97f0c3faa2acb73b51b46e1",
+      "fineprint/providers.py": "af7d2033d711dbbaf2822cd6238ddfff4cd118f65ae17789705bb5e4ce998d20",
+      "fineprint/real_sbc.py": "7cdb260fe4df1db17b8ce768e570606d135bb1c8131030555bdd9e09582993f9",
+      "fineprint/repository.py": "a4ecbb8ca15f41440048f5b0d1ecbec0c66ad104125e4b69345a3f047fdc6ec5",
+      "fineprint/server.py": "322bce042945979e7280ad16697e249b984cd868d19047fc06f722233a7612b9",
+      "fineprint/service.py": "e644e1ce22a3ebd9476b83b4c6fe1eec99076e5b5a328a994b1716a890c40ca2",
+      "fineprint/validation.py": "5331af87e9029f8206dea16355ea740a1aefa878f7eba293d67d6e48c81fbbb0"
+    },
+    "runtime_archive_sha256": "44f949e2f02262d779b9c3dfe16b34bafd647132e82c0e06b8a63a885e79d4c8",
+    "provider": "deepseek",
+    "model": "deepseek-v4-pro",
+    "workers": 4,
+    "request_config": {
+      "response_format": "json_object",
+      "max_tokens_initial": 32768,
+      "max_tokens": 32768,
+      "max_tokens_ceiling": 65536,
+      "thinking": "disabled",
+      "timeout_seconds": 120,
+      "attempt_limit": 1,
+      "transport_attempt_limit": 1,
+      "evidence_spans": "selected original source lines with local offsets; legacy quotes use whitespace-normalized search"
+    },
+    "entry_point": "get_compiler('deepseek').compile → case_from_dict → service.analyze(unresolved=...)",
+    "adapter": "Frozen observation fields translated mechanically; narrative facts retained without clinical/legal inference.",
+    "expected_answers_read_during_inference": false,
+    "policy_sent_to_provider": true,
+    "claim_bill_gold_sent_to_provider": false,
+    "case_count": 40
+  },
+  "run_completion": {
+    "completed_at_utc": "2026-11-15T11:57:44.884393+00:00",
+    "case_records": 40,
+    "cases_directory_sha256_after": "6b170685afb68afa0d64d49b4313b4eb9eba5283ae187759888a16a4dc4c7679",
+    "cases_unchanged": true
+  },
+  "metrics": {
+    "case_count": 40,
+    "true_errors": 24,
+    "true_correct": 16,
+    "status_counts": {
+      "answer": 7,
+      "range": 0,
+      "needs clarification": 24,
+      "error": 9
+    },
+    "exact_amount_accuracy_within_one_dollar": 0.15,
+    "exact_amount_correct_cases": 6,
+    "answer_only_exact_accuracy": 0.8571428571428571,
+    "per_line_exact_amount_accuracy": 0.125,
+    "per_line_counts": {
+      "correct": 6,
+      "all": 48,
+      "resolved": 7
+    },
+    "range_contains_truth_rate": null,
+    "range_contains_truth_counts": {
+      "contains": 0,
+      "ranges": 0
+    },
+    "point_or_range_contains_truth_rate_all_cases": 0.15,
+    "abstain_dead_end_rate": 0.825,
+    "without_confirmed_answer_rate": 0.825,
+    "error_detection_precision": 1.0,
+    "error_detection_recall": 0.16666666666666666,
+    "false_positive_rate": 0.0,
+    "error_detection_counts": {
+      "tp": 4,
+      "fp": 0,
+      "fn": 20,
+      "tn": 2,
+      "abstained_positive": 19,
+      "abstained_negative": 14
+    },
+    "resolved_negative_coverage": 0.125,
+    "error_decision_coverage": 0.175,
+    "predicted_above_billed_patient_total": [],
+    "range_upper_above_billed_patient_total": [],
+    "predicted_above_gross_charge": [],
+    "range_upper_above_gross_charge": []
+  },
+  "cases": [
+    {
+      "case_id": "blind-01",
+      "title": "Deductible crossing on an MRI",
+      "status": "answer",
+      "expected_patient_responsibility_cents": 44000,
+      "predicted_patient_responsibility_cents": 44000,
+      "illustrated_min_cents": 44000,
+      "illustrated_max_cents": 44000,
+      "expected_remaining_owed_cents": 44000,
+      "predicted_remaining_owed_cents": 44000,
+      "billed_patient_total_cents": 44000,
+      "billed_remaining_cents": 44000,
+      "gross_charge_cents": 160000,
+      "exact_within_100_cents": true,
+      "interval_contains_truth": true,
+      "flagged_error": false,
+      "true_error": false,
+      "predicted_above_billed_patient_total": false,
+      "range_upper_above_billed_patient_total": false,
+      "predicted_above_gross_charge": false,
+      "range_upper_above_gross_charge": false,
+      "predicted_remaining_above_bill_balance": false,
+      "rationale": "$1,000 - $700 leaves $300 deductible; $300 + 20% of $700 = $440.",
+      "failure": null,
+      "lines": [
+        {
+          "line_id": "L01",
+          "patient_responsibility_cents": 44000,
+          "remaining_owed_cents": 44000,
+          "refund_cents": 0,
+          "predicted_patient_responsibility_cents": 44000,
+          "predicted_remaining_owed_cents": 44000,
+          "exact_within_100_cents": true
+        }
+      ],
+      "elapsed_seconds": 7.994,
+      "attempts": 1,
+      "provider_attempt_audit": [
+        {
+          "attempt": 1,
+          "proposed_rules": 7,
+          "validated_rules": 6,
+          "validated_quote_spans": 8
+        }
+      ],
+      "raw_record": "data/blind_benchmark/run/blind-01.json"
+    },
+    {
+      "case_id": "blind-02",
+      "title": "Primary care with a deductible waiver",
+      "status": "needs clarification",
+      "expected_patient_responsibility_cents": 3500,
+      "predicted_patient_responsibility_cents": null,
+      "illustrated_min_cents": null,
+      "illustrated_max_cents": null,
+      "expected_remaining_owed_cents": 3500,
+      "predicted_remaining_owed_cents": null,
+      "billed_patient_total_cents": 3500,
+      "billed_remaining_cents": 3500,
+      "gross_charge_cents": 21000,
+      "exact_within_100_cents": false,
+      "interval_contains_truth": null,
+      "flagged_error": null,
+      "true_error": false,
+      "predicted_above_billed_patient_total": false,
+      "range_upper_above_billed_patient_total": false,
+      "predicted_above_gross_charge": false,
+      "range_upper_above_gross_charge": false,
+      "predicted_remaining_above_bill_balance": false,
+      "rationale": "The $35 copay replaces all other cost sharing for this visit.",
+      "failure": "Resolve validation errors before recalculation: incomplete_network",
+      "lines": [
+        {
+          "line_id": "L01",
+          "patient_responsibility_cents": 3500,
+          "remaining_owed_cents": 3500,
+          "refund_cents": 0,
+          "predicted_patient_responsibility_cents": null,
+          "predicted_remaining_owed_cents": null,
+          "exact_within_100_cents": false
+        }
+      ],
+      "elapsed_seconds": 6.871,
+      "attempts": 1,
+      "provider_attempt_audit": [
+        {
+          "attempt": 1,
+          "proposed_rules": 7,
+          "validated_rules": 5,
+          "validated_quote_spans": 6
+        }
+      ],
+      "raw_record": "data/blind_benchmark/run/blind-02.json"
+    },
+    {
+      "case_id": "blind-03",
+      "title": "Routine preventive screening",
+      "status": "needs clarification",
+      "expected_patient_responsibility_cents": 0,
+      "predicted_patient_responsibility_cents": null,
+      "illustrated_min_cents": null,
+      "illustrated_max_cents": null,
+      "expected_remaining_owed_cents": 0,
+      "predicted_remaining_owed_cents": null,
+      "billed_patient_total_cents": 0,
+      "billed_remaining_cents": 0,
+      "gross_charge_cents": 60000,
+      "exact_within_100_cents": false,
+      "interval_contains_truth": null,
+      "flagged_error": null,
+      "true_error": false,
+      "predicted_above_billed_patient_total": false,
+      "range_upper_above_billed_patient_total": false,
+      "predicted_above_gross_charge": false,
+      "range_upper_above_gross_charge": false,
+      "predicted_remaining_above_bill_balance": false,
+      "rationale": "The stipulated screening is preventive, in network, and covered without cost sharing.",
+      "failure": "Resolve validation errors before recalculation: incomplete_network",
+      "lines": [
+        {
+          "line_id": "L01",
+          "patient_responsibility_cents": 0,
+          "remaining_owed_cents": 0,
+          "refund_cents": 0,
+          "predicted_patient_responsibility_cents": null,
+          "predicted_remaining_owed_cents": null,
+          "exact_within_100_cents": false
+        }
+      ],
+      "elapsed_seconds": 7.977,
+      "attempts": 1,
+      "provider_attempt_audit": [
+        {
+          "attempt": 1,
+          "proposed_rules": 7,
+          "validated_rules": 5,
+          "validated_quote_spans": 6
+        }
+      ],
+      "raw_record": "data/blind_benchmark/run/blind-03.json"
+    },
+    {
+      "case_id": "blind-04",
+      "title": "Last dollars before the out-of-pocket ceiling",
+      "status": "needs clarification",
+      "expected_patient_responsibility_cents": 7500,
+      "predicted_patient_responsibility_cents": null,
+      "illustrated_min_cents": null,
+      "illustrated_max_cents": null,
+      "expected_remaining_owed_cents": 7500,
+      "predicted_remaining_owed_cents": null,
+      "billed_patient_total_cents": 7500,
+      "billed_remaining_cents": 7500,
+      "gross_charge_cents": 220000,
+      "exact_within_100_cents": false,
+      "interval_contains_truth": null,
+      "flagged_error": null,
+      "true_error": false,
+      "predicted_above_billed_patient_total": false,
+      "range_upper_above_billed_patient_total": false,
+      "predicted_above_gross_charge": false,
+      "range_upper_above_gross_charge": false,
+      "predicted_remaining_above_bill_balance": false,
+      "rationale": "$5,000 - $4,925 = $75 remaining OOP; nominal $200 sharing is capped at $75.",
+      "failure": "Resolve validation errors before recalculation: incomplete_network",
+      "lines": [
+        {
+          "line_id": "L01",
+          "patient_responsibility_cents": 7500,
+          "remaining_owed_cents": 7500,
+          "refund_cents": 0,
+          "predicted_patient_responsibility_cents": null,
+          "predicted_remaining_owed_cents": null,
+          "exact_within_100_cents": false
+        }
+      ],
+      "elapsed_seconds": 7.667,
+      "attempts": 1,
+      "provider_attempt_audit": [
+        {
+          "attempt": 1,
+          "proposed_rules": 7,
+          "validated_rules": 5,
+          "validated_quote_spans": 6
+        }
+      ],
+      "raw_record": "data/blind_benchmark/run/blind-04.json"
+    },
+    {
+      "case_id": "blind-05",
+      "title": "Permitted out-of-network excess",
+      "status": "error",
+      "expected_patient_responsibility_cents": 120000,
+      "predicted_patient_responsibility_cents": null,
+      "illustrated_min_cents": null,
+      "illustrated_max_cents": null,
+      "expected_remaining_owed_cents": 120000,
+      "predicted_remaining_owed_cents": null,
+      "billed_patient_total_cents": 120000,
+      "billed_remaining_cents": 120000,
+      "gross_charge_cents": 150000,
+      "exact_within_100_cents": false,
+      "interval_contains_truth": null,
+      "flagged_error": null,
+      "true_error": false,
+      "predicted_above_billed_patient_total": false,
+      "range_upper_above_billed_patient_total": false,
+      "predicted_above_gross_charge": false,
+      "range_upper_above_gross_charge": false,
+      "predicted_remaining_above_bill_balance": false,
+      "rationale": "$500 deductible + 40% of $500 + $500 permitted excess = $1,200.",
+      "failure": {
+        "phase": "compile",
+        "type": "ProviderError",
+        "message": "deepseek compilation failed after 1 attempts: output.policy.name: expected string. No fallback was substituted."
+      },
+      "lines": [
+        {
+          "line_id": "L01",
+          "patient_responsibility_cents": 120000,
+          "remaining_owed_cents": 120000,
+          "refund_cents": 0,
+          "predicted_patient_responsibility_cents": null,
+          "predicted_remaining_owed_cents": null,
+          "exact_within_100_cents": false
+        }
+      ],
+      "elapsed_seconds": 6.836,
+      "attempts": null,
+      "provider_attempt_audit": [
+        {
+          "attempt": 1,
+          "proposed_rules": 7,
+          "error": "output.policy.name: expected string"
+        }
+      ],
+      "raw_record": "data/blind_benchmark/run/blind-05.json"
+    },
+    {
+      "case_id": "blind-06",
+      "title": "Explicit cosmetic exclusion",
+      "status": "needs clarification",
+      "expected_patient_responsibility_cents": 80000,
+      "predicted_patient_responsibility_cents": null,
+      "illustrated_min_cents": null,
+      "illustrated_max_cents": null,
+      "expected_remaining_owed_cents": 80000,
+      "predicted_remaining_owed_cents": null,
+      "billed_patient_total_cents": 80000,
+      "billed_remaining_cents": 80000,
+      "gross_charge_cents": 80000,
+      "exact_within_100_cents": false,
+      "interval_contains_truth": null,
+      "flagged_error": null,
+      "true_error": false,
+      "predicted_above_billed_patient_total": false,
+      "range_upper_above_billed_patient_total": false,
+      "predicted_above_gross_charge": false,
+      "range_upper_above_gross_charge": false,
+      "predicted_remaining_above_bill_balance": false,
+      "rationale": "This explicitly excluded service is the patient's full $800 charge; it does not accrue to OOP.",
+      "failure": "Resolve validation errors before recalculation: incomplete_network",
+      "lines": [
+        {
+          "line_id": "L01",
+          "patient_responsibility_cents": 80000,
+          "remaining_owed_cents": 80000,
+          "refund_cents": 0,
+          "predicted_patient_responsibility_cents": null,
+          "predicted_remaining_owed_cents": null,
+          "exact_within_100_cents": false
+        }
+      ],
+      "elapsed_seconds": 7.074,
+      "attempts": 1,
+      "provider_attempt_audit": [
+        {
+          "attempt": 1,
+          "proposed_rules": 7,
+          "validated_rules": 5,
+          "validated_quote_spans": 6
+        }
+      ],
+      "raw_record": "data/blind_benchmark/run/blind-06.json"
+    },
+    {
+      "case_id": "blind-07",
+      "title": "Two dates share one remaining deductible",
+      "status": "needs clarification",
+      "expected_patient_responsibility_cents": 38000,
+      "predicted_patient_responsibility_cents": null,
+      "illustrated_min_cents": null,
+      "illustrated_max_cents": null,
+      "expected_remaining_owed_cents": 38000,
+      "predicted_remaining_owed_cents": null,
+      "billed_patient_total_cents": 38000,
+      "billed_remaining_cents": 38000,
+      "gross_charge_cents": 250000,
+      "exact_within_100_cents": false,
+      "interval_contains_truth": null,
+      "flagged_error": null,
+      "true_error": false,
+      "predicted_above_billed_patient_total": false,
+      "range_upper_above_billed_patient_total": false,
+      "predicted_above_gross_charge": false,
+      "range_upper_above_gross_charge": false,
+      "predicted_remaining_above_bill_balance": false,
+      "rationale": "First line uses $100 remaining deductible and $180 coinsurance; the next uses $100 coinsurance. Total $380.",
+      "failure": "Resolve validation errors before recalculation: incomplete_network",
+      "lines": [
+        {
+          "line_id": "L01",
+          "patient_responsibility_cents": 28000,
+          "remaining_owed_cents": 28000,
+          "refund_cents": 0,
+          "predicted_patient_responsibility_cents": null,
+          "predicted_remaining_owed_cents": null,
+          "exact_within_100_cents": false
+        },
+        {
+          "line_id": "L02",
+          "patient_responsibility_cents": 10000,
+          "remaining_owed_cents": 10000,
+          "refund_cents": 0,
+          "predicted_patient_responsibility_cents": null,
+          "predicted_remaining_owed_cents": null,
+          "exact_within_100_cents": false
+        }
+      ],
+      "elapsed_seconds": 10.169,
+      "attempts": 1,
+      "provider_attempt_audit": [
+        {
+          "attempt": 1,
+          "proposed_rules": 8,
+          "validated_rules": 6,
+          "validated_quote_spans": 8
+        }
+      ],
+      "raw_record": "data/blind_benchmark/run/blind-07.json"
+    },
+    {
+      "case_id": "blind-08",
+      "title": "Two distinct office visits",
+      "status": "needs clarification",
+      "expected_patient_responsibility_cents": 5000,
+      "predicted_patient_responsibility_cents": null,
+      "illustrated_min_cents": null,
+      "illustrated_max_cents": null,
+      "expected_remaining_owed_cents": 5000,
+      "predicted_remaining_owed_cents": null,
+      "billed_patient_total_cents": 5000,
+      "billed_remaining_cents": 5000,
+      "gross_charge_cents": 28000,
+      "exact_within_100_cents": false,
+      "interval_contains_truth": null,
+      "flagged_error": null,
+      "true_error": false,
+      "predicted_above_billed_patient_total": false,
+      "range_upper_above_billed_patient_total": false,
+      "predicted_above_gross_charge": false,
+      "range_upper_above_gross_charge": false,
+      "predicted_remaining_above_bill_balance": false,
+      "rationale": "These are separate documented visits on separate dates: two $25 copays, total $50.",
+      "failure": "Resolve validation errors before recalculation: incomplete_network",
+      "lines": [
+        {
+          "line_id": "L01",
+          "patient_responsibility_cents": 2500,
+          "remaining_owed_cents": 2500,
+          "refund_cents": 0,
+          "predicted_patient_responsibility_cents": null,
+          "predicted_remaining_owed_cents": null,
+          "exact_within_100_cents": false
+        },
+        {
+          "line_id": "L02",
+          "patient_responsibility_cents": 2500,
+          "remaining_owed_cents": 2500,
+          "refund_cents": 0,
+          "predicted_patient_responsibility_cents": null,
+          "predicted_remaining_owed_cents": null,
+          "exact_within_100_cents": false
+        }
+      ],
+      "elapsed_seconds": 7.991,
+      "attempts": 1,
+      "provider_attempt_audit": [
+        {
+          "attempt": 1,
+          "proposed_rules": 7,
+          "validated_rules": 5,
+          "validated_quote_spans": 10
+        }
+      ],
+      "raw_record": "data/blind_benchmark/run/blind-08.json"
+    },
+    {
+      "case_id": "blind-09",
+      "title": "Payment already credited correctly",
+      "status": "answer",
+      "expected_patient_responsibility_cents": 4000,
+      "predicted_patient_responsibility_cents": 4000,
+      "illustrated_min_cents": 4000,
+      "illustrated_max_cents": 4000,
+      "expected_remaining_owed_cents": 2500,
+      "predicted_remaining_owed_cents": 2500,
+      "billed_patient_total_cents": 4000,
+      "billed_remaining_cents": 2500,
+      "gross_charge_cents": 30000,
+      "exact_within_100_cents": true,
+      "interval_contains_truth": true,
+      "flagged_error": false,
+      "true_error": false,
+      "predicted_above_billed_patient_total": false,
+      "range_upper_above_billed_patient_total": false,
+      "predicted_above_gross_charge": false,
+      "range_upper_above_gross_charge": false,
+      "predicted_remaining_above_bill_balance": false,
+      "rationale": "Liability is $40. The $15 receipt leaves $25 still owed.",
+      "failure": null,
+      "lines": [
+        {
+          "line_id": "L01",
+          "patient_responsibility_cents": 4000,
+          "remaining_owed_cents": 2500,
+          "refund_cents": 0,
+          "predicted_patient_responsibility_cents": 4000,
+          "predicted_remaining_owed_cents": 2500,
+          "exact_within_100_cents": true
+        }
+      ],
+      "elapsed_seconds": 7.562,
+      "attempts": 1,
+      "provider_attempt_audit": [
+        {
+          "attempt": 1,
+          "proposed_rules": 7,
+          "validated_rules": 6,
+          "validated_quote_spans": 7
+        }
+      ],
+      "raw_record": "data/blind_benchmark/run/blind-09.json"
+    },
+    {
+      "case_id": "blind-10",
+      "title": "Entire small allowance falls under deductible",
+      "status": "needs clarification",
+      "expected_patient_responsibility_cents": 15000,
+      "predicted_patient_responsibility_cents": null,
+      "illustrated_min_cents": null,
+      "illustrated_max_cents": null,
+      "expected_remaining_owed_cents": 15000,
+      "predicted_remaining_owed_cents": null,
+      "billed_patient_total_cents": 15000,
+      "billed_remaining_cents": 15000,
+      "gross_charge_cents": 42000,
+      "exact_within_100_cents": false,
+      "interval_contains_truth": null,
+      "flagged_error": null,
+      "true_error": false,
+      "predicted_above_billed_patient_total": false,
+      "range_upper_above_billed_patient_total": false,
+      "predicted_above_gross_charge": false,
+      "range_upper_above_gross_charge": false,
+      "predicted_remaining_above_bill_balance": false,
+      "rationale": "The $150 allowance is smaller than the $1,000 unmet deductible, so responsibility is $150.",
+      "failure": "Resolve validation errors before recalculation: incomplete_network",
+      "lines": [
+        {
+          "line_id": "L01",
+          "patient_responsibility_cents": 15000,
+          "remaining_owed_cents": 15000,
+          "refund_cents": 0,
+          "predicted_patient_responsibility_cents": null,
+          "predicted_remaining_owed_cents": null,
+          "exact_within_100_cents": false
+        }
+      ],
+      "elapsed_seconds": 6.957,
+      "attempts": 1,
+      "provider_attempt_audit": [
+        {
+          "attempt": 1,
+          "proposed_rules": 7,
+          "validated_rules": 5,
+          "validated_quote_spans": 11
+        }
+      ],
+      "raw_record": "data/blind_benchmark/run/blind-10.json"
+    },
+    {
+      "case_id": "blind-11",
+      "title": "Exclusion survives a satisfied OOP maximum",
+      "status": "needs clarification",
+      "expected_patient_responsibility_cents": 120000,
+      "predicted_patient_responsibility_cents": null,
+      "illustrated_min_cents": null,
+      "illustrated_max_cents": null,
+      "expected_remaining_owed_cents": 120000,
+      "predicted_remaining_owed_cents": null,
+      "billed_patient_total_cents": 120000,
+      "billed_remaining_cents": 120000,
+      "gross_charge_cents": 150000,
+      "exact_within_100_cents": false,
+      "interval_contains_truth": null,
+      "flagged_error": null,
+      "true_error": false,
+      "predicted_above_billed_patient_total": false,
+      "range_upper_above_billed_patient_total": false,
+      "predicted_above_gross_charge": false,
+      "range_upper_above_gross_charge": false,
+      "predicted_remaining_above_bill_balance": false,
+      "rationale": "Covered sharing is $0 because OOP is met; the $1,200 cosmetic exclusion stays outside the cap.",
+      "failure": "Resolve validation errors before recalculation: incomplete_network",
+      "lines": [
+        {
+          "line_id": "L01",
+          "patient_responsibility_cents": 120000,
+          "remaining_owed_cents": 120000,
+          "refund_cents": 0,
+          "predicted_patient_responsibility_cents": null,
+          "predicted_remaining_owed_cents": null,
+          "exact_within_100_cents": false
+        },
+        {
+          "line_id": "L02",
+          "patient_responsibility_cents": 0,
+          "remaining_owed_cents": 0,
+          "refund_cents": 0,
+          "predicted_patient_responsibility_cents": null,
+          "predicted_remaining_owed_cents": null,
+          "exact_within_100_cents": false
+        }
+      ],
+      "elapsed_seconds": 8.262,
+      "attempts": 1,
+      "provider_attempt_audit": [
+        {
+          "attempt": 1,
+          "proposed_rules": 8,
+          "validated_rules": 6,
+          "validated_quote_spans": 8
+        }
+      ],
+      "raw_record": "data/blind_benchmark/run/blind-11.json"
+    },
+    {
+      "case_id": "blind-12",
+      "title": "Half-up cents on a 15 percent benefit",
+      "status": "needs clarification",
+      "expected_patient_responsibility_cents": 5000,
+      "predicted_patient_responsibility_cents": null,
+      "illustrated_min_cents": null,
+      "illustrated_max_cents": null,
+      "expected_remaining_owed_cents": 5000,
+      "predicted_remaining_owed_cents": null,
+      "billed_patient_total_cents": 5000,
+      "billed_remaining_cents": 5000,
+      "gross_charge_cents": 60000,
+      "exact_within_100_cents": false,
+      "interval_contains_truth": null,
+      "flagged_error": null,
+      "true_error": false,
+      "predicted_above_billed_patient_total": false,
+      "range_upper_above_billed_patient_total": false,
+      "predicted_above_gross_charge": false,
+      "range_upper_above_gross_charge": false,
+      "predicted_remaining_above_bill_balance": false,
+      "rationale": "$333.33 times 15% = $49.9995, rounded half up to $50.00.",
+      "failure": "Resolve validation errors before recalculation: incomplete_network",
+      "lines": [
+        {
+          "line_id": "L01",
+          "patient_responsibility_cents": 5000,
+          "remaining_owed_cents": 5000,
+          "refund_cents": 0,
+          "predicted_patient_responsibility_cents": null,
+          "predicted_remaining_owed_cents": null,
+          "exact_within_100_cents": false
+        }
+      ],
+      "elapsed_seconds": 7.403,
+      "attempts": 1,
+      "provider_attempt_audit": [
+        {
+          "attempt": 1,
+          "proposed_rules": 7,
+          "validated_rules": 5,
+          "validated_quote_spans": 6
+        }
+      ],
+      "raw_record": "data/blind_benchmark/run/blind-12.json"
+    },
+    {
+      "case_id": "blind-13",
+      "title": "Copay precedes coinsurance",
+      "status": "error",
+      "expected_patient_responsibility_cents": 5600,
+      "predicted_patient_responsibility_cents": null,
+      "illustrated_min_cents": null,
+      "illustrated_max_cents": null,
+      "expected_remaining_owed_cents": 5600,
+      "predicted_remaining_owed_cents": null,
+      "billed_patient_total_cents": 5600,
+      "billed_remaining_cents": 5600,
+      "gross_charge_cents": 36000,
+      "exact_within_100_cents": false,
+      "interval_contains_truth": null,
+      "flagged_error": null,
+      "true_error": false,
+      "predicted_above_billed_patient_total": false,
+      "range_upper_above_billed_patient_total": false,
+      "predicted_above_gross_charge": false,
+      "range_upper_above_gross_charge": false,
+      "predicted_remaining_above_bill_balance": false,
+      "rationale": "$20 copay plus 20% of the remaining $180 = $56.",
+      "failure": {
+        "phase": "compile",
+        "type": "ProviderError",
+        "message": "deepseek compilation failed after 1 attempts: output.policy.name: expected string. No fallback was substituted."
+      },
+      "lines": [
+        {
+          "line_id": "L01",
+          "patient_responsibility_cents": 5600,
+          "remaining_owed_cents": 5600,
+          "refund_cents": 0,
+          "predicted_patient_responsibility_cents": null,
+          "predicted_remaining_owed_cents": null,
+          "exact_within_100_cents": false
+        }
+      ],
+      "elapsed_seconds": 7.468,
+      "attempts": null,
+      "provider_attempt_audit": [
+        {
+          "attempt": 1,
+          "proposed_rules": 7,
+          "error": "output.policy.name: expected string"
+        }
+      ],
+      "raw_record": "data/blind_benchmark/run/blind-13.json"
+    },
+    {
+      "case_id": "blind-14",
+      "title": "Out-of-network contract prohibits excess",
+      "status": "error",
+      "expected_patient_responsibility_cents": 20000,
+      "predicted_patient_responsibility_cents": null,
+      "illustrated_min_cents": null,
+      "illustrated_max_cents": null,
+      "expected_remaining_owed_cents": 20000,
+      "predicted_remaining_owed_cents": null,
+      "billed_patient_total_cents": 20000,
+      "billed_remaining_cents": 20000,
+      "gross_charge_cents": 90000,
+      "exact_within_100_cents": false,
+      "interval_contains_truth": null,
+      "flagged_error": null,
+      "true_error": false,
+      "predicted_above_billed_patient_total": false,
+      "range_upper_above_billed_patient_total": false,
+      "predicted_above_gross_charge": false,
+      "range_upper_above_gross_charge": false,
+      "predicted_remaining_above_bill_balance": false,
+      "rationale": "50% of the $400 allowance is $200; this contract expressly prohibits the $500 excess.",
+      "failure": {
+        "phase": "compile",
+        "type": "ProviderError",
+        "message": "deepseek compilation failed after 1 attempts: output.policy.name: expected string. No fallback was substituted."
+      },
+      "lines": [
+        {
+          "line_id": "L01",
+          "patient_responsibility_cents": 20000,
+          "remaining_owed_cents": 20000,
+          "refund_cents": 0,
+          "predicted_patient_responsibility_cents": null,
+          "predicted_remaining_owed_cents": null,
+          "exact_within_100_cents": false
+        }
+      ],
+      "elapsed_seconds": 8.514,
+      "attempts": null,
+      "provider_attempt_audit": [
+        {
+          "attempt": 1,
+          "proposed_rules": 7,
+          "error": "output.policy.name: expected string"
+        }
+      ],
+      "raw_record": "data/blind_benchmark/run/blind-14.json"
+    },
+    {
+      "case_id": "blind-15",
+      "title": "Sequential lines consume the last OOP dollars",
+      "status": "error",
+      "expected_patient_responsibility_cents": 9000,
+      "predicted_patient_responsibility_cents": null,
+      "illustrated_min_cents": null,
+      "illustrated_max_cents": null,
+      "expected_remaining_owed_cents": 9000,
+      "predicted_remaining_owed_cents": null,
+      "billed_patient_total_cents": 9000,
+      "billed_remaining_cents": 9000,
+      "gross_charge_cents": 90000,
+      "exact_within_100_cents": false,
+      "interval_contains_truth": null,
+      "flagged_error": null,
+      "true_error": false,
+      "predicted_above_billed_patient_total": false,
+      "range_upper_above_billed_patient_total": false,
+      "predicted_above_gross_charge": false,
+      "range_upper_above_gross_charge": false,
+      "predicted_remaining_above_bill_balance": false,
+      "rationale": "$90 OOP remains: first line owes $80; second owes only the last $10, for $90 total.",
+      "failure": {
+        "phase": "compile",
+        "type": "ProviderError",
+        "message": "deepseek compilation failed after 1 attempts: output.policy.name: text must not be empty. No fallback was substituted."
+      },
+      "lines": [
+        {
+          "line_id": "L01",
+          "patient_responsibility_cents": 8000,
+          "remaining_owed_cents": 8000,
+          "refund_cents": 0,
+          "predicted_patient_responsibility_cents": null,
+          "predicted_remaining_owed_cents": null,
+          "exact_within_100_cents": false
+        },
+        {
+          "line_id": "L02",
+          "patient_responsibility_cents": 1000,
+          "remaining_owed_cents": 1000,
+          "refund_cents": 0,
+          "predicted_patient_responsibility_cents": null,
+          "predicted_remaining_owed_cents": null,
+          "exact_within_100_cents": false
+        }
+      ],
+      "elapsed_seconds": 11.073,
+      "attempts": null,
+      "provider_attempt_audit": [
+        {
+          "attempt": 1,
+          "proposed_rules": 8,
+          "error": "output.policy.name: text must not be empty"
+        }
+      ],
+      "raw_record": "data/blind_benchmark/run/blind-15.json"
+    },
+    {
+      "case_id": "blind-16",
+      "title": "Authorized advanced imaging",
+      "status": "needs clarification",
+      "expected_patient_responsibility_cents": 12000,
+      "predicted_patient_responsibility_cents": null,
+      "illustrated_min_cents": null,
+      "illustrated_max_cents": null,
+      "expected_remaining_owed_cents": 12000,
+      "predicted_remaining_owed_cents": null,
+      "billed_patient_total_cents": 12000,
+      "billed_remaining_cents": 12000,
+      "gross_charge_cents": 140000,
+      "exact_within_100_cents": false,
+      "interval_contains_truth": null,
+      "flagged_error": null,
+      "true_error": false,
+      "predicted_above_billed_patient_total": false,
+      "range_upper_above_billed_patient_total": false,
+      "predicted_above_gross_charge": false,
+      "range_upper_above_gross_charge": false,
+      "predicted_remaining_above_bill_balance": false,
+      "rationale": "Authorization is documented. 20% of $600 is $120.",
+      "failure": "Resolve validation errors before recalculation: incomplete_network; missing_rule",
+      "lines": [
+        {
+          "line_id": "L01",
+          "patient_responsibility_cents": 12000,
+          "remaining_owed_cents": 12000,
+          "refund_cents": 0,
+          "predicted_patient_responsibility_cents": null,
+          "predicted_remaining_owed_cents": null,
+          "exact_within_100_cents": false
+        }
+      ],
+      "elapsed_seconds": 7.255,
+      "attempts": 1,
+      "provider_attempt_audit": [
+        {
+          "attempt": 1,
+          "proposed_rules": 7,
+          "validated_rules": 5,
+          "validated_quote_spans": 11
+        }
+      ],
+      "raw_record": "data/blind_benchmark/run/blind-16.json"
+    },
+    {
+      "case_id": "blind-17",
+      "title": "Deductible charged a second time",
+      "status": "answer",
+      "expected_patient_responsibility_cents": 36000,
+      "predicted_patient_responsibility_cents": 36000,
+      "illustrated_min_cents": 36000,
+      "illustrated_max_cents": 36000,
+      "expected_remaining_owed_cents": 36000,
+      "predicted_remaining_owed_cents": 36000,
+      "billed_patient_total_cents": 44000,
+      "billed_remaining_cents": 44000,
+      "gross_charge_cents": 160000,
+      "exact_within_100_cents": true,
+      "interval_contains_truth": true,
+      "flagged_error": true,
+      "true_error": true,
+      "predicted_above_billed_patient_total": false,
+      "range_upper_above_billed_patient_total": false,
+      "predicted_above_gross_charge": false,
+      "range_upper_above_gross_charge": false,
+      "predicted_remaining_above_bill_balance": false,
+      "rationale": "Only $200 deductible remains: $200 + 20% of $800 = $360, not $440.",
+      "failure": null,
+      "lines": [
+        {
+          "line_id": "L01",
+          "patient_responsibility_cents": 36000,
+          "remaining_owed_cents": 36000,
+          "refund_cents": 0,
+          "predicted_patient_responsibility_cents": 36000,
+          "predicted_remaining_owed_cents": 36000,
+          "exact_within_100_cents": true
+        }
+      ],
+      "elapsed_seconds": 7.345,
+      "attempts": 1,
+      "provider_attempt_audit": [
+        {
+          "attempt": 1,
+          "proposed_rules": 7,
+          "validated_rules": 6,
+          "validated_quote_spans": 9
+        }
+      ],
+      "raw_record": "data/blind_benchmark/run/blind-17.json"
+    },
+    {
+      "case_id": "blind-18",
+      "title": "Coinsurance added to an exclusive copay",
+      "status": "needs clarification",
+      "expected_patient_responsibility_cents": 3000,
+      "predicted_patient_responsibility_cents": null,
+      "illustrated_min_cents": null,
+      "illustrated_max_cents": null,
+      "expected_remaining_owed_cents": 3000,
+      "predicted_remaining_owed_cents": null,
+      "billed_patient_total_cents": 8400,
+      "billed_remaining_cents": 8400,
+      "gross_charge_cents": 40000,
+      "exact_within_100_cents": false,
+      "interval_contains_truth": null,
+      "flagged_error": null,
+      "true_error": true,
+      "predicted_above_billed_patient_total": false,
+      "range_upper_above_billed_patient_total": false,
+      "predicted_above_gross_charge": false,
+      "range_upper_above_gross_charge": false,
+      "predicted_remaining_above_bill_balance": false,
+      "rationale": "The visit owes only $30; adding 20% of $270 invents $54 of liability.",
+      "failure": "Resolve validation errors before recalculation: incomplete_network",
+      "lines": [
+        {
+          "line_id": "L01",
+          "patient_responsibility_cents": 3000,
+          "remaining_owed_cents": 3000,
+          "refund_cents": 0,
+          "predicted_patient_responsibility_cents": null,
+          "predicted_remaining_owed_cents": null,
+          "exact_within_100_cents": false
+        }
+      ],
+      "elapsed_seconds": 7.812,
+      "attempts": 1,
+      "provider_attempt_audit": [
+        {
+          "attempt": 1,
+          "proposed_rules": 7,
+          "validated_rules": 5,
+          "validated_quote_spans": 5
+        }
+      ],
+      "raw_record": "data/blind_benchmark/run/blind-18.json"
+    },
+    {
+      "case_id": "blind-19",
+      "title": "Preventive mammogram treated as diagnostic",
+      "status": "needs clarification",
+      "expected_patient_responsibility_cents": 0,
+      "predicted_patient_responsibility_cents": null,
+      "illustrated_min_cents": null,
+      "illustrated_max_cents": null,
+      "expected_remaining_owed_cents": 0,
+      "predicted_remaining_owed_cents": null,
+      "billed_patient_total_cents": 10000,
+      "billed_remaining_cents": 10000,
+      "gross_charge_cents": 70000,
+      "exact_within_100_cents": false,
+      "interval_contains_truth": null,
+      "flagged_error": null,
+      "true_error": true,
+      "predicted_above_billed_patient_total": false,
+      "range_upper_above_billed_patient_total": false,
+      "predicted_above_gross_charge": false,
+      "range_upper_above_gross_charge": false,
+      "predicted_remaining_above_bill_balance": false,
+      "rationale": "The documented routine preventive service has zero patient sharing, not $100.",
+      "failure": "Resolve validation errors before recalculation: incomplete_network",
+      "lines": [
+        {
+          "line_id": "L01",
+          "patient_responsibility_cents": 0,
+          "remaining_owed_cents": 0,
+          "refund_cents": 0,
+          "predicted_patient_responsibility_cents": null,
+          "predicted_remaining_owed_cents": null,
+          "exact_within_100_cents": false
+        }
+      ],
+      "elapsed_seconds": 9.435,
+      "attempts": 1,
+      "provider_attempt_audit": [
+        {
+          "attempt": 1,
+          "proposed_rules": 7,
+          "validated_rules": 5,
+          "validated_quote_spans": 7
+        }
+      ],
+      "raw_record": "data/blind_benchmark/run/blind-19.json"
+    },
+    {
+      "case_id": "blind-20",
+      "title": "OOP ceiling ignored",
+      "status": "needs clarification",
+      "expected_patient_responsibility_cents": 2000,
+      "predicted_patient_responsibility_cents": null,
+      "illustrated_min_cents": null,
+      "illustrated_max_cents": null,
+      "expected_remaining_owed_cents": 2000,
+      "predicted_remaining_owed_cents": null,
+      "billed_patient_total_cents": 20000,
+      "billed_remaining_cents": 20000,
+      "gross_charge_cents": 180000,
+      "exact_within_100_cents": false,
+      "interval_contains_truth": null,
+      "flagged_error": null,
+      "true_error": true,
+      "predicted_above_billed_patient_total": false,
+      "range_upper_above_billed_patient_total": false,
+      "predicted_above_gross_charge": false,
+      "range_upper_above_gross_charge": false,
+      "predicted_remaining_above_bill_balance": false,
+      "rationale": "Only $20 remains under the $5,000 maximum, so nominal $200 is capped at $20.",
+      "failure": "Resolve validation errors before recalculation: incomplete_network",
+      "lines": [
+        {
+          "line_id": "L01",
+          "patient_responsibility_cents": 2000,
+          "remaining_owed_cents": 2000,
+          "refund_cents": 0,
+          "predicted_patient_responsibility_cents": null,
+          "predicted_remaining_owed_cents": null,
+          "exact_within_100_cents": false
+        }
+      ],
+      "elapsed_seconds": 6.668,
+      "attempts": 1,
+      "provider_attempt_audit": [
+        {
+          "attempt": 1,
+          "proposed_rules": 7,
+          "validated_rules": 5,
+          "validated_quote_spans": 6
+        }
+      ],
+      "raw_record": "data/blind_benchmark/run/blind-20.json"
+    },
+    {
+      "case_id": "blind-21",
+      "title": "Verified participating provider assigned wrong tier",
+      "status": "answer",
+      "expected_patient_responsibility_cents": 8000,
+      "predicted_patient_responsibility_cents": 8000,
+      "illustrated_min_cents": 8000,
+      "illustrated_max_cents": 8000,
+      "expected_remaining_owed_cents": 8000,
+      "predicted_remaining_owed_cents": 8000,
+      "billed_patient_total_cents": 48000,
+      "billed_remaining_cents": 48000,
+      "gross_charge_cents": 120000,
+      "exact_within_100_cents": true,
+      "interval_contains_truth": true,
+      "flagged_error": true,
+      "true_error": true,
+      "predicted_above_billed_patient_total": false,
+      "range_upper_above_billed_patient_total": false,
+      "predicted_above_gross_charge": false,
+      "range_upper_above_gross_charge": false,
+      "predicted_remaining_above_bill_balance": false,
+      "rationale": "Verified in-network status gives 20% of $400 = $80; neither out-tier sharing nor excess is permitted.",
+      "failure": null,
+      "lines": [
+        {
+          "line_id": "L01",
+          "patient_responsibility_cents": 8000,
+          "remaining_owed_cents": 8000,
+          "refund_cents": 0,
+          "predicted_patient_responsibility_cents": 8000,
+          "predicted_remaining_owed_cents": 8000,
+          "exact_within_100_cents": true
+        }
+      ],
+      "elapsed_seconds": 8.33,
+      "attempts": 1,
+      "provider_attempt_audit": [
+        {
+          "attempt": 1,
+          "proposed_rules": 8,
+          "validated_rules": 7,
+          "validated_quote_spans": 9
+        }
+      ],
+      "raw_record": "data/blind_benchmark/run/blind-21.json"
+    },
+    {
+      "case_id": "blind-22",
+      "title": "Excluded procedure incorrectly paid as covered",
+      "status": "needs clarification",
+      "expected_patient_responsibility_cents": 70000,
+      "predicted_patient_responsibility_cents": null,
+      "illustrated_min_cents": null,
+      "illustrated_max_cents": null,
+      "expected_remaining_owed_cents": 70000,
+      "predicted_remaining_owed_cents": null,
+      "billed_patient_total_cents": 14000,
+      "billed_remaining_cents": 14000,
+      "gross_charge_cents": 70000,
+      "exact_within_100_cents": false,
+      "interval_contains_truth": null,
+      "flagged_error": null,
+      "true_error": true,
+      "predicted_above_billed_patient_total": false,
+      "range_upper_above_billed_patient_total": false,
+      "predicted_above_gross_charge": false,
+      "range_upper_above_gross_charge": false,
+      "predicted_remaining_above_bill_balance": false,
+      "rationale": "Explicit exclusion makes the full $700 payable; $140 is an underbill of $560.",
+      "failure": "Resolve validation errors before recalculation: incomplete_network",
+      "lines": [
+        {
+          "line_id": "L01",
+          "patient_responsibility_cents": 70000,
+          "remaining_owed_cents": 70000,
+          "refund_cents": 0,
+          "predicted_patient_responsibility_cents": null,
+          "predicted_remaining_owed_cents": null,
+          "exact_within_100_cents": false
+        }
+      ],
+      "elapsed_seconds": 8.641,
+      "attempts": 1,
+      "provider_attempt_audit": [
+        {
+          "attempt": 1,
+          "proposed_rules": 7,
+          "validated_rules": 5,
+          "validated_quote_spans": 6
+        }
+      ],
+      "raw_record": "data/blind_benchmark/run/blind-22.json"
+    },
+    {
+      "case_id": "blind-23",
+      "title": "Prohibited excess balance added to a bill",
+      "status": "needs clarification",
+      "expected_patient_responsibility_cents": 4000,
+      "predicted_patient_responsibility_cents": null,
+      "illustrated_min_cents": null,
+      "illustrated_max_cents": null,
+      "expected_remaining_owed_cents": 4000,
+      "predicted_remaining_owed_cents": null,
+      "billed_patient_total_cents": 70000,
+      "billed_remaining_cents": 70000,
+      "gross_charge_cents": 90000,
+      "exact_within_100_cents": false,
+      "interval_contains_truth": null,
+      "flagged_error": null,
+      "true_error": true,
+      "predicted_above_billed_patient_total": false,
+      "range_upper_above_billed_patient_total": false,
+      "predicted_above_gross_charge": false,
+      "range_upper_above_gross_charge": false,
+      "predicted_remaining_above_bill_balance": false,
+      "rationale": "The plan and provider agreement prohibit excess: 20% of $200 = $40, regardless of the $900 charge.",
+      "failure": "Resolve validation errors before recalculation: incomplete_network",
+      "lines": [
+        {
+          "line_id": "L01",
+          "patient_responsibility_cents": 4000,
+          "remaining_owed_cents": 4000,
+          "refund_cents": 0,
+          "predicted_patient_responsibility_cents": null,
+          "predicted_remaining_owed_cents": null,
+          "exact_within_100_cents": false
+        }
+      ],
+      "elapsed_seconds": 7.598,
+      "attempts": 1,
+      "provider_attempt_audit": [
+        {
+          "attempt": 1,
+          "proposed_rules": 6,
+          "validated_rules": 5,
+          "validated_quote_spans": 6
+        }
+      ],
+      "raw_record": "data/blind_benchmark/run/blind-23.json"
+    },
+    {
+      "case_id": "blind-24",
+      "title": "Emergency surprise bill with stipulated protection",
+      "status": "error",
+      "expected_patient_responsibility_cents": 40000,
+      "predicted_patient_responsibility_cents": null,
+      "illustrated_min_cents": null,
+      "illustrated_max_cents": null,
+      "expected_remaining_owed_cents": 40000,
+      "predicted_remaining_owed_cents": null,
+      "billed_patient_total_cents": 100000,
+      "billed_remaining_cents": 100000,
+      "gross_charge_cents": 220000,
+      "exact_within_100_cents": false,
+      "interval_contains_truth": null,
+      "flagged_error": null,
+      "true_error": true,
+      "predicted_above_billed_patient_total": false,
+      "range_upper_above_billed_patient_total": false,
+      "predicted_above_gross_charge": false,
+      "range_upper_above_gross_charge": false,
+      "predicted_remaining_above_bill_balance": false,
+      "rationale": "The supplied protected recognized amount is $1,200. In-network terms apply: $200 remaining deductible plus 20% of $1,000 = $400; no excess.",
+      "failure": {
+        "phase": "compile",
+        "type": "ProviderError",
+        "message": "deepseek compilation failed after 1 attempts: output.policy.name: expected string. No fallback was substituted."
+      },
+      "lines": [
+        {
+          "line_id": "L01",
+          "patient_responsibility_cents": 40000,
+          "remaining_owed_cents": 40000,
+          "refund_cents": 0,
+          "predicted_patient_responsibility_cents": null,
+          "predicted_remaining_owed_cents": null,
+          "exact_within_100_cents": false
+        }
+      ],
+      "elapsed_seconds": 9.436,
+      "attempts": null,
+      "provider_attempt_audit": [
+        {
+          "attempt": 1,
+          "proposed_rules": 8,
+          "error": "output.policy.name: expected string"
+        }
+      ],
+      "raw_record": "data/blind_benchmark/run/blind-24.json"
+    },
+    {
+      "case_id": "blind-25",
+      "title": "Protected ancillary anesthesiologist",
+      "status": "needs clarification",
+      "expected_patient_responsibility_cents": 12000,
+      "predicted_patient_responsibility_cents": null,
+      "illustrated_min_cents": null,
+      "illustrated_max_cents": null,
+      "expected_remaining_owed_cents": 12000,
+      "predicted_remaining_owed_cents": null,
+      "billed_patient_total_cents": 72000,
+      "billed_remaining_cents": 72000,
+      "gross_charge_cents": 160000,
+      "exact_within_100_cents": false,
+      "interval_contains_truth": null,
+      "flagged_error": null,
+      "true_error": true,
+      "predicted_above_billed_patient_total": false,
+      "range_upper_above_billed_patient_total": false,
+      "predicted_above_gross_charge": false,
+      "range_upper_above_gross_charge": false,
+      "predicted_remaining_above_bill_balance": false,
+      "rationale": "Protected ancillary anesthesia uses 20% in-network sharing on the supplied $600 recognized amount = $120, with no balance bill.",
+      "failure": "Resolve validation errors before recalculation: incomplete_network; incomplete_interpretations; incomplete_interpretations",
+      "lines": [
+        {
+          "line_id": "L01",
+          "patient_responsibility_cents": 12000,
+          "remaining_owed_cents": 12000,
+          "refund_cents": 0,
+          "predicted_patient_responsibility_cents": null,
+          "predicted_remaining_owed_cents": null,
+          "exact_within_100_cents": false
+        }
+      ],
+      "elapsed_seconds": 11.159,
+      "attempts": 1,
+      "provider_attempt_audit": [
+        {
+          "attempt": 1,
+          "proposed_rules": 8,
+          "validated_rules": 7,
+          "validated_quote_spans": 11
+        }
+      ],
+      "raw_record": "data/blind_benchmark/run/blind-25.json"
+    },
+    {
+      "case_id": "blind-26",
+      "title": "Provider failed to obtain authorization",
+      "status": "needs clarification",
+      "expected_patient_responsibility_cents": 0,
+      "predicted_patient_responsibility_cents": null,
+      "illustrated_min_cents": null,
+      "illustrated_max_cents": null,
+      "expected_remaining_owed_cents": 0,
+      "predicted_remaining_owed_cents": null,
+      "billed_patient_total_cents": 90000,
+      "billed_remaining_cents": 90000,
+      "gross_charge_cents": 90000,
+      "exact_within_100_cents": false,
+      "interval_contains_truth": null,
+      "flagged_error": null,
+      "true_error": true,
+      "predicted_above_billed_patient_total": false,
+      "range_upper_above_billed_patient_total": false,
+      "predicted_above_gross_charge": false,
+      "range_upper_above_gross_charge": false,
+      "predicted_remaining_above_bill_balance": false,
+      "rationale": "The explicit provider-liability clause bars transferring the $900 authorization denial to the patient.",
+      "failure": "Resolve validation errors before recalculation: incomplete_network",
+      "lines": [
+        {
+          "line_id": "L01",
+          "patient_responsibility_cents": 0,
+          "remaining_owed_cents": 0,
+          "refund_cents": 0,
+          "predicted_patient_responsibility_cents": null,
+          "predicted_remaining_owed_cents": null,
+          "exact_within_100_cents": false
+        }
+      ],
+      "elapsed_seconds": 9.436,
+      "attempts": 1,
+      "provider_attempt_audit": [
+        {
+          "attempt": 1,
+          "proposed_rules": 7,
+          "validated_rules": 5,
+          "validated_quote_spans": 7
+        }
+      ],
+      "raw_record": "data/blind_benchmark/run/blind-26.json"
+    },
+    {
+      "case_id": "blind-27",
+      "title": "Patient expressly elects nonauthorized service",
+      "status": "needs clarification",
+      "expected_patient_responsibility_cents": 140000,
+      "predicted_patient_responsibility_cents": null,
+      "illustrated_min_cents": null,
+      "illustrated_max_cents": null,
+      "expected_remaining_owed_cents": 140000,
+      "predicted_remaining_owed_cents": null,
+      "billed_patient_total_cents": 28000,
+      "billed_remaining_cents": 28000,
+      "gross_charge_cents": 140000,
+      "exact_within_100_cents": false,
+      "interval_contains_truth": null,
+      "flagged_error": null,
+      "true_error": true,
+      "predicted_above_billed_patient_total": false,
+      "range_upper_above_billed_patient_total": false,
+      "predicted_above_gross_charge": false,
+      "range_upper_above_gross_charge": false,
+      "predicted_remaining_above_bill_balance": false,
+      "rationale": "The stipulated valid advance undertaking invokes this plan's exclusion: full $1,400, outside OOP, rather than $280.",
+      "failure": "Resolve validation errors before recalculation: incomplete_network; missing_rule",
+      "lines": [
+        {
+          "line_id": "L01",
+          "patient_responsibility_cents": 140000,
+          "remaining_owed_cents": 140000,
+          "refund_cents": 0,
+          "predicted_patient_responsibility_cents": null,
+          "predicted_remaining_owed_cents": null,
+          "exact_within_100_cents": false
+        }
+      ],
+      "elapsed_seconds": 7.941,
+      "attempts": 1,
+      "provider_attempt_audit": [
+        {
+          "attempt": 1,
+          "proposed_rules": 7,
+          "validated_rules": 5,
+          "validated_quote_spans": 6
+        }
+      ],
+      "raw_record": "data/blind_benchmark/run/blind-27.json"
+    },
+    {
+      "case_id": "blind-28",
+      "title": "A duplicated office charge",
+      "status": "needs clarification",
+      "expected_patient_responsibility_cents": 4500,
+      "predicted_patient_responsibility_cents": null,
+      "illustrated_min_cents": null,
+      "illustrated_max_cents": null,
+      "expected_remaining_owed_cents": 4500,
+      "predicted_remaining_owed_cents": null,
+      "billed_patient_total_cents": 9000,
+      "billed_remaining_cents": 9000,
+      "gross_charge_cents": 36000,
+      "exact_within_100_cents": false,
+      "interval_contains_truth": null,
+      "flagged_error": null,
+      "true_error": true,
+      "predicted_above_billed_patient_total": false,
+      "range_upper_above_billed_patient_total": false,
+      "predicted_above_gross_charge": false,
+      "range_upper_above_gross_charge": false,
+      "predicted_remaining_above_bill_balance": false,
+      "rationale": "Only one encounter occurred; one $45 copay is due. The duplicated line has $0 responsibility.",
+      "failure": "Resolve validation errors before recalculation: incomplete_network",
+      "lines": [
+        {
+          "line_id": "L01",
+          "patient_responsibility_cents": 4500,
+          "remaining_owed_cents": 4500,
+          "refund_cents": 0,
+          "predicted_patient_responsibility_cents": null,
+          "predicted_remaining_owed_cents": null,
+          "exact_within_100_cents": false
+        },
+        {
+          "line_id": "L02",
+          "patient_responsibility_cents": 0,
+          "remaining_owed_cents": 0,
+          "refund_cents": 0,
+          "predicted_patient_responsibility_cents": null,
+          "predicted_remaining_owed_cents": null,
+          "exact_within_100_cents": false
+        }
+      ],
+      "elapsed_seconds": 8.45,
+      "attempts": 1,
+      "provider_attempt_audit": [
+        {
+          "attempt": 1,
+          "proposed_rules": 7,
+          "validated_rules": 5,
+          "validated_quote_spans": 6
+        }
+      ],
+      "raw_record": "data/blind_benchmark/run/blind-28.json"
+    },
+    {
+      "case_id": "blind-29",
+      "title": "Documented low-complexity visit upcoded",
+      "status": "answer",
+      "expected_patient_responsibility_cents": 2000,
+      "predicted_patient_responsibility_cents": 7000,
+      "illustrated_min_cents": 7000,
+      "illustrated_max_cents": 7000,
+      "expected_remaining_owed_cents": 2000,
+      "predicted_remaining_owed_cents": 7000,
+      "billed_patient_total_cents": 7000,
+      "billed_remaining_cents": 7000,
+      "gross_charge_cents": 35000,
+      "exact_within_100_cents": false,
+      "interval_contains_truth": false,
+      "flagged_error": false,
+      "true_error": true,
+      "predicted_above_billed_patient_total": false,
+      "range_upper_above_billed_patient_total": false,
+      "predicted_above_gross_charge": false,
+      "range_upper_above_gross_charge": false,
+      "predicted_remaining_above_bill_balance": false,
+      "rationale": "The acknowledged correct service is 99212, which owes $20, not the billed 99215's $70.",
+      "failure": null,
+      "lines": [
+        {
+          "line_id": "L01",
+          "patient_responsibility_cents": 2000,
+          "remaining_owed_cents": 2000,
+          "refund_cents": 0,
+          "predicted_patient_responsibility_cents": 7000,
+          "predicted_remaining_owed_cents": 7000,
+          "exact_within_100_cents": false
+        }
+      ],
+      "elapsed_seconds": 8.044,
+      "attempts": 1,
+      "provider_attempt_audit": [
+        {
+          "attempt": 1,
+          "proposed_rules": 8,
+          "validated_rules": 7,
+          "validated_quote_spans": 9
+        }
+      ],
+      "raw_record": "data/blind_benchmark/run/blind-29.json"
+    },
+    {
+      "case_id": "blind-30",
+      "title": "Panel component unbundled a second time",
+      "status": "error",
+      "expected_patient_responsibility_cents": 2000,
+      "predicted_patient_responsibility_cents": null,
+      "illustrated_min_cents": null,
+      "illustrated_max_cents": null,
+      "expected_remaining_owed_cents": 2000,
+      "predicted_remaining_owed_cents": null,
+      "billed_patient_total_cents": 3200,
+      "billed_remaining_cents": 3200,
+      "gross_charge_cents": 39000,
+      "exact_within_100_cents": false,
+      "interval_contains_truth": null,
+      "flagged_error": null,
+      "true_error": true,
+      "predicted_above_billed_patient_total": false,
+      "range_upper_above_billed_patient_total": false,
+      "predicted_above_gross_charge": false,
+      "range_upper_above_gross_charge": false,
+      "predicted_remaining_above_bill_balance": false,
+      "rationale": "Panel sharing is $20. Its already included electrolyte component carries no additional $12.",
+      "failure": {
+        "phase": "compile",
+        "type": "ProviderError",
+        "message": "deepseek compilation failed after 1 attempts: output.policy.name: expected string. No fallback was substituted."
+      },
+      "lines": [
+        {
+          "line_id": "L01",
+          "patient_responsibility_cents": 2000,
+          "remaining_owed_cents": 2000,
+          "refund_cents": 0,
+          "predicted_patient_responsibility_cents": null,
+          "predicted_remaining_owed_cents": null,
+          "exact_within_100_cents": false
+        },
+        {
+          "line_id": "L02",
+          "patient_responsibility_cents": 0,
+          "remaining_owed_cents": 0,
+          "refund_cents": 0,
+          "predicted_patient_responsibility_cents": null,
+          "predicted_remaining_owed_cents": null,
+          "exact_within_100_cents": false
+        }
+      ],
+      "elapsed_seconds": 8.36,
+      "attempts": null,
+      "provider_attempt_audit": [
+        {
+          "attempt": 1,
+          "proposed_rules": 8,
+          "error": "output.policy.name: expected string"
+        }
+      ],
+      "raw_record": "data/blind_benchmark/run/blind-30.json"
+    },
+    {
+      "case_id": "blind-31",
+      "title": "Correct EOB but unexplained bill surcharge",
+      "status": "needs clarification",
+      "expected_patient_responsibility_cents": 5500,
+      "predicted_patient_responsibility_cents": null,
+      "illustrated_min_cents": null,
+      "illustrated_max_cents": null,
+      "expected_remaining_owed_cents": 5500,
+      "predicted_remaining_owed_cents": null,
+      "billed_patient_total_cents": 9500,
+      "billed_remaining_cents": 9500,
+      "gross_charge_cents": 40000,
+      "exact_within_100_cents": false,
+      "interval_contains_truth": null,
+      "flagged_error": null,
+      "true_error": true,
+      "predicted_above_billed_patient_total": false,
+      "range_upper_above_billed_patient_total": false,
+      "predicted_above_gross_charge": false,
+      "range_upper_above_gross_charge": false,
+      "predicted_remaining_above_bill_balance": false,
+      "rationale": "EOB and contract agree on $55; the bill adds an unsupported $40.",
+      "failure": "Resolve validation errors before recalculation: incomplete_network",
+      "lines": [
+        {
+          "line_id": "L01",
+          "patient_responsibility_cents": 5500,
+          "remaining_owed_cents": 5500,
+          "refund_cents": 0,
+          "predicted_patient_responsibility_cents": null,
+          "predicted_remaining_owed_cents": null,
+          "exact_within_100_cents": false
+        }
+      ],
+      "elapsed_seconds": 9.965,
+      "attempts": 1,
+      "provider_attempt_audit": [
+        {
+          "attempt": 1,
+          "proposed_rules": 7,
+          "validated_rules": 5,
+          "validated_quote_spans": 7
+        }
+      ],
+      "raw_record": "data/blind_benchmark/run/blind-31.json"
+    },
+    {
+      "case_id": "blind-32",
+      "title": "Insurance credit omitted from statement",
+      "status": "needs clarification",
+      "expected_patient_responsibility_cents": 20000,
+      "predicted_patient_responsibility_cents": null,
+      "illustrated_min_cents": null,
+      "illustrated_max_cents": null,
+      "expected_remaining_owed_cents": 20000,
+      "predicted_remaining_owed_cents": null,
+      "billed_patient_total_cents": 70000,
+      "billed_remaining_cents": 70000,
+      "gross_charge_cents": 150000,
+      "exact_within_100_cents": false,
+      "interval_contains_truth": null,
+      "flagged_error": null,
+      "true_error": true,
+      "predicted_above_billed_patient_total": false,
+      "range_upper_above_billed_patient_total": false,
+      "predicted_above_gross_charge": false,
+      "range_upper_above_gross_charge": false,
+      "predicted_remaining_above_bill_balance": false,
+      "rationale": "20% of $1,000 is $200. The bill's $700 reflects $500 of missing insurer credit.",
+      "failure": "Resolve validation errors before recalculation: incomplete_network",
+      "lines": [
+        {
+          "line_id": "L01",
+          "patient_responsibility_cents": 20000,
+          "remaining_owed_cents": 20000,
+          "refund_cents": 0,
+          "predicted_patient_responsibility_cents": null,
+          "predicted_remaining_owed_cents": null,
+          "exact_within_100_cents": false
+        }
+      ],
+      "elapsed_seconds": 8.915,
+      "attempts": 1,
+      "provider_attempt_audit": [
+        {
+          "attempt": 1,
+          "proposed_rules": 7,
+          "validated_rules": 5,
+          "validated_quote_spans": 14
+        }
+      ],
+      "raw_record": "data/blind_benchmark/run/blind-32.json"
+    },
+    {
+      "case_id": "blind-33",
+      "title": "Receipt not applied to remaining balance",
+      "status": "answer",
+      "expected_patient_responsibility_cents": 12000,
+      "predicted_patient_responsibility_cents": 12000,
+      "illustrated_min_cents": 12000,
+      "illustrated_max_cents": 12000,
+      "expected_remaining_owed_cents": 2000,
+      "predicted_remaining_owed_cents": 2000,
+      "billed_patient_total_cents": 22000,
+      "billed_remaining_cents": 12000,
+      "gross_charge_cents": 100000,
+      "exact_within_100_cents": true,
+      "interval_contains_truth": true,
+      "flagged_error": true,
+      "true_error": true,
+      "predicted_above_billed_patient_total": false,
+      "range_upper_above_billed_patient_total": false,
+      "predicted_above_gross_charge": false,
+      "range_upper_above_gross_charge": false,
+      "predicted_remaining_above_bill_balance": false,
+      "rationale": "Total liability is $120; documented $100 payment leaves $20, not the statement's $120 balance.",
+      "failure": null,
+      "lines": [
+        {
+          "line_id": "L01",
+          "patient_responsibility_cents": 12000,
+          "remaining_owed_cents": 2000,
+          "refund_cents": 0,
+          "predicted_patient_responsibility_cents": 12000,
+          "predicted_remaining_owed_cents": 2000,
+          "exact_within_100_cents": true
+        }
+      ],
+      "elapsed_seconds": 8.101,
+      "attempts": 1,
+      "provider_attempt_audit": [
+        {
+          "attempt": 1,
+          "proposed_rules": 7,
+          "validated_rules": 6,
+          "validated_quote_spans": 7
+        }
+      ],
+      "raw_record": "data/blind_benchmark/run/blind-33.json"
+    },
+    {
+      "case_id": "blind-34",
+      "title": "Opening deductible history understated",
+      "status": "needs clarification",
+      "expected_patient_responsibility_cents": 22000,
+      "predicted_patient_responsibility_cents": null,
+      "illustrated_min_cents": null,
+      "illustrated_max_cents": null,
+      "expected_remaining_owed_cents": 22000,
+      "predicted_remaining_owed_cents": null,
+      "billed_patient_total_cents": 46000,
+      "billed_remaining_cents": 46000,
+      "gross_charge_cents": 90000,
+      "exact_within_100_cents": false,
+      "interval_contains_truth": null,
+      "flagged_error": null,
+      "true_error": true,
+      "predicted_above_billed_patient_total": false,
+      "range_upper_above_billed_patient_total": false,
+      "predicted_above_gross_charge": false,
+      "range_upper_above_gross_charge": false,
+      "predicted_remaining_above_bill_balance": false,
+      "rationale": "Verified prior deductible $850 leaves $150, then 20% of $350 = $70: total $220, not $460.",
+      "failure": "Resolve validation errors before recalculation: incomplete_network",
+      "lines": [
+        {
+          "line_id": "L01",
+          "patient_responsibility_cents": 22000,
+          "remaining_owed_cents": 22000,
+          "refund_cents": 0,
+          "predicted_patient_responsibility_cents": null,
+          "predicted_remaining_owed_cents": null,
+          "exact_within_100_cents": false
+        }
+      ],
+      "elapsed_seconds": 7.345,
+      "attempts": 1,
+      "provider_attempt_audit": [
+        {
+          "attempt": 1,
+          "proposed_rules": 7,
+          "validated_rules": 5,
+          "validated_quote_spans": 6
+        }
+      ],
+      "raw_record": "data/blind_benchmark/run/blind-34.json"
+    },
+    {
+      "case_id": "blind-35",
+      "title": "OOP cap also limits deductible collection",
+      "status": "error",
+      "expected_patient_responsibility_cents": 3000,
+      "predicted_patient_responsibility_cents": null,
+      "illustrated_min_cents": null,
+      "illustrated_max_cents": null,
+      "expected_remaining_owed_cents": 3000,
+      "predicted_remaining_owed_cents": null,
+      "billed_patient_total_cents": 50000,
+      "billed_remaining_cents": 50000,
+      "gross_charge_cents": 200000,
+      "exact_within_100_cents": false,
+      "interval_contains_truth": null,
+      "flagged_error": null,
+      "true_error": true,
+      "predicted_above_billed_patient_total": false,
+      "range_upper_above_billed_patient_total": false,
+      "predicted_above_gross_charge": false,
+      "range_upper_above_gross_charge": false,
+      "predicted_remaining_above_bill_balance": false,
+      "rationale": "Although $500 deductible remains, only $30 OOP remains. Covered responsibility cannot exceed $30.",
+      "failure": {
+        "phase": "compile",
+        "type": "ProviderError",
+        "message": "deepseek compilation failed after 1 attempts: output.policy.name: text must not be empty. No fallback was substituted."
+      },
+      "lines": [
+        {
+          "line_id": "L01",
+          "patient_responsibility_cents": 3000,
+          "remaining_owed_cents": 3000,
+          "refund_cents": 0,
+          "predicted_patient_responsibility_cents": null,
+          "predicted_remaining_owed_cents": null,
+          "exact_within_100_cents": false
+        }
+      ],
+      "elapsed_seconds": 8.098,
+      "attempts": null,
+      "provider_attempt_audit": [
+        {
+          "attempt": 1,
+          "proposed_rules": 7,
+          "error": "output.policy.name: text must not be empty"
+        }
+      ],
+      "raw_record": "data/blind_benchmark/run/blind-35.json"
+    },
+    {
+      "case_id": "blind-36",
+      "title": "Excluded cosmetic spending wrongly consumes OOP",
+      "status": "needs clarification",
+      "expected_patient_responsibility_cents": 80000,
+      "predicted_patient_responsibility_cents": null,
+      "illustrated_min_cents": null,
+      "illustrated_max_cents": null,
+      "expected_remaining_owed_cents": 80000,
+      "predicted_remaining_owed_cents": null,
+      "billed_patient_total_cents": 60000,
+      "billed_remaining_cents": 60000,
+      "gross_charge_cents": 240000,
+      "exact_within_100_cents": false,
+      "interval_contains_truth": null,
+      "flagged_error": null,
+      "true_error": true,
+      "predicted_above_billed_patient_total": false,
+      "range_upper_above_billed_patient_total": false,
+      "predicted_above_gross_charge": false,
+      "range_upper_above_gross_charge": false,
+      "predicted_remaining_above_bill_balance": false,
+      "rationale": "The $600 exclusion does not consume the $500 remaining OOP. Covered CT still owes $200; total $800.",
+      "failure": "Resolve validation errors before recalculation: incomplete_network",
+      "lines": [
+        {
+          "line_id": "L01",
+          "patient_responsibility_cents": 60000,
+          "remaining_owed_cents": 60000,
+          "refund_cents": 0,
+          "predicted_patient_responsibility_cents": null,
+          "predicted_remaining_owed_cents": null,
+          "exact_within_100_cents": false
+        },
+        {
+          "line_id": "L02",
+          "patient_responsibility_cents": 20000,
+          "remaining_owed_cents": 20000,
+          "refund_cents": 0,
+          "predicted_patient_responsibility_cents": null,
+          "predicted_remaining_owed_cents": null,
+          "exact_within_100_cents": false
+        }
+      ],
+      "elapsed_seconds": 9.284,
+      "attempts": 1,
+      "provider_attempt_audit": [
+        {
+          "attempt": 1,
+          "proposed_rules": 8,
+          "validated_rules": 6,
+          "validated_quote_spans": 10
+        }
+      ],
+      "raw_record": "data/blind_benchmark/run/blind-36.json"
+    },
+    {
+      "case_id": "blind-37",
+      "title": "Contractual adjustment partially reversed on bill",
+      "status": "answer",
+      "expected_patient_responsibility_cents": 8000,
+      "predicted_patient_responsibility_cents": 8000,
+      "illustrated_min_cents": 8000,
+      "illustrated_max_cents": 8000,
+      "expected_remaining_owed_cents": 8000,
+      "predicted_remaining_owed_cents": 8000,
+      "billed_patient_total_cents": 18000,
+      "billed_remaining_cents": 18000,
+      "gross_charge_cents": 70000,
+      "exact_within_100_cents": true,
+      "interval_contains_truth": true,
+      "flagged_error": true,
+      "true_error": true,
+      "predicted_above_billed_patient_total": false,
+      "range_upper_above_billed_patient_total": false,
+      "predicted_above_gross_charge": false,
+      "range_upper_above_gross_charge": false,
+      "predicted_remaining_above_bill_balance": false,
+      "rationale": "20% of $400 is $80; reversing $100 of the mandatory in-network adjustment is erroneous.",
+      "failure": null,
+      "lines": [
+        {
+          "line_id": "L01",
+          "patient_responsibility_cents": 8000,
+          "remaining_owed_cents": 8000,
+          "refund_cents": 0,
+          "predicted_patient_responsibility_cents": 8000,
+          "predicted_remaining_owed_cents": 8000,
+          "exact_within_100_cents": true
+        }
+      ],
+      "elapsed_seconds": 8.468,
+      "attempts": 1,
+      "provider_attempt_audit": [
+        {
+          "attempt": 1,
+          "proposed_rules": 7,
+          "validated_rules": 6,
+          "validated_quote_spans": 8
+        }
+      ],
+      "raw_record": "data/blind_benchmark/run/blind-37.json"
+    },
+    {
+      "case_id": "blind-38",
+      "title": "Coinsurance assessed before subtracting copay",
+      "status": "error",
+      "expected_patient_responsibility_cents": 15000,
+      "predicted_patient_responsibility_cents": null,
+      "illustrated_min_cents": null,
+      "illustrated_max_cents": null,
+      "expected_remaining_owed_cents": 15000,
+      "predicted_remaining_owed_cents": null,
+      "billed_patient_total_cents": 15500,
+      "billed_remaining_cents": 15500,
+      "gross_charge_cents": 60000,
+      "exact_within_100_cents": false,
+      "interval_contains_truth": null,
+      "flagged_error": null,
+      "true_error": true,
+      "predicted_above_billed_patient_total": false,
+      "range_upper_above_billed_patient_total": false,
+      "predicted_above_gross_charge": false,
+      "range_upper_above_gross_charge": false,
+      "predicted_remaining_above_bill_balance": false,
+      "rationale": "$100 deductible, then $25 copay, then 20% of $125 = $25. Total $150, not $155.",
+      "failure": {
+        "phase": "compile",
+        "type": "ProviderError",
+        "message": "deepseek compilation failed after 1 attempts: output.policy.name: text must not be empty. No fallback was substituted."
+      },
+      "lines": [
+        {
+          "line_id": "L01",
+          "patient_responsibility_cents": 15000,
+          "remaining_owed_cents": 15000,
+          "refund_cents": 0,
+          "predicted_patient_responsibility_cents": null,
+          "predicted_remaining_owed_cents": null,
+          "exact_within_100_cents": false
+        }
+      ],
+      "elapsed_seconds": 7.666,
+      "attempts": null,
+      "provider_attempt_audit": [
+        {
+          "attempt": 1,
+          "proposed_rules": 7,
+          "error": "output.policy.name: text must not be empty"
+        }
+      ],
+      "raw_record": "data/blind_benchmark/run/blind-38.json"
+    },
+    {
+      "case_id": "blind-39",
+      "title": "Referral omission is provider liability",
+      "status": "needs clarification",
+      "expected_patient_responsibility_cents": 0,
+      "predicted_patient_responsibility_cents": null,
+      "illustrated_min_cents": null,
+      "illustrated_max_cents": null,
+      "expected_remaining_owed_cents": 0,
+      "predicted_remaining_owed_cents": null,
+      "billed_patient_total_cents": 25000,
+      "billed_remaining_cents": 25000,
+      "gross_charge_cents": 25000,
+      "exact_within_100_cents": false,
+      "interval_contains_truth": null,
+      "flagged_error": null,
+      "true_error": true,
+      "predicted_above_billed_patient_total": false,
+      "range_upper_above_billed_patient_total": false,
+      "predicted_above_gross_charge": false,
+      "range_upper_above_gross_charge": false,
+      "predicted_remaining_above_bill_balance": false,
+      "rationale": "The explicit plan clause assigns this procedural denial to the participating provider, leaving $0 to the member.",
+      "failure": "Resolve validation errors before recalculation: incomplete_network; missing_rule",
+      "lines": [
+        {
+          "line_id": "L01",
+          "patient_responsibility_cents": 0,
+          "remaining_owed_cents": 0,
+          "refund_cents": 0,
+          "predicted_patient_responsibility_cents": null,
+          "predicted_remaining_owed_cents": null,
+          "exact_within_100_cents": false
+        }
+      ],
+      "elapsed_seconds": 9.493,
+      "attempts": 1,
+      "provider_attempt_audit": [
+        {
+          "attempt": 1,
+          "proposed_rules": 7,
+          "validated_rules": 5,
+          "validated_quote_spans": 11
+        }
+      ],
+      "raw_record": "data/blind_benchmark/run/blind-39.json"
+    },
+    {
+      "case_id": "blind-40",
+      "title": "Separate network pools and omitted permitted excess",
+      "status": "error",
+      "expected_patient_responsibility_cents": 120000,
+      "predicted_patient_responsibility_cents": null,
+      "illustrated_min_cents": null,
+      "illustrated_max_cents": null,
+      "expected_remaining_owed_cents": 120000,
+      "predicted_remaining_owed_cents": null,
+      "billed_patient_total_cents": 90000,
+      "billed_remaining_cents": 90000,
+      "gross_charge_cents": 230000,
+      "exact_within_100_cents": false,
+      "interval_contains_truth": null,
+      "flagged_error": null,
+      "true_error": true,
+      "predicted_above_billed_patient_total": false,
+      "range_upper_above_billed_patient_total": false,
+      "predicted_above_gross_charge": false,
+      "range_upper_above_gross_charge": false,
+      "predicted_remaining_above_bill_balance": false,
+      "rationale": "In network: $100 + 20% of $500 = $200. Out network: separate $500 deductible + 40% of $500 + $300 permitted balance = $1,000. Total $1,200; the $900 statement is an underbill.",
+      "failure": {
+        "phase": "compile",
+        "type": "ProviderError",
+        "message": "deepseek compilation failed after 1 attempts: output.policy.name: expected string. No fallback was substituted."
+      },
+      "lines": [
+        {
+          "line_id": "L01",
+          "patient_responsibility_cents": 20000,
+          "remaining_owed_cents": 20000,
+          "refund_cents": 0,
+          "predicted_patient_responsibility_cents": null,
+          "predicted_remaining_owed_cents": null,
+          "exact_within_100_cents": false
+        },
+        {
+          "line_id": "L02",
+          "patient_responsibility_cents": 100000,
+          "remaining_owed_cents": 100000,
+          "refund_cents": 0,
+          "predicted_patient_responsibility_cents": null,
+          "predicted_remaining_owed_cents": null,
+          "exact_within_100_cents": false
+        }
+      ],
+      "elapsed_seconds": 11.051,
+      "attempts": null,
+      "provider_attempt_audit": [
+        {
+          "attempt": 1,
+          "proposed_rules": 8,
+          "error": "output.policy.name: expected string"
+        }
+      ],
+      "raw_record": "data/blind_benchmark/run/blind-40.json"
+    }
+  ]
+}

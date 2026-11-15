@@ -1,0 +1,377 @@
+{
+  "case_id": "blind-22",
+  "started_at_utc": "2026-11-15T11:56:53.507596+00:00",
+  "compilation": {
+    "output": {
+      "policy": {
+        "id": "SYN-B22",
+        "insurer": "SYNTHETIC Wren Harbor Mutual",
+        "name": "SYNTHETIC — fictional Summary of Benefits and Coverage",
+        "member_id": "SYN-M22",
+        "effective_from": "2026-01-01",
+        "effective_to": "2026-12-31",
+        "currency": "USD",
+        "networks": {
+          "in": {
+            "deductible_cents": 100000,
+            "oop_max_cents": 500000,
+            "balance_billing": null,
+            "deductible_clause": "source-1",
+            "oop_clause": "source-1",
+            "network_clause": null
+          },
+          "out": {
+            "deductible_cents": 200000,
+            "oop_max_cents": 1000000,
+            "balance_billing": null,
+            "deductible_clause": "source-2",
+            "oop_clause": "source-2",
+            "network_clause": null
+          }
+        },
+        "benefits": [
+          {
+            "id": "B1",
+            "label": "Cosmetic exclusion (CPT/HCPCS 15829)",
+            "codes": [
+              "15829"
+            ],
+            "network": "in",
+            "covered": false,
+            "deductible_applies": false,
+            "copay_cents": 0,
+            "coinsurance_bps": 0,
+            "clause_ids": [
+              "source-3",
+              "source-4"
+            ],
+            "ambiguity_group": ""
+          }
+        ],
+        "clauses": [
+          {
+            "id": "source-1",
+            "text": "IN NETWORK: deductible = $1,000.00; OOP maximum = $5,000.00; balance billing = no.",
+            "location": "Financial reference card"
+          },
+          {
+            "id": "source-2",
+            "text": "OUT OF NETWORK: deductible = $2,000.00; OOP maximum = $10,000.00; balance billing = yes.",
+            "location": "Financial reference card"
+          },
+          {
+            "id": "source-3",
+            "text": "Calculation and accumulation rules: For covered care apply any remaining deductible first, then the stated copay, then member coinsurance to the remaining allowed amount. Round coinsurance half up to cents. Apply the remaining annual OOP cap to deductible, copay and coinsurance in that order. Only actually assessed covered sharing accrues. In- and out-of-network annual pools are separate. Permitted excess equals charge minus allowance and is outside OOP. Excluded care is full-charge patient liability outside deductible and OOP, with no insurer payment. No excess billing is allowed in network. A waived deductible means no deductible applies to that benefit.",
+            "location": "Calculation and accumulation rules"
+          },
+          {
+            "id": "source-4",
+            "text": "B1: Cosmetic exclusion (CPT/HCPCS 15829), in-network: excluded; full charge, no covered sharing; deductible waived; member copay $0.00; member coinsurance 0%.",
+            "location": "Benefits — amounts are per visit/unit"
+          }
+        ]
+      },
+      "rule_evidence": [
+        {
+          "rule_path": "networks.in.deductible_cents",
+          "evidence": [
+            {
+              "source_document_id": "blind-22/policy.md",
+              "section": "Financial reference card",
+              "quote": "IN NETWORK: deductible = $1,000.00; OOP maximum = $5,000.00; balance billing = no.",
+              "start": 333,
+              "end": 415
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "networks.in.oop_max_cents",
+          "evidence": [
+            {
+              "source_document_id": "blind-22/policy.md",
+              "section": "Financial reference card",
+              "quote": "IN NETWORK: deductible = $1,000.00; OOP maximum = $5,000.00; balance billing = no.",
+              "start": 333,
+              "end": 415
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "networks.out.deductible_cents",
+          "evidence": [
+            {
+              "source_document_id": "blind-22/policy.md",
+              "section": "Financial reference card",
+              "quote": "OUT OF NETWORK: deductible = $2,000.00; OOP maximum = $10,000.00; balance billing = yes.",
+              "start": 416,
+              "end": 504
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "networks.out.oop_max_cents",
+          "evidence": [
+            {
+              "source_document_id": "blind-22/policy.md",
+              "section": "Financial reference card",
+              "quote": "OUT OF NETWORK: deductible = $2,000.00; OOP maximum = $10,000.00; balance billing = yes.",
+              "start": 416,
+              "end": 504
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "benefits.B1",
+          "evidence": [
+            {
+              "source_document_id": "blind-22/policy.md",
+              "section": "Calculation and accumulation rules",
+              "quote": "Calculation and accumulation rules: For covered care apply any remaining deductible first, then the stated copay, then member coinsurance to the remaining allowed amount. Round coinsurance half up to cents. Apply the remaining annual OOP cap to deductible, copay and coinsurance in that order. Only actually assessed covered sharing accrues. In- and out-of-network annual pools are separate. Permitted excess equals charge minus allowance and is outside OOP. Excluded care is full-charge patient liability outside deductible and OOP, with no insurer payment. No excess billing is allowed in network. A waived deductible means no deductible applies to that benefit.",
+              "start": 506,
+              "end": 1170
+            },
+            {
+              "source_document_id": "blind-22/policy.md",
+              "section": "Benefits — amounts are per visit/unit",
+              "quote": "B1: Cosmetic exclusion (CPT/HCPCS 15829), in-network: excluded; full charge, no covered sharing; deductible waived; member copay $0.00; member coinsurance 0%.",
+              "start": 1210,
+              "end": 1368
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        }
+      ],
+      "warnings": [
+        "Synthetic-data notice: This document is fictional and provided for testing purposes only.",
+        "Half-up cent rounding is an engine convention applied when calculating coinsurance; no explicit rounding rule was found in the source.",
+        "No additional benefits found beyond the cosmetic exclusion. The absence of common services (e.g., office visits, urgent care, ER, diagnostic tests, imaging, first-tier drugs) means they are omitted from the executable rules.",
+        "Dropped rule networks.in.balance_billing: missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+        "Dropped rule networks.out.balance_billing: missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+        "Retained validated partial output from attempt 1 after 1 attempts; selection used supported-rule count only, never gold answers."
+      ],
+      "unresolved": [],
+      "coverage_gaps": [
+        "OUT-OF-NETWORK services: No benefits are defined for the out-of-network beyond the financial reference card. No out-of-network service rows are present, so no out-of-network benefits are emitted.",
+        "IN-NETWORK services: Only the cosmetic exclusion (B1) is explicitly defined. Common covered services such as office visits, urgent care, emergency room, diagnostic tests, imaging, and prescription drugs are omitted because they are not listed in the source.",
+        "Balance billing: In-network balance billing is explicitly 'no' (line 8), and out-of-network balance billing is explicitly 'yes' (line 9). Both are sourced and included.",
+        "The policy states 'Individual annual benefit; no family pool' and 'One visit/unit per line unless explicitly documented as a duplicate' but no other benefit lines are present.",
+        "The benefits section includes only B1; no covered benefits are available to compile.",
+        "Dropped rule networks.in.balance_billing: missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+        "Dropped rule networks.out.balance_billing: missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained."
+      ]
+    },
+    "backend": "deepseek",
+    "source_document_id": "blind-22/policy.md",
+    "source_sha256": "964f928d727034243d963eb3bea33fbb60149988d0ff823880f66f5dc360e0e1",
+    "attempts": 1
+  },
+  "normalized_case": {
+    "schema_version": "1.0",
+    "id": "blind-22",
+    "title": "Excluded procedure incorrectly paid as covered",
+    "synthetic": true,
+    "policy": {
+      "id": "SYN-B22",
+      "insurer": "SYNTHETIC Wren Harbor Mutual",
+      "name": "SYNTHETIC — fictional Summary of Benefits and Coverage",
+      "member_id": "SYN-M22",
+      "effective_from": "2026-01-01",
+      "effective_to": "2026-12-31",
+      "currency": "USD",
+      "networks": {
+        "in": {
+          "deductible_cents": 100000,
+          "oop_max_cents": 500000,
+          "balance_billing": null,
+          "deductible_clause": "source-1",
+          "oop_clause": "source-1",
+          "network_clause": null
+        },
+        "out": {
+          "deductible_cents": 200000,
+          "oop_max_cents": 1000000,
+          "balance_billing": null,
+          "deductible_clause": "source-2",
+          "oop_clause": "source-2",
+          "network_clause": null
+        }
+      },
+      "benefits": [
+        {
+          "id": "B1",
+          "label": "Cosmetic exclusion (CPT/HCPCS 15829)",
+          "codes": [
+            "15829"
+          ],
+          "network": "in",
+          "covered": false,
+          "deductible_applies": false,
+          "copay_cents": 0,
+          "coinsurance_bps": 0,
+          "clause_ids": [
+            "source-3",
+            "source-4"
+          ],
+          "ambiguity_group": ""
+        }
+      ],
+      "clauses": [
+        {
+          "id": "source-1",
+          "text": "IN NETWORK: deductible = $1,000.00; OOP maximum = $5,000.00; balance billing = no.",
+          "location": "Financial reference card"
+        },
+        {
+          "id": "source-2",
+          "text": "OUT OF NETWORK: deductible = $2,000.00; OOP maximum = $10,000.00; balance billing = yes.",
+          "location": "Financial reference card"
+        },
+        {
+          "id": "source-3",
+          "text": "Calculation and accumulation rules: For covered care apply any remaining deductible first, then the stated copay, then member coinsurance to the remaining allowed amount. Round coinsurance half up to cents. Apply the remaining annual OOP cap to deductible, copay and coinsurance in that order. Only actually assessed covered sharing accrues. In- and out-of-network annual pools are separate. Permitted excess equals charge minus allowance and is outside OOP. Excluded care is full-charge patient liability outside deductible and OOP, with no insurer payment. No excess billing is allowed in network. A waived deductible means no deductible applies to that benefit.",
+          "location": "Calculation and accumulation rules"
+        },
+        {
+          "id": "source-4",
+          "text": "B1: Cosmetic exclusion (CPT/HCPCS 15829), in-network: excluded; full charge, no covered sharing; deductible waived; member copay $0.00; member coinsurance 0%.",
+          "location": "Benefits — amounts are per visit/unit"
+        }
+      ]
+    },
+    "claim": {
+      "id": "SYN-C22",
+      "policy_id": "SYN-B22",
+      "member_id": "SYN-M22",
+      "accumulators": {
+        "in": {
+          "deductible_paid_cents": 0,
+          "oop_paid_cents": 0
+        },
+        "out": {
+          "deductible_paid_cents": 0,
+          "oop_paid_cents": 0
+        }
+      },
+      "lines": [
+        {
+          "id": "L01",
+          "provider_id": "SYN-P22",
+          "service_date": "2026-06-11",
+          "code": "15829",
+          "description": "SYNTHETIC submitted service 15829; documented actual service code 15829; no additional clinical facts",
+          "network": "in",
+          "billed_cents": 70000,
+          "confirmed_conditions": [],
+          "insurer": {
+            "allowed_cents": 70000,
+            "deductible_cents": 0,
+            "copay_cents": 0,
+            "coinsurance_cents": 14000,
+            "noncovered_cents": 0,
+            "balance_cents": 0,
+            "insurer_paid_cents": 56000,
+            "adjustment_cents": 0
+          }
+        }
+      ]
+    },
+    "bill": {
+      "id": "SYN-I22",
+      "claim_id": "SYN-C22",
+      "member_id": "SYN-M22",
+      "lines": [
+        {
+          "id": "B-L01",
+          "claim_line_id": "L01",
+          "provider_id": "SYN-P22",
+          "service_date": "2026-06-11",
+          "code": "15829",
+          "charged_cents": 70000,
+          "insurance_paid_cents": 56000,
+          "adjustment_cents": 0,
+          "patient_paid_cents": 0,
+          "balance_due_cents": 14000
+        }
+      ]
+    },
+    "allowed_evidence": {
+      "L01": {
+        "allowed_cents": 70000,
+        "source": "contract",
+        "reference": "SYNTHETIC signed rate schedule SYN-R22, line L01; protected recognized amount where stipulated"
+      }
+    }
+  },
+  "report": {
+    "validation": [
+      {
+        "severity": "error",
+        "code": "incomplete_network",
+        "path": "policy.networks.in.balance_billing",
+        "message": "Balance-billing terms are unknown; supply independent contract evidence for each affected line."
+      }
+    ],
+    "links": [
+      {
+        "claim_line_id": "L01",
+        "member_id": "SYN-M22",
+        "provider_id": "SYN-P22",
+        "service_date": "2026-06-11",
+        "code": "15829",
+        "claim_id": "SYN-C22",
+        "bill_line_ids": [
+          "B-L01"
+        ]
+      }
+    ],
+    "status": "blocked",
+    "scenarios": [],
+    "comparisons": [],
+    "summary": null,
+    "method": "Deterministic policy evaluation; no LLM is used for arithmetic. All figures are USD cents.",
+    "limitations": [
+      "Individual annual, separate network accumulators; one unit/visit per claim line.",
+      "Allowed amounts must be supplied; rates are not inferred from an SBC.",
+      "Missing-fact endpoints are illustrative, not exhaustive outcomes or guaranteed savings.",
+      "Legal billing protections, family coordination, prior authorization, coding and medical necessity are not evaluated.",
+      "OUT-OF-NETWORK services: No benefits are defined for the out-of-network beyond the financial reference card. No out-of-network service rows are present, so no out-of-network benefits are emitted.",
+      "IN-NETWORK services: Only the cosmetic exclusion (B1) is explicitly defined. Common covered services such as office visits, urgent care, emergency room, diagnostic tests, imaging, and prescription drugs are omitted because they are not listed in the source.",
+      "Balance billing: In-network balance billing is explicitly 'no' (line 8), and out-of-network balance billing is explicitly 'yes' (line 9). Both are sourced and included.",
+      "The policy states 'Individual annual benefit; no family pool' and 'One visit/unit per line unless explicitly documented as a duplicate' but no other benefit lines are present.",
+      "The benefits section includes only B1; no covered benefits are available to compile.",
+      "Dropped rule networks.in.balance_billing: missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+      "Dropped rule networks.out.balance_billing: missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained."
+    ],
+    "blocked_reason": "Resolve validation errors before recalculation: incomplete_network"
+  },
+  "provider_attempt_audit": [
+    {
+      "attempt": 1,
+      "proposed_rules": 7,
+      "validated_rules": 5,
+      "validated_quote_spans": 6
+    }
+  ],
+  "provider_request_config": {
+    "response_format": "json_object",
+    "max_tokens_initial": 32768,
+    "max_tokens": 32768,
+    "max_tokens_ceiling": 65536,
+    "thinking": "disabled",
+    "timeout_seconds": 120,
+    "attempt_limit": 1,
+    "transport_attempt_limit": 1,
+    "evidence_spans": "selected original source lines with local offsets; legacy quotes use whitespace-normalized search"
+  },
+  "elapsed_seconds": 8.641,
+  "completed_at_utc": "2026-11-15T11:57:02.149052+00:00"
+}

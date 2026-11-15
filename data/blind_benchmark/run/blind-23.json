@@ -1,0 +1,373 @@
+{
+  "case_id": "blind-23",
+  "started_at_utc": "2026-11-15T11:56:57.472559+00:00",
+  "compilation": {
+    "output": {
+      "policy": {
+        "id": "SYN-B23",
+        "insurer": "SYNTHETIC Copper Meadow Assurance",
+        "name": "Summary of Benefits and Coverage",
+        "member_id": "SYN-M23",
+        "effective_from": "2026-01-01",
+        "effective_to": "2026-12-31",
+        "currency": "USD",
+        "networks": {
+          "in": {
+            "deductible_cents": 100000,
+            "oop_max_cents": 500000,
+            "balance_billing": null,
+            "deductible_clause": "source-1",
+            "oop_clause": "source-2",
+            "network_clause": null
+          },
+          "out": {
+            "deductible_cents": 200000,
+            "oop_max_cents": 1000000,
+            "balance_billing": null,
+            "deductible_clause": "source-1",
+            "oop_clause": "source-2",
+            "network_clause": null
+          }
+        },
+        "benefits": [
+          {
+            "id": "B1",
+            "label": "ECG (CPT/HCPCS 93000)",
+            "codes": [
+              "93000"
+            ],
+            "network": "out",
+            "covered": true,
+            "deductible_applies": false,
+            "copay_cents": 0,
+            "coinsurance_bps": 2000,
+            "clause_ids": [
+              "source-4",
+              "source-5"
+            ],
+            "ambiguity_group": ""
+          }
+        ],
+        "clauses": [
+          {
+            "id": "source-1",
+            "text": "What must I pay before benefits? The individual deductible is $1,000.00 in network and $2,000.00 out of network.",
+            "location": "What must I pay before benefits?"
+          },
+          {
+            "id": "source-2",
+            "text": "What is my annual limit? Covered sharing stops at $5,000.00 in network and $10,000.00 out of network.",
+            "location": "What is my annual limit?"
+          },
+          {
+            "id": "source-4",
+            "text": "Calculation and accumulation rules: For covered care apply any remaining deductible first, then the stated copay, then member coinsurance to the remaining allowed amount. Round coinsurance half up to cents. Apply the remaining annual OOP cap to deductible, copay and coinsurance in that order. Only actually assessed covered sharing accrues. In- and out-of-network annual pools are separate. Permitted excess equals charge minus allowance and is outside OOP. Excluded care is full-charge patient liability outside deductible and OOP, with no insurer payment. No excess billing is allowed in network. A waived deductible means no deductible applies to that benefit.",
+            "location": "Calculation and accumulation rules"
+          },
+          {
+            "id": "source-5",
+            "text": "B1: ECG (CPT/HCPCS 93000), out-network: covered; deductible waived; member copay $0.00; member coinsurance 20%.",
+            "location": "Benefits — amounts are per visit/unit"
+          }
+        ]
+      },
+      "rule_evidence": [
+        {
+          "rule_path": "networks.in.deductible_cents",
+          "evidence": [
+            {
+              "source_document_id": "blind-23/policy.md",
+              "section": "What must I pay before benefits?",
+              "quote": "What must I pay before benefits? The individual deductible is $1,000.00 in network and $2,000.00 out of network.",
+              "start": 313,
+              "end": 425
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "networks.in.oop_max_cents",
+          "evidence": [
+            {
+              "source_document_id": "blind-23/policy.md",
+              "section": "What is my annual limit?",
+              "quote": "What is my annual limit? Covered sharing stops at $5,000.00 in network and $10,000.00 out of network.",
+              "start": 426,
+              "end": 527
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "networks.out.deductible_cents",
+          "evidence": [
+            {
+              "source_document_id": "blind-23/policy.md",
+              "section": "What must I pay before benefits?",
+              "quote": "What must I pay before benefits? The individual deductible is $1,000.00 in network and $2,000.00 out of network.",
+              "start": 313,
+              "end": 425
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "networks.out.oop_max_cents",
+          "evidence": [
+            {
+              "source_document_id": "blind-23/policy.md",
+              "section": "What is my annual limit?",
+              "quote": "What is my annual limit? Covered sharing stops at $5,000.00 in network and $10,000.00 out of network.",
+              "start": 426,
+              "end": 527
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "benefits.B1",
+          "evidence": [
+            {
+              "source_document_id": "blind-23/policy.md",
+              "section": "Calculation and accumulation rules",
+              "quote": "Calculation and accumulation rules: For covered care apply any remaining deductible first, then the stated copay, then member coinsurance to the remaining allowed amount. Round coinsurance half up to cents. Apply the remaining annual OOP cap to deductible, copay and coinsurance in that order. Only actually assessed covered sharing accrues. In- and out-of-network annual pools are separate. Permitted excess equals charge minus allowance and is outside OOP. Excluded care is full-charge patient liability outside deductible and OOP, with no insurer payment. No excess billing is allowed in network. A waived deductible means no deductible applies to that benefit.",
+              "start": 635,
+              "end": 1299
+            },
+            {
+              "source_document_id": "blind-23/policy.md",
+              "section": "Benefits — amounts are per visit/unit",
+              "quote": "B1: ECG (CPT/HCPCS 93000), out-network: covered; deductible waived; member copay $0.00; member coinsurance 20%.",
+              "start": 1339,
+              "end": 1450
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        }
+      ],
+      "warnings": [
+        "Dropped rule networks.in.balance_billing: missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+        "Retained validated partial output from attempt 1 after 1 attempts; selection used supported-rule count only, never gold answers."
+      ],
+      "unresolved": [],
+      "coverage_gaps": [
+        "Out-of-network balance billing: source explicitly states 'Nonparticipating providers may not' collect excess charges, which is unusual; because it lacks affirmative protection language, balance_billing set to null and requires independent contract evidence.",
+        "No in-network benefits were listed; only out-of-network benefit B1 was present.",
+        "No explicit out-of-network balance billing rule was compiled; set to null.",
+        "Dropped rule networks.in.balance_billing: missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained."
+      ]
+    },
+    "backend": "deepseek",
+    "source_document_id": "blind-23/policy.md",
+    "source_sha256": "1d75e97dcacc01986b230cf73597098856a80033da6f61cde43d33a6d2b75ca0",
+    "attempts": 1
+  },
+  "normalized_case": {
+    "schema_version": "1.0",
+    "id": "blind-23",
+    "title": "Prohibited excess balance added to a bill",
+    "synthetic": true,
+    "policy": {
+      "id": "SYN-B23",
+      "insurer": "SYNTHETIC Copper Meadow Assurance",
+      "name": "Summary of Benefits and Coverage",
+      "member_id": "SYN-M23",
+      "effective_from": "2026-01-01",
+      "effective_to": "2026-12-31",
+      "currency": "USD",
+      "networks": {
+        "in": {
+          "deductible_cents": 100000,
+          "oop_max_cents": 500000,
+          "balance_billing": null,
+          "deductible_clause": "source-1",
+          "oop_clause": "source-2",
+          "network_clause": null
+        },
+        "out": {
+          "deductible_cents": 200000,
+          "oop_max_cents": 1000000,
+          "balance_billing": null,
+          "deductible_clause": "source-1",
+          "oop_clause": "source-2",
+          "network_clause": null
+        }
+      },
+      "benefits": [
+        {
+          "id": "B1",
+          "label": "ECG (CPT/HCPCS 93000)",
+          "codes": [
+            "93000"
+          ],
+          "network": "out",
+          "covered": true,
+          "deductible_applies": false,
+          "copay_cents": 0,
+          "coinsurance_bps": 2000,
+          "clause_ids": [
+            "source-4",
+            "source-5"
+          ],
+          "ambiguity_group": ""
+        }
+      ],
+      "clauses": [
+        {
+          "id": "source-1",
+          "text": "What must I pay before benefits? The individual deductible is $1,000.00 in network and $2,000.00 out of network.",
+          "location": "What must I pay before benefits?"
+        },
+        {
+          "id": "source-2",
+          "text": "What is my annual limit? Covered sharing stops at $5,000.00 in network and $10,000.00 out of network.",
+          "location": "What is my annual limit?"
+        },
+        {
+          "id": "source-4",
+          "text": "Calculation and accumulation rules: For covered care apply any remaining deductible first, then the stated copay, then member coinsurance to the remaining allowed amount. Round coinsurance half up to cents. Apply the remaining annual OOP cap to deductible, copay and coinsurance in that order. Only actually assessed covered sharing accrues. In- and out-of-network annual pools are separate. Permitted excess equals charge minus allowance and is outside OOP. Excluded care is full-charge patient liability outside deductible and OOP, with no insurer payment. No excess billing is allowed in network. A waived deductible means no deductible applies to that benefit.",
+          "location": "Calculation and accumulation rules"
+        },
+        {
+          "id": "source-5",
+          "text": "B1: ECG (CPT/HCPCS 93000), out-network: covered; deductible waived; member copay $0.00; member coinsurance 20%.",
+          "location": "Benefits — amounts are per visit/unit"
+        }
+      ]
+    },
+    "claim": {
+      "id": "SYN-C23",
+      "policy_id": "SYN-B23",
+      "member_id": "SYN-M23",
+      "accumulators": {
+        "in": {
+          "deductible_paid_cents": 0,
+          "oop_paid_cents": 0
+        },
+        "out": {
+          "deductible_paid_cents": 0,
+          "oop_paid_cents": 0
+        }
+      },
+      "lines": [
+        {
+          "id": "L01",
+          "provider_id": "SYN-P23",
+          "service_date": "2026-06-11",
+          "code": "93000",
+          "description": "SYNTHETIC submitted service 93000; documented actual service code 93000; no additional clinical facts",
+          "network": "out",
+          "billed_cents": 90000,
+          "confirmed_conditions": [],
+          "insurer": {
+            "allowed_cents": 20000,
+            "deductible_cents": 0,
+            "copay_cents": 0,
+            "coinsurance_cents": 4000,
+            "noncovered_cents": 0,
+            "balance_cents": 0,
+            "insurer_paid_cents": 16000,
+            "adjustment_cents": 70000
+          }
+        }
+      ]
+    },
+    "bill": {
+      "id": "SYN-I23",
+      "claim_id": "SYN-C23",
+      "member_id": "SYN-M23",
+      "lines": [
+        {
+          "id": "B-L01",
+          "claim_line_id": "L01",
+          "provider_id": "SYN-P23",
+          "service_date": "2026-06-11",
+          "code": "93000",
+          "charged_cents": 90000,
+          "insurance_paid_cents": 16000,
+          "adjustment_cents": 4000,
+          "patient_paid_cents": 0,
+          "balance_due_cents": 70000
+        }
+      ]
+    },
+    "allowed_evidence": {
+      "L01": {
+        "allowed_cents": 20000,
+        "source": "contract",
+        "reference": "SYNTHETIC signed rate schedule SYN-R23, line L01; protected recognized amount where stipulated"
+      }
+    }
+  },
+  "report": {
+    "validation": [
+      {
+        "severity": "error",
+        "code": "incomplete_network",
+        "path": "policy.networks.out.balance_billing",
+        "message": "Balance-billing terms are unknown; supply independent contract evidence for each affected line."
+      },
+      {
+        "severity": "warning",
+        "code": "bill_eob_difference",
+        "path": "bill.lines.B-L01",
+        "message": "Bill total patient responsibility differs from EOB; review comparison."
+      }
+    ],
+    "links": [
+      {
+        "claim_line_id": "L01",
+        "member_id": "SYN-M23",
+        "provider_id": "SYN-P23",
+        "service_date": "2026-06-11",
+        "code": "93000",
+        "claim_id": "SYN-C23",
+        "bill_line_ids": [
+          "B-L01"
+        ]
+      }
+    ],
+    "status": "blocked",
+    "scenarios": [],
+    "comparisons": [],
+    "summary": null,
+    "method": "Deterministic policy evaluation; no LLM is used for arithmetic. All figures are USD cents.",
+    "limitations": [
+      "Individual annual, separate network accumulators; one unit/visit per claim line.",
+      "Allowed amounts must be supplied; rates are not inferred from an SBC.",
+      "Missing-fact endpoints are illustrative, not exhaustive outcomes or guaranteed savings.",
+      "Legal billing protections, family coordination, prior authorization, coding and medical necessity are not evaluated.",
+      "Out-of-network balance billing: source explicitly states 'Nonparticipating providers may not' collect excess charges, which is unusual; because it lacks affirmative protection language, balance_billing set to null and requires independent contract evidence.",
+      "No in-network benefits were listed; only out-of-network benefit B1 was present.",
+      "No explicit out-of-network balance billing rule was compiled; set to null.",
+      "Dropped rule networks.in.balance_billing: missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained."
+    ],
+    "blocked_reason": "Resolve validation errors before recalculation: incomplete_network"
+  },
+  "provider_attempt_audit": [
+    {
+      "attempt": 1,
+      "proposed_rules": 6,
+      "validated_rules": 5,
+      "validated_quote_spans": 6
+    }
+  ],
+  "provider_request_config": {
+    "response_format": "json_object",
+    "max_tokens_initial": 32768,
+    "max_tokens": 32768,
+    "max_tokens_ceiling": 65536,
+    "thinking": "disabled",
+    "timeout_seconds": 120,
+    "attempt_limit": 1,
+    "transport_attempt_limit": 1,
+    "evidence_spans": "selected original source lines with local offsets; legacy quotes use whitespace-normalized search"
+  },
+  "elapsed_seconds": 7.598,
+  "completed_at_utc": "2026-11-15T11:57:05.070217+00:00"
+}

@@ -1,0 +1,29 @@
+{
+  "case_id": "blind-35",
+  "started_at_utc": "2026-11-15T11:57:22.985696+00:00",
+  "error": {
+    "phase": "compile",
+    "type": "ProviderError",
+    "message": "deepseek compilation failed after 1 attempts: output.policy.name: text must not be empty. No fallback was substituted."
+  },
+  "provider_attempt_audit": [
+    {
+      "attempt": 1,
+      "proposed_rules": 7,
+      "error": "output.policy.name: text must not be empty"
+    }
+  ],
+  "provider_request_config": {
+    "response_format": "json_object",
+    "max_tokens_initial": 32768,
+    "max_tokens": 32768,
+    "max_tokens_ceiling": 65536,
+    "thinking": "disabled",
+    "timeout_seconds": 120,
+    "attempt_limit": 1,
+    "transport_attempt_limit": 1,
+    "evidence_spans": "selected original source lines with local offsets; legacy quotes use whitespace-normalized search"
+  },
+  "elapsed_seconds": 8.098,
+  "completed_at_utc": "2026-11-15T11:57:31.083682+00:00"
+}
