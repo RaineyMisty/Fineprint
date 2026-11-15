@@ -7,6 +7,7 @@ Source spans are Unicode character offsets into the exact submitted document.
 import hashlib
 import json
 import re
+from copy import deepcopy
 from dataclasses import dataclass, fields, is_dataclass
 from decimal import Decimal
 from types import UnionType
@@ -83,6 +84,91 @@ def json_schema(cls):
 
 
 OUTPUT_SCHEMA = json_schema(CompilerOutput)
+
+# Providers supply quotes, never offsets. The saved/validated output still has
+# exact Unicode spans into the original source, computed only by local code.
+PROVIDER_SCHEMA = deepcopy(OUTPUT_SCHEMA)
+_evidence_schema = PROVIDER_SCHEMA["properties"]["rule_evidence"]["items"]["properties"]["evidence"]["items"]
+for _key in ("start", "end"):
+    del _evidence_schema["properties"][_key]
+    _evidence_schema["required"].remove(_key)
+
+
+def _normalized_text(text):
+    return " ".join(text.split())
+
+
+def recover_evidence(value, document, document_id):
+    """Locate supplied quotes; never correct words, numbers or punctuation.
+
+    Whitespace alone may differ after PDF extraction. Saved quotes always equal
+    the exact source slice. Unsupported benefits are removed and made unresolved;
+    missing shared network terms still fail the whole compilation closed.
+    """
+    value = deepcopy(value)
+    # Preserve strict schema checking (including unknown fields), but offsets
+    # supplied by old clients are deliberately discarded before checking types.
+    for rule in value.get("rule_evidence", []):
+        for evidence in rule.get("evidence", []):
+            evidence["start"], evidence["end"] = 0, 0
+    validate_schema(value)
+    tokens = list(re.finditer(r"\S+", document))
+    normalized = " ".join(t.group() for t in tokens)
+    # Map normalized character positions back to original source positions.
+    starts, ends = [], []
+    for token in tokens:
+        if starts:
+            starts.append(tokens[0].start())  # spaces are never match endpoints
+            ends.append(token.start())
+        starts.extend(range(token.start(), token.end()))
+        ends.extend(range(token.start() + 1, token.end() + 1))
+    merged, dropped = {}, []
+    for rule in value["rule_evidence"]:
+        found = []
+        for evidence in rule["evidence"]:
+            quote = _normalized_text(evidence["quote"])
+            index = normalized.find(quote) if quote else -1
+            if evidence["source_document_id"] != document_id or index < 0:
+                continue
+            start, end = starts[index], ends[index + len(quote) - 1]
+            found.append({**evidence, "quote": document[start:end], "start": start, "end": end})
+        path = rule["rule_path"]
+        if not found:
+            dropped.append(path)
+            continue
+        if path not in merged:
+            merged[path] = {**rule, "evidence": []}
+        merged[path]["confidence_bps"] = min(merged[path]["confidence_bps"], rule["confidence_bps"])
+        if rule["ambiguity"] != "none":
+            merged[path]["ambiguity"] = rule["ambiguity"]
+        for evidence in found:
+            if evidence not in merged[path]["evidence"]:
+                merged[path]["evidence"].append(evidence)
+    # Clause text must independently agree with one of the located quotes.
+    clauses = {c["id"]: c for c in value["policy"]["clauses"]}
+    for rule in merged.values():
+        for evidence in rule["evidence"]:
+            for clause in clauses.values():
+                if _normalized_text(clause["text"]) == _normalized_text(evidence["quote"]):
+                    clause["text"] = evidence["quote"]
+    retained = []
+    for benefit in value["policy"]["benefits"]:
+        path = "benefits." + benefit["id"]
+        rule = merged.get(path)
+        quotes = {e["quote"] for e in rule["evidence"]} if rule else set()
+        if (not rule or not benefit["clause_ids"] or any(
+                ref not in clauses or clauses[ref]["text"] not in quotes for ref in benefit["clause_ids"])):
+            merged.pop(path, None)
+            dropped.append(path)
+        else:
+            retained.append(benefit)
+    value["policy"]["benefits"] = retained
+    value["rule_evidence"] = list(merged.values())
+    for path in sorted(set(dropped) - set(merged)):
+        message = f"Dropped rule {path}: missing or unmatched source quote/clause; no executable rule retained."
+        value["warnings"].append(message)
+        value["unresolved"].append(message)
+    return value
 
 
 def validate_schema(value, schema=OUTPUT_SCHEMA, path="output"):

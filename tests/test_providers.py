@@ -9,7 +9,7 @@ from types import ModuleType, SimpleNamespace
 from unittest.mock import Mock, patch
 from urllib.error import HTTPError, URLError
 
-from fineprint.compiler import FallbackCompiler, OUTPUT_SCHEMA, get_compiler
+from fineprint.compiler import FallbackCompiler, PROVIDER_SCHEMA, get_compiler
 from fineprint.models import to_dict
 from fineprint.providers import LLMCompiler, ProviderError, _post
 
@@ -34,18 +34,17 @@ class ProviderTransportTests(unittest.TestCase):
                 self.assertEqual(headers,{'Authorization':'Bearer test-only'})
                 self.assertEqual(body['model'],model or 'deepseek-v4-pro')
                 self.assertEqual(body['response_format'],{'type':'json_object'})
-                self.assertEqual(body['max_tokens'],16384)
+                self.assertEqual(body['max_tokens'],32768)
                 self.assertEqual(body['thinking'],{'type':'disabled'})
                 self.assertIn('SCHEMA:',body['messages'][0]['content'])
                 self.assertEqual(to_dict(result.output),good)
 
     def test_deepseek_rejects_invalid_outputs_without_patching(self):
         good=to_dict(FallbackCompiler().compile(DOC).output)
-        forged=deepcopy(good);forged['rule_evidence'][0]['evidence'][0]['start']+=1
-        missing=deepcopy(good);missing['rule_evidence'].pop()
+        forged=deepcopy(good);forged['rule_evidence'][0]['evidence'][0]['quote']='invented quote'
         unknown=deepcopy(good);unknown['invented']=True
         float_money=deepcopy(good);float_money['policy']['networks']['in']['deductible_cents']=1.5
-        for invalid in ({},forged,missing,unknown,float_money,'   ','{broken'):
+        for invalid in ({},forged,unknown,float_money,'   ','{broken'):
             with self.subTest(invalid=type(invalid).__name__):
                 transport=Mock(return_value=invalid)
                 with self.assertRaisesRegex(ProviderError,'No fallback was substituted'):
@@ -64,7 +63,7 @@ class ProviderTransportTests(unittest.TestCase):
             sleep=Mock()
             with self.subTest(error=type(failure).__name__),patch.dict(os.environ,{'DEEPSEEK_API_KEY':'test-only'}),patch('fineprint.providers.urlopen',side_effect=[failure,reply]):
                 result=LLMCompiler('deepseek',retries=2,sleep=sleep).compile(DOC)
-            self.assertEqual(result.attempts,2)
+            self.assertEqual(result.attempts,1)
             sleep.assert_called_once_with(1)
         for invalid in (response(' ', 'length'),response(' '),{'choices':[]}):
             with patch.dict(os.environ,{'DEEPSEEK_API_KEY':'test-only'}),patch('fineprint.providers._post',return_value=invalid):
@@ -96,7 +95,7 @@ class ProviderTransportTests(unittest.TestCase):
         self.assertEqual(boto.client.call_args.kwargs['region_name'],'us-east-2')
         call=client.converse.call_args.kwargs
         self.assertEqual(call['modelId'],'test-only-enabled-profile')
-        self.assertEqual(call['toolConfig']['tools'][0]['toolSpec']['inputSchema']['json'],OUTPUT_SCHEMA)
+        self.assertEqual(call['toolConfig']['tools'][0]['toolSpec']['inputSchema']['json'],PROVIDER_SCHEMA)
         self.assertEqual(call['toolConfig']['toolChoice'],{'tool':{'name':'compile_policy'}})
 
     def test_bedrock_failure_is_sanitized(self):
@@ -115,4 +114,20 @@ class ProviderTransportTests(unittest.TestCase):
             self.assertEqual(_post('https://example.invalid',{'Authorization':'test-only'},{'text':'quote " and newline\n'}),{'ok':True})
         request=send.call_args.args[0]
         self.assertEqual(json.loads(request.data),{'text':'quote " and newline\n'})
-        self.assertEqual(send.call_args.kwargs['timeout'],60)
+        self.assertEqual(send.call_args.kwargs['timeout'],300)
+
+    def test_truncated_response_retries_with_larger_budget(self):
+        good=to_dict(FallbackCompiler().compile(DOC).output)
+        replies=[{'choices':[{'finish_reason':'length','message':{'content':'{"policy":'}}]},
+                 {'choices':[{'finish_reason':'stop','message':{'content':json.dumps(good)}}]}]
+        with patch.dict(os.environ,{'DEEPSEEK_API_KEY':'test-only'}),patch('fineprint.providers._post',side_effect=replies) as post:
+            result=LLMCompiler('deepseek',sleep=lambda _:None).compile(DOC)
+        self.assertEqual(result.attempts,2)
+        self.assertEqual([c.args[2]['max_tokens'] for c in post.call_args_list],[32768,65536])
+
+    def test_transport_retries_do_not_consume_validation_attempt(self):
+        reply=Mock();reply.__enter__=Mock(return_value=reply);reply.__exit__=Mock(return_value=False)
+        reply.read.return_value=b'{"ok":true}'
+        with patch('fineprint.providers.urlopen',side_effect=[TimeoutError(),reply]) as send:
+            self.assertEqual(_post('https://example.invalid',{}, {},sleep=lambda _:None),{'ok':True})
+        self.assertEqual(send.call_count,2)

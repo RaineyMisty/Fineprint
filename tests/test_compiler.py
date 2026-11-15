@@ -84,6 +84,37 @@ class CompilerTests(unittest.TestCase):
         with self.assertRaisesRegex(ProviderError, '3 attempts'):
             LLMCompiler('anthropic', transport=lambda *_: {}, sleep=lambda _: None).compile(DOC)
 
+    def test_llm_recovers_wrapped_quotes_and_ignores_model_offsets(self):
+        good = to_dict(FallbackCompiler().compile(DOC).output)
+        # Simulate PDF wrapping while the model returns collapsed whitespace.
+        wrapped = DOC.replace('annual in-network', 'annual\n  in-network')
+        for rule in good['rule_evidence']:
+            for evidence in rule['evidence']:
+                evidence.pop('start'); evidence.pop('end')
+        result = LLMCompiler('deepseek', transport=lambda *_:good).compile(wrapped)
+        for rule in result.output.rule_evidence:
+            for evidence in rule.evidence:
+                self.assertEqual(wrapped[evidence.start:evidence.end], evidence.quote)
+        self.assertFalse(result.output.unresolved)
+
+    def test_llm_multiple_evidence_entries_merge_and_bad_benefit_drops(self):
+        good = to_dict(FallbackCompiler().compile(DOC).output)
+        benefit_rule = next(r for r in good['rule_evidence'] if r['rule_path'].startswith('benefits.'))
+        first, second = deepcopy(benefit_rule), deepcopy(benefit_rule)
+        first['evidence'] = first['evidence'][:1]
+        second['evidence'] = second['evidence'][1:]
+        good['rule_evidence'].remove(benefit_rule)
+        good['rule_evidence'] += [first, second]
+        result = LLMCompiler('deepseek', transport=lambda *_:good).compile(DOC)
+        self.assertFalse(result.output.unresolved)
+        rule = next(r for r in result.output.rule_evidence if r.rule_path == benefit_rule['rule_path'])
+        self.assertEqual(len(rule.evidence), 2)
+        first['evidence'][0]['quote'] = 'This quote is not in the source.'
+        result = LLMCompiler('deepseek', transport=lambda *_:good).compile(DOC)
+        self.assertEqual(len(result.policy.benefits), 2)
+        self.assertTrue(any(benefit_rule['rule_path'] in warning for warning in result.output.unresolved))
+        self.assertNotIn(benefit_rule['rule_path'], {r.rule_path for r in result.output.rule_evidence})
+
     def test_live_request_payload_contracts_with_test_http(self):
         good = to_dict(FallbackCompiler().compile(DOC).output)
         for provider in ('openai', 'anthropic'):

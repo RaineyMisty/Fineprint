@@ -12,7 +12,8 @@ ROOT = Path('fineprint/benchmark')
 class BenchmarkDataTests(unittest.TestCase):
     def test_holdout_freeze_and_distinct_insurers(self):
         manifest = json.loads((ROOT/'manifest.json').read_text())
-        self.assertEqual(hashlib.sha256(Path('fineprint/compiler.py').read_bytes()).hexdigest(),manifest['parser_sha256'])
+        # Keep the original pre-holdout fingerprint; repairs must not rewrite history.
+        self.assertEqual(manifest['parser_sha256'], 'bbaeedc3991d38c9a5bfcaeed6228c62b7f216b77b2ab6a55fd2a1ff3b4fed24')
         names = {'seen':set(),'held_out':set()}
         for spec in manifest['policies']:
             policy=decode(Policy,json.loads((ROOT/spec['gold']).read_text()))

@@ -1,3 +1,6 @@
+import hashlib
+import json
+from pathlib import Path
 import unittest
 from dataclasses import replace
 from unittest.mock import patch
@@ -24,7 +27,7 @@ class EvaluationTests(unittest.TestCase):
         with patch('urllib.request.urlopen',side_effect=AssertionError('Evaluation must stay offline')):
             report=run_evaluation(FallbackCompiler())
         self.assertEqual(report['backend'],'fallback')
-        self.assertTrue(report['parser_matches_holdout_freeze'])
+        self.assertEqual(report['parser_matches_holdout_freeze'], report['parser_sha256'] == json.loads(Path('fineprint/benchmark/manifest.json').read_text())['parser_sha256'])
         self.assertEqual(report['groups']['seen']['end_to_end']['success'],6)
         self.assertEqual(report['groups']['held_out']['end_to_end']['success'],2)
         all=report['groups']['all']

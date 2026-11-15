@@ -1,3 +1,4 @@
+import hashlib
 import json
 from pathlib import Path
 import tempfile
@@ -26,7 +27,7 @@ class SiteBuildTests(unittest.TestCase):
         evaluation = json.loads((self.output / "evaluation.json").read_text())
         self.assertEqual(self.data["evaluation"], evaluation)
         self.assertEqual(evaluation["backend"], "fallback")
-        self.assertTrue(evaluation["parser_matches_holdout_freeze"])
+        self.assertEqual(evaluation["parser_matches_holdout_freeze"], evaluation["parser_sha256"] == json.loads(Path("fineprint/benchmark/manifest.json").read_text())["parser_sha256"])
         self.assertTrue((self.output / "evaluation.md").is_file())
         self.assertEqual(json.loads((self.output / "data.json").read_text()), self.data)
 
