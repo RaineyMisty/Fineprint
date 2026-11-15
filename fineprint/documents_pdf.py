@@ -26,8 +26,8 @@ MAX_PDF_BYTES = 11 * 1024 * 1024
 MAX_PAGES = 1500
 KINDS = ("policy", "eob", "bill")
 PAGE_BREAK = "\n\f\n"  # policy_sections splits long documents into pages on form feeds
-MIN_PAGE_CHARS = 5     # a page with fewer non-space characters is treated as having no text layer
-MIN_DOCUMENT_CHARS = 20
+MIN_PAGE_CHARS = 1     # only whitespace-only pages have no selectable text
+MIN_DOCUMENT_CHARS = 1
 
 # Column sets the existing adapters read (fineprint/adapters.py); extra columns are allowed.
 TABLES = {
@@ -134,7 +134,7 @@ def extract_pdf_text(data):
 
 def _row(line):
     try:
-        return [cell.strip() for cell in next(csv.reader([line.strip()]))]
+        return [cell.strip() for cell in next(csv.reader([line.strip()], strict=True))]
     except (csv.Error, StopIteration):
         return []
 
@@ -161,7 +161,7 @@ def find_table(text, kind):
             if [cell.lower() for cell in cells] == lowered:
                 continue  # header repeated on a following page
             if len(cells) != len(header):
-                break
+                return None
             try:
                 for name in money:
                     dollars(cells[index[name]])
@@ -174,9 +174,9 @@ def find_table(text, kind):
             return None
         out = io.StringIO()
         writer = csv.writer(out, lineterminator="\n")
-        writer.writerow(header)
+        writer.writerow(lowered)
         writer.writerows(rows)
-        return fmt, out.getvalue(), len(rows), header
+        return fmt, out.getvalue(), len(rows), lowered
     return None
 
 
@@ -216,7 +216,7 @@ def extract_request(payload):
     if not isinstance(payload, dict) or set(payload) != {"kind", "filename", "content_base64"}:
         raise PdfError(SCHEMA_ERROR)
     kind, filename, content = payload["kind"], payload["filename"], payload["content_base64"]
-    if kind not in KINDS or not isinstance(filename, str) or len(filename) > 255 or not isinstance(content, str) or not content:
+    if kind not in KINDS or not isinstance(filename, str) or not filename.strip() or len(filename) > 255 or not isinstance(content, str) or not content:
         raise PdfError(SCHEMA_ERROR)
     if content.startswith("data:") and "," in content[:100]:
         content = content.split(",", 1)[1]
