@@ -1,0 +1,17 @@
+{
+  "synthetic": true,
+  "case_id": "blind-22",
+  "true_error": true,
+  "lines": [
+    {
+      "line_id": "L01",
+      "patient_responsibility_cents": 70000,
+      "remaining_owed_cents": 70000,
+      "refund_cents": 0
+    }
+  ],
+  "total_patient_responsibility_cents": 70000,
+  "total_remaining_owed_cents": 70000,
+  "total_refund_cents": 0,
+  "rationale": "Explicit exclusion makes the full $700 payable; $140 is an underbill of $560."
+}

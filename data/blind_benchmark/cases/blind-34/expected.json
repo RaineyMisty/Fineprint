@@ -1,0 +1,17 @@
+{
+  "synthetic": true,
+  "case_id": "blind-34",
+  "true_error": true,
+  "lines": [
+    {
+      "line_id": "L01",
+      "patient_responsibility_cents": 22000,
+      "remaining_owed_cents": 22000,
+      "refund_cents": 0
+    }
+  ],
+  "total_patient_responsibility_cents": 22000,
+  "total_remaining_owed_cents": 22000,
+  "total_refund_cents": 0,
+  "rationale": "Verified prior deductible $850 leaves $150, then 20% of $350 = $70: total $220, not $460."
+}

@@ -1,0 +1,62 @@
+{
+  "synthetic": true,
+  "case_id": "blind-40",
+  "policy_id": "SYN-B40",
+  "member_id": "SYN-M40",
+  "claim_id": "SYN-C40",
+  "insurer": "SYNTHETIC Linden Comet Health",
+  "document_type": "SYNTHETIC explanation of benefits",
+  "title": "Separate network pools and omitted permitted excess",
+  "opening_accumulators_cents": {
+    "in_deductible": 90000,
+    "in_oop": 150000,
+    "out_deductible": 150000,
+    "out_oop": 200000
+  },
+  "lines": [
+    {
+      "line_id": "L01",
+      "provider_id": "SYN-P40",
+      "service_date": "2026-06-11",
+      "code": "74177",
+      "units": 1,
+      "network": "in",
+      "charge_cents": 100000,
+      "allowed_amount_cents": 60000,
+      "allowed_source": "contract",
+      "allowed_reference": "SYNTHETIC signed rate schedule SYN-R40, line L01; protected recognized amount where stipulated",
+      "deductible_cents": 10000,
+      "copay_cents": 0,
+      "coinsurance_cents": 10000,
+      "noncovered_cents": 0,
+      "balance_bill_cents": 0,
+      "insurer_payment_cents": 40000,
+      "adjustment_cents": 40000,
+      "patient_responsibility_cents": 20000,
+      "documented_facts": "",
+      "actual_service_code": "74177"
+    },
+    {
+      "line_id": "L02",
+      "provider_id": "SYN-P40",
+      "service_date": "2026-06-12",
+      "code": "70551",
+      "units": 1,
+      "network": "out",
+      "charge_cents": 130000,
+      "allowed_amount_cents": 100000,
+      "allowed_source": "contract",
+      "allowed_reference": "SYNTHETIC signed rate schedule SYN-R40, line L02; protected recognized amount where stipulated",
+      "deductible_cents": 50000,
+      "copay_cents": 0,
+      "coinsurance_cents": 20000,
+      "noncovered_cents": 0,
+      "balance_bill_cents": 0,
+      "insurer_payment_cents": 30000,
+      "adjustment_cents": 30000,
+      "patient_responsibility_cents": 70000,
+      "documented_facts": "",
+      "actual_service_code": "70551"
+    }
+  ]
+}

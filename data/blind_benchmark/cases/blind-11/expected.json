@@ -1,0 +1,23 @@
+{
+  "synthetic": true,
+  "case_id": "blind-11",
+  "true_error": false,
+  "lines": [
+    {
+      "line_id": "L01",
+      "patient_responsibility_cents": 120000,
+      "remaining_owed_cents": 120000,
+      "refund_cents": 0
+    },
+    {
+      "line_id": "L02",
+      "patient_responsibility_cents": 0,
+      "remaining_owed_cents": 0,
+      "refund_cents": 0
+    }
+  ],
+  "total_patient_responsibility_cents": 120000,
+  "total_remaining_owed_cents": 120000,
+  "total_refund_cents": 0,
+  "rationale": "Covered sharing is $0 because OOP is met; the $1,200 cosmetic exclusion stays outside the cap."
+}

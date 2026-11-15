@@ -1,0 +1,23 @@
+{
+  "synthetic": true,
+  "case_id": "blind-15",
+  "true_error": false,
+  "lines": [
+    {
+      "line_id": "L01",
+      "patient_responsibility_cents": 8000,
+      "remaining_owed_cents": 8000,
+      "refund_cents": 0
+    },
+    {
+      "line_id": "L02",
+      "patient_responsibility_cents": 1000,
+      "remaining_owed_cents": 1000,
+      "refund_cents": 0
+    }
+  ],
+  "total_patient_responsibility_cents": 9000,
+  "total_remaining_owed_cents": 9000,
+  "total_refund_cents": 0,
+  "rationale": "$90 OOP remains: first line owes $80; second owes only the last $10, for $90 total."
+}

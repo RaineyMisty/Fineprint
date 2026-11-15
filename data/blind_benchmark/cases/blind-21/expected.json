@@ -1,0 +1,17 @@
+{
+  "synthetic": true,
+  "case_id": "blind-21",
+  "true_error": true,
+  "lines": [
+    {
+      "line_id": "L01",
+      "patient_responsibility_cents": 8000,
+      "remaining_owed_cents": 8000,
+      "refund_cents": 0
+    }
+  ],
+  "total_patient_responsibility_cents": 8000,
+  "total_remaining_owed_cents": 8000,
+  "total_refund_cents": 0,
+  "rationale": "Verified in-network status gives 20% of $400 = $80; neither out-tier sharing nor excess is permitted."
+}

@@ -1,0 +1,17 @@
+{
+  "synthetic": true,
+  "case_id": "blind-10",
+  "true_error": false,
+  "lines": [
+    {
+      "line_id": "L01",
+      "patient_responsibility_cents": 15000,
+      "remaining_owed_cents": 15000,
+      "refund_cents": 0
+    }
+  ],
+  "total_patient_responsibility_cents": 15000,
+  "total_remaining_owed_cents": 15000,
+  "total_refund_cents": 0,
+  "rationale": "The $150 allowance is smaller than the $1,000 unmet deductible, so responsibility is $150."
+}

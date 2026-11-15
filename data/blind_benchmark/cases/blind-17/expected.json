@@ -1,0 +1,17 @@
+{
+  "synthetic": true,
+  "case_id": "blind-17",
+  "true_error": true,
+  "lines": [
+    {
+      "line_id": "L01",
+      "patient_responsibility_cents": 36000,
+      "remaining_owed_cents": 36000,
+      "refund_cents": 0
+    }
+  ],
+  "total_patient_responsibility_cents": 36000,
+  "total_remaining_owed_cents": 36000,
+  "total_refund_cents": 0,
+  "rationale": "Only $200 deductible remains: $200 + 20% of $800 = $360, not $440."
+}

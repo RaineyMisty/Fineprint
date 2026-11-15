@@ -1,0 +1,17 @@
+{
+  "synthetic": true,
+  "case_id": "blind-31",
+  "true_error": true,
+  "lines": [
+    {
+      "line_id": "L01",
+      "patient_responsibility_cents": 5500,
+      "remaining_owed_cents": 5500,
+      "refund_cents": 0
+    }
+  ],
+  "total_patient_responsibility_cents": 5500,
+  "total_remaining_owed_cents": 5500,
+  "total_refund_cents": 0,
+  "rationale": "EOB and contract agree on $55; the bill adds an unsupported $40."
+}

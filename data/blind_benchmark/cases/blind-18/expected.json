@@ -1,0 +1,17 @@
+{
+  "synthetic": true,
+  "case_id": "blind-18",
+  "true_error": true,
+  "lines": [
+    {
+      "line_id": "L01",
+      "patient_responsibility_cents": 3000,
+      "remaining_owed_cents": 3000,
+      "refund_cents": 0
+    }
+  ],
+  "total_patient_responsibility_cents": 3000,
+  "total_remaining_owed_cents": 3000,
+  "total_refund_cents": 0,
+  "rationale": "The visit owes only $30; adding 20% of $270 invents $54 of liability."
+}

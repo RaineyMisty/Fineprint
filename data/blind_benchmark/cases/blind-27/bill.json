@@ -1,0 +1,26 @@
+{
+  "synthetic": true,
+  "case_id": "blind-27",
+  "policy_id": "SYN-B27",
+  "member_id": "SYN-M27",
+  "claim_id": "SYN-C27",
+  "insurer": "SYNTHETIC Velvet Compass Health",
+  "document_type": "SYNTHETIC itemized medical bill",
+  "bill_id": "SYN-I27",
+  "lines": [
+    {
+      "line_id": "L01",
+      "provider_id": "SYN-P27",
+      "service_date": "2026-06-11",
+      "code": "70553",
+      "units": 1,
+      "claim_line_id": "L01",
+      "charge_cents": 140000,
+      "insurance_credit_cents": 72000,
+      "adjustment_cents": 40000,
+      "patient_paid_cents": 0,
+      "balance_due_cents": 28000,
+      "documented_facts": "Member requested nonauthorized elective service and signed the plan's valid advance financial undertaking."
+    }
+  ]
+}

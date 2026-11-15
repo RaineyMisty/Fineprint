@@ -1,0 +1,11 @@
+{
+  "synthetic": true,
+  "case_count": 40,
+  "correct_cases": 16,
+  "error_cases": 24,
+  "sha256_algorithm": "sorted relative POSIX path + NUL + contents + NUL",
+  "cases_directory_sha256": "6b170685afb68afa0d64d49b4313b4eb9eba5283ae187759888a16a4dc4c7679",
+  "authored_at_utc": "2026-11-15T11:30:46.824507+00:00",
+  "preauthor_revision": "a231f32a00b09ae674a7b3e06da2f89a3648b022",
+  "pre_freeze_application_calls": 0
+}

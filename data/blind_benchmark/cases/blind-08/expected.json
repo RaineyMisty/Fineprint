@@ -1,0 +1,23 @@
+{
+  "synthetic": true,
+  "case_id": "blind-08",
+  "true_error": false,
+  "lines": [
+    {
+      "line_id": "L01",
+      "patient_responsibility_cents": 2500,
+      "remaining_owed_cents": 2500,
+      "refund_cents": 0
+    },
+    {
+      "line_id": "L02",
+      "patient_responsibility_cents": 2500,
+      "remaining_owed_cents": 2500,
+      "refund_cents": 0
+    }
+  ],
+  "total_patient_responsibility_cents": 5000,
+  "total_remaining_owed_cents": 5000,
+  "total_refund_cents": 0,
+  "rationale": "These are separate documented visits on separate dates: two $25 copays, total $50."
+}

@@ -1,0 +1,26 @@
+{
+  "synthetic": true,
+  "case_id": "blind-06",
+  "policy_id": "SYN-B06",
+  "member_id": "SYN-M06",
+  "claim_id": "SYN-C06",
+  "insurer": "SYNTHETIC Wren Harbor Mutual",
+  "document_type": "SYNTHETIC itemized medical bill",
+  "bill_id": "SYN-I06",
+  "lines": [
+    {
+      "line_id": "L01",
+      "provider_id": "SYN-P06",
+      "service_date": "2026-06-11",
+      "code": "15829",
+      "units": 1,
+      "claim_line_id": "L01",
+      "charge_cents": 80000,
+      "insurance_credit_cents": 0,
+      "adjustment_cents": 0,
+      "patient_paid_cents": 0,
+      "balance_due_cents": 80000,
+      "documented_facts": ""
+    }
+  ]
+}

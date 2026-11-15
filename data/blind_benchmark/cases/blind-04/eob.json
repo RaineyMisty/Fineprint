@@ -1,0 +1,40 @@
+{
+  "synthetic": true,
+  "case_id": "blind-04",
+  "policy_id": "SYN-B04",
+  "member_id": "SYN-M04",
+  "claim_id": "SYN-C04",
+  "insurer": "SYNTHETIC Opal Orchard Cooperative",
+  "document_type": "SYNTHETIC explanation of benefits",
+  "title": "Last dollars before the out-of-pocket ceiling",
+  "opening_accumulators_cents": {
+    "in_deductible": 100000,
+    "in_oop": 492500,
+    "out_deductible": 0,
+    "out_oop": 0
+  },
+  "lines": [
+    {
+      "line_id": "L01",
+      "provider_id": "SYN-P04",
+      "service_date": "2026-06-11",
+      "code": "72148",
+      "units": 1,
+      "network": "in",
+      "charge_cents": 220000,
+      "allowed_amount_cents": 100000,
+      "allowed_source": "contract",
+      "allowed_reference": "SYNTHETIC signed rate schedule SYN-R04, line L01; protected recognized amount where stipulated",
+      "deductible_cents": 0,
+      "copay_cents": 0,
+      "coinsurance_cents": 7500,
+      "noncovered_cents": 0,
+      "balance_bill_cents": 0,
+      "insurer_payment_cents": 92500,
+      "adjustment_cents": 120000,
+      "patient_responsibility_cents": 7500,
+      "documented_facts": "",
+      "actual_service_code": "72148"
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "synthetic": true,
+  "case_id": "blind-25",
+  "policy_id": "SYN-B25",
+  "member_id": "SYN-M25",
+  "claim_id": "SYN-C25",
+  "insurer": "SYNTHETIC Aster Lantern Mutual",
+  "document_type": "SYNTHETIC itemized medical bill",
+  "bill_id": "SYN-I25",
+  "lines": [
+    {
+      "line_id": "L01",
+      "provider_id": "SYN-P25",
+      "service_date": "2026-06-11",
+      "code": "00840",
+      "units": 1,
+      "claim_line_id": "L01",
+      "charge_cents": 160000,
+      "insurance_credit_cents": 0,
+      "adjustment_cents": 88000,
+      "patient_paid_cents": 0,
+      "balance_due_cents": 72000,
+      "documented_facts": "Nonparticipating ancillary anesthesia at participating facility; surprise-billing protection stipulated; no valid waiver."
+    }
+  ]
+}

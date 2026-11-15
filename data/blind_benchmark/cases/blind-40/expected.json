@@ -1,0 +1,23 @@
+{
+  "synthetic": true,
+  "case_id": "blind-40",
+  "true_error": true,
+  "lines": [
+    {
+      "line_id": "L01",
+      "patient_responsibility_cents": 20000,
+      "remaining_owed_cents": 20000,
+      "refund_cents": 0
+    },
+    {
+      "line_id": "L02",
+      "patient_responsibility_cents": 100000,
+      "remaining_owed_cents": 100000,
+      "refund_cents": 0
+    }
+  ],
+  "total_patient_responsibility_cents": 120000,
+  "total_remaining_owed_cents": 120000,
+  "total_refund_cents": 0,
+  "rationale": "In network: $100 + 20% of $500 = $200. Out network: separate $500 deductible + 40% of $500 + $300 permitted balance = $1,000. Total $1,200; the $900 statement is an underbill."
+}

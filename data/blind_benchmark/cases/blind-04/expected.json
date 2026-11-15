@@ -1,0 +1,17 @@
+{
+  "synthetic": true,
+  "case_id": "blind-04",
+  "true_error": false,
+  "lines": [
+    {
+      "line_id": "L01",
+      "patient_responsibility_cents": 7500,
+      "remaining_owed_cents": 7500,
+      "refund_cents": 0
+    }
+  ],
+  "total_patient_responsibility_cents": 7500,
+  "total_remaining_owed_cents": 7500,
+  "total_refund_cents": 0,
+  "rationale": "$5,000 - $4,925 = $75 remaining OOP; nominal $200 sharing is capped at $75."
+}

@@ -1,0 +1,26 @@
+{
+  "synthetic": true,
+  "case_id": "blind-02",
+  "policy_id": "SYN-B02",
+  "member_id": "SYN-M02",
+  "claim_id": "SYN-C02",
+  "insurer": "SYNTHETIC Juniper Kite Assurance",
+  "document_type": "SYNTHETIC itemized medical bill",
+  "bill_id": "SYN-I02",
+  "lines": [
+    {
+      "line_id": "L01",
+      "provider_id": "SYN-P02",
+      "service_date": "2026-06-11",
+      "code": "99213",
+      "units": 1,
+      "claim_line_id": "L01",
+      "charge_cents": 21000,
+      "insurance_credit_cents": 9500,
+      "adjustment_cents": 8000,
+      "patient_paid_cents": 0,
+      "balance_due_cents": 3500,
+      "documented_facts": ""
+    }
+  ]
+}

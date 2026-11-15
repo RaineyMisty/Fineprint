@@ -1,0 +1,17 @@
+{
+  "synthetic": true,
+  "case_id": "blind-02",
+  "true_error": false,
+  "lines": [
+    {
+      "line_id": "L01",
+      "patient_responsibility_cents": 3500,
+      "remaining_owed_cents": 3500,
+      "refund_cents": 0
+    }
+  ],
+  "total_patient_responsibility_cents": 3500,
+  "total_remaining_owed_cents": 3500,
+  "total_refund_cents": 0,
+  "rationale": "The $35 copay replaces all other cost sharing for this visit."
+}

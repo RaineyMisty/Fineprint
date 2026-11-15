@@ -1,0 +1,17 @@
+{
+  "synthetic": true,
+  "case_id": "blind-29",
+  "true_error": true,
+  "lines": [
+    {
+      "line_id": "L01",
+      "patient_responsibility_cents": 2000,
+      "remaining_owed_cents": 2000,
+      "refund_cents": 0
+    }
+  ],
+  "total_patient_responsibility_cents": 2000,
+  "total_remaining_owed_cents": 2000,
+  "total_refund_cents": 0,
+  "rationale": "The acknowledged correct service is 99212, which owes $20, not the billed 99215's $70."
+}

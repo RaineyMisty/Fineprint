@@ -1,0 +1,23 @@
+{
+  "synthetic": true,
+  "case_id": "blind-36",
+  "true_error": true,
+  "lines": [
+    {
+      "line_id": "L01",
+      "patient_responsibility_cents": 60000,
+      "remaining_owed_cents": 60000,
+      "refund_cents": 0
+    },
+    {
+      "line_id": "L02",
+      "patient_responsibility_cents": 20000,
+      "remaining_owed_cents": 20000,
+      "refund_cents": 0
+    }
+  ],
+  "total_patient_responsibility_cents": 80000,
+  "total_remaining_owed_cents": 80000,
+  "total_refund_cents": 0,
+  "rationale": "The $600 exclusion does not consume the $500 remaining OOP. Covered CT still owes $200; total $800."
+}

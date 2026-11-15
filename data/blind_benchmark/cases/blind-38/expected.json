@@ -1,0 +1,17 @@
+{
+  "synthetic": true,
+  "case_id": "blind-38",
+  "true_error": true,
+  "lines": [
+    {
+      "line_id": "L01",
+      "patient_responsibility_cents": 15000,
+      "remaining_owed_cents": 15000,
+      "refund_cents": 0
+    }
+  ],
+  "total_patient_responsibility_cents": 15000,
+  "total_remaining_owed_cents": 15000,
+  "total_refund_cents": 0,
+  "rationale": "$100 deductible, then $25 copay, then 20% of $125 = $25. Total $150, not $155."
+}

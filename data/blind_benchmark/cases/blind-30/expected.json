@@ -1,0 +1,23 @@
+{
+  "synthetic": true,
+  "case_id": "blind-30",
+  "true_error": true,
+  "lines": [
+    {
+      "line_id": "L01",
+      "patient_responsibility_cents": 2000,
+      "remaining_owed_cents": 2000,
+      "refund_cents": 0
+    },
+    {
+      "line_id": "L02",
+      "patient_responsibility_cents": 0,
+      "remaining_owed_cents": 0,
+      "refund_cents": 0
+    }
+  ],
+  "total_patient_responsibility_cents": 2000,
+  "total_remaining_owed_cents": 2000,
+  "total_refund_cents": 0,
+  "rationale": "Panel sharing is $20. Its already included electrolyte component carries no additional $12."
+}

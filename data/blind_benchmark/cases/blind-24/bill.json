@@ -1,0 +1,26 @@
+{
+  "synthetic": true,
+  "case_id": "blind-24",
+  "policy_id": "SYN-B24",
+  "member_id": "SYN-M24",
+  "claim_id": "SYN-C24",
+  "insurer": "SYNTHETIC Linden Comet Health",
+  "document_type": "SYNTHETIC itemized medical bill",
+  "bill_id": "SYN-I24",
+  "lines": [
+    {
+      "line_id": "L01",
+      "provider_id": "SYN-P24",
+      "service_date": "2026-06-11",
+      "code": "99285",
+      "units": 1,
+      "claim_line_id": "L01",
+      "charge_cents": 220000,
+      "insurance_credit_cents": 20000,
+      "adjustment_cents": 100000,
+      "patient_paid_cents": 0,
+      "balance_due_cents": 100000,
+      "documented_facts": "Emergency at nonparticipating facility; qualifying federal surprise-billing protection stipulated. No notice-and-consent exception."
+    }
+  ]
+}

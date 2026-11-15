@@ -1,0 +1,23 @@
+{
+  "synthetic": true,
+  "case_id": "blind-07",
+  "true_error": false,
+  "lines": [
+    {
+      "line_id": "L01",
+      "patient_responsibility_cents": 28000,
+      "remaining_owed_cents": 28000,
+      "refund_cents": 0
+    },
+    {
+      "line_id": "L02",
+      "patient_responsibility_cents": 10000,
+      "remaining_owed_cents": 10000,
+      "refund_cents": 0
+    }
+  ],
+  "total_patient_responsibility_cents": 38000,
+  "total_remaining_owed_cents": 38000,
+  "total_refund_cents": 0,
+  "rationale": "First line uses $100 remaining deductible and $180 coinsurance; the next uses $100 coinsurance. Total $380."
+}

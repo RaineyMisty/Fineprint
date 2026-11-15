@@ -1,0 +1,17 @@
+{
+  "synthetic": true,
+  "case_id": "blind-23",
+  "true_error": true,
+  "lines": [
+    {
+      "line_id": "L01",
+      "patient_responsibility_cents": 4000,
+      "remaining_owed_cents": 4000,
+      "refund_cents": 0
+    }
+  ],
+  "total_patient_responsibility_cents": 4000,
+  "total_remaining_owed_cents": 4000,
+  "total_refund_cents": 0,
+  "rationale": "The plan and provider agreement prohibit excess: 20% of $200 = $40, regardless of the $900 charge."
+}

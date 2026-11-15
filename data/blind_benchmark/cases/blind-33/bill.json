@@ -1,0 +1,26 @@
+{
+  "synthetic": true,
+  "case_id": "blind-33",
+  "policy_id": "SYN-B33",
+  "member_id": "SYN-M33",
+  "claim_id": "SYN-C33",
+  "insurer": "SYNTHETIC Aster Lantern Mutual",
+  "document_type": "SYNTHETIC itemized medical bill",
+  "bill_id": "SYN-I33",
+  "lines": [
+    {
+      "line_id": "L01",
+      "provider_id": "SYN-P33",
+      "service_date": "2026-06-11",
+      "code": "70551",
+      "units": 1,
+      "claim_line_id": "L01",
+      "charge_cents": 100000,
+      "insurance_credit_cents": 48000,
+      "adjustment_cents": 30000,
+      "patient_paid_cents": 10000,
+      "balance_due_cents": 12000,
+      "documented_facts": ""
+    }
+  ]
+}

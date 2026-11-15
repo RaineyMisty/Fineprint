@@ -1,0 +1,17 @@
+{
+  "synthetic": true,
+  "case_id": "blind-35",
+  "true_error": true,
+  "lines": [
+    {
+      "line_id": "L01",
+      "patient_responsibility_cents": 3000,
+      "remaining_owed_cents": 3000,
+      "refund_cents": 0
+    }
+  ],
+  "total_patient_responsibility_cents": 3000,
+  "total_remaining_owed_cents": 3000,
+  "total_refund_cents": 0,
+  "rationale": "Although $500 deductible remains, only $30 OOP remains. Covered responsibility cannot exceed $30."
+}

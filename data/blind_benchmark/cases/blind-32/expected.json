@@ -1,0 +1,17 @@
+{
+  "synthetic": true,
+  "case_id": "blind-32",
+  "true_error": true,
+  "lines": [
+    {
+      "line_id": "L01",
+      "patient_responsibility_cents": 20000,
+      "remaining_owed_cents": 20000,
+      "refund_cents": 0
+    }
+  ],
+  "total_patient_responsibility_cents": 20000,
+  "total_remaining_owed_cents": 20000,
+  "total_refund_cents": 0,
+  "rationale": "20% of $1,000 is $200. The bill's $700 reflects $500 of missing insurer credit."
+}

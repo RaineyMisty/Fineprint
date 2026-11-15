@@ -1,0 +1,40 @@
+{
+  "synthetic": true,
+  "case_id": "blind-40",
+  "policy_id": "SYN-B40",
+  "member_id": "SYN-M40",
+  "claim_id": "SYN-C40",
+  "insurer": "SYNTHETIC Linden Comet Health",
+  "document_type": "SYNTHETIC itemized medical bill",
+  "bill_id": "SYN-I40",
+  "lines": [
+    {
+      "line_id": "L01",
+      "provider_id": "SYN-P40",
+      "service_date": "2026-06-11",
+      "code": "74177",
+      "units": 1,
+      "claim_line_id": "L01",
+      "charge_cents": 100000,
+      "insurance_credit_cents": 40000,
+      "adjustment_cents": 40000,
+      "patient_paid_cents": 0,
+      "balance_due_cents": 20000,
+      "documented_facts": ""
+    },
+    {
+      "line_id": "L02",
+      "provider_id": "SYN-P40",
+      "service_date": "2026-06-12",
+      "code": "70551",
+      "units": 1,
+      "claim_line_id": "L02",
+      "charge_cents": 130000,
+      "insurance_credit_cents": 30000,
+      "adjustment_cents": 30000,
+      "patient_paid_cents": 0,
+      "balance_due_cents": 70000,
+      "documented_facts": ""
+    }
+  ]
+}

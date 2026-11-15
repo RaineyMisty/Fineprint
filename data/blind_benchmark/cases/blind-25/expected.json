@@ -1,0 +1,17 @@
+{
+  "synthetic": true,
+  "case_id": "blind-25",
+  "true_error": true,
+  "lines": [
+    {
+      "line_id": "L01",
+      "patient_responsibility_cents": 12000,
+      "remaining_owed_cents": 12000,
+      "refund_cents": 0
+    }
+  ],
+  "total_patient_responsibility_cents": 12000,
+  "total_remaining_owed_cents": 12000,
+  "total_refund_cents": 0,
+  "rationale": "Protected ancillary anesthesia uses 20% in-network sharing on the supplied $600 recognized amount = $120, with no balance bill."
+}

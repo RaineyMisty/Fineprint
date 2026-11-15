@@ -1,0 +1,40 @@
+{
+  "synthetic": true,
+  "case_id": "blind-03",
+  "policy_id": "SYN-B03",
+  "member_id": "SYN-M03",
+  "claim_id": "SYN-C03",
+  "insurer": "SYNTHETIC Velvet Compass Health",
+  "document_type": "SYNTHETIC explanation of benefits",
+  "title": "Routine preventive screening",
+  "opening_accumulators_cents": {
+    "in_deductible": 0,
+    "in_oop": 0,
+    "out_deductible": 0,
+    "out_oop": 0
+  },
+  "lines": [
+    {
+      "line_id": "L01",
+      "provider_id": "SYN-P03",
+      "service_date": "2026-06-11",
+      "code": "77067",
+      "units": 1,
+      "network": "in",
+      "charge_cents": 60000,
+      "allowed_amount_cents": 25000,
+      "allowed_source": "contract",
+      "allowed_reference": "SYNTHETIC signed rate schedule SYN-R03, line L01; protected recognized amount where stipulated",
+      "deductible_cents": 0,
+      "copay_cents": 0,
+      "coinsurance_cents": 0,
+      "noncovered_cents": 0,
+      "balance_bill_cents": 0,
+      "insurer_payment_cents": 25000,
+      "adjustment_cents": 35000,
+      "patient_responsibility_cents": 0,
+      "documented_facts": "",
+      "actual_service_code": "77067"
+    }
+  ]
+}

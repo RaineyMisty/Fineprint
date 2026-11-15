@@ -1,0 +1,26 @@
+{
+  "synthetic": true,
+  "case_id": "blind-37",
+  "policy_id": "SYN-B37",
+  "member_id": "SYN-M37",
+  "claim_id": "SYN-C37",
+  "insurer": "SYNTHETIC Silver Thimble Benefits",
+  "document_type": "SYNTHETIC itemized medical bill",
+  "bill_id": "SYN-I37",
+  "lines": [
+    {
+      "line_id": "L01",
+      "provider_id": "SYN-P37",
+      "service_date": "2026-06-11",
+      "code": "93000",
+      "units": 1,
+      "claim_line_id": "L01",
+      "charge_cents": 70000,
+      "insurance_credit_cents": 32000,
+      "adjustment_cents": 20000,
+      "patient_paid_cents": 0,
+      "balance_due_cents": 18000,
+      "documented_facts": ""
+    }
+  ]
+}

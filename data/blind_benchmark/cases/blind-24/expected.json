@@ -1,0 +1,17 @@
+{
+  "synthetic": true,
+  "case_id": "blind-24",
+  "true_error": true,
+  "lines": [
+    {
+      "line_id": "L01",
+      "patient_responsibility_cents": 40000,
+      "remaining_owed_cents": 40000,
+      "refund_cents": 0
+    }
+  ],
+  "total_patient_responsibility_cents": 40000,
+  "total_remaining_owed_cents": 40000,
+  "total_refund_cents": 0,
+  "rationale": "The supplied protected recognized amount is $1,200. In-network terms apply: $200 remaining deductible plus 20% of $1,000 = $400; no excess."
+}

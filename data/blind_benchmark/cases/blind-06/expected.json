@@ -1,0 +1,17 @@
+{
+  "synthetic": true,
+  "case_id": "blind-06",
+  "true_error": false,
+  "lines": [
+    {
+      "line_id": "L01",
+      "patient_responsibility_cents": 80000,
+      "remaining_owed_cents": 80000,
+      "refund_cents": 0
+    }
+  ],
+  "total_patient_responsibility_cents": 80000,
+  "total_remaining_owed_cents": 80000,
+  "total_refund_cents": 0,
+  "rationale": "This explicitly excluded service is the patient's full $800 charge; it does not accrue to OOP."
+}

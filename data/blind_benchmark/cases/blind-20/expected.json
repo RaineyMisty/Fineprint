@@ -1,0 +1,17 @@
+{
+  "synthetic": true,
+  "case_id": "blind-20",
+  "true_error": true,
+  "lines": [
+    {
+      "line_id": "L01",
+      "patient_responsibility_cents": 2000,
+      "remaining_owed_cents": 2000,
+      "refund_cents": 0
+    }
+  ],
+  "total_patient_responsibility_cents": 2000,
+  "total_remaining_owed_cents": 2000,
+  "total_refund_cents": 0,
+  "rationale": "Only $20 remains under the $5,000 maximum, so nominal $200 is capped at $20."
+}

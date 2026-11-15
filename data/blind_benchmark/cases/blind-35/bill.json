@@ -1,0 +1,26 @@
+{
+  "synthetic": true,
+  "case_id": "blind-35",
+  "policy_id": "SYN-B35",
+  "member_id": "SYN-M35",
+  "claim_id": "SYN-C35",
+  "insurer": "SYNTHETIC Velvet Compass Health",
+  "document_type": "SYNTHETIC itemized medical bill",
+  "bill_id": "SYN-I35",
+  "lines": [
+    {
+      "line_id": "L01",
+      "provider_id": "SYN-P35",
+      "service_date": "2026-06-11",
+      "code": "72148",
+      "units": 1,
+      "claim_line_id": "L01",
+      "charge_cents": 200000,
+      "insurance_credit_cents": 20000,
+      "adjustment_cents": 130000,
+      "patient_paid_cents": 0,
+      "balance_due_cents": 50000,
+      "documented_facts": ""
+    }
+  ]
+}

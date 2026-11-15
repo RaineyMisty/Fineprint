@@ -1,0 +1,17 @@
+{
+  "synthetic": true,
+  "case_id": "blind-13",
+  "true_error": false,
+  "lines": [
+    {
+      "line_id": "L01",
+      "patient_responsibility_cents": 5600,
+      "remaining_owed_cents": 5600,
+      "refund_cents": 0
+    }
+  ],
+  "total_patient_responsibility_cents": 5600,
+  "total_remaining_owed_cents": 5600,
+  "total_refund_cents": 0,
+  "rationale": "$20 copay plus 20% of the remaining $180 = $56."
+}

@@ -1,0 +1,26 @@
+{
+  "synthetic": true,
+  "case_id": "blind-12",
+  "policy_id": "SYN-B12",
+  "member_id": "SYN-M12",
+  "claim_id": "SYN-C12",
+  "insurer": "SYNTHETIC Opal Orchard Cooperative",
+  "document_type": "SYNTHETIC itemized medical bill",
+  "bill_id": "SYN-I12",
+  "lines": [
+    {
+      "line_id": "L01",
+      "provider_id": "SYN-P12",
+      "service_date": "2026-06-11",
+      "code": "93306",
+      "units": 1,
+      "claim_line_id": "L01",
+      "charge_cents": 60000,
+      "insurance_credit_cents": 28333,
+      "adjustment_cents": 26667,
+      "patient_paid_cents": 0,
+      "balance_due_cents": 5000,
+      "documented_facts": ""
+    }
+  ]
+}

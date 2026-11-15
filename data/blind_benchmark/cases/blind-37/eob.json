@@ -1,0 +1,40 @@
+{
+  "synthetic": true,
+  "case_id": "blind-37",
+  "policy_id": "SYN-B37",
+  "member_id": "SYN-M37",
+  "claim_id": "SYN-C37",
+  "insurer": "SYNTHETIC Silver Thimble Benefits",
+  "document_type": "SYNTHETIC explanation of benefits",
+  "title": "Contractual adjustment partially reversed on bill",
+  "opening_accumulators_cents": {
+    "in_deductible": 0,
+    "in_oop": 0,
+    "out_deductible": 0,
+    "out_oop": 0
+  },
+  "lines": [
+    {
+      "line_id": "L01",
+      "provider_id": "SYN-P37",
+      "service_date": "2026-06-11",
+      "code": "93000",
+      "units": 1,
+      "network": "in",
+      "charge_cents": 70000,
+      "allowed_amount_cents": 40000,
+      "allowed_source": "contract",
+      "allowed_reference": "SYNTHETIC signed rate schedule SYN-R37, line L01; protected recognized amount where stipulated",
+      "deductible_cents": 0,
+      "copay_cents": 0,
+      "coinsurance_cents": 8000,
+      "noncovered_cents": 0,
+      "balance_bill_cents": 0,
+      "insurer_payment_cents": 32000,
+      "adjustment_cents": 30000,
+      "patient_responsibility_cents": 8000,
+      "documented_facts": "",
+      "actual_service_code": "93000"
+    }
+  ]
+}

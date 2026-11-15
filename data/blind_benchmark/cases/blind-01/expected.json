@@ -1,0 +1,17 @@
+{
+  "synthetic": true,
+  "case_id": "blind-01",
+  "true_error": false,
+  "lines": [
+    {
+      "line_id": "L01",
+      "patient_responsibility_cents": 44000,
+      "remaining_owed_cents": 44000,
+      "refund_cents": 0
+    }
+  ],
+  "total_patient_responsibility_cents": 44000,
+  "total_remaining_owed_cents": 44000,
+  "total_refund_cents": 0,
+  "rationale": "$1,000 - $700 leaves $300 deductible; $300 + 20% of $700 = $440."
+}

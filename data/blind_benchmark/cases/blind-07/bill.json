@@ -1,0 +1,40 @@
+{
+  "synthetic": true,
+  "case_id": "blind-07",
+  "policy_id": "SYN-B07",
+  "member_id": "SYN-M07",
+  "claim_id": "SYN-C07",
+  "insurer": "SYNTHETIC Copper Meadow Assurance",
+  "document_type": "SYNTHETIC itemized medical bill",
+  "bill_id": "SYN-I07",
+  "lines": [
+    {
+      "line_id": "L01",
+      "provider_id": "SYN-P07",
+      "service_date": "2026-06-11",
+      "code": "74177",
+      "units": 1,
+      "claim_line_id": "L01",
+      "charge_cents": 180000,
+      "insurance_credit_cents": 72000,
+      "adjustment_cents": 80000,
+      "patient_paid_cents": 0,
+      "balance_due_cents": 28000,
+      "documented_facts": ""
+    },
+    {
+      "line_id": "L02",
+      "provider_id": "SYN-P07",
+      "service_date": "2026-06-12",
+      "code": "76700",
+      "units": 1,
+      "claim_line_id": "L02",
+      "charge_cents": 70000,
+      "insurance_credit_cents": 40000,
+      "adjustment_cents": 20000,
+      "patient_paid_cents": 0,
+      "balance_due_cents": 10000,
+      "documented_facts": ""
+    }
+  ]
+}

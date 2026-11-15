@@ -1,0 +1,62 @@
+{
+  "synthetic": true,
+  "case_id": "blind-30",
+  "policy_id": "SYN-B30",
+  "member_id": "SYN-M30",
+  "claim_id": "SYN-C30",
+  "insurer": "SYNTHETIC Wren Harbor Mutual",
+  "document_type": "SYNTHETIC explanation of benefits",
+  "title": "Panel component unbundled a second time",
+  "opening_accumulators_cents": {
+    "in_deductible": 0,
+    "in_oop": 0,
+    "out_deductible": 0,
+    "out_oop": 0
+  },
+  "lines": [
+    {
+      "line_id": "L01",
+      "provider_id": "SYN-P30",
+      "service_date": "2026-06-11",
+      "code": "80053",
+      "units": 1,
+      "network": "in",
+      "charge_cents": 30000,
+      "allowed_amount_cents": 10000,
+      "allowed_source": "contract",
+      "allowed_reference": "SYNTHETIC signed rate schedule SYN-R30, line L01; protected recognized amount where stipulated",
+      "deductible_cents": 0,
+      "copay_cents": 0,
+      "coinsurance_cents": 2000,
+      "noncovered_cents": 0,
+      "balance_bill_cents": 0,
+      "insurer_payment_cents": 8000,
+      "adjustment_cents": 20000,
+      "patient_responsibility_cents": 2000,
+      "documented_facts": "",
+      "actual_service_code": "80053"
+    },
+    {
+      "line_id": "L02",
+      "provider_id": "SYN-P30",
+      "service_date": "2026-06-11",
+      "code": "80051",
+      "units": 1,
+      "network": "in",
+      "charge_cents": 9000,
+      "allowed_amount_cents": 6000,
+      "allowed_source": "contract",
+      "allowed_reference": "SYNTHETIC signed rate schedule SYN-R30, line L02; protected recognized amount where stipulated",
+      "deductible_cents": 0,
+      "copay_cents": 0,
+      "coinsurance_cents": 1200,
+      "noncovered_cents": 0,
+      "balance_bill_cents": 0,
+      "insurer_payment_cents": 4800,
+      "adjustment_cents": 3000,
+      "patient_responsibility_cents": 1200,
+      "documented_facts": "Same specimen and encounter as L01; component expressly included in the panel.",
+      "actual_service_code": "80051"
+    }
+  ]
+}

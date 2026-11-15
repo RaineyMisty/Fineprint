@@ -1,0 +1,40 @@
+{
+  "synthetic": true,
+  "case_id": "blind-30",
+  "policy_id": "SYN-B30",
+  "member_id": "SYN-M30",
+  "claim_id": "SYN-C30",
+  "insurer": "SYNTHETIC Wren Harbor Mutual",
+  "document_type": "SYNTHETIC itemized medical bill",
+  "bill_id": "SYN-I30",
+  "lines": [
+    {
+      "line_id": "L01",
+      "provider_id": "SYN-P30",
+      "service_date": "2026-06-11",
+      "code": "80053",
+      "units": 1,
+      "claim_line_id": "L01",
+      "charge_cents": 30000,
+      "insurance_credit_cents": 8000,
+      "adjustment_cents": 20000,
+      "patient_paid_cents": 0,
+      "balance_due_cents": 2000,
+      "documented_facts": ""
+    },
+    {
+      "line_id": "L02",
+      "provider_id": "SYN-P30",
+      "service_date": "2026-06-11",
+      "code": "80051",
+      "units": 1,
+      "claim_line_id": "L02",
+      "charge_cents": 9000,
+      "insurance_credit_cents": 4800,
+      "adjustment_cents": 3000,
+      "patient_paid_cents": 0,
+      "balance_due_cents": 1200,
+      "documented_facts": "Same specimen and encounter as L01; component expressly included in the panel."
+    }
+  ]
+}
