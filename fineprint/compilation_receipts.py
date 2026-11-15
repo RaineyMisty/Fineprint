@@ -1,16 +1,32 @@
-"""Process-local signed receipts let /check reuse /compile without another LLM call.
+"""Signed receipts let /check reuse /compile without another LLM call.
 
-No policies, claims, or API keys are stored. A restart invalidates old receipts.
+No policies, claims, or API keys are stored. The signing key must be shared by every
+server replica behind a load balancer, otherwise /compile and /check can land on
+different replicas and the receipt fails. It comes from FINEPRINT_RECEIPT_KEY, else is
+derived from DEEPSEEK_API_KEY (identical on every replica), else is process-local.
 """
 import hashlib
 import hmac
 import json
+import os
 import secrets
 
 from .compiler import Compilation, validate_output
 from .models import ModelError, decode
 
-_KEY = secrets.token_bytes(32)
+
+
+def _load_key():
+    explicit = os.environ.get('FINEPRINT_RECEIPT_KEY')
+    if explicit:
+        return hashlib.sha256(b'fineprint-receipt-v1:' + explicit.encode()).digest()
+    shared = os.environ.get('DEEPSEEK_API_KEY')
+    if shared:
+        return hmac.new(shared.encode(), b'fineprint-compilation-receipt-v1', hashlib.sha256).digest()
+    return secrets.token_bytes(32)
+
+
+_KEY = _load_key()
 
 
 def sign(compilation):
