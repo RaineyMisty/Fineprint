@@ -207,6 +207,10 @@ class CompilerTests(unittest.TestCase):
         self.assertIn('networks.in.deductible_cents', paths)
         self.assertIn('networks.in.oop_max_cents', paths)
         self.assertNotIn('networks.in.balance_billing', paths)
+        references = {ref for benefit in result.policy.benefits for ref in benefit.clause_ids}
+        for terms in result.policy.networks.values():
+            references.update(ref for ref in (terms.deductible_clause, terms.oop_clause, terms.network_clause) if ref)
+        self.assertEqual({clause.id for clause in result.policy.clauses}, references)
         self.assertTrue(result.output.unresolved)
         original, _ = load_case('aurora-imaging')
         report = analyze(replace(original, policy=result.policy))

@@ -261,6 +261,10 @@ def recover_evidence(value, document, document_id):
             retained.append(benefit)
     value["policy"]["benefits"] = retained
     value["rule_evidence"] = list(merged.values())
+    referenced = {terms[key] for terms in value["policy"]["networks"].values()
+                  for key in ("deductible_clause", "oop_clause", "network_clause") if terms[key] is not None}
+    referenced.update(ref for benefit in retained for ref in benefit["clause_ids"])
+    value["policy"]["clauses"] = [clause for clause in value["policy"]["clauses"] if clause["id"] in referenced]
     for path in sorted(set(dropped) - set(merged)):
         message = f"Dropped rule {path}: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained."
         value["warnings"].append(message)
