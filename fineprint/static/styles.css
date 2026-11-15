@@ -56,13 +56,16 @@ main{max-width:1180px;margin:0 auto;padding:clamp(20px,4vw,44px) clamp(16px,4vw,
 .btn:disabled{opacity:.6;cursor:not-allowed}
 
 /* step 1 */
-.intro{margin:8px 0 28px}
-.samples{margin-bottom:28px}
-.sample-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;margin-top:10px}
-.sample{text-align:left;border:1.5px solid var(--line);background:var(--card);border-radius:var(--r);padding:16px 18px;cursor:pointer;display:flex;flex-direction:column;gap:6px}
+.intro{margin:8px 0 24px}
+.samples{margin-top:40px;padding-top:22px;border-top:1px dashed var(--line)}
+.syn-tag{margin-left:8px;font-size:.72rem;letter-spacing:.04em;background:var(--amber-t);color:#6b3a05;border:1px solid var(--amber-b);border-radius:6px;padding:1px 7px;vertical-align:1px}
+.synthetic-note{border:1.5px dashed var(--amber);background:var(--amber-t);color:#4d2a03;border-radius:10px;padding:8px 14px;margin-bottom:20px;font-size:.92rem}
+.sample .kicker{font:700 .72rem var(--sans);letter-spacing:.06em;text-transform:uppercase;color:#6b3a05}
+.sample-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:10px}
+.sample{text-align:left;border:1.5px dashed var(--line);background:transparent;border-radius:10px;padding:10px 14px;cursor:pointer;display:flex;flex-direction:column;gap:6px}
 .sample:hover{border-color:var(--teal);box-shadow:0 2px 0 var(--teal-t)}
-.sample b{font:600 1.1rem var(--serif)}
-.sample span{color:var(--muted);font-size:.93rem}
+.sample b{font:600 1rem var(--serif)}
+.sample span{color:var(--muted);font-size:.85rem}
 .sample .go{color:var(--teal);font-weight:600;margin-top:4px;font-size:.93rem}
 .docs{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
 .doc{display:flex;flex-direction:column;min-width:0}
@@ -203,3 +206,5 @@ dialog::backdrop{background:rgba(20,30,34,.45)}
   #step-1,#step-2,#loading{display:none!important}
   #step-3{display:block!important}
 }
+.docs textarea{transition:box-shadow .3s,border-color .3s}
+.filled textarea{border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-t)}

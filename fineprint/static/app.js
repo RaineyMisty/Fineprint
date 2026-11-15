@@ -37,6 +37,7 @@
     S.step = step;
     for (const n of [1, 2, 3]) $("step-" + n).hidden = n !== step;
     $("loading").hidden = true;
+    $("synthetic-note").hidden = !(S.sample && S.data && step > 1);
     const have = S.data;
     document.querySelectorAll("#steps button").forEach((b) => {
       const n = +b.dataset.step;
@@ -87,12 +88,18 @@
             synthetic: !!S.sample};
   }
   async function loadSample(id) {
-    unbanner(); loading("Loading sample…");
+    unbanner();
     try {
       const sample = await api("/api/samples/" + encodeURIComponent(id));
       S.sample = sample;
       fillInputs(sample.inputs);
-      await run(`Reading “${sample.title}”…`);
+      $("doc-form").scrollIntoView({block: "start", behavior: "smooth"});
+      $("doc-form").classList.add("filled");
+      $("check-btn").textContent = "Reading sample…";
+      await new Promise((r) => setTimeout(r, 1400)); // let the user see what was filled in
+      $("check-btn").textContent = "Check my bill";
+      $("doc-form").classList.remove("filled");
+      await run(`Reading “${sample.title}” (synthetic)…`);
     } catch (e) { show(1); banner(e.message, e.kind); }
   }
   async function run(text) {
@@ -361,9 +368,9 @@
   async function init() {
     document.querySelectorAll("#steps button").forEach((b) => b.addEventListener("click", () => show(+b.dataset.step)));
     document.querySelectorAll("[data-go]").forEach((b) => b.addEventListener("click", () => show(+b.dataset.go)));
-    $("doc-form").addEventListener("submit", (e) => { e.preventDefault(); S.sample = null; run(); });
+    $("doc-form").addEventListener("submit", (e) => { e.preventDefault(); run(); });
     $("clear-btn").addEventListener("click", () => { for (const id of ["in-policy", "in-eob", "in-bill", "in-facts"]) $(id).value = ""; S.sample = null; updateCounts(); unbanner(); });
-    document.querySelectorAll("textarea").forEach((t) => t.addEventListener("input", updateCounts));
+    document.querySelectorAll("textarea").forEach((t) => t.addEventListener("input", () => { updateCounts(); S.sample = null; }));
     document.querySelectorAll("input[type=file]").forEach((f) => f.addEventListener("change", async () => {
       const file = f.files[0]; if (!file) return;
       if (file.size > 900000) { banner("That file is too large (limit about 900 KB).", "input"); return; }
@@ -390,7 +397,7 @@
       S.samples = await api("/api/samples");
       const list = clear($("sample-list"));
       for (const s of S.samples) list.append(h("button", {type: "button", class: "sample", onclick: () => loadSample(s.id)},
-        h("b", {}, s.title), h("span", {}, s.summary), h("span", {class: "go"}, "Try this sample →")));
+        h("span", {class: "kicker"}, "Sample · synthetic"), h("b", {}, s.title), h("span", {class: "go"}, "Fill in & run →")));
     } catch (e) { clear($("sample-list")).append(h("p", {class: "muted"}, "Samples couldn’t load. You can still paste your own documents.")); }
   }
   init();

@@ -22,16 +22,13 @@
 
   <main id="main" tabindex="-1">
     <div id="banner" role="alert" hidden></div>
+    <div id="synthetic-note" class="synthetic-note" hidden><b>Synthetic sample</b> — fictional people, insurer and bill. Not a real claim.</div>
 
     <!-- Step 1 -->
     <section id="step-1" class="step" aria-labelledby="h1-title">
       <div class="intro">
         <h1 id="h1-title">Is your bill right?</h1>
-        <p class="lede">Add your policy, your insurer’s statement (EOB) and the provider’s bill. We read the policy, recalculate what you should owe, and show any difference with the clause behind it.</p>
-      </div>
-      <div class="samples" aria-labelledby="samples-title">
-        <h2 id="samples-title" class="eyebrow">Just exploring? Try a sample case</h2>
-        <div id="sample-list" class="sample-list"><p class="muted">Loading samples…</p></div>
+        <p class="lede">Add your policy, your insurer’s statement (EOB) and the provider’s bill — upload files or paste text. We read the policy, recalculate what you should owe, and show any difference with the clause behind it.</p>
       </div>
       <form id="doc-form" novalidate>
         <div class="docs">
@@ -56,6 +53,10 @@
           <p class="privacy">Nothing is stored. Documents are sent only to this local server.</p>
         </div>
       </form>
+      <div class="samples" aria-labelledby="samples-title">
+        <h2 id="samples-title" class="eyebrow">No documents handy? Try a sample <span class="syn-tag">Synthetic data</span></h2>
+        <div id="sample-list" class="sample-list"><p class="muted">Loading samples…</p></div>
+      </div>
     </section>
 
     <!-- Loading -->

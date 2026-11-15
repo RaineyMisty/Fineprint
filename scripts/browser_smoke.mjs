@@ -26,7 +26,7 @@ try {
   ws.onmessage = (e) => { const m = JSON.parse(e.data); if (m.id && waiting.has(m.id)) { waiting.get(m.id)(m); waiting.delete(m.id); } else if (m.method === "Network.requestWillBeSent") requests.push(m.params.request.url); };
   const cmd = (method, params = {}) => new Promise((r) => { const id = ++seq; waiting.set(id, r); ws.send(JSON.stringify({id, method, params})); });
   const ev = async (expression) => { const r = await cmd("Runtime.evaluate", {expression, awaitPromise: true, returnByValue: true, userGesture: true}); assert.ok(!r.result.exceptionDetails, JSON.stringify(r.result.exceptionDetails)); return r.result.result.value; };
-  const until = async (expr, label) => { for (let i = 0; i < 80; i++) { if (await ev(expr)) return; await sleep(100); } assert.fail("Timed out: " + label); };
+  const until = async (expr, label) => { for (let i = 0; i < 120; i++) { if (await ev(expr)) return; await sleep(100); } assert.fail("Timed out: " + label); };
   const shot = async (name) => writeFile(join(artifacts, name), Buffer.from((await cmd("Page.captureScreenshot", {format: "png"})).result.data, "base64"));
   await cmd("Network.enable");
   for (const [width, tag] of [[1280, "desktop"], [390, "mobile"]]) {
@@ -34,8 +34,13 @@ try {
     await cmd("Page.navigate", {url: `http://127.0.0.1:${port}/`});
     await until("document.querySelectorAll('.sample').length === 3", "samples");
     await shot(`${tag}-1-documents.png`);
+    assert.ok(await ev("document.querySelector('.docs').compareDocumentPosition(document.querySelector('.samples')) & Node.DOCUMENT_POSITION_FOLLOWING"), "upload comes before samples");
+    assert.match(await ev("document.querySelector('.sample').textContent"), /Sample · synthetic/);
     await ev("document.querySelector('.sample').click()");
+    await until("document.getElementById('in-policy').value.length > 100 && !document.getElementById('step-1').hidden", "inputs visibly filled");
+    await shot(`${tag}-1b-filled.png`);
     await until("!document.getElementById('step-2').hidden && document.querySelectorAll('.rule').length > 0", "rules");
+    assert.ok(await ev("!document.getElementById('synthetic-note').hidden"), "synthetic note shown");
     assert.match(await ev("document.getElementById('backend-card').textContent"), /Offline rule reader/);
     await ev("document.querySelectorAll('.rule')[2].click()");
     assert.ok(await ev("document.querySelectorAll('mark.on').length > 0"), "selected rule highlights its source");
