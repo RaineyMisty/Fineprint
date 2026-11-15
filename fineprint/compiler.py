@@ -88,6 +88,19 @@ OUTPUT_SCHEMA = json_schema(CompilerOutput)
 # Providers supply quotes, never offsets. The saved/validated output still has
 # exact Unicode spans into the original source, computed only by local code.
 PROVIDER_SCHEMA = deepcopy(OUTPUT_SCHEMA)
+# Source text is emitted once. Local code builds clause IDs/references from
+# located quotes, so the provider cannot disagree with its own copied clause.
+_provider_policy = PROVIDER_SCHEMA["properties"]["policy"]
+del _provider_policy["properties"]["clauses"]
+_provider_policy["required"].remove("clauses")
+for _network in ("in", "out"):
+    _terms = _provider_policy["properties"]["networks"]["properties"][_network]
+    for _key in ("deductible_clause", "oop_clause", "network_clause"):
+        del _terms["properties"][_key]
+        _terms["required"].remove(_key)
+_benefit = _provider_policy["properties"]["benefits"]["items"]
+del _benefit["properties"]["clause_ids"]
+_benefit["required"].remove("clause_ids")
 _evidence_schema = PROVIDER_SCHEMA["properties"]["rule_evidence"]["items"]["properties"]["evidence"]["items"]
 for _key in ("start", "end"):
     del _evidence_schema["properties"][_key]
@@ -111,12 +124,16 @@ def recover_evidence(value, document, document_id):
     an incomplete network is removed together with its dependent benefits.
     """
     value = deepcopy(value)
+    compact = isinstance(value, dict) and isinstance(value.get("policy"), dict) and "clauses" not in value["policy"]
     # Preserve strict schema checking (including unknown fields), but offsets
     # supplied by old clients are deliberately discarded before checking types.
-    for rule in value.get("rule_evidence", []):
-        for evidence in rule.get("evidence", []):
-            evidence["start"], evidence["end"] = 0, 0
-    validate_schema(value)
+    if compact:
+        validate_schema(value, PROVIDER_SCHEMA)
+    else:
+        for rule in value.get("rule_evidence", []):
+            for evidence in rule.get("evidence", []):
+                evidence["start"], evidence["end"] = 0, 0
+        validate_schema(value)
     expected_paths = {f"networks.{net}.{field}" for net in value["policy"]["networks"]
                       for field in ("deductible_cents", "oop_max_cents", "balance_billing")}
     expected_paths.update("benefits." + b["id"] for b in value["policy"]["benefits"])
@@ -156,7 +173,25 @@ def recover_evidence(value, document, document_id):
         for evidence in found:
             if evidence not in merged[path]["evidence"]:
                 merged[path]["evidence"].append(evidence)
-    # Clause text must independently agree with one of the located quotes.
+    if compact:
+        clauses_by_span, references = {}, {}
+        for path, rule in merged.items():
+            references[path] = []
+            for evidence in rule["evidence"]:
+                span = (evidence["start"], evidence["end"])
+                if span not in clauses_by_span:
+                    clauses_by_span[span] = dict(id=f"source-{len(clauses_by_span) + 1}",
+                                                text=evidence["quote"], location=evidence["section"])
+                references[path].append(clauses_by_span[span]["id"])
+        value["policy"]["clauses"] = list(clauses_by_span.values())
+        for net, terms in value["policy"]["networks"].items():
+            for field, ref in (("deductible_cents", "deductible_clause"), ("oop_max_cents", "oop_clause"),
+                               ("balance_billing", "network_clause")):
+                terms[ref] = next(iter(references.get(f"networks.{net}.{field}", [])), "unmatched-source")
+        for benefit in value["policy"]["benefits"]:
+            benefit["clause_ids"] = references.get("benefits." + benefit["id"], [])
+    # Legacy clients still supply clauses; they must independently agree with
+    # located quotes. No text, number or punctuation is repaired.
     clauses = {c["id"]: c for c in value["policy"]["clauses"]}
     for rule in merged.values():
         for evidence in rule["evidence"]:
@@ -183,7 +218,9 @@ def recover_evidence(value, document, document_id):
         rule = merged.get(path)
         quotes = {e["quote"] for e in rule["evidence"]} if rule else set()
         if (benefit["network"] not in value["policy"]["networks"] or not rule or not benefit["clause_ids"] or any(
-                ref not in clauses or clauses[ref]["text"] not in quotes for ref in benefit["clause_ids"])):
+                ref not in clauses or clauses[ref]["text"] not in quotes for ref in benefit["clause_ids"]) or any(
+                not any(re.search(r"(?<!\w)" + re.escape(code) + r"(?!\w)", quote) for quote in quotes)
+                for code in benefit["codes"])):
             merged.pop(path, None)
             dropped.append(path)
         else:
@@ -191,7 +228,7 @@ def recover_evidence(value, document, document_id):
     value["policy"]["benefits"] = retained
     value["rule_evidence"] = list(merged.values())
     for path in sorted(set(dropped) - set(merged)):
-        message = f"Dropped rule {path}: missing or unmatched source quote/clause; no executable rule retained."
+        message = f"Dropped rule {path}: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained."
         value["warnings"].append(message)
         value["unresolved"].append(message)
     return value
@@ -267,6 +304,8 @@ def validate_output(value, document, document_id):
         if not b.covered and (b.deductible_applies or b.copay_cents or b.coinsurance_bps):
             raise ModelError("Excluded service has covered cost sharing")
         quotes = [e.quote for e in evidence_by_path[f"benefits.{b.id}"].evidence]
+        if any(not any(re.search(r"(?<!\w)" + re.escape(code) + r"(?!\w)", quote) for quote in quotes) for code in b.codes):
+            raise ModelError("Benefit CPT/HCPCS code is not present in its source evidence")
         if not b.clause_ids or any(ref not in clauses or clauses[ref].text not in quotes for ref in b.clause_ids):
             raise ModelError("Benefit clauses must match its rule evidence")
         for code in b.codes:

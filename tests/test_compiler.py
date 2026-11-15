@@ -145,6 +145,28 @@ class CompilerTests(unittest.TestCase):
         with self.assertRaisesRegex(ProviderError, 'Invalid rule_evidence.rule_path'):
             LLMCompiler('deepseek', transport=lambda *_:invalid, retries=1).compile(DOC)
 
+    def test_compact_provider_quotes_generate_exact_local_clauses(self):
+        good = to_dict(FallbackCompiler().compile(DOC).output)
+        expected = good['policy']['benefits'][0]['copay_cents']
+        del good['policy']['clauses']
+        for terms in good['policy']['networks'].values():
+            for key in ('deductible_clause', 'oop_clause', 'network_clause'):
+                del terms[key]
+        for benefit in good['policy']['benefits']:
+            del benefit['clause_ids']
+        for rule in good['rule_evidence']:
+            for e in rule['evidence']:
+                del e['start']; del e['end']
+        result = LLMCompiler('deepseek', transport=lambda *_:good).compile(DOC)
+        self.assertFalse(result.output.unresolved)
+        self.assertEqual(result.policy.benefits[0].copay_cents, expected)
+        for clause in result.policy.clauses:
+            self.assertIn(clause.text, DOC)
+        good['policy']['benefits'][0]['codes'] = ['99999']
+        result = LLMCompiler('deepseek', transport=lambda *_:good).compile(DOC)
+        self.assertEqual(len(result.policy.benefits), 2)
+        self.assertTrue(any('code' in warning for warning in result.output.unresolved))
+
     def test_live_request_payload_contracts_with_test_http(self):
         good = to_dict(FallbackCompiler().compile(DOC).output)
         for provider in ('openai', 'anthropic'):
