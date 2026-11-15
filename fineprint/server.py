@@ -45,8 +45,8 @@ class Handler(BaseHTTPRequestHandler):
             if path == "/api/cases":
                 return self.reply(200, list_cases())
             if path == "/api/status":
-                import os
-                name = os.getenv("FINEPRINT_LLM_PROVIDER", "fallback")
+                from .compiler import default_provider
+                name = default_provider()
                 return self.reply(200, {"provider": name, "offline": name == "fallback"})
             if path == "/api/samples":
                 return self.reply(200, list_cases())

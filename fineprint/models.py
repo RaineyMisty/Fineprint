@@ -4,7 +4,7 @@ Money uses nonnegative integer USD cents; coinsurance uses integer basis points.
 No binary floating point enters the calculation engine.
 """
 
-from dataclasses import asdict, dataclass, fields, is_dataclass
+from dataclasses import MISSING, dataclass, field, fields, is_dataclass
 from datetime import date
 from types import UnionType
 from typing import Literal, Union, get_args, get_origin, get_type_hints
@@ -42,6 +42,9 @@ class Benefit:
     clause_ids: list[str]
     # Multiple benefits for a code/network MUST share a nonempty ambiguity group.
     ambiguity_group: str
+    # SBC categories are explicitly assigned by the claim reviewer, never inferred from CPT.
+    service_category: str | None = None
+    conditions: list[str] = field(default_factory=list)
 
 
 @dataclass(frozen=True)
@@ -92,6 +95,8 @@ class ClaimLine:
     network: Literal["in", "out", "unknown"]
     billed_cents: int
     insurer: Adjudication
+    service_category: str | None = None
+    confirmed_conditions: list[str] = field(default_factory=list)
 
 
 @dataclass(frozen=True)
@@ -135,6 +140,8 @@ class AllowedEvidence:
     allowed_cents: int | None
     source: Literal["contract", "eob", "unknown"]
     reference: str
+    # Independent contract evidence, not an inferred policy rule or EOB adjudication.
+    balance_billing: bool | None = None
 
 
 @dataclass(frozen=True)
@@ -171,8 +178,9 @@ def decode(cls, value, path="case"):
         if not isinstance(value, dict):
             raise ModelError(f"{path}: expected object")
         names = {f.name for f in fields(cls)}
-        if set(value) != names:
-            raise ModelError(f"{path}: missing {sorted(names - set(value))}; unknown {sorted(set(value) - names)}")
+        required = {f.name for f in fields(cls) if f.default is MISSING and f.default_factory is MISSING}
+        if required - set(value) or set(value) - names:
+            raise ModelError(f"{path}: missing {sorted(required - set(value))}; unknown {sorted(set(value) - names)}")
         hints = get_type_hints(cls)
         result = {k: decode(hints[k], v, f"{path}.{k}") for k, v in value.items()}
         for key, item in result.items():
@@ -212,4 +220,26 @@ def case_from_dict(data: dict) -> Case:
 
 
 def to_dict(value):
-    return asdict(value)
+    """Omit default extension fields so existing 1.0 documents remain stable."""
+    if is_dataclass(value):
+        result = {}
+        for f in fields(value):
+            item = getattr(value, f.name)
+            default = f.default if f.default is not MISSING else (f.default_factory() if f.default_factory is not MISSING else MISSING)
+            if default is not MISSING and item == default:
+                continue
+            result[f.name] = to_dict(item)
+        return result
+    if isinstance(value, dict):
+        return {key: to_dict(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [to_dict(item) for item in value]
+    return value
+
+
+def benefit_matches(benefit, line):
+    if benefit.service_category is not None:
+        return (line.service_category == benefit.service_category
+                and set(benefit.conditions) <= set(line.confirmed_conditions))
+    return line.code in benefit.codes
+

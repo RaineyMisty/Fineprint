@@ -3,7 +3,7 @@
 import re
 from dataclasses import asdict, dataclass
 
-from .models import Case
+from .models import Case, benefit_matches
 
 
 @dataclass(frozen=True)
@@ -41,8 +41,8 @@ def validate(case: Case) -> list[Issue]:
     for path, actual, expected in identities:
         if actual != expected:
             add("identity_mismatch", path, f"{actual!r} does not match {expected!r}.")
-    if set(p.networks) != {"in", "out"}:
-        add("networks", "policy.networks", "Both 'in' and 'out' network terms are required.")
+    if not p.networks or set(p.networks) - {"in", "out"} or any(r.network not in p.networks for r in p.benefits):
+        add("networks", "policy.networks", "Benefits must reference established network terms; omitted networks are unsupported.")
     if set(c.accumulators) != set(p.networks):
         add("accumulators", "claim.accumulators", "Accumulator networks must match policy networks.")
     clauses = {cl.id for cl in p.clauses}
@@ -52,9 +52,11 @@ def validate(case: Case) -> list[Issue]:
             add("clause_reference", path, "Every rule must reference existing policy clauses.")
 
     for net, terms in p.networks.items():
-        references([terms.deductible_clause, terms.oop_clause, terms.network_clause], f"policy.networks.{net}")
+        references([ref for ref in (terms.deductible_clause, terms.oop_clause, terms.network_clause) if ref is not None], f"policy.networks.{net}")
         if terms.balance_billing is None:
-            add("incomplete_network", f"policy.networks.{net}.balance_billing", "Balance-billing terms are unknown; claim calculation is blocked.")
+            relevant = [line for line in c.lines if line.network in (net, "unknown")]
+            if any((fact := case.allowed_evidence.get(line.id)) is None or fact.source != "contract" or fact.balance_billing is None for line in relevant):
+                add("incomplete_network", f"policy.networks.{net}.balance_billing", "Balance-billing terms are unknown; supply independent contract evidence for each affected line.")
         if terms.deductible_cents > terms.oop_max_cents:
             add("unsupported_plan", f"policy.networks.{net}", "This engine requires deductible <= OOP maximum.")
         a = c.accumulators.get(net)
@@ -71,12 +73,12 @@ def validate(case: Case) -> list[Issue]:
     groups = {}
     for benefit in p.benefits:
         references(benefit.clause_ids, f"policy.benefits.{benefit.id}")
-        if not benefit.codes or len(benefit.codes) != len(set(benefit.codes)):
+        if (not benefit.codes and not benefit.service_category) or (benefit.codes and benefit.service_category) or len(benefit.codes) != len(set(benefit.codes)):
             add("benefit_codes", f"policy.benefits.{benefit.id}", "Codes must be nonempty and unique.")
         if not benefit.covered and (benefit.copay_cents or benefit.coinsurance_bps or benefit.deductible_applies):
             add("excluded_cost_sharing", f"policy.benefits.{benefit.id}", "Excluded benefits cannot also specify covered cost sharing.")
-        for code in benefit.codes:
-            groups.setdefault((code, benefit.network), []).append(benefit)
+        for code in benefit.codes or [benefit.service_category]:
+            groups.setdefault((code, benefit.network, tuple(benefit.conditions)), []).append(benefit)
     for key, rules in groups.items():
         if len(rules) > 1 and (not rules[0].ambiguity_group or len({r.ambiguity_group for r in rules}) != 1):
             add("overlapping_rules", "policy.benefits", f"{key}: alternatives require one explicit ambiguity group.")
@@ -101,8 +103,15 @@ def validate(case: Case) -> list[Issue]:
             add("outside_policy", path, "Service date falls outside the policy period.")
         nets = [line.network] if line.network != "unknown" else ["in", "out"]
         for net in nets:
-            if (line.code, net) not in groups:
-                add("missing_rule", path, f"No explicit coverage or exclusion rule for {line.code}/{net}; calculation blocked.")
+            if net not in p.networks:
+                add("networks", path, f"Network {net} was not compiled; no coverage or emergency exception is inferred.")
+            candidates = [r for r in p.benefits if r.network == net and benefit_matches(r, line)]
+            if not candidates:
+                add("missing_rule", path, f"No explicit coverage rule with confirmed conditions for {line.service_category or line.code}/{net}; calculation blocked.")
+            elif len(candidates) > 1 and (not candidates[0].ambiguity_group or len({r.ambiguity_group for r in candidates}) != 1):
+                add("overlapping_rules", path, "Confirmed category conditions select multiple rules; resolve before calculation.")
+        if line.service_category:
+            add("category_assignment", path, "Service category and conditions were supplied by the claim reviewer, not inferred from the procedure code.", "warning")
         if line.network == "unknown":
             add("unknown_network", path, "Network missing: evaluate both networks.", "warning")
         eob = line.insurer

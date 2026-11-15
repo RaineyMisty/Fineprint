@@ -8,7 +8,7 @@ import hashlib
 import json
 import re
 from copy import deepcopy
-from dataclasses import dataclass, fields, is_dataclass
+from dataclasses import MISSING, dataclass, field, fields, is_dataclass
 from decimal import Decimal
 from types import UnionType
 from typing import Literal, Union, get_args, get_origin, get_type_hints
@@ -39,6 +39,8 @@ class CompilerOutput:
     rule_evidence: list[RuleEvidence]
     warnings: list[str]
     unresolved: list[str]
+    # Omitted rows/networks do not invalidate independently supported benefits.
+    coverage_gaps: list[str] = field(default_factory=list)
 
 
 @dataclass(frozen=True)
@@ -73,7 +75,7 @@ def json_schema(cls):
                 spec.update(minimum=0, maximum=10000)
             if key in ("start", "end"):
                 spec.update(minimum=0)
-        return {"type": "object", "properties": props, "required": list(props), "additionalProperties": False}
+        return {"type": "object", "properties": props, "required": [f.name for f in fields(cls) if f.default is MISSING and f.default_factory is MISSING], "additionalProperties": False}
     if origin is list:
         return {"type": "array", "items": json_schema(args[0])}
     if origin is dict:
@@ -95,6 +97,8 @@ del _provider_policy["properties"]["clauses"]
 _provider_policy["required"].remove("clauses")
 for _network in ("in", "out"):
     _terms = _provider_policy["properties"]["networks"]["properties"][_network]
+    for _amount in ("deductible_cents", "oop_max_cents"):
+        _terms["properties"][_amount] = {"anyOf": [_terms["properties"][_amount], {"type": "null"}]}
     for _key in ("deductible_clause", "oop_clause", "network_clause"):
         del _terms["properties"][_key]
         _terms["required"].remove(_key)
@@ -129,6 +133,24 @@ def _balance_supported(value, quotes):
     return False
 
 
+def _selector_supported(benefit, quotes):
+    category = benefit.get("service_category")
+    codes = benefit["codes"]
+    if category is not None:
+        return not codes and any(_normalized_text(category).casefold() in _normalized_text(q).casefold() for q in quotes)
+    return bool(codes) and all(re.fullmatch(r"(?:\d{5}|[A-Z]\d{4})", code) and any(
+        re.search(r"(?<!\w)" + re.escape(code) + r"(?!\w)", q) for q in quotes) for code in codes)
+
+
+def _costs_supported(benefit, quotes):
+    """Necessary numeric support, not a claim of semantic equivalence of a table."""
+    text = " ".join(quotes)
+    amounts = {int(Decimal(m.replace(",", "")) * 100) for m in re.findall(r"\$\s*([\d,]+(?:\.\d{1,2})?)", text)}
+    rates = {int(Decimal(m) * 100) for m in re.findall(r"(\d+(?:\.\d+)?)\s*%", text)}
+    return ((not benefit["copay_cents"] or benefit["copay_cents"] in amounts)
+            and (not benefit["coinsurance_bps"] or benefit["coinsurance_bps"] in rates))
+
+
 def recover_evidence(value, document, document_id):
     """Locate supplied quotes; never correct words, numbers or punctuation.
 
@@ -152,6 +174,15 @@ def recover_evidence(value, document, document_id):
                         if isinstance(evidence, dict):
                             evidence["start"], evidence["end"] = 0, 0
         validate_schema(value)
+    if compact:
+        for net, terms in list(value["policy"]["networks"].items()):
+            if terms["deductible_cents"] is None or terms["oop_max_cents"] is None:
+                del value["policy"]["networks"][net]
+                value["policy"]["benefits"] = [b for b in value["policy"]["benefits"] if b["network"] != net]
+                value["rule_evidence"] = [r for r in value["rule_evidence"] if not r["rule_path"].startswith(f"networks.{net}.")
+                                          and not r["rule_path"].startswith("benefits.") or
+                                          r["rule_path"] in {"benefits." + b["id"] for b in value["policy"]["benefits"]}]
+                value.setdefault("coverage_gaps", []).append(f"Network {net} omitted: deductible or OOP limit is not established. Claims in that network require separate review, including emergency exceptions.")
     expected_paths = {f"networks.{net}.{field}" for net in value["policy"]["networks"]
                       for field in ("deductible_cents", "oop_max_cents", "balance_billing")}
     expected_paths.update("benefits." + b["id"] for b in value["policy"]["benefits"])
@@ -242,7 +273,10 @@ def recover_evidence(value, document, document_id):
             rule = merged.get(path)
             quotes = {e["quote"] for e in rule["evidence"]} if rule else set()
             ref = terms["network_clause"]
-            if (ref not in clauses or clauses[ref]["text"] not in quotes
+            if terms["balance_billing"] is None:
+                terms["network_clause"] = None
+                merged.pop(path, None)
+            elif (ref not in clauses or clauses[ref]["text"] not in quotes
                     or not _balance_supported(terms["balance_billing"], quotes)):
                 terms["balance_billing"], terms["network_clause"] = None, None
                 merged.pop(path, None)
@@ -252,13 +286,10 @@ def recover_evidence(value, document, document_id):
         path = "benefits." + benefit["id"]
         rule = merged.get(path)
         quotes = {e["quote"] for e in rule["evidence"]} if rule else set()
-        if (not benefit["codes"] or any(not re.fullmatch(r"(?:\d{5}|[A-Z]\d{4})", code) for code in benefit["codes"])
+        if (not _selector_supported(benefit, quotes)
                 or benefit["network"] not in value["policy"]["networks"]
-                or value["policy"]["networks"].get(benefit["network"], {}).get("balance_billing") is None
                 or not rule or not benefit["clause_ids"] or any(
-                ref not in clauses or clauses[ref]["text"] not in quotes for ref in benefit["clause_ids"]) or any(
-                not any(re.search(r"(?<!\w)" + re.escape(code) + r"(?!\w)", quote) for quote in quotes)
-                for code in benefit["codes"])):
+                ref not in clauses or clauses[ref]["text"] not in quotes for ref in benefit["clause_ids"]) or not _costs_supported(benefit, quotes)):
             merged.pop(path, None)
             dropped.append(path)
         else:
@@ -349,17 +380,17 @@ def validate_output(value, document, document_id):
                 raise ModelError("Balance billing requires explicit source billing language")
     groups = {}
     for b in p.benefits:
-        if not b.codes or any(not re.fullmatch(r"(?:\d{5}|[A-Z]\d{4})", c) for c in b.codes):
-            raise ModelError("Benefit requires explicit CPT/HCPCS codes")
         if not b.covered and (b.deductible_applies or b.copay_cents or b.coinsurance_bps):
             raise ModelError("Excluded service has covered cost sharing")
         quotes = [e.quote for e in evidence_by_path[f"benefits.{b.id}"].evidence]
-        if any(not any(re.search(r"(?<!\w)" + re.escape(code) + r"(?!\w)", quote) for quote in quotes) for code in b.codes):
-            raise ModelError("Benefit CPT/HCPCS code is not present in its source evidence")
+        if not _selector_supported(to_dict(b), quotes):
+            raise ModelError("Benefit code/category is not present in its source evidence")
+        if not _costs_supported(to_dict(b), quotes):
+            raise ModelError("Benefit cost share is not present in its source evidence")
         if not b.clause_ids or any(ref not in clauses or clauses[ref].text not in quotes for ref in b.clause_ids):
             raise ModelError("Benefit clauses must match its rule evidence")
-        for code in b.codes:
-            groups.setdefault((code, b.network), []).append(b)
+        for code in b.codes or [b.service_category]:
+            groups.setdefault((code, b.network, tuple(b.conditions)), []).append(b)
     for rules in groups.values():
         if len(rules) > 1 and (not rules[0].ambiguity_group or len({b.ambiguity_group for b in rules}) != 1):
             raise ModelError("Overlapping benefits must retain an explicit ambiguity group")
@@ -481,9 +512,14 @@ class FallbackCompiler:
         return Compilation(checked, self.name, document_id, hashlib.sha256(document.encode()).hexdigest(), 1)
 
 
+def default_provider():
+    import os
+    return os.getenv("FINEPRINT_LLM_PROVIDER") or ("deepseek" if os.getenv("DEEPSEEK_API_KEY") else "fallback")
+
+
 def get_compiler(provider=None):
     import os
-    name = provider or os.getenv("FINEPRINT_LLM_PROVIDER", "fallback")
+    name = provider or default_provider()
     if name == "fallback":
         return FallbackCompiler()
     from .providers import LLMCompiler

@@ -5,11 +5,11 @@ OOP cap. Excluded charges and permitted balance billing stay outside the cap.
 One unit/visit per line; per-network, individual, annual accumulators only.
 """
 
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, replace
 from itertools import product
 from math import prod
 
-from .models import Benefit, Case
+from .models import Benefit, Case, benefit_matches
 from .validation import validate
 
 
@@ -79,7 +79,7 @@ def _dimensions(case: Case):
         dims.append((f"acc:{net}", pairs))
     groups = {}
     for rule in case.policy.benefits:
-        if rule.ambiguity_group and any(line.code in rule.codes and line.network in (rule.network, "unknown") for line in case.claim.lines):
+        if rule.ambiguity_group and any(benefit_matches(rule, line) and line.network in (rule.network, "unknown") for line in case.claim.lines):
             groups.setdefault(rule.ambiguity_group, set()).add(rule.label)
     for group, labels in sorted(groups.items()):
         dims.append((f"group:{group}", [(label, f"Policy interpretation {group}: {label}") for label in sorted(labels)]))
@@ -116,7 +116,7 @@ def _line(line, rule: Benefit, terms, allowed, ded_paid, oop_paid):
         ])
         if terms.balance_billing:
             balance = line.billed_cents - allowed
-        steps.append(Step("Network rule: excess charge is patient balance billing if permitted; otherwise a contractual write-off.", balance, [terms.network_clause]))
+        steps.append(Step("Network rule: excess charge is patient balance billing if permitted; otherwise a contractual write-off.", balance, [terms.network_clause] if terms.network_clause else []))
     patient = ded + copay + coin + noncovered + balance
     insurer = allowed - ded - copay - coin if rule.covered else 0
     adjustment = line.billed_cents - patient - insurer
@@ -141,7 +141,7 @@ def calculate(case: Case, *, max_scenarios=256) -> list[Scenario]:
         results = []
         for line in sorted(case.claim.lines, key=lambda item: (item.service_date, item.id)):
             net = values.get(f"net:{line.id}", line.network)
-            candidates = [r for r in case.policy.benefits if line.code in r.codes and net == r.network]
+            candidates = [r for r in case.policy.benefits if benefit_matches(r, line) and net == r.network]
             candidates = [r for r in candidates if not r.ambiguity_group or values.get(f"group:{r.ambiguity_group}") == r.label]
             if len(candidates) != 1:
                 raise CalculationError(f"Line {line.id}: ambiguity interpretations must resolve to exactly one rule per code/network.")
@@ -149,7 +149,13 @@ def calculate(case: Case, *, max_scenarios=256) -> list[Scenario]:
             allowed = values.get(f"allowed:{line.id}", evidence.allowed_cents if evidence else None)
             if evidence and evidence.source == "eob":
                 assumptions.append(f"Line {line.id}: allowance relies on EOB ({evidence.reference}); cost-sharing audit only")
-            result = _line(line, candidates[0], case.policy.networks[net], allowed, *accs[net])
+            terms = case.policy.networks[net]
+            if terms.balance_billing is None:
+                terms = replace(terms, balance_billing=evidence.balance_billing)
+                assumptions.append(f"Line {line.id}: balance-billing treatment comes from independent contract evidence ({evidence.reference}), not the SBC.")
+            if line.service_category:
+                assumptions.append(f"Line {line.id}: reviewer assigned category {line.service_category}; confirmed conditions: {', '.join(line.confirmed_conditions) or 'none'}.")
+            result = _line(line, candidates[0], terms, allowed, *accs[net])
             accs[net] = [result.closing_deductible_cents, result.closing_oop_cents]
             results.append(result)
         scenarios.append(Scenario(f"scenario-{n}", assumptions, bool(assumptions), results,

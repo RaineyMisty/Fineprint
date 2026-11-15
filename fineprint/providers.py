@@ -93,10 +93,25 @@ class LLMCompiler:
             "For balance_billing use null unless explicit billing/protection language establishes true or false; "
             "a generic statement about cost sharing or paying less in network does NOT establish no balance billing. "
             "Out-of-network deductible and OOP quotes must explicitly identify the out-of-network/nonparticipating network. "
-            "Keep sourced deductible/OOP facts with balance_billing null and explain the missing term in unresolved. "
-            "Omit networks missing a deductible or OOP maximum and explain in unresolved; "
+            "Keep sourced deductible/OOP facts with balance_billing null and explain the missing term in coverage_gaps. "
+            "Omit networks missing a deductible or OOP maximum and explain in coverage_gaps; "
             "never invent an out-of-network maximum for an HMO with no out-of-network coverage. "
-            "Benefits require explicit source CPT/HCPCS codes. Do not invent code mappings for real SBC service categories; summarize these limitations in unresolved. "
+            "Benefits can use either explicit source CPT/HCPCS codes (service_category null), OR codes [] and a service_category copied exactly from a short source service heading. "
+            "Never invent procedure codes or map a category to CPT. Category claims require a reviewer to assign the category explicitly. "
+            "Compile the main simple in-network service rows, including office visits, urgent care, ER, diagnostic tests, imaging and first-tier drugs when supported. "
+            "For split rows, use a verbatim subheading (for example a lab or x-ray label) as the category and copy enough of the surrounding row to establish its meaning. "
+            "Do not combine a copied heading with invented qualifiers in service_category. Put qualifiers in label and conditions. "
+            "conditions is a list of claim facts that MUST be confirmed before applying this benefit: e.g. no inpatient admission for an ER copay waived on admission, "
+            "retail supply within the stated days and non-exempt medication for a drug copay, referral where required, non-mental-health treatment where a copay exemption applies. "
+            "Retain the exact source row and limitations as evidence for each condition. Conditions must describe eligibility facts, NEVER assumed rates or calculation semantics. "
+            "Prefer one common simple variant per category (e.g. retail prescription) and list other variants in coverage_gaps. "
+            "Omit per-day multi-day caps, tiered copay schedules, combined fees and minimum/maximum coinsurance the engine cannot represent; list each omitted row and reason in coverage_gaps. "
+            "coverage_gaps lists omitted rows/networks and missing billing terms; it does not invalidate independently supported benefits. "
+            "unresolved is ONLY for uncertainty that affects the numeric rules actually emitted; omit those uncertain benefits instead when possible. "
+            "A missing balance_billing rule is allowed: use null, no rule_evidence for that path, and explain in coverage_gaps; claims will require independent contract evidence. "
+            "For absent/not-applicable network deductible or OOP, either omit that network entirely or use null (local code will omit it); NEVER substitute zero or an in-network limit. "
+            "An omitted network must NOT be interpreted as a blanket exclusion; emergency exceptions remain uncompiled. "
+            "Do not treat coverage-example totals as policy rules. "
             "Keep quotes short but sufficient; do not reproduce whole pages or enumerate unsupported categories as executable rules. "
             "Supported arithmetic is individual annual separate network pools: deductible, copay, coinsurance on remainder, half-up cents, OOP cap; "
             "full-charge exclusions and permitted balance bills outside pools. If the document does not establish those semantics, mark unresolved. "
@@ -113,7 +128,7 @@ class LLMCompiler:
                 response = self.transport(prompt + ("\nPrevious attempt failed validation: " + last if last else ""), PROVIDER_SCHEMA)
                 value = json.loads(response) if isinstance(response, str) else response
                 if self.input_selection["omitted"]:
-                    value["unresolved"].append("Partial source review: sections were selected locally; omitted clauses require review before claim calculation.")
+                    value.setdefault("coverage_gaps", []).append("Partial source review: sections were selected locally; omitted services require review and have no executable rules.")
                 output = validate_output(recover_evidence(value, document, document_id), document, document_id)
                 if any(message.strip().lower().rstrip('.') in (
                         "none", "no unresolved issues", "no unresolved clauses", "no unsupported service categories or missing codes")
