@@ -52,9 +52,10 @@
     window.scrollTo(0, 0);
     $("main").focus({preventScroll: true});
   }
-  function loading(text) {
+  function loading(text, stage = 1) {
     for (const n of [1, 2, 3]) $("step-" + n).hidden = true;
     $("loading-text").textContent = text;
+    for (const n of [1, 2, 3]) $("ls-" + n).className = n < stage ? "done" : n === stage ? "on" : "";
     $("loading").hidden = false;
   }
   function banner(message, kind, retry) {
@@ -224,7 +225,7 @@
       if (S.sample?.requires_policy_upload && payload.claim_context) {
         payload.claim_context.policy_id = compiled.compilation.output.policy.id;
       }
-      loading("Policy quotes validated. Recalculating the claim…");
+      loading("Policy rules matched to exact quotes. Now the program recalculates each charge and compares…", 2);
       S.data = await api("/api/check", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({...payload, ...compiled})});
       S.active = null; S.scenario = 0; S.pdfRun = fromPdf;
       renderRules(); renderResult(); show(2);
@@ -232,16 +233,18 @@
   }
 
   /* ---------- step 2: rules + source ---------- */
+  function ruleFacts(r) {
+    const f = [];
+    if (!r.covered) return [h("span", {class: "fact no"}, "Not covered — you pay the full charge")];
+    f.push(h("span", {class: "fact"}, r.copay_cents ? `${money(r.copay_cents)} copay` : "No copay"));
+    f.push(h("span", {class: "fact"}, r.coinsurance_bps ? `You pay ${pct(r.coinsurance_bps)}` : "No coinsurance"));
+    f.push(h("span", {class: "fact"}, r.deductible_applies ? "Deductible first" : "Skips the deductible"));
+    return f;
+  }
   function ruleDescription(r) {
     const bits = [];
-    if (!r.covered) bits.push("Not covered — you pay the full charge");
-    else {
-      bits.push(r.copay_cents ? `${money(r.copay_cents)} copay` : "no copay");
-      bits.push(r.coinsurance_bps ? `you pay ${pct(r.coinsurance_bps)} after` : "no coinsurance");
-      bits.push(r.deductible_applies ? "deductible applies" : "deductible waived");
-    }
-    if (r.conditions?.length) bits.push("Requires: " + r.conditions.join("; "));
-    if (r.service_category) bits.push("Reviewer-assigned category: " + r.service_category);
+    if (r.conditions?.length) bits.push("Only if: " + r.conditions.join("; "));
+    if (r.service_category) bits.push("Category assigned by a reviewer: " + r.service_category);
     return bits.join(" · ");
   }
   function evidenceFor(path) {
@@ -268,10 +271,10 @@
     const off = compilation.backend === "fallback";
     const card = clear($("backend-card"));
     card.className = "backend " + (off ? "off" : "llm");
-    card.append(h("b", {}, off ? "Offline rule reader — no AI used" : `AI provider: ${compilation.backend}`),
+    card.append(h("b", {}, off ? "Read by the offline reader — no AI" : `Read by the AI reader (${compilation.backend})`),
       h("span", {class: "muted"}, off
-        ? "A fixed pattern parser read your policy on this device. It understands common wording only."
-        : `Rules were drafted by an AI model, then checked against your text. ${compilation.attempts} attempt${compilation.attempts > 1 ? "s" : ""}.`),
+        ? "A fixed pattern reader extracted the rules on the server. It understands common wording only."
+        : `The AI only read the text. Every rule was matched to an exact quote before use (${compilation.attempts} attempt${compilation.attempts > 1 ? "s" : ""}). The math is done by the program.`),
       h("div", {class: "hint"}, "Document fingerprint " + compilation.source_sha256.slice(0, 10)));
 
     // unresolved
@@ -284,24 +287,31 @@
           ? h("button", {type: "button", onclick: () => selectRule("unresolved:" + i)}, r.msg)
           : r.msg))));
     } else un.hidden = true;
-    $("to-result").textContent = ranges.length ? "See what this means →" : "See my result →";
+    $("to-result").textContent = ranges.length ? "See what this means →" : "See what you should pay →";
 
     // rule cards
     const box = clear($("rules"));
     const netName = {in: "In-network", out: "Out-of-network"};
     if (out.coverage_gaps?.length) box.append(h("details", {class: "note warn"},
-      h("summary", {}, "Coverage not compiled / limits of this check"), h("ul", {}, out.coverage_gaps.map((gap) => h("li", {}, gap)))));
-    box.append(h("h3", {}, "Plan limits"));
+      h("summary", {}, "Parts of the policy this check does not cover"), h("ul", {}, out.coverage_gaps.map((gap) => h("li", {}, gap)))));
+    box.append(h("h3", {}, "Your yearly limits"));
+    const lim = h("div", {class: "limits"});
     for (const [net, t] of Object.entries(policy.networks)) {
-      const ev = evidenceFor(`networks.${net}.deductible_cents`);
-      box.append(ruleCard("net:" + net, `${netName[net] || net} limits`,
-        `Deductible ${money(t.deductible_cents)} · out-of-pocket max ${money(t.oop_max_cents)} · ${t.balance_billing === null ? "balance billing unknown; separate contract evidence required" : t.balance_billing ? "extra billing allowed" : "no extra billing"}`,
-        net, ["deductible_cents", "oop_max_cents", "balance_billing"].map((k) => evidenceFor(`networks.${net}.${k}`)).filter(Boolean)));
+      const card = ruleCard("net:" + net, `${netName[net] || net} providers`, null, net,
+        ["deductible_cents", "oop_max_cents", "balance_billing"].map((k) => evidenceFor(`networks.${net}.${k}`)).filter(Boolean));
+      card.insertBefore(h("dl", {class: "kv"},
+        h("dt", {}, "Deductible"), h("dd", {}, money(t.deductible_cents)),
+        h("dt", {}, "Out-of-pocket max"), h("dd", {}, money(t.oop_max_cents)),
+        h("dt", {}, "Billing above the allowed price"), h("dd", {}, t.balance_billing === null ? "Unknown — needs contract evidence" : t.balance_billing ? "Allowed" : "Not allowed")), card.querySelector(".src"));
+      lim.append(card);
     }
-    box.append(h("h3", {}, "Covered services"));
+    box.append(lim);
+    box.append(h("h3", {}, "What you pay for each service"));
     for (const b of policy.benefits) {
       const ev = evidenceFor("benefits." + b.id);
-      box.append(ruleCard("ben:" + b.id, (/network/i.test(b.label) ? b.label : `${b.label} (${netName[b.network] || b.network})`), ruleDescription(b), null, ev ? [ev] : [], b));
+      const card = ruleCard("ben:" + b.id, (/network/i.test(b.label) ? b.label : `${b.label} · ${netName[b.network] || b.network}`), ruleDescription(b), null, ev ? [ev] : [], b);
+      card.insertBefore(h("div", {class: "facts-row"}, ruleFacts(b)), card.querySelector(".src"));
+      box.append(card);
     }
     renderPdfNote();
     renderSource();
@@ -312,9 +322,9 @@
     const secs = [...new Set(spans.map((s) => s.section))];
     const card = h("button", {type: "button", class: "rule", "data-rule": id, "aria-pressed": "false", onclick: () => selectRule(id)},
       h("div", {class: "t"}, h("span", {}, title, ambiguous ? h("span", {class: "flag"}, "Unclear wording") : null)),
-      h("div", {class: "d"}, desc),
+      desc ? h("div", {class: "d"}, desc) : null,
       ambiguous ? h("div", {class: "d"}, ambiguous.ambiguity) : null,
-      h("div", {class: "src"}, secs.length ? "Source: " + secs.join(", ") : "No source passage recorded"));
+      h("div", {class: "src"}, secs.length ? "From your policy: " + secs.join(", ") : "No source passage recorded"));
     card._spans = spans;
     return card;
   }
@@ -348,7 +358,7 @@
       if (on && !firstOn) firstOn = m;
       box.append(m);
     }
-    $("source-legend").replaceChildren(h("i"), "Source of a rule", h("i", {class: "f"}), "Not understood");
+    $("source-legend").replaceChildren(h("i"), "Used for a rule", h("i", {class: "f"}), "Not understood");
     if (scroll && firstOn) firstOn.scrollIntoView({block: "center", behavior: "smooth"});
   }
 
@@ -377,19 +387,32 @@
   function renderResult() {
     const r = S.data.report, v = verdict();
     const box = clear($("verdict")); box.className = "verdict " + v.kind;
-    box.append(h("div", {class: "k"}, v.k), h("h1", {id: "verdict-title"}, v.title), h("p", {}, v.text));
+    box.append(h("div", {class: "k"}, v.k), h("h1", {id: "verdict-title"}, v.title));
     const fig = clear($("figures")), asm = clear($("assumptions")), lines = clear($("lines")), pick = clear($("scenario-pick"));
     if (r.status === "blocked") {
+      box.append(h("p", {class: "why-text"}, v.text));
       fig.hidden = true; $("export").hidden = false;
-      lines.append(h("div", {class: "note warn"}, "Line-by-line results appear once the policy is fully understood."));
+      lines.append(h("div", {class: "note warn"}, "Charge-by-charge results appear once every rule in the policy is understood."));
       return;
     }
     fig.hidden = false;
     const s = r.summary, cs = ordered(), cur = cs[S.scenario] || cs[0];
     const range = (a, b) => (a === b ? money(a) : `${money(a)}–${money(b)}`);
-    fig.append(figure("Hospital bill", money(s.bill_patient_cents)), figure("Insurer says you owe", money(s.eob_patient_cents)),
-      figure("Fineprint calculates", range(s.illustrated_min_patient_cents, s.illustrated_max_patient_cents), true));
-    if (!s.conditional) fig.append(figure("Still to pay (by our math)", money(cur.fineprint_remaining_cents)));
+    // The one answer: what you're asked to pay vs what your policy supports.
+    box.append(h("div", {class: "answer", role: "group", "aria-label": "What you are asked to pay compared with what your policy supports"},
+      ans("bill", "The bill asks you to pay", money(s.bill_patient_cents), "Medical bill"),
+      h("span", {class: "ans-op", "aria-hidden": "true"}, "·"),
+      ans("eob", "Your insurer says you owe", money(s.eob_patient_cents), "Insurer statement (EOB)"),
+      h("span", {class: "ans-op", "aria-hidden": "true"}, "→"),
+      ans("fp", "Your policy says you should pay", range(s.illustrated_min_patient_cents, s.illustrated_max_patient_cents),
+        s.conditional ? "Recalculated · depends on facts we couldn’t confirm" : "Recalculated by Fineprint from your policy")));
+    box.append(h("p", {class: "why-text"}, v.text, " ", h("span", {class: "small"}, "Open any charge below to see each step of the math and the policy sentence behind it.")));
+    if (!s.conditional) {
+      fig.append(figure("Still to pay, by our math", money(cur.fineprint_remaining_cents)));
+      const paid = cur.lines.reduce((a, l) => a + (l.already_paid_cents || 0), 0);
+      if (paid) fig.append(figure("Already paid", money(paid)));
+    }
+    fig.append(figure("Rules read by", S.data.compilation.backend === "fallback" ? "offline reader (no AI)" : "AI reader · math by program"));
 
     const issues = r.validation.filter((i) => i.severity !== "info");
     if (issues.length || r.limitations.length) {
@@ -397,16 +420,37 @@
         h("ul", {}, issues.map((i) => h("li", {}, i.message)), r.limitations.map((l) => h("li", {class: "muted"}, l)))));
     }
     if (s.conditional) {
-      pick.append(h("label", {for: "scn", class: "muted"}, "Reading: "),
+      pick.append(h("label", {for: "scn", class: "muted"}, "Possible reading: "),
         h("select", {id: "scn", onchange: (e) => { S.scenario = +e.target.value; renderResult(); document.getElementById("scn").focus(); }},
           cs.map((c, i) => h("option", {value: i, selected: i === S.scenario}, `${i + 1} of ${cs.length} — you’d owe ${money(c.fineprint_patient_cents)}`))));
       const sc = r.scenarios.find((x) => x.id === cur.scenario_id);
-      if (sc) asm.append(h("details", {class: "note"}, h("summary", {}, "Assumptions in this reading"), h("ul", {}, sc.assumptions.map((a) => h("li", {}, a)))));
+      if (sc) asm.append(h("details", {class: "note"}, h("summary", {}, "What this reading assumes"), h("ul", {}, sc.assumptions.map((a) => h("li", {}, a)))));
     }
     const scenario = r.scenarios.find((x) => x.id === cur.scenario_id);
     cur.lines.forEach((l) => lines.append(lineCard(l, scenario)));
   }
+  const ans = (cls, l, v, s) => h("div", {class: "ans " + cls}, h("div", {class: "l"}, l), h("div", {class: "v"}, v), h("div", {class: "s"}, s));
   const figure = (l, v, hl) => h("div", {class: "fig" + (hl ? " hl" : "")}, h("div", {class: "l"}, l), h("div", {class: "v"}, v));
+
+  // Turn one program trace step into plain language. The numbers come from the program, never from AI.
+  const centsText = (t) => t.replace(/(\d+) cents/g, (_, c) => money(+c));
+  function plainStep(t, claim, res) {
+    const e = t.explanation;
+    let m;
+    if (/^Allowance/.test(e)) return {c: "allowed_cents", what: "Allowed price",
+      why: `The price your plan accepts for this service${claim.billed_cents ? ` (the provider charged ${money(claim.billed_cents)})` : ""}. Your share is based on this.`};
+    if ((m = /^Deductible:.*remaining deductible (\d+) cents.*applies=(\w+)/.exec(e))) return {c: "deductible_cents", what: "Deductible",
+      why: m[2] === "True" ? `Paid first, up to what’s left of your deductible (${money(+m[1])} left).` : "This service skips the deductible."};
+    if ((m = /^Copay: up to (\d+) cents/.exec(e))) return {c: "copay_cents", what: "Copay", why: +m[1] ? `A flat ${money(+m[1])} for this service.` : "No copay for this service."};
+    if ((m = /^Coinsurance: (\d+)\/10000 × (\d+) cents/.exec(e))) return {c: "coinsurance_cents", what: "Coinsurance",
+      why: +m[1] ? `You pay ${pct(+m[1])} of the remaining ${money(+m[2])}.` : "No coinsurance for this service."};
+    if ((m = /^Covered cost sharing capped by (\d+) cents/.exec(e))) return {c: null, what: "Yearly out-of-pocket limit",
+      why: `You had ${money(+m[1])} left before your yearly maximum. Your share so far, after the cap:`};
+    if (/^Network rule/.test(e)) return {c: "balance_cents", what: "Billing above the allowed price",
+      why: res && res.network === "out" ? "Out-of-network: extra charges are yours only if the policy allows it." : "Charges above the allowed price are written off unless the policy allows extra billing."};
+    if (/^Explicit exclusion/.test(e)) return {c: "noncovered_cents", what: "Not covered", why: "Your policy excludes this service, so the full charge is yours. It doesn’t count toward your limits."};
+    return {c: null, what: centsText(e), why: ""};
+  }
 
   function lineCard(l, scenario) {
     const claim = S.data.case.claim.lines.find((c) => c.id === l.claim_line_id), eob = claim.insurer;
@@ -419,23 +463,38 @@
       let text;
       if (e.kind === "eob_vs_fineprint") {
         const a = eob[e.component], b = res ? res[e.component] : a - e.difference_cents;
-        text = e.component === "allowed_cents" ? `The insurer used an allowed price of ${money(a)}; your contract supports ${money(b)}.`
-          : `The insurer charged you ${money(a)} in ${LABEL[e.component]}; your policy supports ${money(b)}.`;
+        text = e.component === "allowed_cents" ? `Your insurer used an allowed price of ${money(a)}; the contract supports ${money(b)}.`
+          : `Your insurer charged you ${money(a)} in ${LABEL[e.component]}; your policy supports ${money(b)}.`;
       } else if (e.kind === "bill_vs_eob") {
-        text = `The bill (${money(l.bill_patient_cents)}) differs from the insurer’s statement (${money(l.eob_patient_cents)}) by ${money(Math.abs(e.difference_cents))}. Ask about a missing credit or adjustment.`;
-      } else text = `The bill asks for ${money(l.bill_patient_cents)}; your policy supports ${money(l.fineprint_patient_cents)}. Request an itemized explanation.`;
-      return h("li", {}, text, h("div", {class: "cite"}, "Based on:", e.clause_ids.map((id) => clauseButton(id))));
+        text = `The bill (${money(l.bill_patient_cents)}) is different from your insurer’s statement (${money(l.eob_patient_cents)}) by ${money(Math.abs(e.difference_cents))}. Ask about a missing credit or adjustment.`;
+      } else text = `The bill asks for ${money(l.bill_patient_cents)}; your policy supports ${money(l.fineprint_patient_cents)}. Ask for an itemized explanation.`;
+      return h("li", {}, text, h("div", {class: "cite"}, "Rule:", e.clause_ids.map((id) => clauseButton(id))));
     });
-    const trace = res && res.trace;
-    return h("article", {class: "line"},
-      h("div", {class: "line-top"}, h("div", {}, h("b", {}, l.description), h("span", {class: "code"}, l.code)), h("span", {class: "chip " + chip[0]}, chip[1])),
-      h("div", {class: "amts"}, amt("Hospital bill", l.bill_patient_cents), amt("Insurer says", l.eob_patient_cents), amt("Fineprint", l.fineprint_patient_cents, true)),
-      reasons.length ? h("ul", {class: "why"}, reasons) : h("p", {class: "ok-line"}, "✓ Policy, statement and bill agree for this line."),
-      l.already_paid_cents ? h("p", {class: "hint"}, `You already paid ${money(l.already_paid_cents)}${l.potential_refund_cents ? `, ${money(l.potential_refund_cents)} more than supported` : ""}.`) : null,
-      trace && trace.length ? h("details", {}, h("summary", {}, "How we calculated this"),
-        h("ol", {class: "trace"}, trace.map((t) => h("li", {}, `${t.explanation} (${money(t.amount_cents)}) `, h("span", {class: "cite"}, t.clause_ids.map((id) => clauseButton(id)))))) ) : null);
+    const trace = (res && res.trace) || [];
+    const steps = trace.map((t, i) => {
+      const p = plainStep(t, claim, res);
+      const insurer = p.c && res && Number.isInteger(eob[p.c]) && eob[p.c] !== res[p.c] ? eob[p.c] : null;
+      return h("li", {class: insurer !== null ? "diff" : ""}, h("span", {class: "i"}, String(i + 1)),
+        h("div", {class: "w"}, h("b", {}, p.what), p.why ? h("span", {}, p.why) : null),
+        h("div", {class: "amt"}, money(t.amount_cents), insurer !== null ? h("span", {class: "ins"}, `Insurer: ${money(insurer)}`) : null),
+        t.clause_ids?.length ? h("div", {class: "cite"}, t.clause_ids.map((id) => clauseButton(id))) : null);
+    });
+    if (steps.length) steps.push(h("li", {class: "total"}, h("span", {class: "i"}, "="), h("div", {class: "w"}, h("b", {}, "You should pay"),
+      h("span", {}, `Insurer says ${money(l.eob_patient_cents)} · bill says ${money(l.bill_patient_cents)}`)), h("div", {class: "amt"}, money(l.fineprint_patient_cents))));
+    const open = material.length > 0;
+    return h("details", {class: "line " + (over > 0 || material.length ? "has" : "okl"), open},
+      h("summary", {},
+        h("div", {class: "line-name"}, h("b", {}, l.description), h("span", {class: "code"}, `Code ${l.code}`)),
+        h("div", {class: "amts"}, amt("Bill", l.bill_patient_cents, "bill"), amt("Insurer", l.eob_patient_cents, "eob"), amt("Should pay", l.fineprint_patient_cents, "me")),
+        h("div", {class: "line-end"}, h("span", {class: "chip " + chip[0]}, chip[1]), h("span", {class: "open"}, "Why"))),
+      h("div", {class: "line-body"},
+        reasons.length ? [h("h3", {}, "What doesn’t add up"), h("ul", {class: "why"}, reasons)] : h("p", {class: "ok-line"}, "✓ Your policy, the insurer’s statement and the bill agree on this charge."),
+        l.already_paid_cents ? h("p", {class: "paid"}, `You already paid ${money(l.already_paid_cents)}${l.potential_refund_cents ? `, ${money(l.potential_refund_cents)} more than supported` : ""}.`) : null,
+        steps.length ? [h("h3", {}, "How the program calculated it"), h("ol", {class: "calc"}, steps),
+          h("details", {}, h("summary", {}, "Show the program’s exact steps"),
+            h("ol", {class: "trace"}, trace.map((t) => h("li", {class: "raw"}, `${centsText(t.explanation)} → ${money(t.amount_cents)}`))))] : null));
   }
-  const amt = (l, c, me) => h("div", {class: me ? "me" : ""}, h("div", {class: "l"}, l), h("div", {class: "v"}, money(c)));
+  const amt = (l, c, cls) => h("div", {class: cls}, h("div", {class: "l"}, l), h("div", {class: "v"}, money(c)));
 
   function clauseButton(id) {
     return h("button", {type: "button", onclick: () => openClause(id), "aria-label": `Show clause ${id}`}, id);
@@ -546,9 +605,10 @@
       const list = clear($("sample-list"));
       const demos = await api("/api/demos");
       for (const s of demos) list.append(h("button", {type: "button", class: "sample", onclick: () => loadSample(s.id, true)},
-        h("span", {class: "kicker"}, "Real policy · synthetic claim"), h("b", {}, s.title), h("span", {class: "go"}, "Load claim & upload SBC →")));
+        h("span", {class: "kicker"}, "Real policy · synthetic claim & bill"), h("b", {}, s.title), h("span", {class: "go"}, "Load claim, then upload the policy PDF →")));
       for (const s of S.samples) list.append(h("button", {type: "button", class: "sample", onclick: () => loadSample(s.id)},
-        h("span", {class: "kicker"}, "Sample · synthetic"), h("b", {}, s.title), h("span", {class: "go"}, "Fill in & run →")));
+        h("span", {class: "kicker"}, "Synthetic sample" + (s.insurer ? " · " + s.insurer : "")), h("b", {}, s.title),
+        s.summary ? h("span", {class: "sum"}, s.summary) : null, h("span", {class: "go"}, "Run this sample →")));
     } catch (e) { clear($("sample-list")).append(h("p", {class: "muted"}, "Samples couldn’t load. You can still paste your own documents.")); }
   }
   init();

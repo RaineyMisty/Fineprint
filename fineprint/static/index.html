@@ -3,19 +3,20 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Check your medical bill against your insurance policy, clause by clause.">
-  <title>Fineprint · Check what you really owe</title>
+  <meta name="description" content="How much should you pay, and why? Fineprint checks your medical bill against your insurer’s statement and your policy, clause by clause.">
+  <meta name="theme-color" content="#f3eee2">
+  <title>Fineprint · How much should you pay, and why?</title>
   <link rel="stylesheet" href="/styles.css">
   <script src="/app.js" defer></script>
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
   <header class="top">
-    <a class="brand" href="/" aria-label="Fineprint, start over"><span class="mark" aria-hidden="true">f</span>Fineprint</a>
-    <ol class="steps" id="steps" aria-label="Progress">
-      <li><button type="button" data-step="1"><span class="n">1</span>Documents</button></li>
-      <li><button type="button" data-step="2"><span class="n">2</span>Policy rules</button></li>
-      <li><button type="button" data-step="3"><span class="n">3</span>Your result</button></li>
+    <a class="brand" href="/" aria-label="Fineprint, start over">fine<span>print</span></a>
+    <ol class="steps" id="steps" aria-label="Three fixed steps">
+      <li><button type="button" data-step="1"><span class="n">1</span><span class="sl">Your documents</span></button></li>
+      <li><button type="button" data-step="2"><span class="n">2</span><span class="sl">What your policy says</span></button></li>
+      <li><button type="button" data-step="3"><span class="n">3</span><span class="sl">What you should pay</span></button></li>
     </ol>
     <span class="badge" id="provider-badge" hidden></span>
   </header>
@@ -27,71 +28,95 @@
     <!-- Step 1 -->
     <section id="step-1" class="step" aria-labelledby="h1-title">
       <div class="intro">
-        <h1 id="h1-title">Is your bill right?</h1>
-        <p class="lede">Add your policy, your insurer’s statement (EOB) and the provider’s bill — upload files or paste text. We read the policy, recalculate what you should owe, and show any difference with the clause behind it.</p>
+        <p class="eyebrow">Step 1 of 3 · Your documents</p>
+        <h1 id="h1-title">How much should you pay — <em>and why?</em></h1>
+        <p class="lede">Add the three papers behind every medical charge. Fineprint follows the same fixed steps every time: it reads your policy, recalculates what you owe, and shows the clause behind every number.</p>
       </div>
       <form id="doc-form" novalidate>
-        <div class="docs">
-          <div class="doc" data-kind="policy"><div class="doc-head"><label for="in-policy">Insurance policy</label><label class="file" for="file-policy">Upload<input id="file-policy" type="file" accept=".pdf,.txt,.md,application/pdf,text/plain,text/markdown" data-target="in-policy"></label></div>
-            <textarea id="in-policy" spellcheck="false" placeholder="Paste the plan’s benefits text, or drop a file here…" aria-describedby="hint-policy status-policy"></textarea><p id="hint-policy" class="hint">PDF, text or Markdown. <span class="count" data-count="in-policy"></span></p><p id="status-policy" class="file-status" role="status" aria-live="polite"></p></div>
-          <div class="doc" data-kind="eob"><div class="doc-head"><label for="in-eob">Insurer statement (EOB)</label><label class="file" for="file-eob">Upload<input id="file-eob" type="file" accept=".pdf,.csv,.json,.txt,application/pdf,text/csv,application/json,text/plain" data-target="in-eob"></label></div>
-            <textarea id="in-eob" spellcheck="false" placeholder="Paste the claim statement (CSV or JSON), or drop a file here…" aria-describedby="hint-eob status-eob"></textarea><p id="hint-eob" class="hint">PDF, CSV or JSON. <span class="count" data-count="in-eob"></span></p><p id="status-eob" class="file-status" role="status" aria-live="polite"></p></div>
-          <div class="doc" data-kind="bill"><div class="doc-head"><label for="in-bill">Provider bill</label><label class="file" for="file-bill">Upload<input id="file-bill" type="file" accept=".pdf,.csv,.txt,application/pdf,text/csv,text/plain" data-target="in-bill"></label></div>
-            <textarea id="in-bill" spellcheck="false" placeholder="Paste the itemized bill (CSV), or drop a file here…" aria-describedby="hint-bill status-bill"></textarea><p id="hint-bill" class="hint">PDF or CSV. <span class="count" data-count="in-bill"></span></p><p id="status-bill" class="file-status" role="status" aria-live="polite"></p></div>
-        </div>
+        <ol class="docs chain" aria-label="Policy, then insurer statement, then bill">
+          <li class="doc" data-kind="policy">
+            <div class="doc-role"><span class="doc-ico" aria-hidden="true">§</span><div><label for="in-policy" class="doc-name">Insurance policy</label><span class="doc-what">Sets the rules</span></div></div>
+            <div class="doc-head"><span class="hint" id="hint-policy">PDF, text or Markdown <span class="count" data-count="in-policy"></span></span><label class="file" for="file-policy">Upload<input id="file-policy" type="file" accept=".pdf,.txt,.md,application/pdf,text/plain,text/markdown" data-target="in-policy"></label></div>
+            <textarea id="in-policy" spellcheck="false" placeholder="Drop your plan’s benefits document here, or paste its text…" aria-describedby="hint-policy status-policy"></textarea>
+            <p id="status-policy" class="file-status" role="status" aria-live="polite"></p>
+          </li>
+          <li class="doc" data-kind="eob">
+            <div class="doc-role"><span class="doc-ico" aria-hidden="true">≡</span><div><label for="in-eob" class="doc-name">Insurer statement (EOB)</label><span class="doc-what">How your insurer calculated</span></div></div>
+            <div class="doc-head"><span class="hint" id="hint-eob">PDF, CSV or JSON <span class="count" data-count="in-eob"></span></span><label class="file" for="file-eob">Upload<input id="file-eob" type="file" accept=".pdf,.csv,.json,.txt,application/pdf,text/csv,application/json,text/plain" data-target="in-eob"></label></div>
+            <textarea id="in-eob" spellcheck="false" placeholder="Drop the Explanation of Benefits here, or paste it…" aria-describedby="hint-eob status-eob"></textarea>
+            <p id="status-eob" class="file-status" role="status" aria-live="polite"></p>
+          </li>
+          <li class="doc" data-kind="bill">
+            <div class="doc-role"><span class="doc-ico" aria-hidden="true">$</span><div><label for="in-bill" class="doc-name">Medical bill</label><span class="doc-what">What you’re asked to pay</span></div></div>
+            <div class="doc-head"><span class="hint" id="hint-bill">PDF or CSV <span class="count" data-count="in-bill"></span></span><label class="file" for="file-bill">Upload<input id="file-bill" type="file" accept=".pdf,.csv,.txt,application/pdf,text/csv,text/plain" data-target="in-bill"></label></div>
+            <textarea id="in-bill" spellcheck="false" placeholder="Drop the itemized bill here, or paste it…" aria-describedby="hint-bill status-bill"></textarea>
+            <p id="status-bill" class="file-status" role="status" aria-live="polite"></p>
+          </li>
+        </ol>
         <details class="facts">
-          <summary>Claim facts &amp; format <span class="muted">(filled in for samples)</span></summary>
-          <p class="hint">Details a statement may not spell out: prior deductible spending, contracted prices and IDs. JSON.</p>
-          <label for="in-format" class="inline">EOB format</label>
+          <summary>Extra claim details <span class="muted">(optional · filled in for samples)</span></summary>
+          <p class="hint">Facts a statement may not spell out — what you’ve already spent toward your deductible, contracted prices, IDs. JSON.</p>
+          <label for="in-format" class="inline">Statement format</label>
           <select id="in-format"><option value="aurora-csv-v1">CSV claim table</option><option value="mosaic-ledger-v1">JSON claim ledger</option></select>
-          <label for="in-facts" class="inline block">Facts (JSON)</label>
+          <label for="in-facts" class="inline block">Details (JSON)</label>
           <textarea id="in-facts" class="facts-text" spellcheck="false" placeholder='{"claim_context": {...}, "bill_context": {...}, "allowed_evidence": {...}}'></textarea>
         </details>
         <div class="actions">
-          <button class="btn primary" type="submit" id="check-btn">Check my bill</button>
+          <button class="btn primary big" type="submit" id="check-btn">Check my bill</button>
           <button class="btn ghost" type="button" id="clear-btn">Clear</button>
           <p class="privacy" id="privacy-note">Documents are processed in memory and not stored.</p>
         </div>
       </form>
+
       <div class="samples" aria-labelledby="samples-title">
-        <h2 id="samples-title" class="eyebrow">No documents handy? Try a sample <span class="syn-tag">Synthetic data</span></h2>
+        <h2 id="samples-title">No documents handy? Try a sample <span class="syn-tag">Synthetic data</span></h2>
         <div id="sample-list" class="sample-list"><p class="muted">Loading samples…</p></div>
       </div>
+
+      <ol class="how" aria-label="How Fineprint works">
+        <li><b>1 · Read</b><span>The reader pulls the rules out of your policy, each with an exact quote. AI only reads text — it never does the math.</span></li>
+        <li><b>2 · Calculate</b><span>A fixed program applies those rules to each charge: allowed price, deductible, copay, coinsurance, out-of-pocket cap.</span></li>
+        <li><b>3 · Compare</b><span>Your policy’s answer is checked against the insurer’s statement and the bill. Same inputs, same result, every time.</span></li>
+      </ol>
     </section>
 
     <!-- Loading -->
     <section id="loading" class="step" hidden aria-live="polite">
-      <div class="loading" role="status"><span class="spinner" aria-hidden="true"></span><p id="loading-text">Reading your policy…</p></div>
+      <div class="loading" role="status">
+        <ol class="load-steps" aria-hidden="true"><li id="ls-1">Read policy</li><li id="ls-2">Recalculate</li><li id="ls-3">Compare</li></ol>
+        <span class="spinner" aria-hidden="true"></span><p id="loading-text">Reading your policy…</p></div>
     </section>
 
     <!-- Step 2 -->
     <section id="step-2" class="step" hidden aria-labelledby="h2-title">
       <div class="step-head">
-        <div><h1 id="h2-title">What we read in your policy</h1>
-          <p class="lede">Each rule below was taken from a passage of your policy. Select a rule to see exactly where.</p>
+        <div><p class="eyebrow">Step 2 of 3 · What your policy says</p>
+          <h1 id="h2-title">Your coverage, in plain numbers</h1>
+          <p class="lede">These are the only rules that decide what you pay. Tap one to see the exact sentence in your policy it came from.</p>
           <p id="pdf-note" class="pdf-note" hidden></p></div>
         <div id="backend-card" class="backend"></div>
       </div>
       <div id="unresolved" class="unresolved" hidden></div>
       <div class="split">
-        <div class="rules" id="rules" aria-label="Compiled rules"></div>
+        <div class="rules" id="rules" aria-label="Rules read from your policy"></div>
         <aside class="source" aria-label="Policy text">
-          <div class="source-head"><h2>Your policy</h2><span id="source-legend" class="legend"></span></div>
+          <div class="source-head"><h2><span class="tag policy">Policy</span> Your policy text</h2><span id="source-legend" class="legend"></span></div>
           <div id="source-text" class="source-text" tabindex="0" role="region" aria-label="Policy text with highlighted source clauses"></div>
         </aside>
       </div>
       <div class="actions sticky">
-        <button class="btn ghost" type="button" data-go="1">← Edit documents</button>
-        <button class="btn primary" type="button" data-go="3" id="to-result">See my result →</button>
+        <button class="btn ghost" type="button" data-go="1">← Documents</button>
+        <button class="btn primary" type="button" data-go="3" id="to-result">See what you should pay →</button>
       </div>
     </section>
 
     <!-- Step 3 -->
     <section id="step-3" class="step" hidden aria-labelledby="verdict-title">
+      <p class="eyebrow">Step 3 of 3 · What you should pay</p>
       <div id="verdict" class="verdict"></div>
       <div id="figures" class="figures"></div>
       <div id="assumptions"></div>
-      <div class="lines-head"><h2>Line by line</h2><div id="scenario-pick"></div></div>
+      <div class="lines-head"><div><h2>Every charge, checked</h2><p class="muted small">Open a charge to see each step of the math and the clause it comes from.</p></div><div id="scenario-pick"></div></div>
       <div id="lines" class="lines"></div>
       <div class="export" id="export">
         <h2>Take it with you</h2>
@@ -103,14 +128,14 @@
           <button class="btn" type="button" id="print-btn">Print / PDF</button>
         </div>
         <p id="copy-status" class="muted" role="status"></p>
-        <p class="fine">Fineprint does not give legal or medical advice. A difference is a question to ask, not a reason to withhold payment. Calculations are deterministic; the policy reader may make mistakes, so check the cited clauses.</p>
+        <p class="fine">Fineprint does not give legal or medical advice. A difference is a question to ask, not a reason to withhold payment. The math is done by a fixed program, not AI; the policy reader can make mistakes, so check the cited clauses.</p>
       </div>
       <div class="actions sticky"><button class="btn ghost" type="button" data-go="2">← Policy rules</button><button class="btn" type="button" id="restart">Start over</button></div>
     </section>
   </main>
 
   <dialog id="clause-dialog" aria-labelledby="clause-title">
-    <form method="dialog"><h2 id="clause-title"></h2><p id="clause-text" class="clause-quote"></p>
+    <form method="dialog"><p class="eyebrow"><span class="tag policy">Policy</span> The rule behind this number</p><h2 id="clause-title"></h2><p id="clause-text" class="clause-quote"></p>
       <div class="dialog-actions"><button class="btn ghost" type="button" id="clause-show">Show in policy</button><button class="btn primary" value="close" autofocus>Close</button></div></form>
   </dialog>
 </body>
