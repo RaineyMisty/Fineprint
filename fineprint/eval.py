@@ -6,6 +6,8 @@ import argparse
 import hashlib
 import json
 import subprocess
+import sys
+import time
 from collections import Counter
 from dataclasses import replace
 from datetime import datetime, timezone
@@ -106,7 +108,7 @@ def aggregate(policies, cases):
                 end_to_end=dict(success=success,total=len(cases),rate=ratio(success,len(cases))))
 
 
-def run_evaluation(compiler=None, root=BENCHMARK):
+def run_evaluation(compiler=None, root=BENCHMARK, progress=None):
     compiler=compiler or get_compiler()
     manifest=json.loads((root/'manifest.json').read_text())
     policy_rows=[]
@@ -118,11 +120,15 @@ def run_evaluation(compiler=None, root=BENCHMARK):
         hasher.update(text.encode());hasher.update(gold_text.encode())
         error=None
         compilation=None
+        started=time.monotonic()
+        if progress: progress(f"Compiling {spec['id']} ({spec['split']})")
         try:
             compilation=compiler.compile(text,spec['id'])
             compilations[spec['id']]=compilation
         except (ValueError,TypeError) as exc:
             error=str(exc)
+        elapsed=round(time.monotonic()-started,3)
+        if progress: progress(f"{spec['id']}: {'validated' if compilation else 'failed'} in {elapsed}s")
         gold=decode(Policy,json.loads(gold_text))
         fields=extraction_counts(compilation.policy if compilation else None,gold)
         # A successfully compiled output has already passed quote/span validation.
@@ -133,6 +139,8 @@ def run_evaluation(compiler=None, root=BENCHMARK):
                                 extraction_exact=fields['fp']==fields['fn']==0,emitted_rules=emitted,traceable_rules=traceable,
                                 gold_rules=len(rule_paths(gold)),error=error,
                                 unresolved=compilation.output.unresolved if compilation else [],
+                                compilation=compilation.as_dict() if compilation else None,
+                                elapsed_seconds=elapsed,
                                 backend=compilation.backend if compilation else compiler.name))
     policy_map={p['id']:p for p in policy_rows}
     case_rows=[]
@@ -195,6 +203,7 @@ def run_evaluation(compiler=None, root=BENCHMARK):
                     'Traceability is valid spans / emitted rules; coverage also counts missing rules from failed policies.',
                     'End-to-end success requires exact extraction, exact calculations and final bill reconciliation, complete evidence and correct discrepancy decision or justified conditional abstention.',
                     'No live LLM measurement unless backend explicitly names a real configured provider. No LLM used for arithmetic.',
+                    'Synthetic compiler outputs, exact source spans and attempts are saved per policy; claim/EOB/bill data and gold policy answers are never sent to the model.',
                     'The shared LLM prompt was not tuned on held-out insurers or their gold answers; validation retries use local validation errors only.'
                 ],groups=groups,policies=policy_rows,cases=case_rows)
 
@@ -227,7 +236,7 @@ def main():
     args=parser.parse_args()
     if Path(args.report_name).name != args.report_name or args.report_name in ('', '.', '..'):
         parser.error('--report-name must be a simple filename without directories')
-    report=run_evaluation(get_compiler(args.provider))
+    report=run_evaluation(get_compiler(args.provider),progress=lambda message:print(message,file=sys.stderr,flush=True))
     args.output_dir.mkdir(parents=True,exist_ok=True)
     (args.output_dir/(args.report_name+'.json')).write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
     markdown=markdown_report(report)
