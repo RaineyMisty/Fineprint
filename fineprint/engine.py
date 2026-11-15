@@ -79,13 +79,11 @@ def _dimensions(case: Case):
                     label = f"{net}-network opening deductible ${ded / 100:.2f}, OOP ${oop / 100:.2f} (missing history: endpoint assumption)"
                     pairs.append(((ded, oop), label if None in (a.deductible_paid_cents, a.oop_paid_cents) else None))
         dims.append((f"acc:{net}", pairs))
-    groups = {}
-    for rule in case.policy.benefits:
-        if rule.ambiguity_group and any(benefit_matches(rule, line) and line.network in (rule.network, "unknown") for line in case.claim.lines):
-            groups.setdefault(rule.ambiguity_group, set()).add(rule.label)
-    for group, labels in sorted(groups.items()):
-        dims.append((f"group:{group}", [(label, f"Policy interpretation {group}: {label}") for label in sorted(labels)]))
     for line in case.claim.lines:
+        for net in ([line.network] if line.network != "unknown" else ["in", "out"]):
+            rules = [r for r in case.policy.benefits if r.network == net and benefit_matches(r, line)]
+            if len(rules) > 1:
+                dims.append((f"rule:{line.id}:{net}", [(r.id, f"The policy gives different prices for {line.description}; this reading uses {r.label}.") for r in rules]))
         if line.network == "unknown":
             dims.append((f"net:{line.id}", [(net, f"Line {line.id}: assume {net}-network") for net in ("in", "out")]))
         evidence = case.allowed_evidence.get(line.id)
@@ -148,9 +146,11 @@ def _line(line, rule: Benefit, terms, allowed, ded_paid, oop_paid, bill):
 
 
 def calculate(case: Case, *, max_scenarios=256) -> list[Scenario]:
+    from .interpretations import normalize_case
+    case = normalize_case(case)
     errors = [issue for issue in validate(case) if issue.severity == "error"]
     if errors:
-        raise CalculationError("Resolve validation errors before recalculation: " + "; ".join(i.code for i in errors))
+        raise CalculationError("Some document details need review before calculation: " + " ".join(dict.fromkeys(i.message for i in errors)))
     dims = _dimensions(case)
     count = prod(len(options) for _, options in dims)
     if count > max_scenarios:
@@ -164,7 +164,9 @@ def calculate(case: Case, *, max_scenarios=256) -> list[Scenario]:
         for line in sorted(case.claim.lines, key=lambda item: (item.service_date, item.id)):
             net = values.get(f"net:{line.id}", line.network)
             candidates = [r for r in case.policy.benefits if benefit_matches(r, line) and net == r.network]
-            candidates = [r for r in candidates if not r.ambiguity_group or values.get(f"group:{r.ambiguity_group}") == r.label]
+            selected = values.get(f"rule:{line.id}:{net}")
+            if selected is not None:
+                candidates = [r for r in candidates if r.id == selected]
             if len(candidates) != 1:
                 raise CalculationError(f"Line {line.id}: ambiguity interpretations must resolve to exactly one rule per code/network.")
             evidence = case.allowed_evidence.get(line.id)

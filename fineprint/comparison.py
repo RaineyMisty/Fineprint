@@ -5,6 +5,8 @@ from .models import Case
 
 
 def compare(case: Case, scenario: Scenario) -> dict:
+    from .interpretations import normalize_case
+    case = normalize_case(case)
     rows = []
     for result in scenario.lines:
         claim = next(cl for cl in case.claim.lines if cl.id == result.claim_line_id)

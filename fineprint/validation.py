@@ -15,6 +15,8 @@ class Issue:
 
 
 def validate(case: Case) -> list[Issue]:
+    from .interpretations import normalize_case
+    case = normalize_case(case)
     issues = []
 
     def add(code, path, message, severity="error"):
@@ -84,16 +86,7 @@ def validate(case: Case) -> list[Issue]:
             add("overlapping_rules", "policy.benefits", f"{key}: alternatives require one explicit ambiguity group.")
         if len({r.label for r in rules}) != len(rules):
             add("duplicate_interpretation", "policy.benefits", f"{key}: interpretation labels must be unique.")
-    interpretations = {}
-    for rules in groups.values():
-        for rule in rules:
-            if rule.ambiguity_group:
-                interpretations.setdefault(rule.ambiguity_group, set()).add(rule.label)
-    for key, rules in groups.items():
-        for rule in rules:
-            if rule.ambiguity_group and {r.label for r in rules} != interpretations[rule.ambiguity_group]:
-                add("incomplete_interpretations", "policy.benefits", f"{key}: each shared ambiguity group must define the same interpretations for every affected code/network.")
-    # A shared ambiguity group selects the same interpretation across all claim lines.
+    # Source alternatives are evaluated explicitly for each affected claim line.
     for line in c.lines:
         path = f"claim.lines.{line.id}"
         if not re.fullmatch(r"(?:\d{5}|[A-Z]\d{4})", line.code):

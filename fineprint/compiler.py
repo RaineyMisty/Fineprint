@@ -390,13 +390,26 @@ def recover_evidence(value, document, document_id):
     conflicting = set()
     for candidates in selectors.values():
         if len(candidates) > 1 and (not candidates[0]["ambiguity_group"] or len({b["ambiguity_group"] for b in candidates}) != 1):
-            conflicting.update(b["id"] for b in candidates)
+            if any(b["id"] not in {r["id"] for r in retained} for b in candidates):
+                conflicting.update(b["id"] for b in candidates)
     for benefit_id in conflicting:
         path = "benefits." + benefit_id
         merged.pop(path, None)
         dropped.append(path)
         value.setdefault("coverage_gaps", []).append(f"{path}: overlapping service selectors cannot distinguish contexts; use distinct source subheadings or explicit claim conditions. All conflicting rules were omitted.")
     retained = [b for b in retained if b["id"] not in conflicting]
+    from .interpretations import normalize_benefits
+    normalized, aliases = normalize_benefits([decode(Benefit, b, "benefit") for b in retained])
+    remapped = {}
+    for path, rule in merged.items():
+        target = "benefits." + aliases[path[9:]] if path.startswith("benefits.") and path[9:] in aliases else path
+        if target not in remapped:
+            remapped[target] = {**rule, "rule_path": target, "evidence": []}
+        for evidence in rule["evidence"]:
+            if evidence not in remapped[target]["evidence"]:
+                remapped[target]["evidence"].append(evidence)
+    retained = [to_dict(b) for b in normalized]
+    merged = remapped
     value["policy"]["benefits"] = retained
     value["rule_evidence"] = list(merged.values())
     referenced = {terms[key] for terms in value["policy"]["networks"].values()
