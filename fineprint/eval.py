@@ -183,7 +183,11 @@ def run_evaluation(compiler=None, root=BENCHMARK):
     return dict(backend=compiler.name,synthetic=True,generated_at=datetime.now(timezone.utc).isoformat(),
                 revision=revision,corpus_sha256=hasher.hexdigest(),parser_sha256=digest,
                 parser_matches_holdout_freeze=digest==manifest['parser_sha256'],
-                model=__import__('os').getenv('FINEPRINT_LLM_MODEL') if compiler.name!='fallback' else None,
+                model=getattr(compiler,'model',None) if compiler.name!='fallback' else None,
+                provider_sha256=hashlib.sha256(Path(__file__).with_name('providers.py').read_bytes()).hexdigest(),
+                request_config=(dict(response_format='json_object',max_tokens=16384,thinking='disabled',
+                                     timeout_seconds=60,attempt_limit=compiler.attempt_limit)
+                                if compiler.name=='deepseek' else None),
                 methodology=[
                     'Author-created format holdout; not blinded and not evidence of real-world performance.',
                     'Extraction micro precision/recall: financial fields per network and per code/network interpretation; each policy scored once; IDs/labels/order ignored.',
@@ -192,13 +196,15 @@ def run_evaluation(compiler=None, root=BENCHMARK):
                     'Compilation failures remain in extraction recall, calculation and end-to-end denominators; positive failures count as false negatives. Negative failures abstain, not true negatives; FPR denominator is all gold-negative cases.',
                     'Traceability is valid spans / emitted rules; coverage also counts missing rules from failed policies.',
                     'End-to-end success requires exact extraction, exact calculations and final bill reconciliation, complete evidence and correct discrepancy decision or justified conditional abstention.',
-                    'No live LLM measurement unless backend explicitly names a real configured provider. No LLM used for arithmetic.'
+                    'No live LLM measurement unless backend explicitly names a real configured provider. No LLM used for arithmetic.',
+                    'The shared LLM prompt was not tuned on held-out insurers or their gold answers; validation retries use local validation errors only.'
                 ],groups=groups,policies=policy_rows,cases=case_rows)
 
 
 def markdown_report(report):
     def pct(value):return 'n/a' if value is None else f'{value:.1%}'
     lines=['# Fineprint evaluation', '', f"Backend: **{report['backend']}**. **Synthetic data only**. Generated {report['generated_at']}.",
+           '',f"Model: **{report.get('model') or 'none (offline)'}**. Request configuration: `{json.dumps(report.get('request_config'))}`.",
            '',f"Parser matches pre-holdout freeze: **{report['parser_matches_holdout_freeze']}**.",
            '', '| Split | Policies / cases | Extraction P / R | Exact calculation | Discrepancy P / R | FPR | Traceability / coverage | End-to-end |',
            '| --- | --- | --- | --- | --- | --- | --- | --- |']
@@ -217,14 +223,17 @@ def markdown_report(report):
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--provider',choices=['fallback','openai','anthropic','bedrock'])
+    parser.add_argument('--provider',choices=['fallback','openai','anthropic','bedrock','deepseek'])
     parser.add_argument('--output-dir',type=Path,default=Path('reports'))
+    parser.add_argument('--report-name',default='evaluation',help='Report basename (without extension)')
     args=parser.parse_args()
+    if Path(args.report_name).name != args.report_name or args.report_name in ('', '.', '..'):
+        parser.error('--report-name must be a simple filename without directories')
     report=run_evaluation(get_compiler(args.provider))
     args.output_dir.mkdir(parents=True,exist_ok=True)
-    (args.output_dir/'evaluation.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
+    (args.output_dir/(args.report_name+'.json')).write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
     markdown=markdown_report(report)
-    (args.output_dir/'evaluation.md').write_text(markdown,encoding='utf-8')
+    (args.output_dir/(args.report_name+'.md')).write_text(markdown,encoding='utf-8')
     print(markdown)
 
 

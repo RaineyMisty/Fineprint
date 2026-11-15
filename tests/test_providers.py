@@ -1,13 +1,15 @@
 """Provider transport contracts use test doubles only; no measured LLM results."""
 import json
+from copy import deepcopy
 import os
 import sys
 import unittest
 from pathlib import Path
 from types import ModuleType, SimpleNamespace
 from unittest.mock import Mock, patch
+from urllib.error import HTTPError, URLError
 
-from fineprint.compiler import FallbackCompiler, OUTPUT_SCHEMA
+from fineprint.compiler import FallbackCompiler, OUTPUT_SCHEMA, get_compiler
 from fineprint.models import to_dict
 from fineprint.providers import LLMCompiler, ProviderError, _post
 
@@ -15,6 +17,72 @@ DOC=Path('fineprint/samples/aurora-imaging/policy.md').read_text()
 
 
 class ProviderTransportTests(unittest.TestCase):
+    def test_deepseek_json_mode_model_selection_and_shared_validation(self):
+        good=to_dict(FallbackCompiler().compile(DOC).output)
+        for model in ('', 'deepseek-flash'):
+            with self.subTest(model=model), patch.dict(os.environ, {
+                'FINEPRINT_LLM_PROVIDER':'deepseek', 'DEEPSEEK_API_KEY':'test-only',
+                'FINEPRINT_DEEPSEEK_MODEL':model, 'FINEPRINT_LLM_MODEL':'ignored-other-provider-model',
+            }), patch('fineprint.providers._post', return_value={
+                'choices':[{'finish_reason':'stop','message':{'content':json.dumps(good)}}]
+            }) as post:
+                compiler=get_compiler()
+                result=compiler.compile(DOC)
+                self.assertEqual(result.backend,'deepseek')
+                url,headers,body=post.call_args.args
+                self.assertEqual(url,'https://api.deepseek.com/chat/completions')
+                self.assertEqual(headers,{'Authorization':'Bearer test-only'})
+                self.assertEqual(body['model'],model or 'deepseek-v4-pro')
+                self.assertEqual(body['response_format'],{'type':'json_object'})
+                self.assertEqual(body['max_tokens'],16384)
+                self.assertEqual(body['thinking'],{'type':'disabled'})
+                self.assertIn('SCHEMA:',body['messages'][0]['content'])
+                self.assertEqual(to_dict(result.output),good)
+
+    def test_deepseek_rejects_invalid_outputs_without_patching(self):
+        good=to_dict(FallbackCompiler().compile(DOC).output)
+        forged=deepcopy(good);forged['rule_evidence'][0]['evidence'][0]['start']+=1
+        missing=deepcopy(good);missing['rule_evidence'].pop()
+        unknown=deepcopy(good);unknown['invented']=True
+        float_money=deepcopy(good);float_money['policy']['networks']['in']['deductible_cents']=1.5
+        for invalid in ({},forged,missing,unknown,float_money,'   ','{broken'):
+            with self.subTest(invalid=type(invalid).__name__):
+                transport=Mock(return_value=invalid)
+                with self.assertRaisesRegex(ProviderError,'No fallback was substituted'):
+                    LLMCompiler('deepseek',transport=transport,retries=2,sleep=lambda _:None).compile(DOC)
+                self.assertEqual(transport.call_count,2)
+
+    def test_deepseek_retries_http_transport_and_validation_failures(self):
+        good=to_dict(FallbackCompiler().compile(DOC).output)
+        def response(content,finish='stop'):
+            return {'choices':[{'finish_reason':finish,'message':{'content':content}}]}
+        failures=[HTTPError('https://api.deepseek.com',429,'private-body',{},None),
+                  URLError('private-body'),TimeoutError('private-body')]
+        for failure in failures:
+            reply=Mock();reply.__enter__=Mock(return_value=reply);reply.__exit__=Mock(return_value=False)
+            reply.read.return_value=json.dumps(response(json.dumps(good))).encode()
+            sleep=Mock()
+            with self.subTest(error=type(failure).__name__),patch.dict(os.environ,{'DEEPSEEK_API_KEY':'test-only'}),patch('fineprint.providers.urlopen',side_effect=[failure,reply]):
+                result=LLMCompiler('deepseek',retries=2,sleep=sleep).compile(DOC)
+            self.assertEqual(result.attempts,2)
+            sleep.assert_called_once_with(1)
+        for invalid in (response(' ', 'length'),response(' '),{'choices':[]}):
+            with patch.dict(os.environ,{'DEEPSEEK_API_KEY':'test-only'}),patch('fineprint.providers._post',return_value=invalid):
+                with self.assertRaisesRegex(ProviderError,'No fallback was substituted'):
+                    LLMCompiler('deepseek',retries=1).compile(DOC)
+
+    def test_deepseek_missing_key_and_http_errors_are_sanitized(self):
+        with patch.dict(os.environ,{'DEEPSEEK_API_KEY':''}),patch('fineprint.providers._post') as post:
+            with self.assertRaisesRegex(ProviderError,'Set DEEPSEEK_API_KEY'):
+                LLMCompiler('deepseek',retries=1).compile(DOC)
+            post.assert_not_called()
+        with patch.dict(os.environ,{'DEEPSEEK_API_KEY':'test-only'}),patch('fineprint.providers.urlopen',side_effect=HTTPError(
+            'https://api.deepseek.com',401,'test-only-secret-body',{},None)):
+            with self.assertRaises(ProviderError) as error:
+                LLMCompiler('deepseek',retries=1).compile(DOC)
+        self.assertIn('HTTP 401',str(error.exception))
+        self.assertNotIn('test-only',str(error.exception))
+
     def test_bedrock_converse_tool_schema_and_region(self):
         output=to_dict(FallbackCompiler().compile(DOC).output)
         client=Mock()

@@ -5,10 +5,21 @@ from unittest.mock import patch
 from fineprint.compiler import FallbackCompiler
 from fineprint.eval import aggregate, extraction_counts, markdown_report, outcome_signature, run_evaluation
 from fineprint.models import ModelError
+from fineprint.providers import LLMCompiler
 from fineprint.repository import load_case
 
 
 class EvaluationTests(unittest.TestCase):
+    def test_deepseek_metadata_and_failed_denominators_with_mock_transport(self):
+        with patch.dict('os.environ',{'FINEPRINT_DEEPSEEK_MODEL':'deepseek-flash','FINEPRINT_LLM_MODEL':'ignored'}):
+            compiler=LLMCompiler('deepseek',transport=lambda *_: {},retries=1)
+        report=run_evaluation(compiler)
+        self.assertEqual(report['model'],'deepseek-flash')
+        self.assertEqual(report['request_config']['attempt_limit'],1)
+        self.assertEqual(report['groups']['all']['end_to_end'],dict(success=0,total=10,rate=0))
+        self.assertEqual(len([p for p in report['policies'] if p['error']]),5)
+        self.assertIn('deepseek-flash',markdown_report(report))
+
     def test_real_offline_pipeline_counts_and_holdout_failure(self):
         with patch('urllib.request.urlopen',side_effect=AssertionError('Evaluation must stay offline')):
             report=run_evaluation(FallbackCompiler())

@@ -1,6 +1,6 @@
 """Live, opt-in provider transports. Never synthesize or silently substitute results.
 
-OpenAI/Anthropic use standard-library HTTPS; Bedrock uses optional boto3 for the
+OpenAI/Anthropic/DeepSeek use standard-library HTTPS; Bedrock uses optional boto3 for the
 AWS credential chain and SigV4. Arithmetic always remains in the local engine.
 """
 
@@ -33,9 +33,10 @@ def _post(url, headers, body):
 
 class LLMCompiler:
     def __init__(self, provider, *, transport=None, retries=None, sleep=time.sleep):
-        if provider not in ("openai", "anthropic", "bedrock"):
-            raise ProviderError("FINEPRINT_LLM_PROVIDER must be fallback, openai, anthropic or bedrock")
+        if provider not in ("openai", "anthropic", "bedrock", "deepseek"):
+            raise ProviderError("FINEPRINT_LLM_PROVIDER must be fallback, openai, anthropic, bedrock or deepseek")
         self.name = provider
+        self.model = (os.getenv("FINEPRINT_DEEPSEEK_MODEL") or "deepseek-v4-pro") if provider == "deepseek" else os.getenv("FINEPRINT_LLM_MODEL")
         self.transport = transport or self._request
         self.attempt_limit = retries if retries is not None else int(os.getenv("FINEPRINT_LLM_ATTEMPTS", "3"))
         if not 1 <= self.attempt_limit <= 5:
@@ -70,7 +71,22 @@ class LLMCompiler:
         raise ProviderError(f"{self.name} compilation failed after {self.attempt_limit} attempts: {last}. No fallback was substituted.")
 
     def _request(self, prompt, schema):
-        model = os.getenv("FINEPRINT_LLM_MODEL")
+        model = self.model
+        if self.name == "deepseek":
+            key = os.getenv("DEEPSEEK_API_KEY")
+            if not key:
+                raise ProviderError("Set DEEPSEEK_API_KEY for deepseek, or select fallback")
+            response = _post("https://api.deepseek.com/chat/completions", {"Authorization": f"Bearer {key}"}, {
+                "model": model, "messages": [{"role": "user", "content": prompt}],
+                "response_format": {"type": "json_object"}, "max_tokens": 16384,
+                "thinking": {"type": "disabled"},
+            })
+            choice = response["choices"][0]
+            if choice.get("finish_reason") != "stop":
+                raise ProviderError("DeepSeek did not complete a JSON response")
+            # JSON mode is not schema enforcement. compile() performs the same
+            # strict local schema and verbatim evidence checks as every backend.
+            return choice["message"]["content"]
         if self.name == "openai":
             key = os.getenv("OPENAI_API_KEY")
             if not key:
