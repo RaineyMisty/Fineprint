@@ -3,27 +3,45 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f5f4ee">
+  <meta name="theme-color" content="#f3eee2">
   <meta name="description" content="Fineprint — synthetic policy, claim and bill reconciliation demo.">
-  <title>Fineprint · Follow the evidence</title>
+  <title>Fineprint · Every cent. Every clause.</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2314161a'/%3E%3Crect x='6' y='19' width='20' height='6' fill='%23ffd23f'/%3E%3Ctext x='16' y='21' font-family='Georgia,serif' font-size='21' font-weight='700' fill='%23f3eee2' text-anchor='middle'%3Ef%3C/text%3E%3C/svg%3E">
   <link rel="preload" href="data.json" as="fetch" crossorigin>
   <link rel="stylesheet" href="style.css">
   <script src="app.js" defer></script>
 </head>
 <body>
-  <header class="topbar"><a class="wordmark" href="#overview">fineprint<span>✳</span></a><nav aria-label="Main"><a href="#overview">Overview</a><a href="#explorer">Case explorer</a><a href="#evaluation">Evaluation</a></nav><span class="badge">Synthetic data · offline fallback</span></header>
-  <main>
-    <section id="overview" class="screen">
-      <div class="hero"><div><p class="eyebrow">POLICY → RULES → RECONCILIATION</p><h1>Every cent.<br>Every clause.</h1><a class="button" href="#explorer">Explore the evidence <span>↗</span></a></div><div class="video-slot" aria-label="Demo video placeholder"><span class="play" aria-hidden="true">▷</span><span>Demo video</span><span class="muted">Coming soon</span></div></div>
-      <div id="headlines" class="stats" aria-live="polite"></div>
-      <div class="section-heading"><h2>The case files</h2><span class="muted">Synthetic claims</span></div>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="topbar">
+    <a class="wordmark" href="#overview" aria-label="Fineprint home">fine<span>print</span></a>
+    <nav aria-label="Main"><a href="#overview">Overview</a><a href="#explorer">Case explorer</a><a href="#evaluation">Evaluation</a></nav>
+    <span class="badge synth"><i aria-hidden="true"></i>Synthetic data · offline fallback</span>
+  </header>
+  <main id="main" tabindex="-1">
+    <section id="overview" class="screen" aria-label="Overview">
+      <div class="hero">
+        <div class="hero-copy">
+          <p class="flow" aria-label="Policy to rules to recalculation to discrepancy"><span>Policy</span><b aria-hidden="true">→</b><span>Rules</span><b aria-hidden="true">→</b><span>Recalc</span><b aria-hidden="true">→</b><span>Discrepancy</span></p>
+          <h1><span class="l1">Every <em class="hl">cent.</em></span><span class="l2">Every <em class="ul">clause.</em></span></h1>
+          <a class="button" href="#explorer">Open the case explorer <span aria-hidden="true">→</span></a>
+        </div>
+        <div class="video-slot" role="img" aria-label="Demo video placeholder — coming soon">
+          <span class="play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z"/></svg></span>
+          <span class="vlabel">Demo video</span>
+          <span class="vsoon">Coming soon</span>
+        </div>
+      </div>
+      <div id="proof" class="proof" aria-live="polite"></div>
+      <div id="headlines" class="stats"></div>
+      <div class="section-heading"><h2>Case files</h2><span class="badge">Synthetic</span></div>
       <div id="case-list" class="case-list"></div>
     </section>
-    <section id="explorer" class="screen" hidden><div class="section-heading"><h1>Case explorer</h1></div><div id="explorer-content"></div></section>
-    <section id="evaluation" class="screen" hidden><div class="section-heading"><h1>Evaluation</h1><span class="badge">Synthetic data · offline fallback</span></div><div id="evaluation-content"></div></section>
+    <section id="explorer" class="screen" hidden aria-label="Case explorer"><h1 class="sr-only">Case explorer</h1><div id="explorer-content"></div></section>
+    <section id="evaluation" class="screen" hidden aria-label="Evaluation"><h1 class="sr-only">Evaluation</h1><div id="evaluation-content"></div></section>
     <p id="status" role="status">Loading synthetic cases…</p>
     <noscript>Enable JavaScript to explore the synthetic cases.</noscript>
   </main>
-  <footer><span>fineprint ✳</span><span>Synthetic data · offline fallback</span><a href="data.json">Case data ↗</a><a href="evaluation.json">Evaluation data ↗</a></footer>
+  <footer><span class="wordmark small">fine<span>print</span></span><span>Synthetic data · offline fallback</span><a href="data.json">Case data ↗</a><a href="evaluation.json">Evaluation data ↗</a></footer>
 </body>
 </html>
