@@ -142,6 +142,10 @@ def recover_evidence(value, document, document_id):
     expected_paths = {f"networks.{net}.{field}" for net in value["policy"]["networks"]
                       for field in ("deductible_cents", "oop_max_cents", "balance_billing")}
     expected_paths.update("benefits." + b["id"] for b in value["policy"]["benefits"])
+    explicit_id = re.search(r"(?m)^\s*Policy:\s*([A-Za-z0-9][A-Za-z0-9_.:/-]*)(?=\s*\||\s*$)", document)
+    if explicit_id and value["policy"]["id"] != explicit_id[1]:
+        raise ModelError("policy.id must copy the explicit Policy: identifier from the source header: " + explicit_id[1]
+                         + ". The evidence source document id is a different identifier.")
     if any(r["rule_path"] not in expected_paths for r in value["rule_evidence"]):
         raise ModelError("Invalid rule_evidence.rule_path. Use only these exact paths: "
                          + ", ".join(sorted(expected_paths))

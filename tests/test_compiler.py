@@ -167,6 +167,19 @@ class CompilerTests(unittest.TestCase):
         self.assertEqual(len(result.policy.benefits), 2)
         self.assertTrue(any('code' in warning for warning in result.output.unresolved))
 
+    def test_explicit_policy_id_is_validated_from_source_not_claim_or_gold(self):
+        good = to_dict(FallbackCompiler().compile(DOC).output)
+        wrong = deepcopy(good)
+        wrong['policy']['id'] = 'uploaded-policy'
+        calls = []
+        def transport(prompt, schema):
+            calls.append(prompt)
+            return wrong if len(calls) == 1 else good
+        result = LLMCompiler('deepseek', transport=transport, sleep=lambda _:None).compile(DOC)
+        self.assertEqual(result.policy.id, good['policy']['id'])
+        self.assertEqual(result.attempts, 2)
+        self.assertIn('policy.id must copy the explicit Policy:', calls[1])
+
     def test_live_request_payload_contracts_with_test_http(self):
         good = to_dict(FallbackCompiler().compile(DOC).output)
         for provider in ('openai', 'anthropic'):
