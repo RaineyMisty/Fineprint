@@ -376,7 +376,9 @@ def recover_evidence(value, document, document_id):
         else:
             retained.append(benefit)
     selectors = {}
-    for benefit in retained:
+    # A failed quote must not silently leave a cheaper, overbroad alternative.
+    # Check conflicts across all proposed selectors, before evidence pruning.
+    for benefit in value["policy"]["benefits"]:
         for selector in benefit["codes"] or [benefit.get("service_category")]:
             selectors.setdefault((selector, benefit["network"], tuple(benefit.get("conditions", []))), []).append(benefit)
     conflicting = set()
