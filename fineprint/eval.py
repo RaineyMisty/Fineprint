@@ -159,7 +159,10 @@ def run_evaluation(compiler=None, root=BENCHMARK, progress=None):
         report=None
         error=row['error']
         if compilation and not compilation.output.unresolved:
-            report=analyze(replace(original,policy=compilation.policy))
+            # Authored gold measures the contract formulas independently of a
+            # possibly wrong provider bill. Do not let a bill ceiling hide an
+            # arithmetic error. Patient-facing /check remains document-bounded.
+            report=analyze(replace(original,policy=compilation.policy), policy_audit=True)
             if report['status']=='blocked':error=report['blocked_reason']
         elif compilation:
             error='Unresolved policy clauses: '+'; '.join(compilation.output.unresolved)
@@ -189,6 +192,7 @@ def run_evaluation(compiler=None, root=BENCHMARK, progress=None):
     except (OSError,subprocess.CalledProcessError):revision='unavailable'
     digest=hashlib.sha256(Path(__file__).with_name('compiler.py').read_bytes()).hexdigest()
     return dict(backend=compiler.name,synthetic=True,generated_at=datetime.now(timezone.utc).isoformat(),
+                evaluation_scope="Uncapped policy-formula and reconciliation audit; not the patient-facing document-bounded amount",
                 revision=revision,corpus_sha256=hasher.hexdigest(),parser_sha256=digest,
                 parser_matches_holdout_freeze=digest==manifest['parser_sha256'],
                 model=getattr(compiler,'model',None) if compiler.name!='fallback' else None,

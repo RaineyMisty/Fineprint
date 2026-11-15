@@ -52,7 +52,9 @@ class ExclusionContractTests(unittest.TestCase):
                     result = analyze_policy_text(case_from_dict(raw), document, 'uploaded-policy', compiler=compiler)
                     self.assertEqual(result['report']['status'], 'ready')
                     line = result['report']['scenarios'][0]['lines'][0]
-                    self.assertEqual(line['noncovered_cents'], raw['claim']['lines'][0]['billed_cents'])
+                    self.assertEqual(line['policy_patient_cents'], raw['claim']['lines'][0]['billed_cents'])
+                    bill = raw['bill']['lines'][0]
+                    self.assertLessEqual(line['patient_cents'], bill['patient_paid_cents'] + bill['balance_due_cents'])
                     self.assertEqual(line['patient_cents'], line['noncovered_cents'])
                     self.assertEqual((line['deductible_cents'], line['copay_cents'], line['coinsurance_cents']), (0, 0, 0))
                     exclusion = result['compilation']['output']['policy']['benefits'][0]

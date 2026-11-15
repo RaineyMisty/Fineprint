@@ -1,12 +1,12 @@
 """Application boundary shared by the HTTP API, UI and external integrations."""
 
 from .comparison import compare
-from .engine import CalculationError, calculate, scenario_dict
+from .engine import CalculationError, audit_policy, calculate, scenario_dict
 from .models import Case
 from .validation import Issue, issue_dicts, links, validate
 
 
-def analyze(case: Case, *, unresolved=()) -> dict:
+def analyze(case: Case, *, unresolved=(), policy_audit=False) -> dict:
     issues = validate(case)
     issues += [Issue("error", "compiler_unresolved", "policy", text) for text in unresolved]
     report = {"validation": issue_dicts(issues), "links": links(case),
@@ -20,11 +20,13 @@ def analyze(case: Case, *, unresolved=()) -> dict:
         report.update(status="blocked", blocked_reason="Resolve unsupported policy clauses before calculation: " + "; ".join(unresolved))
         return report
     try:
-        scenarios = calculate(case)
+        scenarios = (audit_policy if policy_audit else calculate)(case)
     except CalculationError as exc:
         report.update(status="blocked", blocked_reason=str(exc))
         return report
     comparisons = [compare(case, scenario) for scenario in scenarios]
+    if policy_audit:
+        report["method"] += " Uncapped policy-formula audit, not the patient-facing amount constrained by the recorded bill."
     report["scenarios"] = [scenario_dict(s) for s in scenarios]
     report["comparisons"] = comparisons
     totals = [s.patient_cents for s in scenarios]

@@ -55,3 +55,19 @@ class DocumentBoundsTests(unittest.TestCase):
         p=self.low_bill(); r=calculate(case(p))[0].lines[0]
         self.assertEqual(r.policy_patient_cents,12000)
         self.assertEqual(r.patient_cents,4000)
+
+    def test_in_network_is_limited_by_eob_allowance_after_recorded_plan_payment(self):
+        p=payload()
+        # The contract allowance is higher than the recorded EOB allowance.
+        p['claim']['lines'][0]['insurer'].update(allowed_cents=15000)
+        r=calculate(case(p))[0].lines[0]
+        self.assertLessEqual(r.patient_cents,15000-8000)
+        self.assertEqual(r.policy_patient_cents,12000)
+
+    def test_upload_payload_cannot_disable_document_bounds(self):
+        from fineprint.repository import sample_inputs
+        from fineprint.service import check_documents
+        from fineprint.compiler import FallbackCompiler
+        inputs={**sample_inputs('mosaic-therapy')['inputs'],'policy_audit':True,'bound_to_documents':False}
+        result=check_documents(inputs,compiler=FallbackCompiler())
+        self.assertEqual(result['report']['summary']['illustrated_max_patient_cents'],4000)

@@ -149,7 +149,8 @@ class CompilerServerTests(unittest.TestCase):
         self.assertEqual(standalone["compilation"]["output"]["policy"]["benefits"][0]["copay_cents"],3000)
         status,_,result=self.request("POST","/api/compile",json.dumps({"document":document,"case":data["case"]}),{"Content-Type":"application/json"})
         self.assertEqual(status,200)
-        self.assertEqual(result["report"]["summary"]["illustrated_min_patient_cents"],39000)
+        self.assertEqual(result["report"]["summary"]["illustrated_min_patient_cents"],38500)
+        self.assertEqual(sum(line["policy_patient_cents"] for line in result["report"]["scenarios"][0]["lines"]),39000)
 
     def test_unsupported_clause_and_mismatched_policy_block_calculation(self):
         data=self.request("GET","/api/cases/aurora-imaging")[2]

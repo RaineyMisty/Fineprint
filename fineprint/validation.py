@@ -66,7 +66,7 @@ def validate(case: Case) -> list[Issue]:
             for key, limit in (("deductible_paid_cents", terms.deductible_cents), ("oop_paid_cents", terms.oop_max_cents)):
                 val = getattr(a, key)
                 if val is None:
-                    add("missing_accumulator", f"claim.accumulators.{net}.{key}", "Missing prior spending; endpoint scenarios will be shown.", "warning")
+                    add("missing_accumulator", f"claim.accumulators.{net}.{key}", "Your earlier deductible or out-of-pocket spending is missing.", "warning")
                 elif val > limit:
                     add("accumulator_limit", f"claim.accumulators.{net}.{key}", "Opening accumulator exceeds policy limit.")
             if (a.deductible_paid_cents is not None and a.oop_paid_cents is not None
@@ -106,7 +106,7 @@ def validate(case: Case) -> list[Issue]:
         if line.service_category:
             add("category_assignment", path, "Service category and conditions were supplied by the claim reviewer, not inferred from the procedure code.", "warning")
         if line.network == "unknown":
-            add("unknown_network", path, "Network missing: evaluate both networks.", "warning")
+            add("unknown_network", path, "Whether this provider is in your plan's network is not confirmed.", "warning")
         eob = line.insurer
         if eob.allowed_cents > line.billed_cents:
             add("allowed_exceeds_charge", path, "EOB allowed amount exceeds charge.")

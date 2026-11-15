@@ -63,7 +63,7 @@ def _share(cents: int, bps: int) -> int:
     return (cents * bps + 5000) // 10000
 
 
-def _dimensions(case: Case):
+def _dimensions(case: Case, *, bound_to_documents=True):
     dims = []
     relevant = {line.network for line in case.claim.lines}
     if "unknown" in relevant:
@@ -88,12 +88,16 @@ def _dimensions(case: Case):
             dims.append((f"net:{line.id}", [(net, f"Line {line.id}: assume {net}-network") for net in ("in", "out")]))
         evidence = case.allowed_evidence.get(line.id)
         if evidence is None or evidence.allowed_cents is None:
-            dims.append((f"allowed:{line.id}", [(line.insurer.allowed_cents,
-                f"Line {line.id}: using the insurer statement's allowed price ${line.insurer.allowed_cents / 100:.2f}; the contracted price is not independently confirmed.")]))
+            if bound_to_documents:
+                dims.append((f"allowed:{line.id}", [(line.insurer.allowed_cents,
+                    f"Line {line.id}: using the insurer statement's allowed price ${line.insurer.allowed_cents / 100:.2f}; the contracted price is not independently confirmed.")]))
+            else:
+                dims.append((f"allowed:{line.id}", [(value, f"Line {line.id}: unconfirmed contract allowance endpoint ${value / 100:.2f}")
+                    for value in sorted({0, line.billed_cents})]))
     return dims
 
 
-def _line(line, rule: Benefit, terms, allowed, ded_paid, oop_paid, bill):
+def _line(line, rule: Benefit, terms, allowed, ded_paid, oop_paid, bill, *, bound_to_documents=True):
     refs = rule.clause_ids
     steps = [Step("Allowance supplied as evidence; it is not derived from policy cost-sharing rules.", allowed, refs)]
     ded = copay = coin = noncovered = balance = 0
@@ -127,8 +131,8 @@ def _line(line, rule: Benefit, terms, allowed, ded_paid, oop_paid, bill):
     ceiling = min(line.billed_cents, bill.charged_cents, bill.patient_total_cents,
                   max(0, bill.charged_cents - paid - bill.adjustment_cents))
     if rule.covered and rule.network == "in":
-        ceiling = min(ceiling, max(0, allowed - paid))
-    if patient > ceiling:
+        ceiling = min(ceiling, max(0, min(allowed, line.insurer.allowed_cents) - paid))
+    if bound_to_documents and patient > ceiling:
         excess = patient - ceiling
         parts = [balance, noncovered, coin, copay, ded]
         for i, value in enumerate(parts):
@@ -146,12 +150,26 @@ def _line(line, rule: Benefit, terms, allowed, ded_paid, oop_paid, bill):
 
 
 def calculate(case: Case, *, max_scenarios=256) -> list[Scenario]:
+    """Patient-facing readings, constrained by the posted bill and payment facts."""
+    return _calculate(case, max_scenarios=max_scenarios, bound_to_documents=True)
+
+
+def audit_policy(case: Case, *, max_scenarios=256) -> list[Scenario]:
+    """Uncapped contract arithmetic for independent formula audits/benchmarks.
+
+    This is not a current payment recommendation. The upload/check API always
+    uses calculate(); a client cannot select this mode in an upload payload.
+    """
+    return _calculate(case, max_scenarios=max_scenarios, bound_to_documents=False)
+
+
+def _calculate(case: Case, *, max_scenarios, bound_to_documents) -> list[Scenario]:
     from .interpretations import normalize_case
     case = normalize_case(case)
     errors = [issue for issue in validate(case) if issue.severity == "error"]
     if errors:
         raise CalculationError("Some document details need review before calculation: " + " ".join(dict.fromkeys(i.message for i in errors)))
-    dims = _dimensions(case)
+    dims = _dimensions(case, bound_to_documents=bound_to_documents)
     count = prod(len(options) for _, options in dims)
     if count > max_scenarios:
         raise CalculationError(f"{count} scenarios exceed the {max_scenarios} limit; supply missing facts or resolve ambiguities. No scenarios were silently dropped.")
@@ -180,7 +198,7 @@ def calculate(case: Case, *, max_scenarios=256) -> list[Scenario]:
             if line.service_category:
                 assumptions.append(f"Line {line.id}: reviewer assigned category {line.service_category}; confirmed conditions: {', '.join(line.confirmed_conditions) or 'none'}.")
             bill = next(b for b in case.bill.lines if b.claim_line_id == line.id)
-            result = _line(line, candidates[0], terms, allowed, *accs[net], bill)
+            result = _line(line, candidates[0], terms, allowed, *accs[net], bill, bound_to_documents=bound_to_documents)
             accs[net] = [result.closing_deductible_cents, result.closing_oop_cents]
             results.append(result)
         scenarios.append(Scenario(f"scenario-{n}", assumptions, bool(assumptions), results,
@@ -189,7 +207,7 @@ def calculate(case: Case, *, max_scenarios=256) -> list[Scenario]:
     uncertain = {line.id for line in case.claim.lines if line.network == "unknown"
                  or case.allowed_evidence.get(line.id) is None
                  or case.allowed_evidence[line.id].allowed_cents is None}
-    if uncertain:
+    if bound_to_documents and uncertain:
         # Infer only missing facts. A supplied contract is still audited against
         # the insurer rather than replaced by the insurer's asserted cost share.
         consistent = [s for s in scenarios if all(

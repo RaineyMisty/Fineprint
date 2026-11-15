@@ -2,14 +2,16 @@ import unittest
 from copy import deepcopy
 
 from fineprint.comparison import compare
-from fineprint.engine import CalculationError, calculate
+from fineprint.engine import CalculationError, audit_policy, calculate
 from fineprint.service import analyze
 from tests.helpers import case, payload
 
 
 class EngineTests(unittest.TestCase):
     def result(self, data=None):
-        return calculate(case(data))[0].lines[0]
+        # These unit cases vary policy formulas without changing the posted ledger.
+        # Audit the independent arithmetic; document bounds have separate tests.
+        return audit_policy(case(data))[0].lines[0]
 
     def test_deductible_then_coinsurance(self):
         r = self.result()
@@ -91,12 +93,12 @@ class EngineTests(unittest.TestCase):
         self.assertEqual({r.lines[0].network for r in results}, {"in", "out"})
         self.assertTrue(all(r.conditional for r in results))
 
-    def test_missing_allowed_is_explicit_endpoints(self):
+    def test_missing_allowed_uses_recorded_eob_price(self):
         p = payload()
         p["allowed_evidence"].clear()
         results = calculate(case(p))
-        self.assertEqual({r.lines[0].allowed_cents for r in results}, {0, 30000})
-        self.assertTrue(all("endpoint" in " ".join(r.assumptions) for r in results))
+        self.assertEqual({r.lines[0].allowed_cents for r in results}, {20000})
+        self.assertTrue(all("contracted price is not independently confirmed" in " ".join(r.assumptions) for r in results))
 
     def test_missing_accumulators_never_invent_inconsistent_history(self):
         for ded, oop in ((None, None), (None, 5000), (3000, None)):
@@ -182,7 +184,7 @@ class ComparisonTests(unittest.TestCase):
 
 
 class IndependentCalculationTests(unittest.TestCase):
-    def test_changing_balanced_insurer_adjudication_does_not_change_fineprint(self):
+    def test_posted_payment_bounds_answer_but_preserves_independent_audit(self):
         p=payload()
         expected=calculate(case(p))[0].patient_cents
         # Replace the insurer answer with zero patient responsibility while
@@ -190,5 +192,6 @@ class IndependentCalculationTests(unittest.TestCase):
         p['claim']['lines'][0]['insurer'].update(deductible_cents=0,coinsurance_cents=0,insurer_paid_cents=20000)
         p['bill']['lines'][0].update(insurance_paid_cents=20000,balance_due_cents=0)
         result=analyze(case(p))
-        self.assertEqual(result['scenarios'][0]['patient_cents'],expected)
-        self.assertEqual(result['comparisons'][0]['eob_difference_cents'],-12000)
+        self.assertEqual(result['scenarios'][0]['patient_cents'],0)
+        self.assertEqual(result['scenarios'][0]['lines'][0]['policy_patient_cents'],expected)
+        self.assertEqual(result['comparisons'][0]['eob_difference_cents'],0)

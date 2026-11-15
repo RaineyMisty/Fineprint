@@ -42,7 +42,9 @@ class SbcContractTests(unittest.TestCase):
         p['allowed_evidence']['L1']['balance_billing'] = False
         self.assertEqual(calculate(case_from_dict(p))[0].patient_cents, 12000)
         p['allowed_evidence']['L1']['balance_billing'] = True
-        self.assertEqual(calculate(case_from_dict(p))[0].patient_cents, 22000)
+        result = calculate(case_from_dict(p))[0]
+        self.assertEqual(result.patient_cents, 12000)
+        self.assertEqual(result.lines[0].policy_patient_cents, 22000)
         p['allowed_evidence']['L1']['source'] = 'eob'
         with self.assertRaises(CalculationError):
             calculate(case_from_dict(p))
