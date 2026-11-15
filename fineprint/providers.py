@@ -22,24 +22,36 @@ class ProviderError(ModelError):
     pass
 
 
-def _post(url, headers, body, *, timeout=300, attempts=2, sleep=time.sleep):
+class TransportExhaustedError(ProviderError):
+    """Transport has already spent its retry budget; don't multiply it in compile()."""
+
+
+def _post(url, headers, body, *, timeout=300, attempts=2, sleep=time.sleep, audit=None):
     request = Request(url, data=json.dumps(body).encode(), headers={"Content-Type": "application/json", **headers}, method="POST")
     for attempt in range(attempts):
+        started = time.monotonic()
         try:
             with urlopen(request, timeout=timeout) as response:
-                return json.load(response)
+                value = json.load(response)
+                if audit is not None:
+                    audit.append(dict(status="ok", elapsed_seconds=round(time.monotonic() - started, 3)))
+                return value
         except HTTPError as exc:
             # Never expose response bodies, request headers or credentials.
             message = f"Provider HTTP {exc.code}"
             if exc.code not in (408, 429, 500, 502, 503, 504):
+                if audit is not None:
+                    audit.append(dict(status=message, elapsed_seconds=round(time.monotonic() - started, 3)))
                 raise ProviderError(message) from None
         except (URLError, TimeoutError, OSError, HTTPException):
             message = "Provider transport failed or timed out"
         except json.JSONDecodeError:
             message = "Provider transport returned incomplete or malformed JSON"
+        if audit is not None:
+            audit.append(dict(status=message, elapsed_seconds=round(time.monotonic() - started, 3)))
         if attempt + 1 < attempts:
             sleep(min(2 ** attempt, 4))
-    raise ProviderError(message) from None
+    raise TransportExhaustedError(message) from None
 
 
 class LLMCompiler:
@@ -53,9 +65,10 @@ class LLMCompiler:
         if not 1 <= self.attempt_limit <= 5:
             raise ProviderError("FINEPRINT_LLM_ATTEMPTS must be between 1 and 5")
         self.sleep = sleep
-        self.timeout_seconds = int(os.getenv("FINEPRINT_LLM_TIMEOUT", "300"))
-        self.transport_attempt_limit = 2
+        self.timeout_seconds = int(os.getenv("FINEPRINT_LLM_TIMEOUT", "450" if provider == "deepseek" else "300"))
+        self.transport_attempt_limit = 3 if provider == "deepseek" else 2
         self.max_tokens = 32768
+        self.transport_audit = []
 
     @property
     def request_config(self):
@@ -63,10 +76,13 @@ class LLMCompiler:
                     max_tokens=self.max_tokens, max_tokens_ceiling=65536, thinking="disabled",
                     timeout_seconds=self.timeout_seconds, attempt_limit=self.attempt_limit,
                     transport_attempt_limit=self.transport_attempt_limit,
+                    temperature=0 if self.name == "deepseek" else None,
+                    no_supported_rule_retry_limit=1 if self.name == "deepseek" else 0,
                     evidence_spans="selected original source lines with local offsets; legacy quotes use whitespace-normalized search")
 
     def compile(self, document, document_id="uploaded-policy"):
         self.attempt_audit = []
+        self.transport_audit = []
         selected_document, self.input_selection = select_sections(document)
         prompt = (
             "Compile this insurance policy into executable rules, with integer USD cents and coinsurance basis points. "
@@ -151,7 +167,9 @@ class LLMCompiler:
         last = ""
         best_partial = None
         partial_attempt = None
-        for attempt in range(1, self.attempt_limit + 1):
+        attempt, attempt_limit, empty_retries = 0, self.attempt_limit, 0
+        while attempt < attempt_limit:
+            attempt += 1
             try:
                 response = self.transport(prompt + ("\nPrevious attempt failed validation: " + last if last else ""), PROVIDER_SCHEMA)
                 value = json.loads(response) if isinstance(response, str) else response
@@ -175,7 +193,7 @@ class LLMCompiler:
                             + " Keep only supported numeric rules. Missing billing terms and omitted rows belong in coverage_gaps, not unresolved. "
                             + "For split diagnostic rows use the literal subheadings for distinct categories; never apply the lab price to x-rays. "
                             + "Separate repeated service headings by claim context in conditions, or omit conflicting rules.")
-                    if attempt < self.attempt_limit:
+                    if attempt < attempt_limit:
                         self.sleep(min(2 ** (attempt - 1), 4))
                     continue
                 if best_partial is not None and (not best_partial.unresolved, len(best_partial.rule_evidence)) > (not output.unresolved, len(output.rule_evidence)):
@@ -189,13 +207,20 @@ class LLMCompiler:
                     self.attempt_audit[-1]["error"] = last[:600]
                 else:
                     self.attempt_audit.append(dict(attempt=attempt, proposed_rules=None, error=last[:600]))
-                if attempt < self.attempt_limit:
+                if self.name == "deepseek" and isinstance(exc, TransportExhaustedError):
+                    break
+                if self.name == "deepseek" and "No supported executable rules found" in last:
+                    if empty_retries:
+                        break
+                    empty_retries += 1
+                    attempt_limit = max(attempt_limit, attempt + 1)
+                if attempt < attempt_limit:
                     self.sleep(min(2 ** (attempt - 1), 4))
         if best_partial is not None:
             output = replace(best_partial, warnings=[*best_partial.warnings,
-                f"Retained validated partial output from attempt {partial_attempt} after {self.attempt_limit} attempts; selection used supported-rule count only, never gold answers."])
-            return Compilation(output, self.name, document_id, hashlib.sha256(document.encode()).hexdigest(), self.attempt_limit)
-        raise ProviderError(f"{self.name} compilation failed after {self.attempt_limit} attempts: {last}. No fallback was substituted.")
+                f"Retained validated partial output from attempt {partial_attempt} after {attempt} attempts; selection used supported-rule count only, never gold answers."])
+            return Compilation(output, self.name, document_id, hashlib.sha256(document.encode()).hexdigest(), attempt)
+        raise ProviderError(f"{self.name} compilation failed after {attempt} attempts: {last}. No fallback was substituted.")
 
     def _request(self, prompt, schema):
         model = self.model
@@ -206,8 +231,9 @@ class LLMCompiler:
             response = _post("https://api.deepseek.com/chat/completions", {"Authorization": f"Bearer {key}"}, {
                 "model": model, "messages": [{"role": "user", "content": prompt}],
                 "response_format": {"type": "json_object"}, "max_tokens": self.max_tokens,
-                "thinking": {"type": "disabled"},
-            }, timeout=self.timeout_seconds, attempts=self.transport_attempt_limit, sleep=self.sleep)
+                "thinking": {"type": "disabled"}, "temperature": 0,
+            }, timeout=self.timeout_seconds, attempts=self.transport_attempt_limit, sleep=self.sleep,
+               audit=self.transport_audit)
             choice = response["choices"][0]
             if choice.get("finish_reason") != "stop":
                 self.max_tokens = min(self.max_tokens * 2, 65536)
