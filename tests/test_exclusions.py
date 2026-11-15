@@ -3,7 +3,7 @@ from copy import deepcopy
 from pathlib import Path
 import unittest
 
-from fineprint.compiler import FallbackCompiler
+from fineprint.compiler import FallbackCompiler, _costs_supported
 from fineprint.models import to_dict
 from fineprint.providers import LLMCompiler
 from fineprint.repository import load_case
@@ -11,6 +11,14 @@ from fineprint.service import analyze_policy_text
 
 
 class ExclusionContractTests(unittest.TestCase):
+    def test_price_waiver_is_a_real_condition_not_service_identity(self):
+        benefit = dict(covered=True, deductible_applies=False, copay_cents=2500, coinsurance_bps=0)
+        for quote in ('$25 copay; copay waived if a study voucher is presented.',
+                      '$25 copay; the copayment does not apply to approved study participants.'):
+            self.assertFalse(_costs_supported(benefit, [quote]))
+            self.assertTrue(_costs_supported({**benefit, 'conditions': ['No study voucher or exemption']}, [quote]))
+        self.assertTrue(_costs_supported(benefit, ['$25 copay; deductible does not apply.']))
+
     def provider_value(self, wording, *, category=False):
         document = Path('fineprint/samples/aurora-imaging/policy.md').read_text()
         output = to_dict(FallbackCompiler().compile(document).output)

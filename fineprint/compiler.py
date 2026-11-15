@@ -169,6 +169,12 @@ def _costs_supported(benefit, quotes):
     amounts = {int(Decimal(m.replace(",", "")) * 100) for m in re.findall(r"\$\s*([\d,]+(?:\.\d{1,2})?)", text)}
     rates = {int(Decimal(m) * 100) for m in re.findall(r"(\d+(?:\.\d+)?)\s*%", text)}
     copay, coin = benefit["copay_cents"], benefit["coinsurance_bps"]
+    # A conditional waiver changes the price for a subset of this service.
+    # It is not merely a description of the service selected by its code/name.
+    if (copay or coin) and not benefit.get("conditions") and re.search(
+            r"\b(?:copay(?:ment)?|coinsurance)\b.{0,90}?\b(?:waived|does not apply|not applicable)\b.{0,20}?\b(?:if|when|for|to|unless)\b",
+            _normalized_text(text), re.I):
+        return False
     if any(re.match(r"\s*(?:copay|copayment|coinsurance|deductible).{0,40}(?:waiv|appl)", condition, re.I)
            for condition in benefit.get("conditions", [])):
         return False  # a policy formula is not an eligibility fact about this claim
