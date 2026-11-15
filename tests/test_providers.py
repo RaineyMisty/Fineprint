@@ -47,7 +47,8 @@ class ProviderTransportTests(unittest.TestCase):
                 evidence['quote']='invented quote'
         unknown=deepcopy(good);unknown['invented']=True
         float_money=deepcopy(good);float_money['policy']['networks']['in']['deductible_cents']=1.5
-        for invalid in ({},forged,unknown,float_money,'   ','{broken'):
+        malformed_nested=deepcopy(good);malformed_nested['rule_evidence']=[42]
+        for invalid in ({},[],None,42,True,malformed_nested,forged,unknown,float_money,'null','[]','   ','{broken'):
             with self.subTest(invalid=type(invalid).__name__):
                 transport=Mock(return_value=invalid)
                 with self.assertRaisesRegex(ProviderError,'No fallback was substituted'):

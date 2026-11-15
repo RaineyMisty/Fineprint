@@ -124,15 +124,20 @@ def recover_evidence(value, document, document_id):
     an incomplete network is removed together with its dependent benefits.
     """
     value = deepcopy(value)
-    compact = isinstance(value, dict) and isinstance(value.get("policy"), dict) and "clauses" not in value["policy"]
+    if type(value) is not dict:
+        raise ModelError("output: expected object")
+    compact = isinstance(value.get("policy"), dict) and "clauses" not in value["policy"]
     # Preserve strict schema checking (including unknown fields), but offsets
     # supplied by old clients are deliberately discarded before checking types.
     if compact:
         validate_schema(value, PROVIDER_SCHEMA)
     else:
-        for rule in value.get("rule_evidence", []):
-            for evidence in rule.get("evidence", []):
-                evidence["start"], evidence["end"] = 0, 0
+        if isinstance(value.get("rule_evidence"), list):
+            for rule in value["rule_evidence"]:
+                if isinstance(rule, dict) and isinstance(rule.get("evidence"), list):
+                    for evidence in rule["evidence"]:
+                        if isinstance(evidence, dict):
+                            evidence["start"], evidence["end"] = 0, 0
         validate_schema(value)
     expected_paths = {f"networks.{net}.{field}" for net in value["policy"]["networks"]
                       for field in ("deductible_cents", "oop_max_cents", "balance_billing")}
