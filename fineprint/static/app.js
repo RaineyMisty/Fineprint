@@ -50,7 +50,8 @@
       if (n === step) b.setAttribute("aria-current", "step"); else b.removeAttribute("aria-current");
     });
     window.scrollTo(0, 0);
-    $("main").focus({preventScroll: true});
+    const heading = $("step-" + step).querySelector("h1");
+    (heading || $("main")).focus({preventScroll: true});
   }
   function loading(text, stage = 1) {
     for (const n of [1, 2, 3]) $("step-" + n).hidden = true;
@@ -232,7 +233,7 @@
     } catch (e) { show(1); banner(e.message, e.kind, () => run()); }
   }
 
-  /* ---------- step 2: rules + source ---------- */
+  /* ---------- step 3: optional rules + source ---------- */
   function ruleFacts(r) {
     const f = [];
     if (!r.covered) return [h("span", {class: "fact no"}, "Not covered — you pay the full charge")];
@@ -287,7 +288,6 @@
           ? h("button", {type: "button", onclick: () => selectRule("unresolved:" + i)}, r.msg)
           : r.msg))));
     } else un.hidden = true;
-    $("to-result").textContent = ranges.length ? "See what this means →" : "See what you should pay →";
 
     // rule cards
     const box = clear($("rules"));
@@ -362,7 +362,7 @@
     if (scroll && firstOn) firstOn.scrollIntoView({block: "center", behavior: "smooth"});
   }
 
-  /* ---------- step 3: result ---------- */
+  /* ---------- step 2: result ---------- */
   const MAIN = ["allowed_cents", "deductible_cents", "copay_cents", "coinsurance_cents", "noncovered_cents", "balance_cents"];
   const LABEL = {allowed_cents: "allowed price", deductible_cents: "deductible", copay_cents: "copay", coinsurance_cents: "coinsurance", noncovered_cents: "uncovered charge", balance_cents: "extra billing"};
   function verdict() {
@@ -387,7 +387,7 @@
   function renderResult() {
     const r = S.data.report, v = verdict();
     const box = clear($("verdict")); box.className = "verdict " + v.kind;
-    box.append(h("div", {class: "k"}, v.k), h("h1", {id: "verdict-title"}, v.title));
+    box.append(h("div", {class: "k"}, v.k), h("h1", {id: "verdict-title", tabindex: "-1"}, v.title));
     const fig = clear($("figures")), asm = clear($("assumptions")), lines = clear($("lines")), pick = clear($("scenario-pick"));
     if (r.status === "blocked") {
       box.append(h("p", {class: "why-text"}, v.text));
@@ -507,8 +507,9 @@
     $("clause-show").onclick = () => {
       $("clause-dialog").close();
       const text = S.data.documents.policy, i = clause ? text.indexOf(clause.text) : -1;
-      show(2); S.active = null; document.querySelectorAll(".rule").forEach((b) => b.setAttribute("aria-pressed", "false"));
+      show(3); S.active = null; document.querySelectorAll(".rule").forEach((b) => b.setAttribute("aria-pressed", "false"));
       renderSource(true, i >= 0 ? [i, i + clause.text.length] : null);
+      $("source-text").focus({preventScroll: true});
     };
     $("clause-dialog").showModal();
   }

@@ -304,6 +304,6 @@ dialog::backdrop{background:rgba(20,22,26,.45)}
   .top,.actions,.skip,.export-btns,#scenario-pick,.eyebrow{display:none!important}
   body{background:#fff}
   .line,.verdict,.fig{break-inside:avoid;box-shadow:none}
-  #step-1,#step-2,#loading{display:none!important}
-  #step-3{display:block!important}
+  #step-1,#step-3,#loading{display:none!important}
+  #step-2{display:block!important}
 }

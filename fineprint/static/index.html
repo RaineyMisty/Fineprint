@@ -15,8 +15,8 @@
     <a class="brand" href="/" aria-label="Fineprint, start over">fine<span>print</span></a>
     <ol class="steps" id="steps" aria-label="Three fixed steps">
       <li><button type="button" data-step="1"><span class="n">1</span><span class="sl">Your documents</span></button></li>
-      <li><button type="button" data-step="2"><span class="n">2</span><span class="sl">What your policy says</span></button></li>
-      <li><button type="button" data-step="3"><span class="n">3</span><span class="sl">What you should pay</span></button></li>
+      <li><button type="button" data-step="2"><span class="n">2</span><span class="sl">What you should pay</span></button></li>
+      <li><button type="button" data-step="3"><span class="n">3</span><span class="sl">What your policy says</span></button></li>
     </ol>
     <span class="badge" id="provider-badge" hidden></span>
   </header>
@@ -29,7 +29,7 @@
     <section id="step-1" class="step" aria-labelledby="h1-title">
       <div class="intro">
         <p class="eyebrow">Step 1 of 3 · Your documents</p>
-        <h1 id="h1-title">How much should you pay — <em>and why?</em></h1>
+        <h1 id="h1-title" tabindex="-1">How much should you pay — <em>and why?</em></h1>
         <p class="lede">Add the three papers behind every medical charge. Fineprint follows the same fixed steps every time: it reads your policy, recalculates what you owe, and shows the clause behind every number.</p>
       </div>
       <form id="doc-form" novalidate>
@@ -87,32 +87,9 @@
         <span class="spinner" aria-hidden="true"></span><p id="loading-text">Reading your policy…</p></div>
     </section>
 
-    <!-- Step 2 -->
-    <section id="step-2" class="step" hidden aria-labelledby="h2-title">
-      <div class="step-head">
-        <div><p class="eyebrow">Step 2 of 3 · What your policy says</p>
-          <h1 id="h2-title">Your coverage, in plain numbers</h1>
-          <p class="lede">These are the only rules that decide what you pay. Tap one to see the exact sentence in your policy it came from.</p>
-          <p id="pdf-note" class="pdf-note" hidden></p></div>
-        <div id="backend-card" class="backend"></div>
-      </div>
-      <div id="unresolved" class="unresolved" hidden></div>
-      <div class="split">
-        <div class="rules" id="rules" aria-label="Rules read from your policy"></div>
-        <aside class="source" aria-label="Policy text">
-          <div class="source-head"><h2><span class="tag policy">Policy</span> Your policy text</h2><span id="source-legend" class="legend"></span></div>
-          <div id="source-text" class="source-text" tabindex="0" role="region" aria-label="Policy text with highlighted source clauses"></div>
-        </aside>
-      </div>
-      <div class="actions sticky">
-        <button class="btn ghost" type="button" data-go="1">← Documents</button>
-        <button class="btn primary" type="button" data-go="3" id="to-result">See what you should pay →</button>
-      </div>
-    </section>
-
-    <!-- Step 3 -->
-    <section id="step-3" class="step" hidden aria-labelledby="verdict-title">
-      <p class="eyebrow">Step 3 of 3 · What you should pay</p>
+    <!-- Step 2: the answer -->
+    <section id="step-2" class="step" hidden aria-labelledby="verdict-title">
+      <p class="eyebrow">Step 2 of 3 · What you should pay</p>
       <div id="verdict" class="verdict"></div>
       <div id="figures" class="figures"></div>
       <div id="assumptions"></div>
@@ -126,12 +103,36 @@
           <button class="btn" type="button" id="dl-md">Download .md</button>
           <button class="btn" type="button" id="dl-json">Download JSON</button>
           <button class="btn" type="button" id="print-btn">Print / PDF</button>
+          <button class="btn ghost" type="button" id="restart">Start over</button>
         </div>
         <p id="copy-status" class="muted" role="status"></p>
         <p class="fine">Fineprint does not give legal or medical advice. A difference is a question to ask, not a reason to withhold payment. The math is done by a fixed program, not AI; the policy reader can make mistakes, so check the cited clauses.</p>
       </div>
-      <div class="actions sticky"><button class="btn ghost" type="button" data-go="2">← Policy rules</button><button class="btn" type="button" id="restart">Start over</button></div>
+      <div class="actions sticky"><button class="btn ghost" type="button" data-go="1">← Documents</button><button class="btn primary" type="button" data-go="3">Policy rules (optional) →</button></div>
     </section>
+    <!-- Step 3: optional policy detail -->
+    <section id="step-3" class="step" hidden aria-labelledby="h2-title">
+      <div class="step-head">
+        <div><p class="eyebrow">Step 3 of 3 · What your policy says · optional detail</p>
+          <h1 id="h2-title" tabindex="-1">Your coverage, in plain numbers</h1>
+          <p class="lede">These are the only rules that decide what you pay. Tap one to see the exact sentence in your policy it came from.</p>
+          <p id="pdf-note" class="pdf-note" hidden></p></div>
+        <div id="backend-card" class="backend"></div>
+      </div>
+      <div id="unresolved" class="unresolved" hidden></div>
+      <div class="split">
+        <div class="rules" id="rules" aria-label="Rules read from your policy"></div>
+        <aside class="source" aria-label="Policy text">
+          <div class="source-head"><h2><span class="tag policy">Policy</span> Your policy text</h2><span id="source-legend" class="legend"></span></div>
+          <div id="source-text" class="source-text" tabindex="0" role="region" aria-label="Policy text with highlighted source clauses"></div>
+        </aside>
+      </div>
+      <div class="actions sticky">
+        <button class="btn ghost" type="button" data-go="2">← What you should pay</button>
+        <button class="btn primary" type="button" data-go="1">Your documents</button>
+      </div>
+    </section>
+
   </main>
 
   <dialog id="clause-dialog" aria-labelledby="clause-title">
