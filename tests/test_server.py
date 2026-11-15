@@ -1,6 +1,7 @@
 import json
 import threading
 import unittest
+from unittest.mock import patch
 from http.client import HTTPConnection
 from http.server import ThreadingHTTPServer
 
@@ -11,6 +12,8 @@ from tests.helpers import payload
 class ServerTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        cls.provider_env = patch.dict("os.environ", {"FINEPRINT_LLM_PROVIDER": "fallback"})
+        cls.provider_env.start()
         cls.server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
         cls.thread = threading.Thread(target=cls.server.serve_forever, daemon=True)
         cls.thread.start()
@@ -20,6 +23,7 @@ class ServerTests(unittest.TestCase):
         cls.server.shutdown()
         cls.server.server_close()
         cls.thread.join()
+        cls.provider_env.stop()
 
     def request(self, method, path, body=None, headers=None):
         connection = HTTPConnection("127.0.0.1", self.server.server_port, timeout=5)
@@ -200,3 +204,20 @@ class CheckEndpointTests(unittest.TestCase):
         self.assertEqual((status, err["kind"]), (400, "input"))
         self.assertEqual(self.check(dict(inputs, claim_format="nope"))[0], 400)
         self.assertEqual(self.check({"policy": "x"})[0], 400)
+
+
+class CompilationReceiptTests(unittest.TestCase):
+    setUpClass = classmethod(ServerTests.setUpClass.__func__)
+    tearDownClass = classmethod(ServerTests.tearDownClass.__func__)
+    request = ServerTests.request
+
+    def test_check_reuses_compilation_without_another_provider_request(self):
+        inputs = self.request("GET", "/api/samples/aurora-imaging")[2]["inputs"]
+        status, _, compiled = self.request("POST", "/api/compile", json.dumps({"document": inputs["policy"], "provider": "fallback"}), {"Content-Type": "application/json"})
+        self.assertEqual(status, 200)
+        with patch('fineprint.compiler.FallbackCompiler.compile', side_effect=AssertionError('Recompiled')):
+            status, _, result = self.request("POST", "/api/check", json.dumps({**inputs, **compiled}), {"Content-Type": "application/json"})
+        self.assertEqual(status, 200)
+        self.assertEqual(result["report"]["summary"]["illustrated_min_patient_cents"], 38500)
+        compiled['compilation']['output']['policy']['benefits'][0]['copay_cents'] += 100
+        self.assertEqual(self.request("POST", "/api/check", json.dumps({**inputs, **compiled}), {"Content-Type": "application/json"})[0], 400)

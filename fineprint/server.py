@@ -7,7 +7,7 @@ from pathlib import Path
 from urllib.parse import urlsplit
 
 from .models import ModelError, case_from_dict, to_dict
-from .repository import list_cases, load_case, sample_inputs
+from .repository import demo_inputs, list_cases, list_demos, load_case, sample_inputs
 from .service import analyze, analyze_policy_text, check_documents
 
 STATIC = Path(__file__).parent / "static"
@@ -42,6 +42,10 @@ class Handler(BaseHTTPRequestHandler):
         try:
             if path == "/ping":
                 return self.reply(200, {"ok": True})
+            if path == "/api/demos":
+                return self.reply(200, list_demos())
+            if path.startswith("/api/demos/"):
+                return self.reply(200, demo_inputs(path.removeprefix("/api/demos/")))
             if path == "/api/cases":
                 return self.reply(200, list_cases())
             if path == "/api/status":
@@ -91,10 +95,18 @@ class Handler(BaseHTTPRequestHandler):
                 from .documents_pdf import extract_request
                 return self.reply(200, extract_request(payload))
             if path == "/api/check":
-                return self.reply(200, check_documents(payload))
+                if not isinstance(payload, dict):
+                    raise ModelError("Expected a JSON object")
+                compilation = None
+                if "compilation" in payload or "compilation_receipt" in payload:
+                    from .compilation_receipts import verify
+                    if not isinstance(payload.get("policy"), str):
+                        raise ModelError("Policy text is required")
+                    compilation = verify(payload.get("compilation"), payload.get("compilation_receipt"), payload["policy"])
+                return self.reply(200, check_documents(payload, compilation=compilation))
             if path == "/api/compile":
-                if not isinstance(payload, dict) or set(payload) - {"document", "document_id", "case"}:
-                    raise ModelError("Expected document, optional document_id and optional case")
+                if not isinstance(payload, dict) or set(payload) - {"document", "document_id", "case", "provider"}:
+                    raise ModelError("Expected document, optional document_id, provider and case")
                 document = payload.get("document")
                 document_id = payload.get("document_id", "uploaded-policy")
                 if not isinstance(document, str) or not document.strip() or not isinstance(document_id, str) or not 0 < len(document_id.strip()) <= 200:
@@ -102,7 +114,9 @@ class Handler(BaseHTTPRequestHandler):
                 if "case" in payload:
                     return self.reply(200, analyze_policy_text(case_from_dict(payload["case"]), document, document_id))
                 from .compiler import get_compiler
-                return self.reply(200, {"compilation": get_compiler().compile(document, document_id).as_dict()})
+                from .compilation_receipts import sign
+                compilation = get_compiler(payload.get("provider")).compile(document, document_id).as_dict()
+                return self.reply(200, {"compilation": compilation, "compilation_receipt": sign(compilation)})
             case = case_from_dict(payload)
             return self.reply(200, {"case": to_dict(case), "documents": {}, "report": analyze(case)})
         except (ModelError, ValueError, TypeError, RecursionError) as exc:

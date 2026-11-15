@@ -38,7 +38,10 @@
     S.step = step;
     for (const n of [1, 2, 3]) $("step-" + n).hidden = n !== step;
     $("loading").hidden = true;
-    $("synthetic-note").hidden = !(S.sample && S.data && step > 1);
+    $("synthetic-note").hidden = !(S.sample && (S.data || S.sample.requires_policy_upload));
+    $("synthetic-note").textContent = S.sample?.requires_policy_upload
+      ? "Real policy · SYNTHETIC claim and bill. Allowances, provider, member and prior spending are invented demo facts."
+      : "Synthetic sample — fictional people, insurer and bill. Not a real claim.";
     const have = S.data;
     document.querySelectorAll("#steps button").forEach((b) => {
       const n = +b.dataset.step;
@@ -75,7 +78,7 @@
   function fillInputs(inputs) {
     $("in-policy").value = inputs.policy; $("in-eob").value = inputs.eob; $("in-bill").value = inputs.bill;
     $("in-format").value = inputs.claim_format;
-    $("in-facts").value = JSON.stringify({claim_context: inputs.claim_context, bill_context: inputs.bill_context, allowed_evidence: inputs.allowed_evidence}, null, 2);
+    $("in-facts").value = JSON.stringify({claim_context: inputs.claim_context, bill_context: inputs.bill_context, allowed_evidence: inputs.allowed_evidence, category_assignments: inputs.category_assignments}, null, 2);
     updateCounts();
   }
   function collect() {
@@ -141,7 +144,7 @@
         $("in-" + kind).value = text;
         if (kind === "eob") $("in-format").value = text.trim().startsWith("{") ? "mosaic-ledger-v1" : "aurora-csv-v1";
         setPdf(kind, null); setStatus(kind, "", `${file.name} · text loaded`);
-        updateCounts(); S.sample = null;
+        updateCounts(); if (!(kind === "policy" && S.sample?.requires_policy_upload)) S.sample = null;
       } catch {
         if (S.token[kind] === token) setStatus(kind, "error", "Couldn’t read that file.");
       } finally {
@@ -163,7 +166,7 @@
       $("in-" + kind).value = res.text;
       if (kind === "eob" && res.format === "aurora-csv-v1") $("in-format").value = "aurora-csv-v1";
       setPdf(kind, {...res, filename: res.filename || file.name});
-      updateCounts(); S.sample = null;
+      updateCounts(); if (!(kind === "policy" && S.sample?.requires_policy_upload)) S.sample = null;
     } catch (e) {
       // Fail closed: show why, leave the textarea as it was.
       if (S.token[kind] === token) setStatus(kind, "error", (e && e.message) || "Couldn’t read that PDF.");
@@ -180,13 +183,22 @@
     $("pdf-note").hidden = !parts.length;
   }
 
-  async function loadSample(id) {
+  async function loadSample(id, demo = false) {
     unbanner();
     try {
-      const sample = await api("/api/samples/" + encodeURIComponent(id));
+      const sample = await api((demo ? "/api/demos/" : "/api/samples/") + encodeURIComponent(id));
       S.sample = sample;
+      const existingPolicy = $("in-policy").value;
+      const existingPdf = S.pdf.policy;
       resetFiles();
       fillInputs(sample.inputs);
+      if (sample.requires_policy_upload) {
+        $("in-policy").value = existingPolicy;
+        if (existingPdf) setPdf("policy", existingPdf);
+        updateCounts(); show(1);
+        setStatus("policy", "", existingPolicy ? "Real-policy demo loaded. Check the policy, then Check my bill." : "Upload the real SBC PDF, then Check my bill. Claim and bill below are synthetic.");
+        return;
+      }
       $("doc-form").scrollIntoView({block: "start", behavior: "smooth"});
       $("doc-form").classList.add("filled");
       $("check-btn").textContent = "Reading sample…";
@@ -207,7 +219,10 @@
     const fromPdf = KINDS.filter((k) => S.pdf[k]);
     loading(text || "Reading your policy…");
     try {
-      S.data = await api("/api/check", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(payload)});
+      const compiled = await api("/api/compile", {method: "POST", headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({document: payload.policy, document_id: "uploaded-policy"})});
+      loading("Policy quotes validated. Recalculating the claim…");
+      S.data = await api("/api/check", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({...payload, ...compiled})});
       S.active = null; S.scenario = 0; S.pdfRun = fromPdf;
       renderRules(); renderResult(); show(2);
     } catch (e) { show(1); banner(e.message, e.kind, () => run()); }
@@ -222,6 +237,8 @@
       bits.push(r.coinsurance_bps ? `you pay ${pct(r.coinsurance_bps)} after` : "no coinsurance");
       bits.push(r.deductible_applies ? "deductible applies" : "deductible waived");
     }
+    if (r.conditions?.length) bits.push("Requires: " + r.conditions.join("; "));
+    if (r.service_category) bits.push("Reviewer-assigned category: " + r.service_category);
     return bits.join(" · ");
   }
   function evidenceFor(path) {
@@ -269,11 +286,13 @@
     // rule cards
     const box = clear($("rules"));
     const netName = {in: "In-network", out: "Out-of-network"};
+    if (out.coverage_gaps?.length) box.append(h("details", {class: "note warn"},
+      h("summary", {}, "Coverage not compiled / limits of this check"), h("ul", {}, out.coverage_gaps.map((gap) => h("li", {}, gap)))));
     box.append(h("h3", {}, "Plan limits"));
     for (const [net, t] of Object.entries(policy.networks)) {
       const ev = evidenceFor(`networks.${net}.deductible_cents`);
       box.append(ruleCard("net:" + net, `${netName[net] || net} limits`,
-        `Deductible ${money(t.deductible_cents)} · out-of-pocket max ${money(t.oop_max_cents)} · ${t.balance_billing ? "extra billing allowed" : "no extra billing"}`,
+        `Deductible ${money(t.deductible_cents)} · out-of-pocket max ${money(t.oop_max_cents)} · ${t.balance_billing === null ? "balance billing unknown; separate contract evidence required" : t.balance_billing ? "extra billing allowed" : "no extra billing"}`,
         net, ["deductible_cents", "oop_max_cents", "balance_billing"].map((k) => evidenceFor(`networks.${net}.${k}`)).filter(Boolean)));
     }
     box.append(h("h3", {}, "Covered services"));
@@ -469,8 +488,9 @@
     $("doc-form").addEventListener("submit", (e) => { e.preventDefault(); run(); });
     $("clear-btn").addEventListener("click", () => { for (const id of ["in-policy", "in-eob", "in-bill", "in-facts"]) $(id).value = ""; S.sample = null; resetFiles(); updateCounts(); unbanner(); });
     document.querySelectorAll("textarea").forEach((t) => t.addEventListener("input", () => {
-      updateCounts(); S.sample = null;
+      updateCounts();
       const kind = t.closest(".doc")?.dataset.kind;
+      if (!(kind === "policy" && S.sample?.requires_policy_upload)) S.sample = null;
       if (!kind) return;
       if (S.reading.has(kind)) {
         // A user's edit wins over any upload response still in flight.
@@ -521,6 +541,9 @@
     try {
       S.samples = await api("/api/samples");
       const list = clear($("sample-list"));
+      const demos = await api("/api/demos");
+      for (const s of demos) list.append(h("button", {type: "button", class: "sample", onclick: () => loadSample(s.id, true)},
+        h("span", {class: "kicker"}, "Real policy · synthetic claim"), h("b", {}, s.title), h("span", {class: "go"}, "Load claim & upload SBC →")));
       for (const s of S.samples) list.append(h("button", {type: "button", class: "sample", onclick: () => loadSample(s.id)},
         h("span", {class: "kicker"}, "Sample · synthetic"), h("b", {}, s.title), h("span", {class: "go"}, "Fill in & run →")));
     } catch (e) { clear($("sample-list")).append(h("p", {class: "muted"}, "Samples couldn’t load. You can still paste your own documents.")); }

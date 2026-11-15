@@ -1,0 +1,54 @@
+{
+  "id": "kaiser-real-sbc",
+  "title": "Kaiser real SBC \u00b7 synthetic urgent-care claim",
+  "summary": "Upload the real 2026 Gold 80 SBC. Two SYNTHETIC in-network urgent-care visits demonstrate the individual out-of-pocket cap. All claim, bill, allowance and spending facts are invented for this demo.",
+  "synthetic": true,
+  "requires_policy_upload": true,
+  "inputs": {
+    "policy": "",
+    "eob": "line_ref,provider,service_day,cpt_hcpcs,description,network,charge,allowed,deductible,copay,coinsurance,noncovered,balance,plan_paid,adjustment\nSYN-U1,SYN-PROVIDER,2026-06-01,99213,SYNTHETIC urgent care visit one,in,200.00,150.00,0.00,40.00,0.00,0.00,0.00,110.00,50.00\nSYN-U2,SYN-PROVIDER,2026-06-03,99213,SYNTHETIC urgent care visit two,in,300.00,200.00,0.00,40.00,0.00,0.00,0.00,160.00,100.00\n",
+    "bill": "id,claim_line_id,provider_id,service_date,code,charged,insurance_paid,adjustment,patient_paid,balance_due\nSYN-B1,SYN-U1,SYN-PROVIDER,2026-06-01,99213,200.00,110.00,50.00,0.00,40.00\nSYN-B2,SYN-U2,SYN-PROVIDER,2026-06-03,99213,300.00,160.00,80.00,0.00,60.00\n",
+    "claim_format": "aurora-csv-v1",
+    "synthetic": true,
+    "claim_context": {
+      "id": "SYN-URGENT-CLAIM",
+      "policy_id": "uploaded-policy",
+      "member_id": "SYN-MEMBER",
+      "accumulators": {
+        "in": {
+          "deductible_paid_cents": 0,
+          "oop_paid_cents": 915000
+        }
+      }
+    },
+    "bill_context": {
+      "id": "SYN-URGENT-BILL",
+      "claim_id": "SYN-URGENT-CLAIM",
+      "member_id": "SYN-MEMBER"
+    },
+    "category_assignments": {
+      "SYN-U1": {
+        "service_category": "Urgent care",
+        "confirmed_conditions": []
+      },
+      "SYN-U2": {
+        "service_category": "Urgent care",
+        "confirmed_conditions": []
+      }
+    },
+    "allowed_evidence": {
+      "SYN-U1": {
+        "allowed_cents": 15000,
+        "source": "contract",
+        "reference": "SYNTHETIC independent contract: invented allowance and no balance billing; not extracted from the SBC or EOB.",
+        "balance_billing": false
+      },
+      "SYN-U2": {
+        "allowed_cents": 20000,
+        "source": "contract",
+        "reference": "SYNTHETIC independent contract: invented allowance and no balance billing; not extracted from the SBC or EOB.",
+        "balance_billing": false
+      }
+    }
+  }
+}

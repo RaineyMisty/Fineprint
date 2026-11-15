@@ -8,7 +8,7 @@ from pathlib import Path
 from .adapters import CLAIM_ADAPTERS, bill_csv
 from .extraction import PolicyExtractor
 from .compiler import FallbackCompiler
-from .models import ModelError, case_from_dict, to_dict
+from .models import Claim, ModelError, case_from_dict, decode, to_dict
 
 SAMPLES = Path(__file__).parent / "samples"
 
@@ -87,4 +87,29 @@ def parse_inputs(inputs: dict):
         raise ModelError(f"Could not read the EOB or bill in the selected format ({type(exc).__name__}: {exc})") from None
     if not claim.lines or not bill["lines"]:
         raise ModelError("No line items found in the " + ("EOB" if not claim.lines else "bill") + ". Check the pasted text and format.")
+    assignments = inputs.get("category_assignments", {})
+    if not isinstance(assignments, dict) or set(assignments) - {line.id for line in claim.lines}:
+        raise ModelError("Category assignments must identify existing claim lines")
+    if assignments:
+        value = to_dict(claim)
+        for line in value["lines"]:
+            assignment = assignments.get(line["id"], {})
+            if not isinstance(assignment, dict) or set(assignment) - {"service_category", "confirmed_conditions"}:
+                raise ModelError("Category assignments contain only service_category and confirmed_conditions")
+            line.update(assignment)
+        claim = decode(Claim, value, "claim")
     return claim, bill, inputs.get("allowed_evidence") or {}
+
+
+DEMOS = Path(__file__).parent / "demos"
+
+
+def list_demos():
+    return [{key: item[key] for key in ("id", "title", "summary", "synthetic", "requires_policy_upload")}
+            for path in sorted(DEMOS.glob("*.json")) for item in [json.loads(path.read_text())]]
+
+
+def demo_inputs(demo_id):
+    if not re.fullmatch(r"[a-z0-9-]{1,80}", demo_id):
+        raise FileNotFoundError("Unknown demo")
+    return json.loads((DEMOS / (demo_id + ".json")).read_text())
