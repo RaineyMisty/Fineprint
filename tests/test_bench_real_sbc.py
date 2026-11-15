@@ -1,5 +1,6 @@
 """Benchmark accounting tests use synthetic text and never contact a provider."""
 import json
+from copy import deepcopy
 from pathlib import Path
 from types import SimpleNamespace
 import unittest
@@ -71,6 +72,28 @@ class BenchmarkRealSbcTests(unittest.TestCase):
         self.assertIsNone(result["successful_run_rule_count_population_variance"])
         self.assertFalse(result["deductible_stable_all_three"])
         self.assertFalse(result["oop_max_stable_all_three"])
+
+    def test_after_retry_counts_one_document_but_keeps_failed_proposals(self):
+        failed = self.failed_run()
+        recovered = deepcopy(failed)
+        recovered.update(run=2, compile_success=True, validation_success=True, retained_rules=1)
+        recovered['key_numbers']['deductible'].update(status='correct', predicted=[10000])
+        docs = [dict(document_id=split, split=split, runs=[deepcopy(failed), deepcopy(recovered)])
+                for split in ('dev', 'held_out')]
+        for doc in docs:
+            for run in doc['runs']:
+                run['document_id'] = doc['document_id']
+        phase = bench.summarize_phase({'documents': docs}, after=True)
+        result = phase['aggregates']['sbc:all']
+        self.assertEqual(result['runs'], 2)
+        self.assertEqual(result['total_pipeline_calls'], 4)
+        self.assertEqual(result['first_try_success'], 0)
+        self.assertEqual(result['success_after_one_retry'], 2)
+        self.assertEqual(result['key_number_opportunities'], 2)
+        self.assertEqual(result['key_number_end_to_end_accuracy'], 1)
+        self.assertEqual(result['proposed_rules'], 4)
+        self.assertEqual(result['validated_rule_rate'], 0.5)
+        self.assertFalse(docs[0]['stability']['measured'])
 
 
 if __name__ == "__main__":

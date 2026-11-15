@@ -1,8 +1,8 @@
-"""Measure the unmodified production PDF/DeepSeek/validation path on local PDFs.
+"""Measure the production PDF/DeepSeek/validation path on real insurer SBCs.
 
 No policy text, model responses, evidence quotes or exception messages are saved.
 Run with a pre-model, manually reviewed numeric label JSON in the ignored directory.
-One provider/transport attempt per independent run preserves the held-out protocol.
+After: one pipeline run per SBC, plus one conditional retry after failure.
 """
 from __future__ import annotations
 
@@ -20,6 +20,7 @@ import statistics
 import subprocess
 import sys
 import time
+from threading import Lock
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
@@ -30,29 +31,9 @@ from fineprint.providers import LLMCompiler
 MODEL = "deepseek-v4-pro"
 PRIVATE = ROOT / "data/real_private/benchmark-real-sbc"
 CODE_FILES = ["fineprint/providers.py", "fineprint/compiler.py", "fineprint/models.py",
-              "fineprint/validation.py", "fineprint/policy_sections.py", "fineprint/documents_pdf.py"]
-METHODOLOGY = {
-    "pipeline": ["production extract_upload(policy, PDF bytes)", "DeepSeek LLMCompiler.compile",
-                 "production recover_evidence and validate_output"],
-    "sampling": "Three independent extractions and compile calls per document; no response selection or fallback",
-    "attempts": "One compile attempt and one transport attempt per run, including dev; interactive default is three",
-    "model_identity": "Exact requested model alias; provider does not expose an immutable weight revision through this adapter",
-    "split": "Kaiser/Highmark dev; other insurer SBCs held_out; previously measured holdouts are not freshly unseen",
-    "rules": "Raw proposed rule_evidence entries versus retained validated rule paths; micro-averaged, not recall",
-    "quote_accuracy": "Whitespace-normalized source containment; source-line citations are locally copied, not model-authored quotes",
-    "page_accuracy": "No predicted page field. Physical offset locatability and limited labeled-field page overlap reported separately",
-    "claim_ready": "Benefits present, no unresolved entries, all retained networks have explicit balance_billing",
-    "key_numbers": "Manual pre-model labels; compare individual in-network limits and service copay/coinsurance pairs; missing and ambiguous count as misses",
-    "stability": "Population variance of three retained counts, failures zero; limits must be present and identical in all three runs",
-    "latency": "Monotonic wall time from worker start; includes extraction and compile/validation, excludes queue delay; provider timeout is per I/O, not a hard total deadline",
-    "privacy": "No raw responses, quotes, policy text or free-form exceptions are saved",
-    "limitations": ["Small corpus and three repetitions", "No all-rule gold inventory or service recall",
-                    "No independent full condition/waiver or real-claim correctness assessment",
-                    "Horizon tiered network excluded from single-network numeric score",
-                    "Other policy documents have no numeric reference labels",
-                    "Provider load from concurrent work is uncontrolled; timeout variance is not model-output nondeterminism",
-                    "Concurrent compiler edits after import are not evaluated"],
-}
+              "fineprint/validation.py", "fineprint/policy_sections.py", "fineprint/documents_pdf.py",
+              "fineprint/interpretations.py"]
+
 
 
 def now():
@@ -83,10 +64,9 @@ def inventory():
         relative = path.relative_to(ROOT).as_posix()
         row = manifest.get(relative, {})
         kind = row.get("doc_type", "unmanifested")
-        included = kind in ("SBC", "EOC", "Schedule of benefits")
-        reason = None if included else (
-            "Multi-plan brochure; no plan-selection input in the single-policy compiler"
-            if "brochure" in kind.lower() else "Not a real insurer SBC or supported policy document")
+        if kind != "SBC":
+            continue
+        included, reason = True, None
         result.append(dict(document_id=path.stem, filename=path.name, document_type=kind,
                            group="sbc" if kind == "SBC" else "other_policy",
                            split="dev" if path.stem.startswith(("kaiser_", "highmark_")) else "held_out",
@@ -206,8 +186,6 @@ def benchmark_run(spec, run_number, labels):
                       physical_page_mapping_available=physical_pages_known)
         compiler = LLMCompiler("deepseek", retries=1)
         compiler.model = MODEL
-        compiler.transport_attempt_limit = 1
-        compiler.timeout_seconds = 300
         request = compiler.transport
 
         def observe(prompt, schema):
@@ -215,8 +193,9 @@ def benchmark_run(spec, run_number, labels):
             try:
                 value = json.loads(response) if isinstance(response, str) else response
                 record["valid_json"] = True
-                record["proposed_rules"] = proposed_rules(value)
-                record["raw_citations"] = citation_metrics(value, document)
+                record["proposed_rules"] += proposed_rules(value)
+                for key, count in citation_metrics(value, document).items():
+                    record["raw_citations"][key] += count
             except Exception:
                 # Observation must never change the production response or its error handling.
                 pass
@@ -261,6 +240,7 @@ def benchmark_run(spec, run_number, labels):
         finally:
             record["compile_seconds"] = round(time.monotonic() - compiling, 4)
             record["request_config"] = compiler.request_config
+            record["transport_audit"] = getattr(compiler, "transport_audit", [])
             record["attempt_audit"] = [dict(attempt=a["attempt"], proposed_rules=a.get("proposed_rules"),
                                             validated_rules=a.get("validated_rules"),
                                             failure=error_code(Exception(a["error"])) if a.get("error") else None)
@@ -329,136 +309,193 @@ def stability(runs):
     return result
 
 
-def finalize(report):
-    for spec in report["documents"]:
-        runs = sorted(spec["runs"], key=lambda r: r["run"])
-        spec["runs"] = runs
-        spec["metrics"] = aggregate(runs)
-        spec["stability"] = stability(runs)
-    groups = {}
-    for group in ("sbc", "other_policy"):
-        for split in ("dev", "held_out", "all"):
-            specs = [d for d in report["documents"] if d["group"] == group and (split == "all" or d["split"] == split)]
-            runs = [r for d in specs for r in d["runs"]]
-            if runs:
-                group_metrics = aggregate(runs)
-                group_metrics["deductible_stable_documents"] = sum(d["stability"]["deductible_stable_all_three"] for d in specs)
-                group_metrics["oop_max_stable_documents"] = sum(d["stability"]["oop_max_stable_all_three"] for d in specs)
-                group_metrics["mean_within_document_rule_count_variance"] = statistics.mean(d["stability"]["rule_count_population_variance"] for d in specs)
-                groups[group + ":" + split] = group_metrics
-    report["aggregates"] = groups
-    report["completed_at"] = now()
-    report["code_hashes_after"] = fingerprints()
-    report["production_files_unchanged_during_measurement"] = report["code_hashes_before"] == report["code_hashes_after"]
-    return report
-
-
 def percent(value):
     return "N/A" if value is None else f"{value:.1%}"
 
 
+def summarize_phase(phase, *, after=False):
+    for d in phase['documents']:
+        d['runs'].sort(key=lambda r: r['run'])
+        d['metrics'] = aggregate(d['runs'])
+        if after:
+            d['first_try_success'] = d['runs'][0]['compile_success']
+            d['retry_attempted'] = len(d['runs']) > 1
+            d['success_after_one_retry'] = d['retry_attempted'] and d['runs'][-1]['compile_success']
+            d['eventual_success'] = d['runs'][-1]['compile_success']
+            d['stability'] = {'measured': False, 'reason': 'One initial run plus failure-only retry; not independent repeated samples'}
+        else:
+            d['stability'] = stability(d['runs'])
+    phase['aggregates'] = {}
+    for split in ('dev', 'held_out', 'all'):
+        docs = [d for d in phase['documents'] if split == 'all' or d['split'] == split]
+        all_calls = [r for d in docs for r in d['runs']]
+        # Final document outcomes exclude duplicate failure opportunities; call metrics retain them.
+        outcomes = [d['runs'][-1] for d in docs] if after else all_calls
+        m = aggregate(outcomes)
+        if after:
+            m.update(first_try_success=sum(d['first_try_success'] for d in docs),
+                     retry_attempted=sum(d['retry_attempted'] for d in docs),
+                     success_after_one_retry=sum(d['success_after_one_retry'] for d in docs),
+                     total_pipeline_calls=len(all_calls), all_call_metrics=aggregate(all_calls),
+                     total_document_latency_mean=statistics.mean(sum(r['elapsed_seconds'] for r in d['runs']) for d in docs),
+                     transport_attempts=sum(len(r.get('transport_audit', [])) for r in all_calls),
+                     compile_response_attempts=sum(len(r.get('attempt_audit', [])) for r in all_calls))
+            # Retention/quote accounting includes all proposals, even failed first calls.
+            accounting = m['all_call_metrics']
+            for key in ('proposed_rules', 'retained_rules', 'benefit_rules', 'validated_rule_rate',
+                        'raw_citation_count', 'raw_quote_accuracy', 'retained_citation_count', 'retained_quote_accuracy'):
+                m[key] = accounting[key]
+        phase['aggregates']['sbc:' + split] = m
+    return phase
+
+
+def sbc_baseline(source):
+    source = source.get('before', source)
+    keys = ('started_at', 'completed_at', 'revision', 'model', 'python_version', 'pypdf_version',
+            'code_hashes_before', 'code_hashes_after', 'script_sha256', 'workers')
+    phase = {k: source[k] for k in keys if k in source}
+    phase['protocol'] = 'Three independent one-attempt runs per SBC; original measured numbers, never rerun'
+    phase['documents'] = [d for d in source['documents'] if d['document_type'] == 'SBC']
+    return summarize_phase(phase)
+
+
 def markdown(report):
-    lines = ["# Real insurer PDF benchmark", "", f"Date: {report['started_at'][:10]}; model: `{report['model']}`.", "",
-             "Production path: `extract_upload(policy, PDF bytes)` → `LLMCompiler(deepseek).compile` → existing evidence recovery and validation. No parser/compiler edits or fallback substitution.", "",
-             "Three independent runs per document, each re-extracting the PDF. One compile attempt and one transport attempt per run, consistently applying the existing held-out configuration to dev too; this differs from the default three-attempt interactive compiler. JSON response mode; thinking disabled; initial 32,768 tokens; 300-second provider timeout. Provider sampling defaults are unchanged; no deterministic seed. Four concurrent workers; latency includes contention. The exact request configuration is saved per run.", "",
-             "Inventory: seven real insurer SBCs (not nine). The CMS completed example and blank template are not real insurer policies. Three EOCs and one benefits schedule are evaluated separately through the supported generic policy input. Two multi-plan brochures are excluded: no plan-selection input. The JSON inventories every local PDF and its exclusion reason.", "",
-             "Kaiser and Highmark remain dev. All other insurer SBCs are held-out. This is a requested repeated measurement of a frozen pipeline, not a fresh untouched holdout: Cigna/Ambetter had already been measured in the repo. No held-out result was used to alter prompts, selectors or validators. Other-policy split tags follow insurer identity; Kaiser EOC was previously measured too.", "",
-             "## Headline metrics", "",
-             "| Group | Docs / runs | Extract | Valid JSON | Compile + validate | Rules retained / proposed | Validated-rule rate | Quote accuracy | Claim-ready | Key numbers, end-to-end | Mean seconds |",
-             "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|"]
-    for key, m in report["aggregates"].items():
-        lines.append(f"| {key} | {m['documents']} / {m['runs']} | {m['extraction_success']}/{m['runs']} | {m['valid_json']}/{m['runs']} | {m['compile_success']}/{m['runs']} | {m['retained_rules']}/{m['proposed_rules']} | {percent(m['validated_rule_rate'])} | {percent(m['retained_quote_accuracy'])} | {m['claim_ready']}/{m['runs']} | {percent(m['key_number_end_to_end_accuracy'])} | {m['elapsed_seconds']['mean']:.1f} |")
-    lines += ["", "## Per-document results", "",
-              "| Document | Split | Extract / JSON / compile | Retained rules (3 runs) | Rule-count variance | Validated-rule rate | Quote accuracy | Claim-ready | Key numbers | Deductible / OOP stable | Mean seconds |",
-              "|---|---|---:|---|---:|---:|---:|---:|---:|---|---:|"]
-    for d in report["documents"]:
-        m, s = d["metrics"], d["stability"]
-        lines.append(f"| {d['document_id']} | {d['group']}, {d['split']} | {m['extraction_success']} / {m['valid_json']} / {m['compile_success']} of 3 | {s['retained_rule_counts']} | {s['rule_count_population_variance']:.2f} | {percent(m['validated_rule_rate'])} | {percent(m['retained_quote_accuracy'])} | {m['claim_ready']}/3 | {percent(m['key_number_end_to_end_accuracy'])} | {s['deductible_stable_all_three']} / {s['oop_max_stable_all_three']} | {m['elapsed_seconds']['mean']:.1f} |")
-    lines += ["", "## Citation and page checks", "",
-              "| Group | Raw citations | Raw reference accuracy | Retained spans | Retained quote accuracy | Physical page locatable | Labeled-field page checks | Labeled-field page match |",
-              "|---|---:|---:|---:|---:|---:|---:|---:|"]
-    for key, m in report["aggregates"].items():
-        lines.append(f"| {key} | {m['raw_citation_count']} | {percent(m['raw_quote_accuracy'])} | {m['retained_citation_count']} | {percent(m['retained_quote_accuracy'])} | {percent(m['physical_page_locatable_rate'])} | {m['key_field_page_checks']} | {percent(m['key_field_page_match_rate'])} |")
-    lines += ["", "## Metric definitions and limitations", "",
-              "- Extraction success means the production parser returned nonempty text; it is not a character-level or table-layout accuracy score. All three runs start from original PDF bytes, never cached extracted text.",
-              "- Valid JSON is measured before validation. Compile success means the production compiler returned a validated (possibly partial) compilation without crashing. Proposed rules count raw rule-evidence entries; retained rules count validated financial/network/benefit rule paths. The validated-rule rate uses all proposals, including failed runs. Benefit rules are also counted separately in JSON. Missing proposals on transport/malformed-JSON failures contribute zero; this rate is not rule recall.",
-              "- Quote accuracy is whitespace-normalized source containment, micro-averaged over cited spans including repetitions. Raw source-line references are measured separately from retained quotes. The current model cites line IDs, and local code copies the text, so high quote accuracy is mainly a reference-integrity/validator property, not proof that the right clause, column or number was selected.",
-              "- The provider schema has no page-number field. Independently predicted page accuracy is N/A. Physical-page locatability is computed from exact offsets only when extraction preserved all pages. A separate limited check asks whether evidence for each labeled key field includes its independently labeled PDF page; broad multi-page citations can pass this check. This does not prove semantic page relevance for every cited line.",
-              "- Claim-ready uses the existing measurement definition: at least one benefit, no unresolved items, and explicit balance-billing terms for every retained network. It does not guarantee coverage completeness, correct eligibility, all network tiers, a member identity, or successful real-claim replay. Conditionally executable counts omit the balance-billing requirement.",
-              "- Stability uses population variance across the three retained-rule counts, with failed runs counted as zero. A second variance excludes failures in JSON. Deductible/OOP stability requires a present identical in-network value in all three runs; missing values never count as stable. Identical values can still be wrong.",
-              "- Provider load from other concurrent work is uncontrolled. Transport timeouts are pipeline failures, not evidence of model-output nondeterminism. All attempts remain in the denominators; no successful replacement run was selected.",
-              "- The configured 300-second provider timeout is an I/O timeout, not a hard wall-time deadline. Two failed requests took about 361 seconds; their full measured latency is retained.",
-              "- No complete gold rule inventory exists. These results do not estimate all-service recall, condition/waiver accuracy, family deductible behavior, or patient-total accuracy. Only three runs and seven related insurer summaries limit generalization; no confidence intervals are claimed.", "",
-              "## Pre-model numeric references", "",
-              f"Labels were hand-read by Codex from the original cached SBC text at **{report['references']['labeled_at']}**, before any benchmark model output or prior compilation report was viewed. Their frozen file SHA256 is `{report['reference_file_sha256']}`. Labels were never provided to the compiler. Source-text hashes and source page numbers are saved in JSON.", "",
-              "The existing `data/real_coverage_example_labels.csv` contains episode spending, not plan deductible/OOP/copay gold labels; its amounts were not used as substitutes. Six SBCs have five labeled fields each, scored three times (90 opportunities). Horizon's multiple in-network tiers cannot be faithfully identified by the current `in`/`out` schema, so its independently recorded tier values are disclosed but excluded from a single-network numeric accuracy score. EOCs/schedules have no hand labels in this benchmark.", "",
-              "Numeric scope: individual annual in-network medical deductible/OOP, ordinary in-person primary/specialist care, and the non-admitted emergency facility. Service checks compare the pair (copay cents, coinsurance basis points), so coinsurance-only care is not called free. Multiple differing prices are ambiguous rather than selecting a favorable match. Key-number end-to-end accuracy counts missing/ambiguous fields and compile failures as nonmatches; observed accuracy excludes only missing fields. These checks do not establish service eligibility or fee-component completeness.", "",
-              "| Document | Deductible cents | OOP cents | PCP copay cents / coin bps | Specialist copay cents / coin bps | ER copay cents / coin bps |",
-              "|---|---:|---:|---|---|---|"]
-    for doc, fields in report["references"]["labels"].items():
-        cells = [str(fields[k]["value"]) for k in ("deductible", "oop_max")]
-        cells += [f"{fields[k]['value']['copay_cents']} / {fields[k]['value']['coinsurance_bps']}" for k in ("primary_care", "specialist", "er")]
-        lines.append("| " + doc + " | " + " | ".join(cells) + " |")
-    lines += ["", "## Failures and missing fields", ""]
-    for d in report["documents"]:
-        for r in d["runs"]:
-            issues = [f"{k}: {v['status']}" for k, v in r["key_numbers"].items() if v["status"] != "correct"]
-            if r["failure"] or issues or r.get("dropped_rule_count"):
-                lines.append(f"- {d['document_id']} run {r['run']}: failure={r['failure'] or 'none'}; dropped rules={r.get('dropped_rule_count', 0)}; " + (", ".join(issues) or "no scored numeric misses") + ".")
-    lines += ["", "Failure codes are deliberately fixed, privacy-safe categories; exception messages, policy quotes, model responses and full compilations are not published. JSON includes all per-run timings, numeric predictions, citation counts, omissions and request audits. No failure was replaced by a retry or curated rule.", "",
-              "## Provenance and reproducibility", "",
-              f"Starting revision: `{report['revision']}`. Production files unchanged on disk during measurement: **{report['production_files_unchanged_during_measurement']}**. The compiler, provider, schema and PDF modules were imported once in a single process; concurrent on-disk edits were not reloaded. The initial hashes identify the measured implementation. pypdf: `{report['pypdf_version']}`. Python: `{report['python_version']}`. Production module hashes, manifest hash, PDF hashes, extraction hashes and the script hash at measurement start are in JSON.", "",
-              "Reproduction (requires the ignored original PDFs, DEEPSEEK_API_KEY, and a manually reviewed numeric labels JSON):", "",
-              "```sh", "timeout 3600 .venv/bin/python scripts/bench_real_sbc.py --labels data/real_private/benchmark-real-sbc/labels.json", "```", "",
-              "The public JSON embeds the frozen numeric labels for reconstruction. The script never prints credentials or source text. Reports contain only metrics, numeric facts, identifiers and methodology; private PDFs and text remain ignored. `reports/evaluation-real-sbc.json` is not changed."]
-    if report.get("verification"):
-        check = report["verification"]
-        lines += ["", "## Repository checks", "", check["summary"], ""]
-    return "\n".join(lines).rstrip() + "\n"
+    before, after = report['before'], report['after']
+    lines = ['# Real SBC benchmark: before and after', '',
+             '**Scope: Summary of Benefits and Coverage documents only**', '',
+             f"Date: {after['started_at'][:10]}. Exact requested model: `{MODEL}`. Seven insurer SBCs; CMS sample/template are excluded. No non-SBC document is part of this benchmark.", '',
+             '## Protocol and changes', '',
+             'The production path is PDF bytes → `extract_upload(policy)` → `LLMCompiler(deepseek).compile` → source-evidence recovery and validation. Kaiser and Highmark remain dev; Aetna, Ambetter, Cigna, Horizon and Oscar remain held-out. Previously tested holdouts are not newly unseen.', '',
+             'Before preserves all 21 SBC runs from the original measurement (three independent runs per SBC, one compile/transport attempt). After follows the revised instruction: one initial pipeline call per SBC, plus one further call only if the first fails. A validated partial compilation counts as success and is not retried merely for missing fields. There is no after-fix three-run stability measurement.', '',
+             'General changes are confined to `fineprint/providers.py`:', '',
+             '- DeepSeek transport now permits three attempts total (two retries), using the existing exponential backoff of 1 and 2 seconds for transient HTTP/transport/malformed-envelope errors. Exhausted transport retries do not multiply through compile retries.',
+             '- Default DeepSeek I/O timeout increased from 300 to 450 seconds; the existing environment override remains available. This is not a hard total wall-time deadline.',
+             '- Requests explicitly set temperature to zero with thinking disabled. No seed is sent: the endpoint does not document one. Lower temperature does not guarantee identical responses. [DeepSeek API reference](https://api-docs.deepseek.com/api/create-chat-completion/).',
+             '- A no-supported-rules validation result receives at most one retry, using the existing general validation-feedback mechanism. There is no insurer-specific prompt or parser change.',
+             '- A privacy-safe transport attempt audit records only status and elapsed seconds.', '',
+             f"After uses {after['workers']} concurrent document workers and one normal compile-validation attempt per pipeline call, plus the new no-supported-rules retry. Internal transport/compile retries can occur inside the first or second pipeline call; first-try success below means first **pipeline call**, not first HTTP request. All internal attempts are recorded. No gold labels enter the request.", '',
+             '**Comparison caveat:** the shared repository also changed between phases. The after run includes concurrent general compiler/validation fixes by another agent, in addition to this task’s client changes. This is an operational before/after comparison, not an isolated causal experiment. Full code hashes and changed-file lists are in JSON. Provider load and retry effort also differ.', '',
+             '## Headline metrics', '',
+             '| Phase / split | Outcome denominator | Extraction | Valid JSON | Validated compile | First pipeline call | Recovered on second call | Rules retained / proposed | Rule retention | Quote accuracy | Claim-ready | Key numbers |',
+             '|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|']
+    for name, phase in [('Before', before), ('After', after)]:
+        for split in ('dev', 'held_out', 'all'):
+            m = phase['aggregates']['sbc:' + split]
+            n = m['runs']
+            first = f"{m['first_try_success']}/{m['documents']}" if name == 'After' else 'N/A'
+            recovered = f"{m['success_after_one_retry']}/{m['retry_attempted']}" if name == 'After' else 'N/A'
+            lines.append(f"| {name} / {split} | {n} {'documents' if name == 'After' else 'runs'} | {m['extraction_success']}/{n} | {m['valid_json']}/{n} | {m['compile_success']}/{n} | {first} | {recovered} | {m['retained_rules']}/{m['proposed_rules']} | {percent(m['validated_rule_rate'])} | {percent(m['retained_quote_accuracy'])} | {m['claim_ready']}/{n} | {percent(m['key_number_end_to_end_accuracy'])} |")
+    lines += ['', 'After outcome rates and key-number accuracy use one final outcome per document. Proposed-rule and citation accounting include failed initial calls and all internal response attempts; all-call aggregates are separately saved in JSON. Recovery 0/0 means no second call was needed.', '',
+              '## Per-document results', '',
+              '| Document | Split | Before validated / 3 | Before rule counts | Before variance | Before deductible / OOP stable | After first call | Second call needed / recovered | After retained / proposed rules | After key numbers | Total after seconds |',
+              '|---|---|---:|---|---:|---|---|---|---:|---:|---:|']
+    old = {d['document_id']: d for d in before['documents']}
+    for d in after['documents']:
+        b = old[d['document_id']]
+        final = d['runs'][-1]
+        score = aggregate([final])
+        s = b['stability']
+        lines.append(f"| {d['document_id']} | {d['split']} | {b['metrics']['compile_success']}/3 | {s['retained_rule_counts']} | {s['rule_count_population_variance']:.2f} | {s['deductible_stable_all_three']} / {s['oop_max_stable_all_three']} | {d['first_try_success']} | {d['retry_attempted']} / {d['success_after_one_retry']} | {d['metrics']['retained_rules']}/{d['metrics']['proposed_rules']} | {percent(score['key_number_end_to_end_accuracy'])} | {sum(r['elapsed_seconds'] for r in d['runs']):.1f} |")
+    lines += ['', '**After stability: not measured.** Failure-only retries cannot estimate nondeterministic run-to-run variance. Before population variance includes failures as zero; successful-only variance and exact deductible/OOP values remain in JSON.', '',
+              '## Citation, page and latency checks', '',
+              '| Phase / split | Raw reference accuracy | Retained spans | Retained quote accuracy | Physical page locatable | Key-field page checks / match | Mean elapsed seconds |',
+              '|---|---:|---:|---:|---:|---|---:|']
+    for name, phase in [('Before', before), ('After', after)]:
+        for split in ('dev', 'held_out', 'all'):
+            m = phase['aggregates']['sbc:' + split]
+            elapsed = m.get('total_document_latency_mean', m['elapsed_seconds']['mean'])
+            lines.append(f"| {name} / {split} | {percent(m['raw_quote_accuracy'])} | {m['retained_citation_count']} | {percent(m['retained_quote_accuracy'])} | {percent(m['physical_page_locatable_rate'])} | {m['key_field_page_checks']} / {percent(m['key_field_page_match_rate'])} | {elapsed:.1f} |")
+    lines += ['', 'Latency is measured from worker start, excluding queue time. After document latency includes both calls when a retry was necessary; each extraction/compile latency is also saved. The reported provider timeout is per I/O, not a total deadline.', '',
+              '## Pre-model reference labels', '',
+              f"Codex hand-read the reference values from original SBC text at **{report['references']['labeled_at']}**, before viewing any benchmark model output or prior compilation report. The unchanged reference-file SHA256 is `{report['reference_file_sha256']}`. These same labels were frozen for both phases; they were not fed to the compiler.", '',
+              'The existing coverage-example CSV labels whole episodes, not the requested plan limits/copays. It is not used as plan-field gold. Six SBCs have five reference fields each: 90 before opportunities and 30 after final-outcome opportunities. Horizon has multiple in-network tiers that cannot be identified faithfully by the current in/out schema; its tier values are recorded, but excluded from the single-network numeric score.', '',
+              '| Document | Deductible cents | OOP cents | PCP copay cents / coin bps | Specialist copay cents / coin bps | ER copay cents / coin bps |',
+              '|---|---:|---:|---|---|---|']
+    for doc, fields in report['references']['labels'].items():
+        cells = [str(fields[k]['value']) for k in ('deductible', 'oop_max')]
+        cells += [f"{fields[k]['value']['copay_cents']} / {fields[k]['value']['coinsurance_bps']}" for k in ('primary_care', 'specialist', 'er')]
+        lines.append('| ' + doc + ' | ' + ' | '.join(cells) + ' |')
+    lines += ['', '## Definitions and caveats', '',
+              '- Extraction success means nonempty production-parser text, not verified table or character accuracy. No cached text replaces PDF extraction.',
+              '- Valid JSON is observed before validation. Compile success is a returned validated, potentially partial compilation. Proposed rules are raw rule-evidence entries; retained rules are validated financial/network/benefit paths. Retention is not all-service recall. All emitted proposals, including failed internal attempts, remain in its denominator.',
+              '- Quote accuracy means whitespace-normalized source containment. Line IDs are copied locally into exact quotes, so high accuracy mainly measures reference integrity, not semantic correctness. Duplicate citations are counted. Invalid raw references remain in raw accuracy.',
+              '- No page-number prediction exists in the schema: independently predicted page accuracy is N/A. Physical-page location is available only when extraction retains all pages. The limited labeled-field check asks whether its evidence includes its reference PDF page; broad citations can pass without proving correct interpretation.',
+              '- Claim-ready uses the existing benchmark definition: benefits present, no unresolved items, and explicit balance-billing terms for every retained network. It does not prove complete coverage, correct conditions/waivers or successful real-claim processing.',
+              '- Numeric scoring covers individual in-network medical deductible/OOP, ordinary in-person primary/specialist care and non-admitted emergency facility cost sharing. Service scores compare copay and coinsurance jointly. Missing/ambiguous fields and failed final outcomes are nonmatches; observed-only accuracy excludes missing fields. Conditions and fee-component completeness are not scored.',
+              '- Seven documents are a small corpus. No confidence intervals, all-rule gold recall or patient-total correctness is claimed. Concurrent traffic and transport failures affect latency. Before failures contribute zero to rule variance; this is not pure model-output variance.', '',
+              '## Failures and omissions', '']
+    for name, phase in [('Before', before), ('After', after)]:
+        for d in phase['documents']:
+            for r in d['runs']:
+                misses = [f"{field}: {v['status']}" for field, v in r['key_numbers'].items() if v['status'] != 'correct']
+                if r['failure'] or misses or r.get('dropped_rule_count'):
+                    lines.append(f"- {name}, {d['document_id']}, call {r['run']}: failure={r['failure'] or 'none'}; dropped rules={r.get('dropped_rule_count', 0)}; " + (', '.join(misses) or 'no scored numeric misses') + '.')
+    lines += ['', 'Failures use fixed privacy-safe codes. No raw model response, policy text, evidence quote or free-form exception message is published.', '',
+              '## Provenance and verification', '',
+              f"Before revision: `{before['revision']}`. After starting revision: `{after['revision']}` plus the recorded DeepSeek client patch. Modules are imported once per phase; on-disk concurrent edits are not reloaded. PDF hashes, extraction hashes, source-label hashes, script hashes, dependency versions, code hashes and attempt audits are in JSON. The before baseline was preserved from commit `f40e893`; only its SBC rows are retained here.", '',
+              report.get('verification', {}).get('summary', 'Repository verification pending.'), '',
+              'Private PDFs/text remain gitignored. `reports/evaluation-real-sbc.json` is unchanged by this task.', '',
+              'Reproduction (requires ignored PDFs and the frozen labels; preserve the baseline before rerunning):', '',
+              '```sh', 'timeout 1500 .venv/bin/python scripts/bench_real_sbc.py --labels data/real_private/benchmark-real-sbc/labels.json --before data/real_private/benchmark-real-sbc/before-sbc.json --workers 7', '```']
+    return '\n'.join(lines).rstrip() + '\n'
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--labels", type=Path, required=True)
-    parser.add_argument("--workers", type=int, default=4)
-    parser.add_argument("--output", type=Path, default=ROOT / "reports/benchmark-real-sbc.json")
+    parser.add_argument('--labels', type=Path, required=True)
+    parser.add_argument('--before', type=Path, required=True)
+    parser.add_argument('--workers', type=int, default=7)
+    parser.add_argument('--output', type=Path, default=ROOT / 'reports/benchmark-real-sbc.json')
     args = parser.parse_args()
-    if not os.getenv("DEEPSEEK_API_KEY"):
-        parser.error("DEEPSEEK_API_KEY is required")
+    if not os.getenv('DEEPSEEK_API_KEY'):
+        parser.error('DEEPSEEK_API_KEY is required')
     references = json.loads(args.labels.read_text())
+    before = sbc_baseline(json.loads(args.before.read_text()))
     started = now()
-    if datetime.fromisoformat(references["labeled_at"]) >= datetime.fromisoformat(started):
-        parser.error("Labels must be frozen before the experiment")
     specs = inventory()
-    report = dict(schema_version=1, kind="real_pdf_pipeline_benchmark", synthetic=False,
-                  started_at=started, model=MODEL, runs_per_document=3, workers=args.workers,
-                  methodology=METHODOLOGY,
-                  revision=subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip(),
-                  python_version=sys.version.split()[0], pypdf_version=importlib.metadata.version("pypdf"),
-                  code_hashes_before=fingerprints(), script_sha256=sha(Path(__file__).read_bytes()),
-                  manifest_sha256=sha((ROOT / "data/real_manifest.csv").read_bytes()),
-                  reference_file_sha256=sha(args.labels.read_bytes()), references=references,
-                  inventory=specs, documents=[{**s, "runs": []} for s in specs if s["included"]])
+    assert {d['document_id']: d['pdf_sha256'] for d in before['documents']} == {d['document_id']: d['pdf_sha256'] for d in specs}
+    after = dict(started_at=started, model=MODEL, workers=args.workers,
+                 protocol='One initial pipeline call, one conditional retry only on failure; no repeated-run stability',
+                 revision=subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(),
+                 python_version=sys.version.split()[0], pypdf_version=importlib.metadata.version('pypdf'),
+                 code_hashes_before=fingerprints(), script_sha256=sha(Path(__file__).read_bytes()),
+                 documents=[{**s, 'runs': []} for s in specs])
+    report = dict(schema_version=2, kind='real_sbc_before_after_benchmark', synthetic=False,
+                  scope='Scope: Summary of Benefits and Coverage documents only', model=MODEL,
+                  references=references, reference_file_sha256=sha(args.labels.read_bytes()),
+                  manifest_sha256=sha((ROOT / 'data/real_manifest.csv').read_bytes()),
+                  before=before, after=after,
+                  changed_production_files_between_phases=[name for name, digest in after['code_hashes_before'].items()
+                                                          if before['code_hashes_before'].get(name) != digest])
     PRIVATE.mkdir(parents=True, exist_ok=True)
-    checkpoint = PRIVATE / "checkpoint.json"
+    checkpoint = PRIVATE / 'after-checkpoint.json'
     if checkpoint.exists():
-        parser.error("Checkpoint already exists; preserve it before starting a new measurement")
-    checkpoint.write_text(json.dumps(report, indent=2) + "\n")
-    by_id = {d["document_id"]: d for d in report["documents"]}
+        parser.error('After checkpoint already exists; preserve it before a new measurement')
+    lock = Lock()
+
+    def measure_document(spec):
+        for call in (1, 2):
+            result = benchmark_run(spec, call, references['labels'].get(spec['document_id'], {}))
+            with lock:
+                spec['runs'].append(result)
+                checkpoint.write_text(json.dumps(report, indent=2) + '\n')
+                print(json.dumps({k: result[k] for k in ('document_id', 'run', 'extraction_success', 'valid_json', 'compile_success', 'retained_rules', 'failure', 'elapsed_seconds')}), flush=True)
+            if result['compile_success']:
+                break
+
+    checkpoint.write_text(json.dumps(report, indent=2) + '\n')
     with ThreadPoolExecutor(max_workers=args.workers) as pool:
-        futures = [pool.submit(benchmark_run, d, run, references["labels"].get(d["document_id"], {}))
-                   for run in range(1, 4) for d in report["documents"]]
+        futures = [pool.submit(measure_document, spec) for spec in after['documents']]
         for future in as_completed(futures):
-            result = future.result()
-            by_id[result["document_id"]]["runs"].append(result)
-            checkpoint.write_text(json.dumps(report, indent=2) + "\n")
-            print(json.dumps({k: result[k] for k in ("document_id", "run", "extraction_success", "valid_json", "compile_success", "retained_rules", "failure", "elapsed_seconds")}), flush=True)
-    finalize(report)
-    args.output.parent.mkdir(parents=True, exist_ok=True)
-    args.output.write_text(json.dumps(report, indent=2) + "\n")
-    args.output.with_suffix(".md").write_text(markdown(report))
-    print("Completed", len(futures), "runs", flush=True)
+            future.result()
+    summarize_phase(after, after=True)
+    after['completed_at'] = now()
+    after['code_hashes_after'] = fingerprints()
+    after['wall_seconds'] = (datetime.fromisoformat(after['completed_at']) - datetime.fromisoformat(started)).total_seconds()
+    args.output.write_text(json.dumps(report, indent=2) + '\n')
+    args.output.with_suffix('.md').write_text(markdown(report))
+    print('Completed', len(specs), 'SBCs', flush=True)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
