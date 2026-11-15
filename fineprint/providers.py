@@ -8,6 +8,7 @@ import hashlib
 import json
 import os
 import time
+from http.client import HTTPException
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
@@ -31,8 +32,10 @@ def _post(url, headers, body, *, timeout=300, attempts=2, sleep=time.sleep):
             message = f"Provider HTTP {exc.code}"
             if exc.code not in (408, 429, 500, 502, 503, 504):
                 raise ProviderError(message) from None
-        except (URLError, TimeoutError, OSError):
+        except (URLError, TimeoutError, OSError, HTTPException):
             message = "Provider transport failed or timed out"
+        except json.JSONDecodeError:
+            message = "Provider transport returned incomplete or malformed JSON"
         if attempt + 1 < attempts:
             sleep(min(2 ** attempt, 4))
     raise ProviderError(message) from None

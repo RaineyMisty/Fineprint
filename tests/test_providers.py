@@ -8,6 +8,7 @@ from pathlib import Path
 from types import ModuleType, SimpleNamespace
 from unittest.mock import Mock, patch
 from urllib.error import HTTPError, URLError
+from http.client import IncompleteRead
 
 from fineprint.compiler import FallbackCompiler, PROVIDER_SCHEMA, get_compiler
 from fineprint.models import to_dict
@@ -60,7 +61,7 @@ class ProviderTransportTests(unittest.TestCase):
         def response(content,finish='stop'):
             return {'choices':[{'finish_reason':finish,'message':{'content':content}}]}
         failures=[HTTPError('https://api.deepseek.com',429,'private-body',{},None),
-                  URLError('private-body'),TimeoutError('private-body')]
+                  URLError('private-body'),TimeoutError('private-body'),IncompleteRead(b'private-body')]
         for failure in failures:
             reply=Mock();reply.__enter__=Mock(return_value=reply);reply.__exit__=Mock(return_value=False)
             reply.read.return_value=json.dumps(response(json.dumps(good))).encode()
@@ -133,5 +134,15 @@ class ProviderTransportTests(unittest.TestCase):
         reply=Mock();reply.__enter__=Mock(return_value=reply);reply.__exit__=Mock(return_value=False)
         reply.read.return_value=b'{"ok":true}'
         with patch('fineprint.providers.urlopen',side_effect=[TimeoutError(),reply]) as send:
+            self.assertEqual(_post('https://example.invalid',{}, {},sleep=lambda _:None),{'ok':True})
+        self.assertEqual(send.call_count,2)
+
+    def test_truncated_http_json_envelope_retries_transport(self):
+        replies=[]
+        for body in (b'{"choices":', b'{"ok":true}'):
+            reply=Mock();reply.__enter__=Mock(return_value=reply);reply.__exit__=Mock(return_value=False)
+            reply.read.return_value=body
+            replies.append(reply)
+        with patch('fineprint.providers.urlopen',side_effect=replies) as send:
             self.assertEqual(_post('https://example.invalid',{}, {},sleep=lambda _:None),{'ok':True})
         self.assertEqual(send.call_count,2)
