@@ -257,6 +257,7 @@ def recover_evidence(value, document, document_id):
     expected_paths = {f"networks.{net}.{field}" for net in value["policy"]["networks"]
                       for field in ("deductible_cents", "oop_max_cents", "balance_billing")}
     expected_paths.update("benefits." + b["id"] for b in value["policy"]["benefits"])
+    rule_labels = {"benefits." + b["id"]: b["label"] for b in value["policy"]["benefits"]}
     explicit_id = re.search(r"(?m)^\s*Policy:\s*([A-Za-z0-9][A-Za-z0-9_.:/-]*)(?=\s*\||\s*$)", document)
     if explicit_id and value["policy"]["id"] != explicit_id[1]:
         raise ModelError("policy.id must copy the explicit Policy: identifier from the source header: " + explicit_id[1]
@@ -395,7 +396,8 @@ def recover_evidence(value, document, document_id):
     referenced.update(ref for benefit in retained for ref in benefit["clause_ids"])
     value["policy"]["clauses"] = [clause for clause in value["policy"]["clauses"] if clause["id"] in referenced]
     for path in sorted(set(dropped) - set(merged)):
-        message = f"Dropped rule {path}: missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained."
+        label = f" ({rule_labels[path]})" if path in rule_labels else ""
+        message = f"Dropped rule {path}{label}: missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained."
         value["warnings"].append(message)
         value.setdefault("coverage_gaps", []).append(message)
     return value
