@@ -72,6 +72,21 @@ python3 -m fineprint.compiler fineprint/samples/aurora-imaging/policy.md \
 
 The server/compiler select DeepSeek automatically when `DEEPSEEK_API_KEY` is present at runtime; otherwise they use the offline reader. `FINEPRINT_LLM_PROVIDER` explicitly overrides this choice. A selected provider failure never silently falls back. The real-policy demo uses an uploaded real SBC with clearly labeled synthetic claim/bill and contract facts; category assignments are explicit, not inferred from CPT codes.
 
+The web app runs PDF extraction, policy compilation, and document checks as background jobs. It starts with `POST /api/jobs` (or an idempotent `POST /api/jobs/<32-character random id>`) carrying `{"operation":"/api/compile","payload":{"document":"..."}}`. The response contains `job_id` and `status`; poll `POST /api/jobs/<id>` with the **same envelope** every 1.5 seconds. A completed response contains `result`; a failed response contains a friendly `error`. Browser requests time out after 15 seconds and retry transient connection failures with the same ID. Older analysis endpoints return their usual result if ready within 15 seconds, otherwise a `202` job response using the same polling contract.
+
+Jobs resume on any ECS task: a task receiving an unfamiliar ID starts its own copy once, and subsequent polls reuse that copy. This requires no affinity, task-to-task networking, shared storage, IAM changes, or deployment configuration. With two tasks, a cold job can make two provider calls; the browser accepts the first completed result. Each process has four workers, at most 32 retained jobs, and a 16-entry compilation cache keyed by the exact policy-text SHA-256, source document ID, provider and model settings. Identical concurrent compiles share work. Completed jobs and cache entries expire after 30 minutes and are pruned on subsequent requests; uploaded files and policy text are never written to disk. Compilation receipts still use the existing shared key derived from `DEEPSEEK_API_KEY` or explicit `FINEPRINT_RECEIPT_KEY`.
+
+To verify against two independently running local servers with the real provider and local, uncommitted PDF:
+
+```bash
+timeout 900s .venv/bin/python scripts/verify_background_jobs.py \
+  --base-url http://127.0.0.1:8876 --base-url http://127.0.0.1:8877 \
+  --policy-pdf data/real_private/docs/kaiser_2026_ca_gold80_sbc.pdf \
+  --output reports/background-jobs-verification.json
+```
+
+The report records each HTTP duration and checks two Kaiser uploads, both replica results, and the three synthetic sample amounts. It contains no PDF or extracted policy text.
+
 | Provider | Configuration | Transport |
 | --- | --- | --- |
 | `openai` | `OPENAI_API_KEY`; optional `FINEPRINT_LLM_MODEL` | HTTPS Chat Completions with strict JSON-schema output. |

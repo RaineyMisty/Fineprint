@@ -1,4 +1,4 @@
-"""Read-only sample server plus stateless JSON analysis. Uploads are processed in memory, never stored."""
+"""Sample server and resumable background analysis. Uploads stay in memory."""
 
 import argparse
 import json
@@ -12,6 +12,49 @@ from .service import analyze, analyze_policy_text, check_documents
 
 STATIC = Path(__file__).parent / "static"
 MAX_BODY = 15 * 1024 * 1024  # base64 JSON of an ~11 MB PDF; text endpoints share the limit
+LEGACY_WAIT_SECONDS = 15
+
+
+def execute(path, payload, *, cached=False):
+    """Shared worker/legacy API boundary; the browser uses background jobs."""
+    if path == "/api/extract":
+        from .documents_pdf import extract_request
+        return extract_request(payload)
+    if path == "/api/case":
+        case, documents = load_case(payload["id"])
+        result = analyze_policy_text(case, documents["policy"], case.id + "/policy.md")
+        result["documents"] = documents
+        return result
+    if path == "/api/check":
+        if not isinstance(payload, dict):
+            raise ModelError("Expected a JSON object")
+        compilation = None
+        if "compilation" in payload or "compilation_receipt" in payload:
+            from .compilation_receipts import verify
+            if not isinstance(payload.get("policy"), str):
+                raise ModelError("Policy text is required")
+            compilation = verify(payload.get("compilation"), payload.get("compilation_receipt"), payload["policy"])
+        return check_documents(payload, compilation=compilation)
+    if path == "/api/compile":
+        if not isinstance(payload, dict) or set(payload) - {"document", "document_id", "case", "provider"}:
+            raise ModelError("Expected document, optional document_id, provider and case")
+        document = payload.get("document")
+        document_id = payload.get("document_id", "uploaded-policy")
+        if not isinstance(document, str) or not document.strip() or not isinstance(document_id, str) or not 0 < len(document_id.strip()) <= 200:
+            raise ModelError("Nonempty policy document and document_id (up to 200 characters) are required")
+        if "case" in payload:
+            return analyze_policy_text(case_from_dict(payload["case"]), document, document_id)
+        from .compiler import get_compiler
+        from .compilation_receipts import sign
+        compiler = get_compiler(payload.get("provider"))
+        if cached:
+            from .jobs import COMPILED
+            compilation = COMPILED.compile(document, document_id, compiler).as_dict()
+        else:
+            compilation = compiler.compile(document, document_id).as_dict()
+        return {"compilation": compilation, "compilation_receipt": sign(compilation)}
+    case = case_from_dict(payload)
+    return {"case": to_dict(case), "documents": {}, "report": analyze(case)}
 
 
 def error_kind(exc):
@@ -37,6 +80,19 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    def legacy_analysis(self, operation, payload):
+        """Preserve fast API responses; hand slow callers a job within 15s."""
+        from .jobs import JOBS
+        store = getattr(self.server, "job_store", JOBS)
+        status, body = store.poll({"operation": operation, "payload": payload}, execute, wait_seconds=LEGACY_WAIT_SECONDS)
+        if body.get("status") in ("done", "failed"):
+            with store.lock:
+                store.jobs.pop(body["job_id"], None)
+            if body["status"] == "done":
+                return self.reply(200, body["result"])
+            return self.reply(400, {"error": body["error"], "kind": body["kind"]})
+        return self.reply(status, body)
+
     def do_GET(self):
         path = urlsplit(self.path).path
         try:
@@ -61,10 +117,9 @@ class Handler(BaseHTTPRequestHandler):
                 from .eval import run_evaluation
                 return self.reply(200, run_evaluation(FallbackCompiler()))
             if path.startswith("/api/cases/"):
-                case, documents = load_case(path.removeprefix("/api/cases/"))
-                result = analyze_policy_text(case, documents["policy"], case.id + "/policy.md")
-                result["documents"] = documents
-                return self.reply(200, result)
+                case_id = path.removeprefix("/api/cases/")
+                load_case(case_id)  # Validate the catalog ID before starting work.
+                return self.legacy_analysis("/api/case", {"id": case_id})
             files = {"/": ("index.html", "text/html; charset=utf-8"),
                      "/app.js": ("app.js", "text/javascript; charset=utf-8"),
                      "/styles.css": ("styles.css", "text/css; charset=utf-8")}
@@ -79,7 +134,8 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         path = urlsplit(self.path).path
-        if path not in ("/api/analyze", "/api/compile", "/api/check", "/api/extract"):
+        is_job = path == "/api/jobs" or path.startswith("/api/jobs/")
+        if not is_job and path not in ("/api/analyze", "/api/compile", "/api/check", "/api/extract"):
             return self.reply(404, {"error": "Not found"})
         # Reject cross-origin browser requests; this endpoint has no CORS opt-in.
         if self.headers.get("Sec-Fetch-Site") == "cross-site":
@@ -91,34 +147,13 @@ class Handler(BaseHTTPRequestHandler):
             if not 0 < length <= MAX_BODY:
                 return self.reply(413, {"error": "Request body must be between 1 byte and 15 MiB"})
             payload = json.loads(self.rfile.read(length))
-            if path == "/api/extract":
-                from .documents_pdf import extract_request
-                return self.reply(200, extract_request(payload))
-            if path == "/api/check":
-                if not isinstance(payload, dict):
-                    raise ModelError("Expected a JSON object")
-                compilation = None
-                if "compilation" in payload or "compilation_receipt" in payload:
-                    from .compilation_receipts import verify
-                    if not isinstance(payload.get("policy"), str):
-                        raise ModelError("Policy text is required")
-                    compilation = verify(payload.get("compilation"), payload.get("compilation_receipt"), payload["policy"])
-                return self.reply(200, check_documents(payload, compilation=compilation))
-            if path == "/api/compile":
-                if not isinstance(payload, dict) or set(payload) - {"document", "document_id", "case", "provider"}:
-                    raise ModelError("Expected document, optional document_id, provider and case")
-                document = payload.get("document")
-                document_id = payload.get("document_id", "uploaded-policy")
-                if not isinstance(document, str) or not document.strip() or not isinstance(document_id, str) or not 0 < len(document_id.strip()) <= 200:
-                    raise ModelError("Nonempty policy document and document_id (up to 200 characters) are required")
-                if "case" in payload:
-                    return self.reply(200, analyze_policy_text(case_from_dict(payload["case"]), document, document_id))
-                from .compiler import get_compiler
-                from .compilation_receipts import sign
-                compilation = get_compiler(payload.get("provider")).compile(document, document_id).as_dict()
-                return self.reply(200, {"compilation": compilation, "compilation_receipt": sign(compilation)})
-            case = case_from_dict(payload)
-            return self.reply(200, {"case": to_dict(case), "documents": {}, "report": analyze(case)})
+            if is_job:
+                from .jobs import JOBS
+                store = getattr(self.server, "job_store", JOBS)
+                status, result = store.poll(payload, lambda op, data: execute(op, data, cached=True),
+                                           None if path == "/api/jobs" else path.removeprefix("/api/jobs/"))
+                return self.reply(status, result)
+            return self.legacy_analysis(path, payload)
         except (ModelError, ValueError, TypeError, RecursionError) as exc:
             return self.reply(400, {"error": str(exc), "kind": error_kind(exc)})
 

@@ -1,0 +1,175 @@
+{
+  "passed": true,
+  "injected504Recovered": true,
+  "titles": [
+    "A deductible charged twice",
+    "The out-of-pocket limit matters",
+    "When the policy needs clarification",
+    "Kaiser real SBC · synthetic urgent-care claim"
+  ],
+  "results": [
+    {
+      "sample": "kaiser-real-sbc",
+      "run": 1,
+      "seconds": 6.726,
+      "answer": "$50"
+    },
+    {
+      "sample": "kaiser-real-sbc",
+      "run": 2,
+      "seconds": 5.049,
+      "answer": "$50"
+    },
+    {
+      "sample": "A deductible charged twice",
+      "seconds": 4.845,
+      "answer": "$385"
+    },
+    {
+      "sample": "The out-of-pocket limit matters",
+      "seconds": 4.838,
+      "answer": "$1,000"
+    },
+    {
+      "sample": "When the policy needs clarification",
+      "seconds": 4.842,
+      "answer": "$40"
+    }
+  ],
+  "requests": [
+    {
+      "path": "/api/status",
+      "seconds": 0.001638
+    },
+    {
+      "path": "/api/samples",
+      "seconds": 0.002085
+    },
+    {
+      "path": "/api/demos",
+      "seconds": 0.001281
+    },
+    {
+      "path": "/api/demos/kaiser-real-sbc",
+      "seconds": 0.005961999999999999
+    },
+    {
+      "path": "/api/jobs/RDT8os5hCQ28T0cFge829DeStPCMmZ3f",
+      "seconds": 0.074093
+    },
+    {
+      "path": "/api/jobs/RDT8os5hCQ28T0cFge829DeStPCMmZ3f",
+      "seconds": 0.098568
+    },
+    {
+      "path": "/api/jobs/RDT8os5hCQ28T0cFge829DeStPCMmZ3f",
+      "seconds": 0.07405800000000001
+    },
+    {
+      "path": "/api/jobs/gpIcc-OVOCKqIklhbI8DseZrXdzk2hb4",
+      "seconds": 0.008407999999999999
+    },
+    {
+      "path": "/api/jobs/gpIcc-OVOCKqIklhbI8DseZrXdzk2hb4",
+      "seconds": 0.009453
+    },
+    {
+      "path": "/api/jobs/lHrEWA6Cio5ULOI7e9S9pRlt9W3CeZJU",
+      "seconds": 0.00915
+    },
+    {
+      "path": "/api/jobs/lHrEWA6Cio5ULOI7e9S9pRlt9W3CeZJU",
+      "seconds": 0.012846
+    },
+    {
+      "path": "/api/demos/kaiser-real-sbc",
+      "seconds": 0.002784
+    },
+    {
+      "path": "/api/jobs/brTwJ5Mt_hHqjJ3bxCuyk6XrwbQgo31D",
+      "seconds": 0.087618
+    },
+    {
+      "path": "/api/jobs/brTwJ5Mt_hHqjJ3bxCuyk6XrwbQgo31D",
+      "seconds": 0.077079
+    },
+    {
+      "path": "/api/jobs/LSvvuAEUC4fKzRrkgqll3emxPqFvRwL1",
+      "seconds": 0.007183
+    },
+    {
+      "path": "/api/jobs/LSvvuAEUC4fKzRrkgqll3emxPqFvRwL1",
+      "seconds": 0.008701
+    },
+    {
+      "path": "/api/jobs/kBu3SFgr57lBPHIvQNIH4swzWCrq-_sE",
+      "seconds": 0.008547
+    },
+    {
+      "path": "/api/jobs/kBu3SFgr57lBPHIvQNIH4swzWCrq-_sE",
+      "seconds": 0.011659000000000001
+    },
+    {
+      "path": "/api/samples/aurora-imaging",
+      "seconds": 0.002869
+    },
+    {
+      "path": "/api/jobs/lKRyiHxwc2U3c_raBqmuGKoEHybUvqCo",
+      "seconds": 0.0046029999999999995
+    },
+    {
+      "path": "/api/jobs/lKRyiHxwc2U3c_raBqmuGKoEHybUvqCo",
+      "seconds": 0.015264
+    },
+    {
+      "path": "/api/jobs/fMixOHo3grUiYFT6Quc0HQY_r6kU08xF",
+      "seconds": 0.003642
+    },
+    {
+      "path": "/api/jobs/fMixOHo3grUiYFT6Quc0HQY_r6kU08xF",
+      "seconds": 0.004864
+    },
+    {
+      "path": "/api/samples/mosaic-oop",
+      "seconds": 0.0023250000000000002
+    },
+    {
+      "path": "/api/jobs/jElqFIPGZuzWBLaPwF2R9A-cUCqCR6nE",
+      "seconds": 0.005656
+    },
+    {
+      "path": "/api/jobs/jElqFIPGZuzWBLaPwF2R9A-cUCqCR6nE",
+      "seconds": 0.003518
+    },
+    {
+      "path": "/api/jobs/0PYmctAfhCLF8NmRL_WbxeBRq4-5Gy2y",
+      "seconds": 0.005564
+    },
+    {
+      "path": "/api/jobs/0PYmctAfhCLF8NmRL_WbxeBRq4-5Gy2y",
+      "seconds": 0.006465
+    },
+    {
+      "path": "/api/samples/mosaic-therapy",
+      "seconds": 0.003363
+    },
+    {
+      "path": "/api/jobs/-WKy83a-1nhBg6jut4hdZk3788LkEK79",
+      "seconds": 0.005285
+    },
+    {
+      "path": "/api/jobs/-WKy83a-1nhBg6jut4hdZk3788LkEK79",
+      "seconds": 0.005539
+    },
+    {
+      "path": "/api/jobs/zcb_g5A8OtY6JkCdBJLRWFgWcEeZqL6A",
+      "seconds": 0.007373
+    },
+    {
+      "path": "/api/jobs/zcb_g5A8OtY6JkCdBJLRWFgWcEeZqL6A",
+      "seconds": 0.0063170000000000006
+    }
+  ],
+  "maxRequestSeconds": 0.098568,
+  "javascriptErrors": []
+}

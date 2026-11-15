@@ -1,0 +1,7 @@
+{
+  "passed": true,
+  "command": "timeout 300s .venv/bin/python -m unittest discover -s tests",
+  "tests": 208,
+  "seconds": 31.246,
+  "result": "OK"
+}

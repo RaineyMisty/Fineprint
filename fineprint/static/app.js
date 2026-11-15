@@ -23,14 +23,44 @@
   const pct = (bps) => (bps / 100).toLocaleString("en-US", {maximumFractionDigits: 2}) + "%";
   const clear = (el) => { el.replaceChildren(); return el; };
 
+  async function requestApi(path, options) {
+    const controller = new AbortController(), timer = setTimeout(() => controller.abort(), 15000);
+    try {
+      const res = await fetch(path, {...options, signal: controller.signal});
+      let body = null;
+      try { body = await res.json(); } catch { /* gateway replies may not be JSON */ }
+      if (!res.ok || !body) throw {
+        message: res.status < 500 && body?.error ? body.error : "We had trouble connecting. Please try again in a moment.",
+        kind: res.status >= 500 || !body ? "network" : (body.kind || "input")
+      };
+      return body;
+    } catch (e) {
+      if (e?.kind) throw e;
+      throw {message: "We had trouble connecting. Please try again in a moment.", kind: "network"};
+    } finally { clearTimeout(timer); }
+  }
+
   async function api(path, options) {
-    let res;
-    try { res = await fetch(path, options); }
-    catch { throw {message: "Can’t reach the Fineprint server. Is it still running?", kind: "network"}; }
-    let body = null;
-    try { body = await res.json(); } catch { /* non-JSON */ }
-    if (!res.ok) throw {message: (body && body.error) || `Request failed (${res.status})`, kind: (body && body.kind) || "input"};
-    return body;
+    if (options?.method !== "POST") return requestApi(path, options);
+    // Every upload/compile/check uses short requests. A poll carries the original
+    // operation so either ECS task can resume it without affinity or shared disk.
+    const bytes = crypto.getRandomValues(new Uint8Array(24));
+    const id = btoa(String.fromCharCode(...bytes)).replaceAll("+", "-").replaceAll("/", "_");
+    const body = JSON.stringify({operation: path, payload: JSON.parse(options.body)});
+    const deadline = Date.now() + 20 * 60 * 1000;
+    let failures = 0;
+    while (Date.now() < deadline) {
+      try {
+        const job = await requestApi("/api/jobs/" + id, {method: "POST", headers: {"Content-Type": "application/json"}, body});
+        failures = 0;
+        if (job.status === "done") return job.result;
+        if (job.status === "failed") throw {message: job.error, kind: job.kind};
+      } catch (e) {
+        if (e.kind !== "network" || ++failures >= 5) throw e;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+    }
+    throw {message: "This check is taking longer than usual. Please try again in a moment.", kind: "retry"};
   }
 
   /* ---------- navigation ---------- */
@@ -61,10 +91,9 @@
   }
   function banner(message, kind, retry) {
     const box = clear($("banner"));
-    const title = kind === "provider" ? "The AI policy reader failed — nothing was guessed"
+    const title = kind === "retry" || kind === "provider" ? "Let’s try that again"
       : kind === "network" ? "Connection problem" : "We couldn’t check these documents";
-    const extra = kind === "provider" ? "No offline fallback was substituted, so no result is shown. Try again, or ask whoever runs this server to switch to the offline reader." : "";
-    box.append(h("div", {}, h("strong", {}, title), message, extra ? h("div", {class: "hint"}, extra) : null));
+    box.append(h("div", {}, h("strong", {}, title), message));
     if (retry) box.append(h("button", {class: "btn", type: "button", onclick: retry}, "Try again"));
     box.hidden = false;
   }
@@ -239,7 +268,7 @@
       show(1); banner("Add all three documents, or try a sample case.", "input"); return;
     }
     const fromPdf = KINDS.filter((k) => S.pdf[k]);
-    loading(text || "Reading your policy…");
+    loading((text || "Reading your policy and checking its source passages.") + " This can take a few minutes; we’ll keep checking for you…");
     try {
       const compiled = await api("/api/compile", {method: "POST", headers: {"Content-Type": "application/json"},
         body: JSON.stringify({document: payload.policy, document_id: payload.sample_id ? payload.sample_id + "/policy.md" : "uploaded-policy"})});
@@ -629,11 +658,11 @@
       S.samples = await api("/api/samples");
       const list = clear($("sample-list"));
       const demos = await api("/api/demos");
-      for (const s of demos) list.append(h("button", {type: "button", class: "sample", onclick: () => loadSample(s.id, true)},
-        h("span", {class: "kicker"}, "Real policy · synthetic claim & bill"), h("b", {}, s.title), h("span", {class: "go"}, "Load claim, then upload the policy PDF →")));
       for (const s of S.samples) list.append(h("button", {type: "button", class: "sample", onclick: () => loadSample(s.id)},
         h("span", {class: "kicker"}, "Synthetic sample" + (s.insurer ? " · " + s.insurer : "")), h("b", {}, s.title),
         s.summary ? h("span", {class: "sum"}, s.summary) : null, h("span", {class: "go"}, "Run this sample →")));
+      for (const s of demos) list.append(h("button", {type: "button", class: "sample", onclick: () => loadSample(s.id, true)},
+        h("span", {class: "kicker"}, "Real policy · synthetic claim & bill"), h("b", {}, s.title), h("span", {class: "go"}, "Load claim, then upload the policy PDF →")));
     } catch (e) { clear($("sample-list")).append(h("p", {class: "muted"}, "Samples couldn’t load. You can still paste your own documents.")); }
   }
   init();

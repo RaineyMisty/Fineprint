@@ -1,0 +1,14 @@
+{
+  "kind": "local_real_kaiser_pdf_and_real_deepseek_baseline",
+  "provider": "deepseek",
+  "model": "deepseek-v4-pro",
+  "pdf_extraction_seconds": 0.359,
+  "deepseek_compile_seconds": 148.807,
+  "compiler_attempts": 3,
+  "receipt_verify_seconds": 0.009,
+  "eob_bill_check_seconds": 0.007,
+  "total_seconds": 149.189,
+  "patient_cents": 5000,
+  "bill_cents": 10000,
+  "conclusion": "The original synchronous compile call alone exceeds the approximately 60 second gateway timeout. PDF extraction and deterministic claim/bill calculation are fast."
+}

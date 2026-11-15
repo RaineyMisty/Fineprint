@@ -1,0 +1,1176 @@
+{
+  "passed": true,
+  "provider": "deepseek",
+  "pdf_sha256": "3160f1168d43885d6695bf99bea7c55c23d4cf9373697b8cf4896aa0154b04fa",
+  "replicas": 2,
+  "runs": [
+    {
+      "sample": "kaiser-real-sbc",
+      "run": 1,
+      "seconds": 175.937,
+      "patient_cents": 5000,
+      "bill_cents": 10000
+    },
+    {
+      "sample": "kaiser-real-sbc",
+      "run": 2,
+      "seconds": 13.612,
+      "patient_cents": 5000,
+      "bill_cents": 10000
+    },
+    {
+      "sample": "aurora-imaging",
+      "seconds": 18.033,
+      "patient_cents": 38500
+    },
+    {
+      "sample": "mosaic-therapy",
+      "seconds": 18.033,
+      "patient_cents": 4000
+    },
+    {
+      "sample": "mosaic-oop",
+      "seconds": 18.048,
+      "patient_cents": 100000
+    }
+  ],
+  "stages": [
+    {
+      "operation": "/api/extract",
+      "seconds": 4.607,
+      "polls": 4
+    },
+    {
+      "operation": "/api/compile",
+      "seconds": 166.8,
+      "polls": 112
+    },
+    {
+      "operation": "/api/check",
+      "seconds": 4.518,
+      "polls": 4
+    },
+    {
+      "operation": "/api/extract",
+      "seconds": 4.581,
+      "polls": 4
+    },
+    {
+      "operation": "/api/compile",
+      "seconds": 4.511,
+      "polls": 4
+    },
+    {
+      "operation": "/api/check",
+      "seconds": 4.515,
+      "polls": 4
+    },
+    {
+      "operation": "/api/compile",
+      "seconds": 13.516,
+      "polls": 10
+    },
+    {
+      "operation": "/api/compile",
+      "seconds": 13.519,
+      "polls": 10
+    },
+    {
+      "operation": "/api/compile",
+      "seconds": 13.517,
+      "polls": 10
+    },
+    {
+      "operation": "/api/check",
+      "seconds": 4.512,
+      "polls": 4
+    },
+    {
+      "operation": "/api/check",
+      "seconds": 4.513,
+      "polls": 4
+    },
+    {
+      "operation": "/api/check",
+      "seconds": 4.526,
+      "polls": 4
+    }
+  ],
+  "requests": [
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/demos/kaiser-real-sbc",
+      "status": 200,
+      "seconds": 0.0091
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/K3uyk9_sgYj3qS0P3jaPaDHVPgjVLQrn",
+      "status": 202,
+      "seconds": 0.0347
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/K3uyk9_sgYj3qS0P3jaPaDHVPgjVLQrn",
+      "status": 202,
+      "seconds": 0.033
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/K3uyk9_sgYj3qS0P3jaPaDHVPgjVLQrn",
+      "status": 200,
+      "seconds": 0.0197
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/K3uyk9_sgYj3qS0P3jaPaDHVPgjVLQrn",
+      "status": 200,
+      "seconds": 0.019
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.002
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0029
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0024
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0024
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0023
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0023
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.002
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0025
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0022
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0023
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0022
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0022
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.002
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0021
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0023
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0024
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0021
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0026
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0047
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0024
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0023
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0019
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0021
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0021
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0022
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0021
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0018
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.002
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0021
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0025
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0023
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0023
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.002
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0024
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.002
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0021
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0021
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0023
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0019
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0021
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0017
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0022
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0022
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0022
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0022
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0022
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0022
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0022
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0023
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0021
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0021
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0025
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0023
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0026
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0023
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0023
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 200,
+      "seconds": 0.0027
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0024
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 200,
+      "seconds": 0.0027
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0023
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 200,
+      "seconds": 0.0028
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0022
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 200,
+      "seconds": 0.0027
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0021
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 200,
+      "seconds": 0.0033
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0078
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 200,
+      "seconds": 0.0037
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0026
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 200,
+      "seconds": 0.0029
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0024
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 200,
+      "seconds": 0.0027
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0021
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 200,
+      "seconds": 0.0028
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0028
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 200,
+      "seconds": 0.0033
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0024
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 200,
+      "seconds": 0.0029
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.002
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 200,
+      "seconds": 0.0025
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0022
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 200,
+      "seconds": 0.0033
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0022
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 200,
+      "seconds": 0.0026
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0022
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 200,
+      "seconds": 0.0027
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.002
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 200,
+      "seconds": 0.0027
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0022
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 200,
+      "seconds": 0.0025
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0021
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 200,
+      "seconds": 0.0028
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0019
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 200,
+      "seconds": 0.0027
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0022
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 200,
+      "seconds": 0.0029
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0022
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 200,
+      "seconds": 0.0025
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0021
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 200,
+      "seconds": 0.0025
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0025
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 200,
+      "seconds": 0.0031
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0026
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 200,
+      "seconds": 0.003
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0022
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 200,
+      "seconds": 0.0027
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0067
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 200,
+      "seconds": 0.0027
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.0024
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 200,
+      "seconds": 0.0026
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 202,
+      "seconds": 0.002
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 200,
+      "seconds": 0.003
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/mGwAcEtsizy1uCIYcoIHeT1fe1c4qqVH",
+      "status": 200,
+      "seconds": 0.0029
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/NwfEpb7d2iMZZvgibwB_GwihnnQhLzyV",
+      "status": 202,
+      "seconds": 0.0032
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/NwfEpb7d2iMZZvgibwB_GwihnnQhLzyV",
+      "status": 202,
+      "seconds": 0.0034
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/NwfEpb7d2iMZZvgibwB_GwihnnQhLzyV",
+      "status": 200,
+      "seconds": 0.005
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/NwfEpb7d2iMZZvgibwB_GwihnnQhLzyV",
+      "status": 200,
+      "seconds": 0.0054
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/demos/kaiser-real-sbc",
+      "status": 200,
+      "seconds": 0.0015
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/A-yIHnOE5Xp5AawSY8_XWvDrgeLpJ8Q-",
+      "status": 202,
+      "seconds": 0.0212
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/A-yIHnOE5Xp5AawSY8_XWvDrgeLpJ8Q-",
+      "status": 202,
+      "seconds": 0.0203
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/A-yIHnOE5Xp5AawSY8_XWvDrgeLpJ8Q-",
+      "status": 200,
+      "seconds": 0.0206
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/A-yIHnOE5Xp5AawSY8_XWvDrgeLpJ8Q-",
+      "status": 200,
+      "seconds": 0.0182
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/8XYcYS-yMULZ9lhkxBEk7Msl5WLvNVqT",
+      "status": 202,
+      "seconds": 0.0019
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/8XYcYS-yMULZ9lhkxBEk7Msl5WLvNVqT",
+      "status": 202,
+      "seconds": 0.0025
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/8XYcYS-yMULZ9lhkxBEk7Msl5WLvNVqT",
+      "status": 200,
+      "seconds": 0.0029
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/8XYcYS-yMULZ9lhkxBEk7Msl5WLvNVqT",
+      "status": 200,
+      "seconds": 0.003
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/TZI7IKc0U5VppEivY78VaZVxnd5HPfyW",
+      "status": 202,
+      "seconds": 0.0026
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/TZI7IKc0U5VppEivY78VaZVxnd5HPfyW",
+      "status": 202,
+      "seconds": 0.0029
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/TZI7IKc0U5VppEivY78VaZVxnd5HPfyW",
+      "status": 200,
+      "seconds": 0.005
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/TZI7IKc0U5VppEivY78VaZVxnd5HPfyW",
+      "status": 200,
+      "seconds": 0.0045
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/samples/aurora-imaging",
+      "status": 200,
+      "seconds": 0.0024
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/ByPR4ZTA5RZSXQulfl_EgV9dqKTL9sUb",
+      "status": 202,
+      "seconds": 0.0013
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/samples/mosaic-therapy",
+      "status": 200,
+      "seconds": 0.0036
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/samples/mosaic-oop",
+      "status": 200,
+      "seconds": 0.0042
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/ZXmYcVWg4GdgCoK888aWMe0F0PORi99A",
+      "status": 202,
+      "seconds": 0.0018
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/tVBpLKCQFRJRl_kHqUF2C8HXe-NSoBOF",
+      "status": 202,
+      "seconds": 0.0025
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/ByPR4ZTA5RZSXQulfl_EgV9dqKTL9sUb",
+      "status": 202,
+      "seconds": 0.0017
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/ZXmYcVWg4GdgCoK888aWMe0F0PORi99A",
+      "status": 202,
+      "seconds": 0.0019
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/tVBpLKCQFRJRl_kHqUF2C8HXe-NSoBOF",
+      "status": 202,
+      "seconds": 0.002
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/ByPR4ZTA5RZSXQulfl_EgV9dqKTL9sUb",
+      "status": 202,
+      "seconds": 0.0014
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/ZXmYcVWg4GdgCoK888aWMe0F0PORi99A",
+      "status": 202,
+      "seconds": 0.0009
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/tVBpLKCQFRJRl_kHqUF2C8HXe-NSoBOF",
+      "status": 202,
+      "seconds": 0.0011
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/ByPR4ZTA5RZSXQulfl_EgV9dqKTL9sUb",
+      "status": 202,
+      "seconds": 0.0017
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/ZXmYcVWg4GdgCoK888aWMe0F0PORi99A",
+      "status": 202,
+      "seconds": 0.001
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/tVBpLKCQFRJRl_kHqUF2C8HXe-NSoBOF",
+      "status": 202,
+      "seconds": 0.0008
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/ByPR4ZTA5RZSXQulfl_EgV9dqKTL9sUb",
+      "status": 202,
+      "seconds": 0.0019
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/ZXmYcVWg4GdgCoK888aWMe0F0PORi99A",
+      "status": 202,
+      "seconds": 0.0011
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/tVBpLKCQFRJRl_kHqUF2C8HXe-NSoBOF",
+      "status": 202,
+      "seconds": 0.0016
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/ByPR4ZTA5RZSXQulfl_EgV9dqKTL9sUb",
+      "status": 202,
+      "seconds": 0.0017
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/ZXmYcVWg4GdgCoK888aWMe0F0PORi99A",
+      "status": 202,
+      "seconds": 0.0011
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/tVBpLKCQFRJRl_kHqUF2C8HXe-NSoBOF",
+      "status": 202,
+      "seconds": 0.0011
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/ZXmYcVWg4GdgCoK888aWMe0F0PORi99A",
+      "status": 202,
+      "seconds": 0.0016
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/ByPR4ZTA5RZSXQulfl_EgV9dqKTL9sUb",
+      "status": 202,
+      "seconds": 0.0026
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/tVBpLKCQFRJRl_kHqUF2C8HXe-NSoBOF",
+      "status": 202,
+      "seconds": 0.0015
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/ZXmYcVWg4GdgCoK888aWMe0F0PORi99A",
+      "status": 202,
+      "seconds": 0.0016
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/ByPR4ZTA5RZSXQulfl_EgV9dqKTL9sUb",
+      "status": 202,
+      "seconds": 0.0015
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/tVBpLKCQFRJRl_kHqUF2C8HXe-NSoBOF",
+      "status": 202,
+      "seconds": 0.0015
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/ZXmYcVWg4GdgCoK888aWMe0F0PORi99A",
+      "status": 200,
+      "seconds": 0.0017
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/ByPR4ZTA5RZSXQulfl_EgV9dqKTL9sUb",
+      "status": 200,
+      "seconds": 0.0021
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/tVBpLKCQFRJRl_kHqUF2C8HXe-NSoBOF",
+      "status": 200,
+      "seconds": 0.0022
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/ZXmYcVWg4GdgCoK888aWMe0F0PORi99A",
+      "status": 200,
+      "seconds": 0.0018
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/ByPR4ZTA5RZSXQulfl_EgV9dqKTL9sUb",
+      "status": 200,
+      "seconds": 0.0018
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/tVBpLKCQFRJRl_kHqUF2C8HXe-NSoBOF",
+      "status": 200,
+      "seconds": 0.0021
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/jicWtETbn1Vdri2SHcOd2BQYU55QG8N1",
+      "status": 202,
+      "seconds": 0.0045
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/wkAd7o7p9DRwZNV2E-Cuw3_e8aMPwFbQ",
+      "status": 202,
+      "seconds": 0.004
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/PCXc5b_wym8Ds88T_vo-UEg34QESrGHe",
+      "status": 202,
+      "seconds": 0.0089
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/wkAd7o7p9DRwZNV2E-Cuw3_e8aMPwFbQ",
+      "status": 202,
+      "seconds": 0.0018
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/jicWtETbn1Vdri2SHcOd2BQYU55QG8N1",
+      "status": 202,
+      "seconds": 0.003
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/PCXc5b_wym8Ds88T_vo-UEg34QESrGHe",
+      "status": 202,
+      "seconds": 0.004
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/wkAd7o7p9DRwZNV2E-Cuw3_e8aMPwFbQ",
+      "status": 200,
+      "seconds": 0.0023
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/jicWtETbn1Vdri2SHcOd2BQYU55QG8N1",
+      "status": 200,
+      "seconds": 0.0028
+    },
+    {
+      "server": "http://127.0.0.1:8876",
+      "path": "/api/jobs/PCXc5b_wym8Ds88T_vo-UEg34QESrGHe",
+      "status": 200,
+      "seconds": 0.0019
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/wkAd7o7p9DRwZNV2E-Cuw3_e8aMPwFbQ",
+      "status": 200,
+      "seconds": 0.0028
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/jicWtETbn1Vdri2SHcOd2BQYU55QG8N1",
+      "status": 200,
+      "seconds": 0.0025
+    },
+    {
+      "server": "http://127.0.0.1:8877",
+      "path": "/api/jobs/PCXc5b_wym8Ds88T_vo-UEg34QESrGHe",
+      "status": 200,
+      "seconds": 0.0018
+    }
+  ],
+  "max_request_seconds": 0.0347
+}
