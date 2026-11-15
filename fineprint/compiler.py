@@ -227,6 +227,10 @@ def recover_evidence(value, document, document_id):
             ref = terms[ref_field]
             if not rule or ref not in clauses or clauses[ref]["text"] not in {e["quote"] for e in rule["evidence"]}:
                 supported = False
+            if net == "out" and rule and not any(re.search(
+                    r"out[\s-]*(?:of[\s-]*)?network|non[\s-]*participating", e["quote"], re.I)
+                    for e in rule["evidence"]):
+                supported = False
         if not supported:
             del value["policy"]["networks"][net]
             for field in ("deductible_cents", "oop_max_cents", "balance_billing"):

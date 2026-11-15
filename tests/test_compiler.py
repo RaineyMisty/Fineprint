@@ -91,7 +91,7 @@ class CompilerTests(unittest.TestCase):
         for rule in good['rule_evidence']:
             for evidence in rule['evidence']:
                 evidence.pop('start'); evidence.pop('end')
-        result = LLMCompiler('deepseek', transport=lambda *_:good).compile(wrapped)
+        result = LLMCompiler('deepseek', transport=lambda *_:good, sleep=lambda _:None).compile(wrapped)
         for rule in result.output.rule_evidence:
             for evidence in rule.evidence:
                 self.assertEqual(wrapped[evidence.start:evidence.end], evidence.quote)
@@ -105,12 +105,12 @@ class CompilerTests(unittest.TestCase):
         second['evidence'] = second['evidence'][1:]
         good['rule_evidence'].remove(benefit_rule)
         good['rule_evidence'] += [first, second]
-        result = LLMCompiler('deepseek', transport=lambda *_:good).compile(DOC)
+        result = LLMCompiler('deepseek', transport=lambda *_:good, sleep=lambda _:None).compile(DOC)
         self.assertFalse(result.output.unresolved)
         rule = next(r for r in result.output.rule_evidence if r.rule_path == benefit_rule['rule_path'])
         self.assertEqual(len(rule.evidence), 2)
         first['evidence'][0]['quote'] = 'This quote is not in the source.'
-        result = LLMCompiler('deepseek', transport=lambda *_:good).compile(DOC)
+        result = LLMCompiler('deepseek', transport=lambda *_:good, sleep=lambda _:None).compile(DOC)
         self.assertEqual(len(result.policy.benefits), 2)
         self.assertTrue(any(benefit_rule['rule_path'] in warning for warning in result.output.unresolved))
         self.assertNotIn(benefit_rule['rule_path'], {r.rule_path for r in result.output.rule_evidence})
@@ -121,7 +121,7 @@ class CompilerTests(unittest.TestCase):
         for rule in good['rule_evidence']:
             if rule['rule_path'] == 'networks.out.oop_max_cents':
                 rule['evidence'][0]['quote'] = 'An invented out-of-network cap.'
-        result = LLMCompiler('deepseek', transport=lambda *_:good).compile(DOC)
+        result = LLMCompiler('deepseek', transport=lambda *_:good, sleep=lambda _:None).compile(DOC)
         self.assertIsNone(result.policy.member_id)
         self.assertIsNone(result.policy.effective_from)
         self.assertEqual(set(result.policy.networks), {'in'})
@@ -157,17 +157,17 @@ class CompilerTests(unittest.TestCase):
         for rule in good['rule_evidence']:
             for e in rule['evidence']:
                 del e['start']; del e['end']
-        result = LLMCompiler('deepseek', transport=lambda *_:good).compile(DOC)
+        result = LLMCompiler('deepseek', transport=lambda *_:good, sleep=lambda _:None).compile(DOC)
         self.assertFalse(result.output.unresolved)
         self.assertEqual(result.policy.benefits[0].copay_cents, expected)
         for clause in result.policy.clauses:
             self.assertIn(clause.text, DOC)
         good['policy']['benefits'][0]['codes'] = ['99999']
-        result = LLMCompiler('deepseek', transport=lambda *_:good).compile(DOC)
+        result = LLMCompiler('deepseek', transport=lambda *_:good, sleep=lambda _:None).compile(DOC)
         self.assertEqual(len(result.policy.benefits), 2)
         self.assertTrue(any('code' in warning for warning in result.output.unresolved))
         good['policy']['benefits'][0]['codes'] = []
-        result = LLMCompiler('deepseek', transport=lambda *_:good).compile(DOC)
+        result = LLMCompiler('deepseek', transport=lambda *_:good, sleep=lambda _:None).compile(DOC)
         self.assertEqual(len(result.policy.benefits), 2)
         self.assertTrue(result.output.unresolved)
 
@@ -200,7 +200,7 @@ class CompilerTests(unittest.TestCase):
                 del evidence['start']; del evidence['end']
                 if rule['rule_path'] == 'networks.in.balance_billing':
                     evidence['quote'] = 'Individual annual in-network deductible: $1000.00.'
-        result = LLMCompiler('deepseek', transport=lambda *_:value).compile(DOC)
+        result = LLMCompiler('deepseek', transport=lambda *_:value, sleep=lambda _:None).compile(DOC)
         self.assertIsNone(result.policy.networks['in'].balance_billing)
         self.assertIsNone(result.policy.networks['in'].network_clause)
         paths = {r.rule_path for r in result.output.rule_evidence}
@@ -217,6 +217,36 @@ class CompilerTests(unittest.TestCase):
         self.assertEqual(report['status'], 'blocked')
         self.assertFalse(report['scenarios'])
         self.assertIn('incomplete_network', {issue['code'] for issue in report['validation']})
+
+    def test_partial_quote_failure_retries_and_keeps_only_validated_output(self):
+        good = to_dict(FallbackCompiler().compile(DOC).output)
+        partial = deepcopy(good)
+        rule = next(r for r in partial['rule_evidence'] if r['rule_path'].startswith('benefits.'))
+        rule['evidence'][0]['quote'] = 'This sentence does not occur in the policy.'
+        calls = []
+        def transport(prompt, schema):
+            calls.append(prompt)
+            return partial if len(calls) == 1 else good
+        result = LLMCompiler('deepseek', transport=transport, retries=2, sleep=lambda _:None).compile(DOC)
+        self.assertEqual(result.attempts, 2)
+        self.assertFalse(result.output.unresolved)
+        self.assertEqual(len(result.policy.benefits), 3)
+        self.assertIn('Local source validation rejected these rules', calls[1])
+        replies = iter([partial, {}])
+        result = LLMCompiler('deepseek', transport=lambda *_:next(replies), retries=2, sleep=lambda _:None).compile(DOC)
+        self.assertEqual(len(result.policy.benefits), 2)
+        self.assertTrue(result.output.unresolved)
+        self.assertTrue(any('from attempt 1 after 2 attempts' in w for w in result.output.warnings))
+
+    def test_out_of_network_limit_cannot_reuse_an_unqualified_in_network_quote(self):
+        value = to_dict(FallbackCompiler().compile(DOC).output)
+        in_rule = next(r for r in value['rule_evidence'] if r['rule_path'] == 'networks.in.deductible_cents')
+        out_rule = next(r for r in value['rule_evidence'] if r['rule_path'] == 'networks.out.deductible_cents')
+        out_rule['evidence'] = deepcopy(in_rule['evidence'])
+        value['policy']['networks']['out']['deductible_clause'] = value['policy']['networks']['in']['deductible_clause']
+        result = LLMCompiler('deepseek', transport=lambda *_:value, retries=1).compile(DOC)
+        self.assertNotIn('out', result.policy.networks)
+        self.assertTrue(result.output.unresolved)
 
     def test_live_request_payload_contracts_with_test_http(self):
         good = to_dict(FallbackCompiler().compile(DOC).output)

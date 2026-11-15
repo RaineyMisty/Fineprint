@@ -8,6 +8,7 @@ import hashlib
 import json
 import os
 import time
+from dataclasses import replace
 from http.client import HTTPException
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
@@ -91,6 +92,7 @@ class LLMCompiler:
             "networks may contain only networks with an established deductible and OOP maximum. "
             "For balance_billing use null unless explicit billing/protection language establishes true or false; "
             "a generic statement about cost sharing or paying less in network does NOT establish no balance billing. "
+            "Out-of-network deductible and OOP quotes must explicitly identify the out-of-network/nonparticipating network. "
             "Keep sourced deductible/OOP facts with balance_billing null and explain the missing term in unresolved. "
             "Omit networks missing a deductible or OOP maximum and explain in unresolved; "
             "never invent an out-of-network maximum for an HMO with no out-of-network coverage. "
@@ -104,6 +106,8 @@ class LLMCompiler:
             + "\nDOCUMENT:\n" + json.dumps(selected_document)
         )
         last = ""
+        best_partial = None
+        partial_attempt = None
         for attempt in range(1, self.attempt_limit + 1):
             try:
                 response = self.transport(prompt + ("\nPrevious attempt failed validation: " + last if last else ""), PROVIDER_SCHEMA)
@@ -111,6 +115,18 @@ class LLMCompiler:
                 if self.input_selection["omitted"]:
                     value["unresolved"].append("Partial source review: sections were selected locally; omitted clauses require review before claim calculation.")
                 output = validate_output(recover_evidence(value, document, document_id), document, document_id)
+                if any(message.strip().lower().rstrip('.') in (
+                        "none", "no unresolved issues", "no unresolved clauses", "no unsupported service categories or missing codes")
+                        for message in output.unresolved):
+                    raise ModelError("unresolved must contain actual missing/unsupported terms only. Put affirmative status messages in warnings and use [] when nothing is unresolved.")
+                dropped = [message for message in output.warnings if message.startswith("Dropped rule ")]
+                if dropped:
+                    if best_partial is None or len(output.rule_evidence) > len(best_partial.rule_evidence):
+                        best_partial, partial_attempt = output, attempt
+                    last = "Local source validation rejected these rules; correct their evidence or omit unsupported rules: " + " ".join(dropped)
+                    if attempt < self.attempt_limit:
+                        self.sleep(min(2 ** (attempt - 1), 4))
+                    continue
                 return Compilation(output, self.name, document_id, hashlib.sha256(document.encode()).hexdigest(), attempt)
             except (ModelError, ValueError, KeyError, IndexError, TypeError) as exc:
                 if isinstance(exc, json.JSONDecodeError):
@@ -118,6 +134,10 @@ class LLMCompiler:
                 last = str(exc) if isinstance(exc, ModelError) else "Malformed provider JSON response"
                 if attempt < self.attempt_limit:
                     self.sleep(min(2 ** (attempt - 1), 4))
+        if best_partial is not None:
+            output = replace(best_partial, warnings=[*best_partial.warnings,
+                f"Retained validated partial output from attempt {partial_attempt} after {self.attempt_limit} attempts; selection used supported-rule count only, never gold answers."])
+            return Compilation(output, self.name, document_id, hashlib.sha256(document.encode()).hexdigest(), self.attempt_limit)
         raise ProviderError(f"{self.name} compilation failed after {self.attempt_limit} attempts: {last}. No fallback was substituted.")
 
     def _request(self, prompt, schema):
