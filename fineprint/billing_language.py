@@ -84,7 +84,7 @@ def explicit_balance_values(quotes, network=None):
                     continue
             if not re.search(_TOPIC, sentence):
                 continue
-            negative = (re.search(r"\b(?:no|never|cannot|can't|may not|must not)\s+(?:[a-z-]+\s+){0,4}" + _TOPIC, sentence)
+            negative = (re.search(r"\b(?:no|never|cannot|can't|may not|must not|not permitted to|not allowed to|prohibited from|forbidden from)\s+(?:[a-z-]+\s+){0,4}" + _TOPIC, sentence)
                         or re.search(_TOPIC + r"\s*(?:is\s+|are\s+|=\s*|:\s*)?(?:prohibited|forbidden|not (?:permitted|allowed)|no)\b", sentence))
             positive = (re.search(r"\b(?:may|can|permitted to|allowed to)\s+(?:[a-z-]+\s+){0,3}" + _TOPIC, sentence)
                         or re.search(_TOPIC + r"\s*(?:is\s+|are\s+|=\s*|:\s*)?(?:permitted|allowed|yes)\b", sentence))

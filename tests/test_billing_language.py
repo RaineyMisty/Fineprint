@@ -26,6 +26,10 @@ class BillingLanguageTests(unittest.TestCase):
                 self.assertEqual(explicit_balance_values([text], "in"), {False})
         self.assertEqual(explicit_balance_values([
             "No referral required. Out-of-network providers may balance bill."], "out"), {True})
+        for text in ("Out-of-network providers are not permitted to balance bill.",
+                     "Out-of-network providers are not allowed to balance bill.",
+                     "Out-of-network providers are prohibited from balance billing."):
+            self.assertEqual(explicit_balance_values([text], "out"), {False})
         for text in ("You pay less in network.", "Balance billing is not discussed.",
                      "Can providers balance bill?", "Balance billing is not prohibited."):
             self.assertEqual(explicit_balance_values([text], "in"), set())
