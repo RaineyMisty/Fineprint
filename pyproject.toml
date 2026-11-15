@@ -7,7 +7,7 @@ name = "fineprint"
 version = "0.1.0"
 description = "Offline policy, EOB and medical bill reconciliation with deterministic policy evaluation"
 requires-python = ">=3.11"
-dependencies = []
+dependencies = ["pypdf[crypto]>=5.0"]
 
 [project.optional-dependencies]
 bedrock = ["boto3"]

@@ -4,7 +4,7 @@ import unittest
 from http.client import HTTPConnection
 from http.server import ThreadingHTTPServer
 
-from fineprint.server import Handler
+from fineprint.server import MAX_BODY, Handler
 from tests.helpers import payload
 
 
@@ -66,12 +66,24 @@ class ServerTests(unittest.TestCase):
         self.assertEqual(self.request("POST", "/api/analyze", "{}", {"Content-Type": "text/plain"})[0], 415)
 
     def test_size_limit(self):
-        # The server may reject an oversized body before reading it; a reset/broken pipe is also a rejection.
+        # PDFs are uploaded as base64 JSON, so the limit was raised from 1 MiB to 15 MiB.
+        self.assertGreaterEqual(MAX_BODY, 15 * 1024 * 1024)
+        # Declare an oversized body without sending it: the server must reject it from the header alone.
+        # A reset/broken pipe is also a rejection.
+        connection = HTTPConnection("127.0.0.1", self.server.server_port, timeout=5)
         try:
-            status = self.request("POST", "/api/analyze", "x" * (1024 * 1024 + 1), {"Content-Type": "application/json"})[0]
+            connection.putrequest("POST", "/api/analyze")
+            connection.putheader("Content-Type", "application/json")
+            connection.putheader("Content-Length", str(MAX_BODY + 1))
+            connection.endheaders()
+            status = connection.getresponse().status
         except (BrokenPipeError, ConnectionResetError):
-            return
+            status = 413
+        finally:
+            connection.close()
         self.assertEqual(status, 413)
+        # A body over the old 1 MiB limit is now read, and rejected only because it is not JSON.
+        self.assertEqual(self.request("POST", "/api/analyze", "x" * (1024 * 1024 + 1), {"Content-Type": "application/json"})[0], 400)
 
     def test_unknown_routes_and_traversal(self):
         for path in ("/api/cases/missing", "/api/cases/../policy.json", "/../pyproject.toml"):

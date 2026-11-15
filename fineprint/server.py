@@ -1,4 +1,4 @@
-"""Local, read-only sample server plus stateless JSON analysis. No upload storage."""
+"""Read-only sample server plus stateless JSON analysis. Uploads are processed in memory, never stored."""
 
 import argparse
 import json
@@ -11,7 +11,7 @@ from .repository import list_cases, load_case, sample_inputs
 from .service import analyze, analyze_policy_text, check_documents
 
 STATIC = Path(__file__).parent / "static"
-MAX_BODY = 1024 * 1024
+MAX_BODY = 15 * 1024 * 1024  # base64 JSON of an ~11 MB PDF; text endpoints share the limit
 
 
 def error_kind(exc):
@@ -75,7 +75,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         path = urlsplit(self.path).path
-        if path not in ("/api/analyze", "/api/compile", "/api/check"):
+        if path not in ("/api/analyze", "/api/compile", "/api/check", "/api/extract"):
             return self.reply(404, {"error": "Not found"})
         # Reject cross-origin browser requests; this endpoint has no CORS opt-in.
         if self.headers.get("Sec-Fetch-Site") == "cross-site":
@@ -85,8 +85,11 @@ class Handler(BaseHTTPRequestHandler):
         try:
             length = int(self.headers.get("Content-Length", "0"))
             if not 0 < length <= MAX_BODY:
-                return self.reply(413, {"error": "JSON body must be between 1 byte and 1 MiB"})
+                return self.reply(413, {"error": "Request body must be between 1 byte and 15 MiB"})
             payload = json.loads(self.rfile.read(length))
+            if path == "/api/extract":
+                from .documents_pdf import extract_request
+                return self.reply(200, extract_request(payload))
             if path == "/api/check":
                 return self.reply(200, check_documents(payload))
             if path == "/api/compile":
