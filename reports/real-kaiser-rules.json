@@ -1,14 +1,16 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "synthetic": false,
   "document_id": "kaiser_2026_ca_gold80_sbc",
+  "split": "dev",
   "local_text_path": "data/real_private/docs/kaiser_2026_ca_gold80_sbc.txt",
   "source_sha256": "53d9f1b2e5417de48c663972c0794ae6308bb8460f2011a995487d83485ca949",
-  "generated_at": "2026-11-15T03:28:50.316209+00:00",
-  "revision": "f136700627ccc6410d3018eb7bfea842e6300d70",
-  "compiler_sha256": "bbaeedc3991d38c9a5bfcaeed6228c62b7f216b77b2ab6a55fd2a1ff3b4fed24",
-  "providers_sha256": "6f235df2cb86225b278ee749b3b6ecf3b254ef785ad9bf0ed62616ccf65f66cc",
-  "input": "Unmodified complete pdftotext -layout text; form feeds delimit physical PDF pages.",
+  "generated_at": "2026-11-15T09:41:46.979229+00:00",
+  "revision": "2e9e699e24b0b21cff8ac244e96c16e92e8d37d4",
+  "compiler_sha256": "2f65bc2166ce266421fd8832d47a8feca6a304a06ceaa042c1cb23115e8ffc97",
+  "providers_sha256": "9ca6052d38cc12d84d18582e92c1fc8f1af95f8855504ae2ad7a8faf3695b101",
+  "selection_sha256": "7c4e71bfd70d9bf67036089c7bd8f2684b15aa36a97f0c3faa2acb73b51b46e1",
+  "input": "Original pdftotext -layout text; provider input uses ranked source sections with evidence checked against the full source.",
   "input_excerpts": [
     {
       "quote": "What is the out-of-pocket $9,200 Individual / $18,400 Family                                                                                          The out-of",
@@ -30,18 +32,1142 @@
       "model": null,
       "attempt_limit": 1,
       "compilation": null,
+      "request_config": null,
       "status": "failed",
       "error": "Fallback requires a '# Insurer — Plan' title and Policy/Member/Period/USD header; other formats need a provider or transcription",
-      "elapsed_seconds": 0.0
+      "elapsed_seconds": 0.0,
+      "validated_rules": 0,
+      "benefit_rules": 0,
+      "validated_quote_spans": 0,
+      "compiled_rows": [],
+      "not_compiled": [
+        "All service rows: no validated compilation was retained."
+      ],
+      "claim_ready": false,
+      "conditionally_executable": false
     },
     {
       "provider": "deepseek",
       "model": "deepseek-v4-pro",
       "attempt_limit": 3,
-      "compilation": null,
-      "status": "failed",
-      "error": "deepseek compilation failed after 3 attempts: DeepSeek did not complete a JSON response. No fallback was substituted.",
-      "elapsed_seconds": 211.543
+      "compilation": {
+        "output": {
+          "policy": {
+            "id": "Covered CA_Gold 80 HMO",
+            "insurer": "Kaiser Permanente",
+            "name": "Covered CA Gold 80 HMO",
+            "member_id": null,
+            "effective_from": "2026-01-01",
+            "effective_to": null,
+            "currency": "USD",
+            "networks": {
+              "in": {
+                "deductible_cents": 0,
+                "oop_max_cents": 920000,
+                "balance_billing": null,
+                "deductible_clause": "source-1",
+                "oop_clause": "source-4",
+                "network_clause": null
+              }
+            },
+            "benefits": [
+              {
+                "id": "B2",
+                "label": "Specialist visit",
+                "codes": [],
+                "network": "in",
+                "covered": true,
+                "deductible_applies": false,
+                "copay_cents": 7000,
+                "coinsurance_bps": 0,
+                "clause_ids": [
+                  "source-9"
+                ],
+                "ambiguity_group": "",
+                "service_category": "Specialist visit"
+              },
+              {
+                "id": "B4",
+                "label": "X-ray",
+                "codes": [],
+                "network": "in",
+                "covered": true,
+                "deductible_applies": false,
+                "copay_cents": 7500,
+                "coinsurance_bps": 0,
+                "clause_ids": [
+                  "source-11"
+                ],
+                "ambiguity_group": "",
+                "service_category": "X-ray"
+              },
+              {
+                "id": "B5",
+                "label": "Lab tests",
+                "codes": [],
+                "network": "in",
+                "covered": true,
+                "deductible_applies": false,
+                "copay_cents": 4000,
+                "coinsurance_bps": 0,
+                "clause_ids": [
+                  "source-12"
+                ],
+                "ambiguity_group": "",
+                "service_category": "Lab tests"
+              },
+              {
+                "id": "B7",
+                "label": "Generic drugs (Tier 1) - retail",
+                "codes": [],
+                "network": "in",
+                "covered": true,
+                "deductible_applies": false,
+                "copay_cents": 1800,
+                "coinsurance_bps": 0,
+                "clause_ids": [
+                  "source-14",
+                  "source-15",
+                  "source-16"
+                ],
+                "ambiguity_group": "",
+                "service_category": "Generic drugs (Tier 1)",
+                "conditions": [
+                  "Retail supply up to 30 days"
+                ]
+              },
+              {
+                "id": "B8",
+                "label": "Preferred brand drugs (Tier 2) - retail",
+                "codes": [],
+                "network": "in",
+                "covered": true,
+                "deductible_applies": false,
+                "copay_cents": 6000,
+                "coinsurance_bps": 0,
+                "clause_ids": [
+                  "source-17",
+                  "source-18"
+                ],
+                "ambiguity_group": "",
+                "service_category": "Preferred brand drugs (Tier 2)",
+                "conditions": [
+                  "Retail supply up to 30 days"
+                ]
+              },
+              {
+                "id": "B9",
+                "label": "Non-preferred brand drugs (Tier 2) - retail",
+                "codes": [],
+                "network": "in",
+                "covered": true,
+                "deductible_applies": false,
+                "copay_cents": 6000,
+                "coinsurance_bps": 0,
+                "clause_ids": [
+                  "source-19",
+                  "source-20",
+                  "source-21"
+                ],
+                "ambiguity_group": "",
+                "service_category": "Non-preferred brand drugs (Tier 2)",
+                "conditions": [
+                  "Retail supply up to 30 days"
+                ]
+              },
+              {
+                "id": "B11",
+                "label": "Emergency room care",
+                "codes": [],
+                "network": "in",
+                "covered": true,
+                "deductible_applies": false,
+                "copay_cents": 35000,
+                "coinsurance_bps": 0,
+                "clause_ids": [
+                  "source-23",
+                  "source-24",
+                  "source-25"
+                ],
+                "ambiguity_group": "",
+                "service_category": "Emergency room care",
+                "conditions": [
+                  "Not admitted as inpatient"
+                ]
+              },
+              {
+                "id": "B13",
+                "label": "Urgent care",
+                "codes": [],
+                "network": "in",
+                "covered": true,
+                "deductible_applies": false,
+                "copay_cents": 4000,
+                "coinsurance_bps": 0,
+                "clause_ids": [
+                  "source-27"
+                ],
+                "ambiguity_group": "",
+                "service_category": "Urgent care"
+              },
+              {
+                "id": "B14",
+                "label": "Outpatient mental health - individual",
+                "codes": [],
+                "network": "in",
+                "covered": true,
+                "deductible_applies": false,
+                "copay_cents": 4000,
+                "coinsurance_bps": 0,
+                "clause_ids": [
+                  "source-28",
+                  "source-29",
+                  "source-30"
+                ],
+                "ambiguity_group": "",
+                "service_category": "Outpatient services",
+                "conditions": [
+                  "Individual visit"
+                ]
+              },
+              {
+                "id": "B16",
+                "label": "Home health care",
+                "codes": [],
+                "network": "in",
+                "covered": true,
+                "deductible_applies": false,
+                "copay_cents": 3000,
+                "coinsurance_bps": 0,
+                "clause_ids": [
+                  "source-32"
+                ],
+                "ambiguity_group": "",
+                "service_category": "Home health care"
+              },
+              {
+                "id": "B17",
+                "label": "Rehabilitation services - outpatient",
+                "codes": [],
+                "network": "in",
+                "covered": true,
+                "deductible_applies": false,
+                "copay_cents": 4000,
+                "coinsurance_bps": 0,
+                "clause_ids": [
+                  "source-33",
+                  "source-34"
+                ],
+                "ambiguity_group": "",
+                "service_category": "Rehabilitation services",
+                "conditions": [
+                  "Outpatient"
+                ]
+              },
+              {
+                "id": "B18",
+                "label": "Habilitation services - outpatient",
+                "codes": [],
+                "network": "in",
+                "covered": true,
+                "deductible_applies": false,
+                "copay_cents": 4000,
+                "coinsurance_bps": 0,
+                "clause_ids": [
+                  "source-35",
+                  "source-36"
+                ],
+                "ambiguity_group": "",
+                "service_category": "Habilitation services",
+                "conditions": [
+                  "Outpatient"
+                ]
+              },
+              {
+                "id": "B20",
+                "label": "Durable medical equipment",
+                "codes": [],
+                "network": "in",
+                "covered": true,
+                "deductible_applies": false,
+                "copay_cents": 0,
+                "coinsurance_bps": 2000,
+                "clause_ids": [
+                  "source-38",
+                  "source-39"
+                ],
+                "ambiguity_group": "",
+                "service_category": "Durable medical equipment"
+              },
+              {
+                "id": "B21",
+                "label": "Hospice service",
+                "codes": [],
+                "network": "in",
+                "covered": true,
+                "deductible_applies": false,
+                "copay_cents": 0,
+                "coinsurance_bps": 0,
+                "clause_ids": [
+                  "source-40"
+                ],
+                "ambiguity_group": "",
+                "service_category": "Hospice service"
+              }
+            ],
+            "clauses": [
+              {
+                "id": "source-1",
+                "text": "What is the overall                                                                                   $0                                              See the Common Medical Events chart below for your costs for services this plan",
+                "location": "Important Questions"
+              },
+              {
+                "id": "source-4",
+                "text": "What is the out-of-pocket $9,200 Individual / $18,400 Family                                                                                          The out-of-pocket limit is the most you could pay in a year for covered services. If",
+                "location": "Important Questions"
+              },
+              {
+                "id": "source-9",
+                "text": "If you visit a health   Specialist visit        $70 / visit                           Not covered                   None",
+                "location": "What You Will Pay"
+              },
+              {
+                "id": "source-11",
+                "text": "Diagnostic test (x-     X-ray: $75 / encounter                Not covered                   None",
+                "location": "What You Will Pay"
+              },
+              {
+                "id": "source-12",
+                "text": "ray, blood work)        Lab tests: $40 / encounter",
+                "location": "What You Will Pay"
+              },
+              {
+                "id": "source-14",
+                "text": "Generic drugs (Tier     $18 / prescription (retail). $36 /    Not covered                   supply (mail order). Contraceptives are no",
+                "location": "What You Will Pay"
+              },
+              {
+                "id": "source-15",
+                "text": "1)                      prescription (mail order).",
+                "location": "What You Will Pay"
+              },
+              {
+                "id": "source-16",
+                "text": "If you need drugs to                                                                                                charge. Subject to formulary guidelines.",
+                "location": "What You Will Pay"
+              },
+              {
+                "id": "source-17",
+                "text": "condition             Preferred brand           $60 / prescription (retail). $120 /   Not covered                   supply (mail order). Subject to formulary",
+                "location": "What You Will Pay"
+              },
+              {
+                "id": "source-18",
+                "text": "drugs (Tier 2)            prescription (mail order).                                          guidelines.",
+                "location": "What You Will Pay"
+              },
+              {
+                "id": "source-19",
+                "text": "drug coverage is      Non-preferred brand       $60 / prescription (retail). $120 /                                 under this plan aligns with the cost-sharing for",
+                "location": "What You Will Pay"
+              },
+              {
+                "id": "source-20",
+                "text": "Not covered",
+                "location": "What You Will Pay"
+              },
+              {
+                "id": "source-21",
+                "text": "available at          drugs (Tier 2)            prescription (mail order).                                          preferred brand drugs (Tier 2), when approved",
+                "location": "What You Will Pay"
+              },
+              {
+                "id": "source-23",
+                "text": "Emergency room                                                                          Copayment waived if admitted directly to the",
+                "location": "What You Will Pay"
+              },
+              {
+                "id": "source-24",
+                "text": "$350 / visit                        $350 / visit",
+                "location": "What You Will Pay"
+              },
+              {
+                "id": "source-25",
+                "text": "care                                                                                    hospital as an inpatient.",
+                "location": "What You Will Pay"
+              },
+              {
+                "id": "source-27",
+                "text": "Urgent care           $40 / visit                         Not covered                   outside the service area: $40 / visit",
+                "location": "What You Will Pay"
+              },
+              {
+                "id": "source-28",
+                "text": "If you need mental                          $40 / individual visit. No charge                                 Mental / Behavioral health: $20 / group visit",
+                "location": "What You Will Pay"
+              },
+              {
+                "id": "source-29",
+                "text": "health, behavioral Outpatient services      for other outpatient services.      Not covered                   Substance Abuse: $5 / group visit",
+                "location": "What You Will Pay"
+              },
+              {
+                "id": "source-30",
+                "text": "health, or substance",
+                "location": "What You Will Pay"
+              },
+              {
+                "id": "source-32",
+                "text": "Home health care       $30 / visit                           Not covered                      100 visits / year.",
+                "location": "What You Will Pay"
+              },
+              {
+                "id": "source-33",
+                "text": "Rehabilitation         Outpatient: $40 / visit; Inpatient:   Not covered                      None",
+                "location": "What You Will Pay"
+              },
+              {
+                "id": "source-34",
+                "text": "services               $375 / day up to 5 days.",
+                "location": "What You Will Pay"
+              },
+              {
+                "id": "source-35",
+                "text": "recovering or have Habilitation services       Outpatient: $40 / visit; Inpatient:   Not covered                      None",
+                "location": "What You Will Pay"
+              },
+              {
+                "id": "source-36",
+                "text": "other special health                           $375 / day up to 5 days.",
+                "location": "What You Will Pay"
+              },
+              {
+                "id": "source-38",
+                "text": "Durable medical        20% coinsurance                       Not covered                      Prior authorization required",
+                "location": "What You Will Pay"
+              },
+              {
+                "id": "source-39",
+                "text": "equipment",
+                "location": "What You Will Pay"
+              },
+              {
+                "id": "source-40",
+                "text": "Hospice service        No charge                             Not covered                      None",
+                "location": "What You Will Pay"
+              }
+            ]
+          },
+          "rule_evidence": [
+            {
+              "rule_path": "networks.in.deductible_cents",
+              "evidence": [
+                {
+                  "source_document_id": "kaiser_2026_ca_gold80_sbc",
+                  "section": "Important Questions",
+                  "quote": "What is the overall                                                                                   $0                                              See the Common Medical Events chart below for your costs for services this plan",
+                  "start": 1840,
+                  "end": 2069
+                },
+                {
+                  "source_document_id": "kaiser_2026_ca_gold80_sbc",
+                  "section": "Important Questions",
+                  "quote": "deductible?                                                                                                                                           covers.",
+                  "start": 2070,
+                  "end": 2227
+                },
+                {
+                  "source_document_id": "kaiser_2026_ca_gold80_sbc",
+                  "section": "What You Will Pay",
+                  "quote": "All copayment and coinsurance costs shown in this chart are after your deductible has been met, if a deductible applies.",
+                  "start": 6802,
+                  "end": 6922
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "networks.in.oop_max_cents",
+              "evidence": [
+                {
+                  "source_document_id": "kaiser_2026_ca_gold80_sbc",
+                  "section": "Important Questions",
+                  "quote": "What is the out-of-pocket $9,200 Individual / $18,400 Family                                                                                          The out-of-pocket limit is the most you could pay in a year for covered services. If",
+                  "start": 3570,
+                  "end": 3804
+                },
+                {
+                  "source_document_id": "kaiser_2026_ca_gold80_sbc",
+                  "section": "Important Questions",
+                  "quote": "limit for this plan?                                                                                                                                  you have other family members in this plan, they have to meet their own out-of-",
+                  "start": 3805,
+                  "end": 4034
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "benefits.B2",
+              "evidence": [
+                {
+                  "source_document_id": "kaiser_2026_ca_gold80_sbc",
+                  "section": "What You Will Pay",
+                  "quote": "If you visit a health   Specialist visit        $70 / visit                           Not covered                   None",
+                  "start": 7536,
+                  "end": 7656
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "benefits.B4",
+              "evidence": [
+                {
+                  "source_document_id": "kaiser_2026_ca_gold80_sbc",
+                  "section": "What You Will Pay",
+                  "quote": "Diagnostic test (x-     X-ray: $75 / encounter                Not covered                   None",
+                  "start": 8315,
+                  "end": 8411
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "benefits.B5",
+              "evidence": [
+                {
+                  "source_document_id": "kaiser_2026_ca_gold80_sbc",
+                  "section": "What You Will Pay",
+                  "quote": "ray, blood work)        Lab tests: $40 / encounter",
+                  "start": 8436,
+                  "end": 8486
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "benefits.B7",
+              "evidence": [
+                {
+                  "source_document_id": "kaiser_2026_ca_gold80_sbc",
+                  "section": "What You Will Pay",
+                  "quote": "Generic drugs (Tier     $18 / prescription (retail). $36 /    Not covered                   supply (mail order). Contraceptives are no",
+                  "start": 8853,
+                  "end": 8987
+                },
+                {
+                  "source_document_id": "kaiser_2026_ca_gold80_sbc",
+                  "section": "What You Will Pay",
+                  "quote": "1)                      prescription (mail order).",
+                  "start": 9012,
+                  "end": 9062
+                },
+                {
+                  "source_document_id": "kaiser_2026_ca_gold80_sbc",
+                  "section": "What You Will Pay",
+                  "quote": "If you need drugs to                                                                                                charge. Subject to formulary guidelines.",
+                  "start": 9063,
+                  "end": 9219
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "benefits.B8",
+              "evidence": [
+                {
+                  "source_document_id": "kaiser_2026_ca_gold80_sbc",
+                  "section": "What You Will Pay",
+                  "quote": "condition             Preferred brand           $60 / prescription (retail). $120 /   Not covered                   supply (mail order). Subject to formulary",
+                  "start": 9384,
+                  "end": 9541
+                },
+                {
+                  "source_document_id": "kaiser_2026_ca_gold80_sbc",
+                  "section": "What You Will Pay",
+                  "quote": "drugs (Tier 2)            prescription (mail order).                                          guidelines.",
+                  "start": 9564,
+                  "end": 9669
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "benefits.B9",
+              "evidence": [
+                {
+                  "source_document_id": "kaiser_2026_ca_gold80_sbc",
+                  "section": "What You Will Pay",
+                  "quote": "drug coverage is      Non-preferred brand       $60 / prescription (retail). $120 /                                 under this plan aligns with the cost-sharing for",
+                  "start": 9850,
+                  "end": 10014
+                },
+                {
+                  "source_document_id": "kaiser_2026_ca_gold80_sbc",
+                  "section": "What You Will Pay",
+                  "quote": "Not covered",
+                  "start": 10101,
+                  "end": 10112
+                },
+                {
+                  "source_document_id": "kaiser_2026_ca_gold80_sbc",
+                  "section": "What You Will Pay",
+                  "quote": "available at          drugs (Tier 2)            prescription (mail order).                                          preferred brand drugs (Tier 2), when approved",
+                  "start": 10113,
+                  "end": 10274
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "benefits.B11",
+              "evidence": [
+                {
+                  "source_document_id": "kaiser_2026_ca_gold80_sbc",
+                  "section": "What You Will Pay",
+                  "quote": "Emergency room                                                                          Copayment waived if admitted directly to the",
+                  "start": 12231,
+                  "end": 12363
+                },
+                {
+                  "source_document_id": "kaiser_2026_ca_gold80_sbc",
+                  "section": "What You Will Pay",
+                  "quote": "$350 / visit                        $350 / visit",
+                  "start": 12408,
+                  "end": 12456
+                },
+                {
+                  "source_document_id": "kaiser_2026_ca_gold80_sbc",
+                  "section": "What You Will Pay",
+                  "quote": "care                                                                                    hospital as an inpatient.",
+                  "start": 12479,
+                  "end": 12592
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "benefits.B13",
+              "evidence": [
+                {
+                  "source_document_id": "kaiser_2026_ca_gold80_sbc",
+                  "section": "What You Will Pay",
+                  "quote": "Urgent care           $40 / visit                         Not covered                   outside the service area: $40 / visit",
+                  "start": 12933,
+                  "end": 13058
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "benefits.B14",
+              "evidence": [
+                {
+                  "source_document_id": "kaiser_2026_ca_gold80_sbc",
+                  "section": "What You Will Pay",
+                  "quote": "If you need mental                          $40 / individual visit. No charge                                 Mental / Behavioral health: $20 / group visit",
+                  "start": 13580,
+                  "end": 13735
+                },
+                {
+                  "source_document_id": "kaiser_2026_ca_gold80_sbc",
+                  "section": "What You Will Pay",
+                  "quote": "health, behavioral Outpatient services      for other outpatient services.      Not covered                   Substance Abuse: $5 / group visit",
+                  "start": 13736,
+                  "end": 13879
+                },
+                {
+                  "source_document_id": "kaiser_2026_ca_gold80_sbc",
+                  "section": "What You Will Pay",
+                  "quote": "health, or substance",
+                  "start": 13880,
+                  "end": 13900
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "benefits.B16",
+              "evidence": [
+                {
+                  "source_document_id": "kaiser_2026_ca_gold80_sbc",
+                  "section": "What You Will Pay",
+                  "quote": "Home health care       $30 / visit                           Not covered                      100 visits / year.",
+                  "start": 16121,
+                  "end": 16233
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "benefits.B17",
+              "evidence": [
+                {
+                  "source_document_id": "kaiser_2026_ca_gold80_sbc",
+                  "section": "What You Will Pay",
+                  "quote": "Rehabilitation         Outpatient: $40 / visit; Inpatient:   Not covered                      None",
+                  "start": 16258,
+                  "end": 16356
+                },
+                {
+                  "source_document_id": "kaiser_2026_ca_gold80_sbc",
+                  "section": "What You Will Pay",
+                  "quote": "services               $375 / day up to 5 days.",
+                  "start": 16381,
+                  "end": 16428
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "benefits.B18",
+              "evidence": [
+                {
+                  "source_document_id": "kaiser_2026_ca_gold80_sbc",
+                  "section": "What You Will Pay",
+                  "quote": "recovering or have Habilitation services       Outpatient: $40 / visit; Inpatient:   Not covered                      None",
+                  "start": 16446,
+                  "end": 16568
+                },
+                {
+                  "source_document_id": "kaiser_2026_ca_gold80_sbc",
+                  "section": "What You Will Pay",
+                  "quote": "other special health                           $375 / day up to 5 days.",
+                  "start": 16569,
+                  "end": 16640
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "benefits.B20",
+              "evidence": [
+                {
+                  "source_document_id": "kaiser_2026_ca_gold80_sbc",
+                  "section": "What You Will Pay",
+                  "quote": "Durable medical        20% coinsurance                       Not covered                      Prior authorization required",
+                  "start": 16805,
+                  "end": 16927
+                },
+                {
+                  "source_document_id": "kaiser_2026_ca_gold80_sbc",
+                  "section": "What You Will Pay",
+                  "quote": "equipment",
+                  "start": 16952,
+                  "end": 16961
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "benefits.B21",
+              "evidence": [
+                {
+                  "source_document_id": "kaiser_2026_ca_gold80_sbc",
+                  "section": "What You Will Pay",
+                  "quote": "Hospice service        No charge                             Not covered                      None",
+                  "start": 16986,
+                  "end": 17084
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            }
+          ],
+          "warnings": [
+            "This is a synthetic data document. Evidence validation is based on provided source lines.",
+            "Deductible is zero, so deductible_applies set to false for all in-network benefits.",
+            "Half-up cent rounding convention is used in calculations as an engine convention, not a policy fact.",
+            "Dropped rule benefits.B1 (Primary care visit): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B10 (Facility fee (ambulatory surgery center)): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B12 (Emergency medical transportation): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B15 (Inpatient mental health): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B19 (Skilled nursing care): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B3 (Preventive care/screening/immunization): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B6 (Imaging (CT/PET scans, MRI)): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+            "Dropped rule networks.in.balance_billing: missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+            "Retained validated partial output from attempt 1 after 3 attempts; selection used supported-rule count only, never gold answers."
+          ],
+          "unresolved": [],
+          "coverage_gaps": [
+            "Out-of-network coverage is generally not provided; only emergency room, emergency medical transportation, and urgent care when temporarily outside service area are covered out-of-network. No out-of-network deductible or OOP max is defined.",
+            "Mail order pharmacy benefits are omitted because they are per-prescription charges not directly comparable to retail copays and have supply limits; the engine handles simple retail copays.",
+            "Specialty drugs (Tier 4) have 20% coinsurance up to $250 per prescription; the cap cannot be represented by the simple coinsurance model, so benefit is omitted.",
+            "Facility fee for hospital stay ($375/day up to 5 days) is per-day cap, which is not representable; omitted.",
+            "Inpatient mental health has $375/day up to 5 days; per-day cap omitted.",
+            "Rehabilitation services inpatient $375/day up to 5 days; per-day cap omitted.",
+            "Habilitation services inpatient $375/day up to 5 days; per-day cap omitted.",
+            "Skilled nursing care is $150/day up to 5 days; per-day cap omitted.",
+            "Outpatient services for mental health: other outpatient services no charge; group mental health $20, group substance abuse $5; these variants omitted as not simple individual visit.",
+            "Maternity office visits no charge and childbirth/delivery professional services not applicable; facility services $375/day up to 5 days; per-day cap omitted.",
+            "Children's eye exam, glasses, dental check-up no charge; but these are age-limited and require additional information; omitted.",
+            "No explicit balance billing statement for in-network providers; inferred as false from HMO plan type and network use but not directly quoted.",
+            "No explicit out-of-network balance billing language; set to null due to absence of clear statement.",
+            "No effective end date provided.",
+            "Partial source review: sections were selected locally; omitted services require review and have no executable rules.",
+            "Network out omitted: deductible or OOP limit is not established. Claims in that network require separate review, including emergency exceptions.",
+            "Dropped rule benefits.B1 (Primary care visit): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B10 (Facility fee (ambulatory surgery center)): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B12 (Emergency medical transportation): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B15 (Inpatient mental health): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B19 (Skilled nursing care): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B3 (Preventive care/screening/immunization): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B6 (Imaging (CT/PET scans, MRI)): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+            "Dropped rule networks.in.balance_billing: missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained."
+          ]
+        },
+        "backend": "deepseek",
+        "source_document_id": "kaiser_2026_ca_gold80_sbc",
+        "source_sha256": "53d9f1b2e5417de48c663972c0794ae6308bb8460f2011a995487d83485ca949",
+        "attempts": 3
+      },
+      "request_config": {
+        "response_format": "json_object",
+        "max_tokens_initial": 32768,
+        "max_tokens": 32768,
+        "max_tokens_ceiling": 65536,
+        "thinking": "disabled",
+        "timeout_seconds": 300,
+        "attempt_limit": 3,
+        "transport_attempt_limit": 2,
+        "evidence_spans": "selected original source lines with local offsets; legacy quotes use whitespace-normalized search"
+      },
+      "status": "validated",
+      "error": null,
+      "claim_ready": false,
+      "conditionally_executable": true,
+      "benefit_rules": 14,
+      "validated_quote_spans": 31,
+      "distinct_source_spans": 31,
+      "quote_validation": "Every retained quote equals the full source slice at its saved offsets; whitespace alone may be normalized during location. Numeric occurrence and selector support checked locally; table interpretation is not a semantic proof.",
+      "compiled_rows": [
+        {
+          "label": "Specialist visit",
+          "service_category": "Specialist visit",
+          "codes": [],
+          "network": "in",
+          "conditions": []
+        },
+        {
+          "label": "X-ray",
+          "service_category": "X-ray",
+          "codes": [],
+          "network": "in",
+          "conditions": []
+        },
+        {
+          "label": "Lab tests",
+          "service_category": "Lab tests",
+          "codes": [],
+          "network": "in",
+          "conditions": []
+        },
+        {
+          "label": "Generic drugs (Tier 1) - retail",
+          "service_category": "Generic drugs (Tier 1)",
+          "codes": [],
+          "network": "in",
+          "conditions": [
+            "Retail supply up to 30 days"
+          ]
+        },
+        {
+          "label": "Preferred brand drugs (Tier 2) - retail",
+          "service_category": "Preferred brand drugs (Tier 2)",
+          "codes": [],
+          "network": "in",
+          "conditions": [
+            "Retail supply up to 30 days"
+          ]
+        },
+        {
+          "label": "Non-preferred brand drugs (Tier 2) - retail",
+          "service_category": "Non-preferred brand drugs (Tier 2)",
+          "codes": [],
+          "network": "in",
+          "conditions": [
+            "Retail supply up to 30 days"
+          ]
+        },
+        {
+          "label": "Emergency room care",
+          "service_category": "Emergency room care",
+          "codes": [],
+          "network": "in",
+          "conditions": [
+            "Not admitted as inpatient"
+          ]
+        },
+        {
+          "label": "Urgent care",
+          "service_category": "Urgent care",
+          "codes": [],
+          "network": "in",
+          "conditions": []
+        },
+        {
+          "label": "Outpatient mental health - individual",
+          "service_category": "Outpatient services",
+          "codes": [],
+          "network": "in",
+          "conditions": [
+            "Individual visit"
+          ]
+        },
+        {
+          "label": "Home health care",
+          "service_category": "Home health care",
+          "codes": [],
+          "network": "in",
+          "conditions": []
+        },
+        {
+          "label": "Rehabilitation services - outpatient",
+          "service_category": "Rehabilitation services",
+          "codes": [],
+          "network": "in",
+          "conditions": [
+            "Outpatient"
+          ]
+        },
+        {
+          "label": "Habilitation services - outpatient",
+          "service_category": "Habilitation services",
+          "codes": [],
+          "network": "in",
+          "conditions": [
+            "Outpatient"
+          ]
+        },
+        {
+          "label": "Durable medical equipment",
+          "service_category": "Durable medical equipment",
+          "codes": [],
+          "network": "in",
+          "conditions": []
+        },
+        {
+          "label": "Hospice service",
+          "service_category": "Hospice service",
+          "codes": [],
+          "network": "in",
+          "conditions": []
+        }
+      ],
+      "not_compiled": [
+        "Out-of-network coverage is generally not provided; only emergency room, emergency medical transportation, and urgent care when temporarily outside service area are covered out-of-network. No out-of-network deductible or OOP max is defined.",
+        "Mail order pharmacy benefits are omitted because they are per-prescription charges not directly comparable to retail copays and have supply limits; the engine handles simple retail copays.",
+        "Specialty drugs (Tier 4) have 20% coinsurance up to $250 per prescription; the cap cannot be represented by the simple coinsurance model, so benefit is omitted.",
+        "Facility fee for hospital stay ($375/day up to 5 days) is per-day cap, which is not representable; omitted.",
+        "Inpatient mental health has $375/day up to 5 days; per-day cap omitted.",
+        "Rehabilitation services inpatient $375/day up to 5 days; per-day cap omitted.",
+        "Habilitation services inpatient $375/day up to 5 days; per-day cap omitted.",
+        "Skilled nursing care is $150/day up to 5 days; per-day cap omitted.",
+        "Outpatient services for mental health: other outpatient services no charge; group mental health $20, group substance abuse $5; these variants omitted as not simple individual visit.",
+        "Maternity office visits no charge and childbirth/delivery professional services not applicable; facility services $375/day up to 5 days; per-day cap omitted.",
+        "Children's eye exam, glasses, dental check-up no charge; but these are age-limited and require additional information; omitted.",
+        "No explicit balance billing statement for in-network providers; inferred as false from HMO plan type and network use but not directly quoted.",
+        "No explicit out-of-network balance billing language; set to null due to absence of clear statement.",
+        "No effective end date provided.",
+        "Partial source review: sections were selected locally; omitted services require review and have no executable rules.",
+        "Network out omitted: deductible or OOP limit is not established. Claims in that network require separate review, including emergency exceptions.",
+        "Dropped rule benefits.B1 (Primary care visit): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+        "Dropped rule benefits.B10 (Facility fee (ambulatory surgery center)): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+        "Dropped rule benefits.B12 (Emergency medical transportation): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+        "Dropped rule benefits.B15 (Inpatient mental health): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+        "Dropped rule benefits.B19 (Skilled nursing care): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+        "Dropped rule benefits.B3 (Preventive care/screening/immunization): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+        "Dropped rule benefits.B6 (Imaging (CT/PET scans, MRI)): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+        "Dropped rule networks.in.balance_billing: missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained."
+      ],
+      "row_inventory_note": "Compiled rows are measured retained rules. Omitted rows/reasons are the compiler's reported coverage gaps, not an independently exhaustive row-recall score.",
+      "validated_rules": 16,
+      "unresolved": [],
+      "evidence_pages": [
+        {
+          "rule_path": "networks.in.deductible_cents",
+          "pages": [
+            1,
+            1,
+            2
+          ]
+        },
+        {
+          "rule_path": "networks.in.oop_max_cents",
+          "pages": [
+            1,
+            1
+          ]
+        },
+        {
+          "rule_path": "benefits.B2",
+          "pages": [
+            2
+          ]
+        },
+        {
+          "rule_path": "benefits.B4",
+          "pages": [
+            2
+          ]
+        },
+        {
+          "rule_path": "benefits.B5",
+          "pages": [
+            2
+          ]
+        },
+        {
+          "rule_path": "benefits.B7",
+          "pages": [
+            2,
+            2,
+            2
+          ]
+        },
+        {
+          "rule_path": "benefits.B8",
+          "pages": [
+            2,
+            2
+          ]
+        },
+        {
+          "rule_path": "benefits.B9",
+          "pages": [
+            2,
+            2,
+            2
+          ]
+        },
+        {
+          "rule_path": "benefits.B11",
+          "pages": [
+            3,
+            3,
+            3
+          ]
+        },
+        {
+          "rule_path": "benefits.B13",
+          "pages": [
+            3
+          ]
+        },
+        {
+          "rule_path": "benefits.B14",
+          "pages": [
+            3,
+            3,
+            3
+          ]
+        },
+        {
+          "rule_path": "benefits.B16",
+          "pages": [
+            4
+          ]
+        },
+        {
+          "rule_path": "benefits.B17",
+          "pages": [
+            4,
+            4
+          ]
+        },
+        {
+          "rule_path": "benefits.B18",
+          "pages": [
+            4,
+            4
+          ]
+        },
+        {
+          "rule_path": "benefits.B20",
+          "pages": [
+            4,
+            4
+          ]
+        },
+        {
+          "rule_path": "benefits.B21",
+          "pages": [
+            4
+          ]
+        }
+      ],
+      "elapsed_seconds": 106.746,
+      "input_selection": {
+        "method": "ranked source sections",
+        "source_characters": 47390,
+        "selected_characters": 18796,
+        "omitted": true,
+        "selected_ranges": [
+          {
+            "start": 0,
+            "end": 6000,
+            "page": 1
+          },
+          {
+            "start": 6796,
+            "end": 11601,
+            "page": 2
+          },
+          {
+            "start": 11602,
+            "end": 15292,
+            "page": 3
+          },
+          {
+            "start": 15293,
+            "end": 19594,
+            "page": 4
+          }
+        ],
+        "evidence_validation": "Full original source; whitespace normalization only"
+      },
+      "attempt_audit": [
+        {
+          "attempt": 1,
+          "proposed_rules": 24,
+          "validated_rules": 16,
+          "validated_quote_spans": 31
+        },
+        {
+          "attempt": 2,
+          "proposed_rules": 18,
+          "validated_rules": 10,
+          "validated_quote_spans": 35
+        },
+        {
+          "attempt": 3,
+          "proposed_rules": 17,
+          "validated_rules": 11,
+          "validated_quote_spans": 41
+        }
+      ]
     }
-  ]
+  ],
+  "additional_pdf_upload_measurement": {
+    "report": "real-kaiser-http-demo.json",
+    "validated_rules": 15,
+    "validated_quote_spans": 42,
+    "status": "passed",
+    "note": "Different extraction (pypdf HTTP upload); all main service categories retained. Synthetic claim, no merger with this text-input run."
+  }
 }

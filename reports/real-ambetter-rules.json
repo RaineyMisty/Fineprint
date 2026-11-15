@@ -1,0 +1,1651 @@
+{
+  "schema_version": 2,
+  "synthetic": false,
+  "document_id": "ambetter_2026_ca_gold80_hmo_sbc",
+  "split": "held_out",
+  "local_text_path": "data/real_private/docs/ambetter_2026_ca_gold80_hmo_sbc.txt",
+  "source_sha256": "ae7f38f5c2a252c74af0aa5df14bb1ab58849e2eaca53f1d49427b44c5bf5180",
+  "generated_at": "2026-11-15T09:50:27.811721+00:00",
+  "revision": "42efdc0a5dbb81ddaee084ae8cff63a2eaa29ab8",
+  "compiler_sha256": "2f65bc2166ce266421fd8832d47a8feca6a304a06ceaa042c1cb23115e8ffc97",
+  "providers_sha256": "9ca6052d38cc12d84d18582e92c1fc8f1af95f8855504ae2ad7a8faf3695b101",
+  "selection_sha256": "7c4e71bfd70d9bf67036089c7bd8f2684b15aa36a97f0c3faa2acb73b51b46e1",
+  "input": "Original pdftotext -layout text; provider input uses ranked source sections with evidence checked against the full source.",
+  "input_excerpts": [
+    {
+      "quote": "     The plan’s overall deductible               $0           The plan’s overall deductible               $0        The plan’s overall deductible            ",
+      "start": 22702,
+      "end": 22862,
+      "pdf_page": 7
+    },
+    {
+      "quote": "Deductibles                                   $0          Deductibles                                   $0       Deductibles                                  $0",
+      "start": 24736,
+      "end": 24896,
+      "pdf_page": 7
+    }
+  ],
+  "excerpt_note": "Input samples only, not validated executable rule evidence. No full policy text redistributed.",
+  "runs": [
+    {
+      "provider": "fallback",
+      "model": null,
+      "attempt_limit": 1,
+      "compilation": null,
+      "request_config": null,
+      "status": "failed",
+      "error": "Fallback requires a '# Insurer — Plan' title and Policy/Member/Period/USD header; other formats need a provider or transcription",
+      "elapsed_seconds": 0.0,
+      "validated_rules": 0,
+      "benefit_rules": 0,
+      "validated_quote_spans": 0,
+      "compiled_rows": [],
+      "not_compiled": [
+        "All service rows: no validated compilation was retained."
+      ],
+      "claim_ready": false,
+      "conditionally_executable": false
+    },
+    {
+      "provider": "deepseek",
+      "model": "deepseek-v4-pro",
+      "attempt_limit": 1,
+      "compilation": {
+        "output": {
+          "policy": {
+            "id": "N8C_NO_MD_C0",
+            "insurer": "Health Net of CA",
+            "name": "Gold 80 Ambetter HMO",
+            "member_id": null,
+            "effective_from": "2026-01-01",
+            "effective_to": null,
+            "currency": "USD",
+            "networks": {
+              "in": {
+                "deductible_cents": 0,
+                "oop_max_cents": 920000,
+                "balance_billing": null,
+                "deductible_clause": "source-1",
+                "oop_clause": "source-4",
+                "network_clause": null
+              }
+            },
+            "benefits": [
+              {
+                "id": "B1",
+                "label": "Primary care visit to treat an injury or illness",
+                "codes": [],
+                "network": "in",
+                "covered": true,
+                "deductible_applies": false,
+                "copay_cents": 4000,
+                "coinsurance_bps": 0,
+                "clause_ids": [
+                  "source-8",
+                  "source-9"
+                ],
+                "ambiguity_group": "",
+                "service_category": "Primary care visit to treat an injury or illness"
+              },
+              {
+                "id": "B2",
+                "label": "Specialist visit",
+                "codes": [],
+                "network": "in",
+                "covered": true,
+                "deductible_applies": false,
+                "copay_cents": 7000,
+                "coinsurance_bps": 0,
+                "clause_ids": [
+                  "source-10",
+                  "source-11",
+                  "source-12"
+                ],
+                "ambiguity_group": "",
+                "service_category": "Specialist visit",
+                "conditions": [
+                  "Prior authorization obtained"
+                ]
+              },
+              {
+                "id": "B3",
+                "label": "Preventive care/screening/immunization",
+                "codes": [],
+                "network": "in",
+                "covered": true,
+                "deductible_applies": false,
+                "copay_cents": 0,
+                "coinsurance_bps": 0,
+                "clause_ids": [
+                  "source-13",
+                  "source-14",
+                  "source-15"
+                ],
+                "ambiguity_group": "",
+                "service_category": "Preventive care/screening/immunization"
+              },
+              {
+                "id": "B6",
+                "label": "Imaging (CT/PET scans, MRIs)",
+                "codes": [],
+                "network": "in",
+                "covered": true,
+                "deductible_applies": false,
+                "copay_cents": 7500,
+                "coinsurance_bps": 0,
+                "clause_ids": [
+                  "source-19",
+                  "source-20"
+                ],
+                "ambiguity_group": "",
+                "service_category": "Imaging (CT/PET scans, MRIs)",
+                "conditions": [
+                  "Prior authorization obtained"
+                ]
+              },
+              {
+                "id": "B7",
+                "label": "Generic drugs (Tier 1) - Retail",
+                "codes": [],
+                "network": "in",
+                "covered": true,
+                "deductible_applies": false,
+                "copay_cents": 1800,
+                "coinsurance_bps": 0,
+                "clause_ids": [
+                  "source-21",
+                  "source-22",
+                  "source-23",
+                  "source-24"
+                ],
+                "ambiguity_group": "",
+                "service_category": "Generic drugs (Tier 1)",
+                "conditions": [
+                  "Retail supply within 30 days"
+                ]
+              },
+              {
+                "id": "B8",
+                "label": "Preferred brand drugs (Tier 2) - Retail",
+                "codes": [],
+                "network": "in",
+                "covered": true,
+                "deductible_applies": false,
+                "copay_cents": 6000,
+                "coinsurance_bps": 0,
+                "clause_ids": [
+                  "source-25",
+                  "source-26",
+                  "source-27",
+                  "source-28"
+                ],
+                "ambiguity_group": "",
+                "service_category": "Preferred brand drugs (Tier 2)",
+                "conditions": [
+                  "Retail supply within 30 days",
+                  "Prior authorization if required for select drugs"
+                ]
+              },
+              {
+                "id": "B9",
+                "label": "Non-preferred brand drugs (Tier 3) - Retail",
+                "codes": [],
+                "network": "in",
+                "covered": true,
+                "deductible_applies": false,
+                "copay_cents": 8500,
+                "coinsurance_bps": 0,
+                "clause_ids": [
+                  "source-29",
+                  "source-30",
+                  "source-31",
+                  "source-32"
+                ],
+                "ambiguity_group": "",
+                "service_category": "Non-preferred brand drugs (Tier 3)",
+                "conditions": [
+                  "Retail supply within 30 days",
+                  "Prior authorization if required for select drugs"
+                ]
+              },
+              {
+                "id": "B11",
+                "label": "Physician/surgeon fees (outpatient surgery)",
+                "codes": [],
+                "network": "in",
+                "covered": true,
+                "deductible_applies": false,
+                "copay_cents": 6000,
+                "coinsurance_bps": 0,
+                "clause_ids": [
+                  "source-36"
+                ],
+                "ambiguity_group": "",
+                "service_category": "Physician/surgeon fees"
+              },
+              {
+                "id": "B12",
+                "label": "Emergency room care - Facility",
+                "codes": [],
+                "network": "in",
+                "covered": true,
+                "deductible_applies": false,
+                "copay_cents": 35000,
+                "coinsurance_bps": 0,
+                "clause_ids": [
+                  "source-37"
+                ],
+                "ambiguity_group": "",
+                "service_category": "Emergency room care",
+                "conditions": [
+                  "Not admitted as inpatient"
+                ]
+              },
+              {
+                "id": "B13",
+                "label": "Emergency medical transportation - Medical, mental health & substance use disorders",
+                "codes": [],
+                "network": "in",
+                "covered": true,
+                "deductible_applies": false,
+                "copay_cents": 25000,
+                "coinsurance_bps": 0,
+                "clause_ids": [
+                  "source-38",
+                  "source-39",
+                  "source-40"
+                ],
+                "ambiguity_group": "",
+                "service_category": "Emergency medical transportation"
+              },
+              {
+                "id": "B14",
+                "label": "Urgent care - Medical, mental health & substance use disorders",
+                "codes": [],
+                "network": "in",
+                "covered": true,
+                "deductible_applies": false,
+                "copay_cents": 4000,
+                "coinsurance_bps": 0,
+                "clause_ids": [
+                  "source-41",
+                  "source-42",
+                  "source-43"
+                ],
+                "ambiguity_group": "",
+                "service_category": "Urgent care"
+              },
+              {
+                "id": "B17",
+                "label": "Office visits (pregnancy) - Prenatal",
+                "codes": [],
+                "network": "in",
+                "covered": true,
+                "deductible_applies": false,
+                "copay_cents": 0,
+                "coinsurance_bps": 0,
+                "clause_ids": [
+                  "source-47",
+                  "source-48",
+                  "source-49"
+                ],
+                "ambiguity_group": "",
+                "service_category": "Office visits",
+                "conditions": [
+                  "Prenatal"
+                ]
+              },
+              {
+                "id": "B18",
+                "label": "Office visits (pregnancy) - Postnatal",
+                "codes": [],
+                "network": "in",
+                "covered": true,
+                "deductible_applies": false,
+                "copay_cents": 4000,
+                "coinsurance_bps": 0,
+                "clause_ids": [
+                  "source-47",
+                  "source-48",
+                  "source-49"
+                ],
+                "ambiguity_group": "",
+                "service_category": "Office visits",
+                "conditions": [
+                  "Postnatal"
+                ]
+              },
+              {
+                "id": "B19",
+                "label": "Childbirth/delivery professional services",
+                "codes": [],
+                "network": "in",
+                "covered": true,
+                "deductible_applies": false,
+                "copay_cents": 0,
+                "coinsurance_bps": 0,
+                "clause_ids": [
+                  "source-50",
+                  "source-51",
+                  "source-52"
+                ],
+                "ambiguity_group": "",
+                "service_category": "Childbirth/delivery professional services"
+              },
+              {
+                "id": "B20",
+                "label": "Home health care",
+                "codes": [],
+                "network": "in",
+                "covered": true,
+                "deductible_applies": false,
+                "copay_cents": 3000,
+                "coinsurance_bps": 0,
+                "clause_ids": [
+                  "source-53",
+                  "source-54"
+                ],
+                "ambiguity_group": "",
+                "service_category": "Home health care",
+                "conditions": [
+                  "Prior authorization obtained",
+                  "Visits within 100 per calendar year"
+                ]
+              },
+              {
+                "id": "B21",
+                "label": "Rehabilitation services",
+                "codes": [],
+                "network": "in",
+                "covered": true,
+                "deductible_applies": false,
+                "copay_cents": 4000,
+                "coinsurance_bps": 0,
+                "clause_ids": [
+                  "source-55",
+                  "source-56"
+                ],
+                "ambiguity_group": "",
+                "service_category": "Rehabilitation services",
+                "conditions": [
+                  "Prior authorization obtained"
+                ]
+              },
+              {
+                "id": "B22",
+                "label": "Habilitation services",
+                "codes": [],
+                "network": "in",
+                "covered": true,
+                "deductible_applies": false,
+                "copay_cents": 4000,
+                "coinsurance_bps": 0,
+                "clause_ids": [
+                  "source-57",
+                  "source-58"
+                ],
+                "ambiguity_group": "",
+                "service_category": "Habilitation services",
+                "conditions": [
+                  "Prior authorization obtained"
+                ]
+              },
+              {
+                "id": "B23",
+                "label": "Durable medical equipment",
+                "codes": [],
+                "network": "in",
+                "covered": true,
+                "deductible_applies": false,
+                "copay_cents": 0,
+                "coinsurance_bps": 2000,
+                "clause_ids": [
+                  "source-59",
+                  "source-60"
+                ],
+                "ambiguity_group": "",
+                "service_category": "Durable medical equipment",
+                "conditions": [
+                  "Prior authorization obtained"
+                ]
+              },
+              {
+                "id": "B24",
+                "label": "Hospice services",
+                "codes": [],
+                "network": "in",
+                "covered": true,
+                "deductible_applies": false,
+                "copay_cents": 0,
+                "coinsurance_bps": 0,
+                "clause_ids": [
+                  "source-61"
+                ],
+                "ambiguity_group": "",
+                "service_category": "Hospice services",
+                "conditions": [
+                  "Prior authorization obtained"
+                ]
+              }
+            ],
+            "clauses": [
+              {
+                "id": "source-1",
+                "text": "What is the overall          $0.                                            See the Common Medical Events chart below for your costs for services this plan covers.",
+                "location": "Important Questions"
+              },
+              {
+                "id": "source-4",
+                "text": "What is the out-of-                                                         The out-of-pocket limit is the most you could pay in a year for covered services. If you have",
+                "location": "Important Questions"
+              },
+              {
+                "id": "source-8",
+                "text": "Primary care visit to treat         $40 copay/visit                   Not covered             None",
+                "location": "Common Medical Event: If you visit a health care provider's office or clinic"
+              },
+              {
+                "id": "source-9",
+                "text": "an injury or illness",
+                "location": "Common Medical Event: If you visit a health care provider's office or clinic"
+              },
+              {
+                "id": "source-10",
+                "text": "Do you need a referral                                                      This plan will pay some or all of the costs to see a specialist for covered services but only if",
+                "location": "Important Questions"
+              },
+              {
+                "id": "source-11",
+                "text": "to see a specialist?         Yes. Requires written prior authorization.     you have a referral before you see the specialist.",
+                "location": "Important Questions"
+              },
+              {
+                "id": "source-12",
+                "text": "If you visit a health care    Specialist visit                    $70 copay/visit                   Not covered             Requires prior authorization.",
+                "location": "Common Medical Event: If you visit a health care provider's office or clinic"
+              },
+              {
+                "id": "source-13",
+                "text": "Preventive                                                                                    aren’t preventive. Ask your provider if the",
+                "location": "Common Medical Event: If you visit a health care provider's office or clinic"
+              },
+              {
+                "id": "source-14",
+                "text": "care/screening/                       No charge                       Not covered             services needed are preventive. Then",
+                "location": "Common Medical Event: If you visit a health care provider's office or clinic"
+              },
+              {
+                "id": "source-15",
+                "text": "immunization                                                                                  check what your plan will pay for.",
+                "location": "Common Medical Event: If you visit a health care provider's office or clinic"
+              },
+              {
+                "id": "source-19",
+                "text": "Imaging (CT/PET scans,           $75 copay/procedure                  Not covered             Requires prior authorization.",
+                "location": "Common Medical Event: If you have a test"
+              },
+              {
+                "id": "source-20",
+                "text": "MRIs)",
+                "location": "Common Medical Event: If you have a test"
+              },
+              {
+                "id": "source-21",
+                "text": "$18 copay/retail order",
+                "location": "Common Medical Event: If you need drugs to treat your illness or condition"
+              },
+              {
+                "id": "source-22",
+                "text": "Generic drugs (Tier 1)                                                Not covered",
+                "location": "Common Medical Event: If you need drugs to treat your illness or condition"
+              },
+              {
+                "id": "source-23",
+                "text": "$36 copay/mail order",
+                "location": "Common Medical Event: If you need drugs to treat your illness or condition"
+              },
+              {
+                "id": "source-24",
+                "text": "If you need drugs to treat                                                                                                  Supply/order: up to 30 day (retail); 35-90",
+                "location": "Common Medical Event: If you need drugs to treat your illness or condition"
+              },
+              {
+                "id": "source-25",
+                "text": "Preferred brand drugs            $60 copay/retail order                                       day (mail), except where quantity limits",
+                "location": "Common Medical Event: If you need drugs to treat your illness or condition"
+              },
+              {
+                "id": "source-26",
+                "text": "your illness or condition.                                                                          Not covered",
+                "location": "Common Medical Event: If you need drugs to treat your illness or condition"
+              },
+              {
+                "id": "source-27",
+                "text": "(Tier 2)                         $120 copay/mail order                                        apply. Prior authorization required for",
+                "location": "Common Medical Event: If you need drugs to treat your illness or condition"
+              },
+              {
+                "id": "source-28",
+                "text": "select drugs.",
+                "location": "Common Medical Event: If you need drugs to treat your illness or condition"
+              },
+              {
+                "id": "source-29",
+                "text": "More information about        Non-preferred brand              $85 copay/retail order               Not covered",
+                "location": "Common Medical Event: If you need drugs to treat your illness or condition"
+              },
+              {
+                "id": "source-30",
+                "text": "prescription drug             drugs (Tier 3)                   $170 copay/mail order",
+                "location": "Common Medical Event: If you need drugs to treat your illness or condition"
+              },
+              {
+                "id": "source-31",
+                "text": "coverage is available at",
+                "location": "Common Medical Event: If you need drugs to treat your illness or condition"
+              },
+              {
+                "id": "source-32",
+                "text": "www.myhealthnetca.com                                                                                                       Prior authorization required for select",
+                "location": "Common Medical Event: If you need drugs to treat your illness or condition"
+              },
+              {
+                "id": "source-36",
+                "text": "Physician/surgeon fees                $60 copay/visit                   Not covered            None",
+                "location": "Common Medical Event: If you have outpatient surgery"
+              },
+              {
+                "id": "source-37",
+                "text": "Emergency room care               Facility-$350 copay/visit                                    Copay waived if admitted into the hospital.",
+                "location": "Common Medical Event: If you need immediate medical attention"
+              },
+              {
+                "id": "source-38",
+                "text": "If you need immediate                                         Medical, mental health &        Covered at In-Network cost-",
+                "location": "Common Medical Event: If you need immediate medical attention"
+              },
+              {
+                "id": "source-39",
+                "text": "medical attention            Emergency medical              substance use disorders-$250      share for emergencies only    None",
+                "location": "Common Medical Event: If you need immediate medical attention"
+              },
+              {
+                "id": "source-40",
+                "text": "transportation                        copay/transport",
+                "location": "Common Medical Event: If you need immediate medical attention"
+              },
+              {
+                "id": "source-41",
+                "text": "Medical, mental health &",
+                "location": "Common Medical Event: If you need immediate medical attention"
+              },
+              {
+                "id": "source-42",
+                "text": "Urgent care                    substance use disorders-$40                                     None",
+                "location": "Common Medical Event: If you need immediate medical attention"
+              },
+              {
+                "id": "source-43",
+                "text": "copay/visit",
+                "location": "Common Medical Event: If you need immediate medical attention"
+              },
+              {
+                "id": "source-47",
+                "text": "Prenatal-No charge                                         Cost sharing does not apply for preventive",
+                "location": "Common Medical Event: If you are pregnant"
+              },
+              {
+                "id": "source-48",
+                "text": "Office visits                                                        Not covered",
+                "location": "Common Medical Event: If you are pregnant"
+              },
+              {
+                "id": "source-49",
+                "text": "Postnatal-$40 copay/visit                                    services.",
+                "location": "Common Medical Event: If you are pregnant"
+              },
+              {
+                "id": "source-50",
+                "text": "Childbirth/delivery",
+                "location": "Common Medical Event: If you are pregnant"
+              },
+              {
+                "id": "source-51",
+                "text": "If you are pregnant                                                 No charge                     Not covered             None",
+                "location": "Common Medical Event: If you are pregnant"
+              },
+              {
+                "id": "source-52",
+                "text": "professional services",
+                "location": "Common Medical Event: If you are pregnant"
+              },
+              {
+                "id": "source-53",
+                "text": "Limited to 100 visits per calendar year.",
+                "location": "Common Medical Event: If you need help recovering or have other special health needs"
+              },
+              {
+                "id": "source-54",
+                "text": "Home health care                     $30 copay/visit                 Not covered             Requires prior authorization.",
+                "location": "Common Medical Event: If you need help recovering or have other special health needs"
+              },
+              {
+                "id": "source-55",
+                "text": "Rehabilitation services              $40 copay/visit                 Not covered",
+                "location": "Common Medical Event: If you need help recovering or have other special health needs"
+              },
+              {
+                "id": "source-56",
+                "text": "Requires prior authorization.",
+                "location": "Common Medical Event: If you need help recovering or have other special health needs"
+              },
+              {
+                "id": "source-57",
+                "text": "Habilitation services                $40 copay/visit                 Not covered",
+                "location": "Common Medical Event: If you need help recovering or have other special health needs"
+              },
+              {
+                "id": "source-58",
+                "text": "If you need help",
+                "location": "Common Medical Event: If you need help recovering or have other special health needs"
+              },
+              {
+                "id": "source-59",
+                "text": "Durable medical                     20% coinsurance                  Not covered             Requires prior authorization.",
+                "location": "Common Medical Event: If you need help recovering or have other special health needs"
+              },
+              {
+                "id": "source-60",
+                "text": "equipment",
+                "location": "Common Medical Event: If you need help recovering or have other special health needs"
+              },
+              {
+                "id": "source-61",
+                "text": "Hospice services                       No charge                     Not covered             Requires prior authorization.",
+                "location": "Common Medical Event: If you need help recovering or have other special health needs"
+              }
+            ]
+          },
+          "rule_evidence": [
+            {
+              "rule_path": "networks.in.deductible_cents",
+              "evidence": [
+                {
+                  "source_document_id": "ambetter_2026_ca_gold80_hmo_sbc",
+                  "section": "Important Questions",
+                  "quote": "What is the overall          $0.                                            See the Common Medical Events chart below for your costs for services this plan covers.",
+                  "start": 1195,
+                  "end": 1358
+                },
+                {
+                  "source_document_id": "ambetter_2026_ca_gold80_hmo_sbc",
+                  "section": "Important Questions",
+                  "quote": "deductible?",
+                  "start": 1359,
+                  "end": 1370
+                },
+                {
+                  "source_document_id": "ambetter_2026_ca_gold80_hmo_sbc",
+                  "section": "Important Questions",
+                  "quote": "covered before you           There is no deductible.                        There is no deductible.",
+                  "start": 1390,
+                  "end": 1489
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "networks.in.oop_max_cents",
+              "evidence": [
+                {
+                  "source_document_id": "ambetter_2026_ca_gold80_hmo_sbc",
+                  "section": "Important Questions",
+                  "quote": "What is the out-of-                                                         The out-of-pocket limit is the most you could pay in a year for covered services. If you have",
+                  "start": 1672,
+                  "end": 1841
+                },
+                {
+                  "source_document_id": "ambetter_2026_ca_gold80_hmo_sbc",
+                  "section": "Important Questions",
+                  "quote": "$9,200 member/$18,400 family per calendar",
+                  "start": 1870,
+                  "end": 1911
+                },
+                {
+                  "source_document_id": "ambetter_2026_ca_gold80_hmo_sbc",
+                  "section": "Important Questions",
+                  "quote": "pocket limit for this                                                       other family members in this plan, they have to meet their own out-of-pocket limits until the",
+                  "start": 1912,
+                  "end": 2081
+                },
+                {
+                  "source_document_id": "ambetter_2026_ca_gold80_hmo_sbc",
+                  "section": "Important Questions",
+                  "quote": "year.",
+                  "start": 2110,
+                  "end": 2115
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "benefits.B1",
+              "evidence": [
+                {
+                  "source_document_id": "ambetter_2026_ca_gold80_hmo_sbc",
+                  "section": "Common Medical Event: If you visit a health care provider's office or clinic",
+                  "quote": "Primary care visit to treat         $40 copay/visit                   Not covered             None",
+                  "start": 4497,
+                  "end": 4595
+                },
+                {
+                  "source_document_id": "ambetter_2026_ca_gold80_hmo_sbc",
+                  "section": "Common Medical Event: If you visit a health care provider's office or clinic",
+                  "quote": "an injury or illness",
+                  "start": 4626,
+                  "end": 4646
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "benefits.B2",
+              "evidence": [
+                {
+                  "source_document_id": "ambetter_2026_ca_gold80_hmo_sbc",
+                  "section": "Important Questions",
+                  "quote": "Do you need a referral                                                      This plan will pay some or all of the costs to see a specialist for covered services but only if",
+                  "start": 3270,
+                  "end": 3442
+                },
+                {
+                  "source_document_id": "ambetter_2026_ca_gold80_hmo_sbc",
+                  "section": "Important Questions",
+                  "quote": "to see a specialist?         Yes. Requires written prior authorization.     you have a referral before you see the specialist.",
+                  "start": 3443,
+                  "end": 3569
+                },
+                {
+                  "source_document_id": "ambetter_2026_ca_gold80_hmo_sbc",
+                  "section": "Common Medical Event: If you visit a health care provider's office or clinic",
+                  "quote": "If you visit a health care    Specialist visit                    $70 copay/visit                   Not covered             Requires prior authorization.",
+                  "start": 4648,
+                  "end": 4801
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "benefits.B3",
+              "evidence": [
+                {
+                  "source_document_id": "ambetter_2026_ca_gold80_hmo_sbc",
+                  "section": "Common Medical Event: If you visit a health care provider's office or clinic",
+                  "quote": "Preventive                                                                                    aren’t preventive. Ask your provider if the",
+                  "start": 5022,
+                  "end": 5159
+                },
+                {
+                  "source_document_id": "ambetter_2026_ca_gold80_hmo_sbc",
+                  "section": "Common Medical Event: If you visit a health care provider's office or clinic",
+                  "quote": "care/screening/                       No charge                       Not covered             services needed are preventive. Then",
+                  "start": 5190,
+                  "end": 5320
+                },
+                {
+                  "source_document_id": "ambetter_2026_ca_gold80_hmo_sbc",
+                  "section": "Common Medical Event: If you visit a health care provider's office or clinic",
+                  "quote": "immunization                                                                                  check what your plan will pay for.",
+                  "start": 5351,
+                  "end": 5479
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "benefits.B6",
+              "evidence": [
+                {
+                  "source_document_id": "ambetter_2026_ca_gold80_hmo_sbc",
+                  "section": "Common Medical Event: If you have a test",
+                  "quote": "Imaging (CT/PET scans,           $75 copay/procedure                  Not covered             Requires prior authorization.",
+                  "start": 5757,
+                  "end": 5880
+                },
+                {
+                  "source_document_id": "ambetter_2026_ca_gold80_hmo_sbc",
+                  "section": "Common Medical Event: If you have a test",
+                  "quote": "MRIs)",
+                  "start": 5911,
+                  "end": 5916
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "benefits.B7",
+              "evidence": [
+                {
+                  "source_document_id": "ambetter_2026_ca_gold80_hmo_sbc",
+                  "section": "Common Medical Event: If you need drugs to treat your illness or condition",
+                  "quote": "$18 copay/retail order",
+                  "start": 5980,
+                  "end": 6002
+                },
+                {
+                  "source_document_id": "ambetter_2026_ca_gold80_hmo_sbc",
+                  "section": "Common Medical Event: If you need drugs to treat your illness or condition",
+                  "quote": "Generic drugs (Tier 1)                                                Not covered",
+                  "start": 6033,
+                  "end": 6114
+                },
+                {
+                  "source_document_id": "ambetter_2026_ca_gold80_hmo_sbc",
+                  "section": "Common Medical Event: If you need drugs to treat your illness or condition",
+                  "quote": "$36 copay/mail order",
+                  "start": 6178,
+                  "end": 6198
+                },
+                {
+                  "source_document_id": "ambetter_2026_ca_gold80_hmo_sbc",
+                  "section": "Common Medical Event: If you need drugs to treat your illness or condition",
+                  "quote": "If you need drugs to treat                                                                                                  Supply/order: up to 30 day (retail); 35-90",
+                  "start": 6199,
+                  "end": 6365
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "benefits.B8",
+              "evidence": [
+                {
+                  "source_document_id": "ambetter_2026_ca_gold80_hmo_sbc",
+                  "section": "Common Medical Event: If you need drugs to treat your illness or condition",
+                  "quote": "Preferred brand drugs            $60 copay/retail order                                       day (mail), except where quantity limits",
+                  "start": 6396,
+                  "end": 6530
+                },
+                {
+                  "source_document_id": "ambetter_2026_ca_gold80_hmo_sbc",
+                  "section": "Common Medical Event: If you need drugs to treat your illness or condition",
+                  "quote": "your illness or condition.                                                                          Not covered",
+                  "start": 6531,
+                  "end": 6642
+                },
+                {
+                  "source_document_id": "ambetter_2026_ca_gold80_hmo_sbc",
+                  "section": "Common Medical Event: If you need drugs to treat your illness or condition",
+                  "quote": "(Tier 2)                         $120 copay/mail order                                        apply. Prior authorization required for",
+                  "start": 6673,
+                  "end": 6806
+                },
+                {
+                  "source_document_id": "ambetter_2026_ca_gold80_hmo_sbc",
+                  "section": "Common Medical Event: If you need drugs to treat your illness or condition",
+                  "quote": "select drugs.",
+                  "start": 6931,
+                  "end": 6944
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "benefits.B9",
+              "evidence": [
+                {
+                  "source_document_id": "ambetter_2026_ca_gold80_hmo_sbc",
+                  "section": "Common Medical Event: If you need drugs to treat your illness or condition",
+                  "quote": "More information about        Non-preferred brand              $85 copay/retail order               Not covered",
+                  "start": 6945,
+                  "end": 7056
+                },
+                {
+                  "source_document_id": "ambetter_2026_ca_gold80_hmo_sbc",
+                  "section": "Common Medical Event: If you need drugs to treat your illness or condition",
+                  "quote": "prescription drug             drugs (Tier 3)                   $170 copay/mail order",
+                  "start": 7057,
+                  "end": 7141
+                },
+                {
+                  "source_document_id": "ambetter_2026_ca_gold80_hmo_sbc",
+                  "section": "Common Medical Event: If you need drugs to treat your illness or condition",
+                  "quote": "coverage is available at",
+                  "start": 7142,
+                  "end": 7166
+                },
+                {
+                  "source_document_id": "ambetter_2026_ca_gold80_hmo_sbc",
+                  "section": "Common Medical Event: If you need drugs to treat your illness or condition",
+                  "quote": "www.myhealthnetca.com                                                                                                       Prior authorization required for select",
+                  "start": 7167,
+                  "end": 7330
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "benefits.B11",
+              "evidence": [
+                {
+                  "source_document_id": "ambetter_2026_ca_gold80_hmo_sbc",
+                  "section": "Common Medical Event: If you have outpatient surgery",
+                  "quote": "Physician/surgeon fees                $60 copay/visit                   Not covered            None",
+                  "start": 9056,
+                  "end": 9155
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "benefits.B12",
+              "evidence": [
+                {
+                  "source_document_id": "ambetter_2026_ca_gold80_hmo_sbc",
+                  "section": "Common Medical Event: If you need immediate medical attention",
+                  "quote": "Emergency room care               Facility-$350 copay/visit                                    Copay waived if admitted into the hospital.",
+                  "start": 9359,
+                  "end": 9497
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "benefits.B13",
+              "evidence": [
+                {
+                  "source_document_id": "ambetter_2026_ca_gold80_hmo_sbc",
+                  "section": "Common Medical Event: If you need immediate medical attention",
+                  "quote": "If you need immediate                                         Medical, mental health &        Covered at In-Network cost-",
+                  "start": 9665,
+                  "end": 9786
+                },
+                {
+                  "source_document_id": "ambetter_2026_ca_gold80_hmo_sbc",
+                  "section": "Common Medical Event: If you need immediate medical attention",
+                  "quote": "medical attention            Emergency medical              substance use disorders-$250      share for emergencies only    None",
+                  "start": 9787,
+                  "end": 9915
+                },
+                {
+                  "source_document_id": "ambetter_2026_ca_gold80_hmo_sbc",
+                  "section": "Common Medical Event: If you need immediate medical attention",
+                  "quote": "transportation                        copay/transport",
+                  "start": 9945,
+                  "end": 9998
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "benefits.B14",
+              "evidence": [
+                {
+                  "source_document_id": "ambetter_2026_ca_gold80_hmo_sbc",
+                  "section": "Common Medical Event: If you need immediate medical attention",
+                  "quote": "Medical, mental health &",
+                  "start": 10061,
+                  "end": 10085
+                },
+                {
+                  "source_document_id": "ambetter_2026_ca_gold80_hmo_sbc",
+                  "section": "Common Medical Event: If you need immediate medical attention",
+                  "quote": "Urgent care                    substance use disorders-$40                                     None",
+                  "start": 10115,
+                  "end": 10214
+                },
+                {
+                  "source_document_id": "ambetter_2026_ca_gold80_hmo_sbc",
+                  "section": "Common Medical Event: If you need immediate medical attention",
+                  "quote": "copay/visit",
+                  "start": 10283,
+                  "end": 10294
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "benefits.B17",
+              "evidence": [
+                {
+                  "source_document_id": "ambetter_2026_ca_gold80_hmo_sbc",
+                  "section": "Common Medical Event: If you are pregnant",
+                  "quote": "Prenatal-No charge                                         Cost sharing does not apply for preventive",
+                  "start": 12496,
+                  "end": 12597
+                },
+                {
+                  "source_document_id": "ambetter_2026_ca_gold80_hmo_sbc",
+                  "section": "Common Medical Event: If you are pregnant",
+                  "quote": "Office visits                                                        Not covered",
+                  "start": 12627,
+                  "end": 12707
+                },
+                {
+                  "source_document_id": "ambetter_2026_ca_gold80_hmo_sbc",
+                  "section": "Common Medical Event: If you are pregnant",
+                  "quote": "Postnatal-$40 copay/visit                                    services.",
+                  "start": 12769,
+                  "end": 12839
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "benefits.B18",
+              "evidence": [
+                {
+                  "source_document_id": "ambetter_2026_ca_gold80_hmo_sbc",
+                  "section": "Common Medical Event: If you are pregnant",
+                  "quote": "Prenatal-No charge                                         Cost sharing does not apply for preventive",
+                  "start": 12496,
+                  "end": 12597
+                },
+                {
+                  "source_document_id": "ambetter_2026_ca_gold80_hmo_sbc",
+                  "section": "Common Medical Event: If you are pregnant",
+                  "quote": "Office visits                                                        Not covered",
+                  "start": 12627,
+                  "end": 12707
+                },
+                {
+                  "source_document_id": "ambetter_2026_ca_gold80_hmo_sbc",
+                  "section": "Common Medical Event: If you are pregnant",
+                  "quote": "Postnatal-$40 copay/visit                                    services.",
+                  "start": 12769,
+                  "end": 12839
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "benefits.B19",
+              "evidence": [
+                {
+                  "source_document_id": "ambetter_2026_ca_gold80_hmo_sbc",
+                  "section": "Common Medical Event: If you are pregnant",
+                  "quote": "Childbirth/delivery",
+                  "start": 12869,
+                  "end": 12888
+                },
+                {
+                  "source_document_id": "ambetter_2026_ca_gold80_hmo_sbc",
+                  "section": "Common Medical Event: If you are pregnant",
+                  "quote": "If you are pregnant                                                 No charge                     Not covered             None",
+                  "start": 12889,
+                  "end": 13015
+                },
+                {
+                  "source_document_id": "ambetter_2026_ca_gold80_hmo_sbc",
+                  "section": "Common Medical Event: If you are pregnant",
+                  "quote": "professional services",
+                  "start": 13045,
+                  "end": 13066
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "benefits.B20",
+              "evidence": [
+                {
+                  "source_document_id": "ambetter_2026_ca_gold80_hmo_sbc",
+                  "section": "Common Medical Event: If you need help recovering or have other special health needs",
+                  "quote": "Limited to 100 visits per calendar year.",
+                  "start": 13477,
+                  "end": 13517
+                },
+                {
+                  "source_document_id": "ambetter_2026_ca_gold80_hmo_sbc",
+                  "section": "Common Medical Event: If you need help recovering or have other special health needs",
+                  "quote": "Home health care                     $30 copay/visit                 Not covered             Requires prior authorization.",
+                  "start": 13547,
+                  "end": 13669
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "benefits.B21",
+              "evidence": [
+                {
+                  "source_document_id": "ambetter_2026_ca_gold80_hmo_sbc",
+                  "section": "Common Medical Event: If you need help recovering or have other special health needs",
+                  "quote": "Rehabilitation services              $40 copay/visit                 Not covered",
+                  "start": 13699,
+                  "end": 13779
+                },
+                {
+                  "source_document_id": "ambetter_2026_ca_gold80_hmo_sbc",
+                  "section": "Common Medical Event: If you need help recovering or have other special health needs",
+                  "quote": "Requires prior authorization.",
+                  "start": 13902,
+                  "end": 13931
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "benefits.B22",
+              "evidence": [
+                {
+                  "source_document_id": "ambetter_2026_ca_gold80_hmo_sbc",
+                  "section": "Common Medical Event: If you need help recovering or have other special health needs",
+                  "quote": "Habilitation services                $40 copay/visit                 Not covered",
+                  "start": 13961,
+                  "end": 14041
+                },
+                {
+                  "source_document_id": "ambetter_2026_ca_gold80_hmo_sbc",
+                  "section": "Common Medical Event: If you need help recovering or have other special health needs",
+                  "quote": "If you need help",
+                  "start": 14042,
+                  "end": 14058
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "benefits.B23",
+              "evidence": [
+                {
+                  "source_document_id": "ambetter_2026_ca_gold80_hmo_sbc",
+                  "section": "Common Medical Event: If you need help recovering or have other special health needs",
+                  "quote": "Durable medical                     20% coinsurance                  Not covered             Requires prior authorization.",
+                  "start": 14562,
+                  "end": 14684
+                },
+                {
+                  "source_document_id": "ambetter_2026_ca_gold80_hmo_sbc",
+                  "section": "Common Medical Event: If you need help recovering or have other special health needs",
+                  "quote": "equipment",
+                  "start": 14714,
+                  "end": 14723
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "benefits.B24",
+              "evidence": [
+                {
+                  "source_document_id": "ambetter_2026_ca_gold80_hmo_sbc",
+                  "section": "Common Medical Event: If you need help recovering or have other special health needs",
+                  "quote": "Hospice services                       No charge                     Not covered             Requires prior authorization.",
+                  "start": 14753,
+                  "end": 14875
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            }
+          ],
+          "warnings": [
+            "Synthetic data notice: This output is generated from the provided SBC excerpt for demonstration purposes.",
+            "Half-up cent rounding is an engine convention; the policy does not specify rounding.",
+            "Dropped rule benefits.B10 (Facility fee (e.g., ambulatory surgery center) - Hospital/ASC): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B15 (Outpatient services (mental health) - Office visit individual therapy session): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B16 (Outpatient services (mental health) - Group therapy session): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B25 (Children's eye exam): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B26 (Children's glasses): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B27 (Children's dental check-up): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B4 (Diagnostic test (x-ray, blood work) - Lab): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B5 (Diagnostic test (x-ray, blood work) - X-ray): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+            "Retained validated partial output from attempt 1 after 1 attempts; selection used supported-rule count only, never gold answers."
+          ],
+          "unresolved": [],
+          "coverage_gaps": [
+            "Out-of-network deductible and OOP maximum not specified; the plan uses in-network cost-sharing for emergencies but does not state a separate out-of-network deductible or OOP maximum.",
+            "In-network balance billing not explicitly stated; generic network language suggests out-of-network providers may balance bill, but in-network balance billing is not addressed.",
+            "Omitted benefit rows with per-day or multi-day caps: Hospital facility fee ($375 copay/day for max 5 days), Inpatient mental health services ($375 copay/day for max 5 days), Childbirth/delivery facility services ($375 copay/day for max 5 days), Skilled nursing center ($150 copay/day for max 5 days) because the engine cannot represent per-day caps.",
+            "Omitted prescription drug mail order variants and specialty drugs because retail is the common simple variant; mail order copays ($36 generic, $120 preferred brand, $170 non-preferred brand) and specialty drugs (20% coinsurance up to $250 per prescription) require calculation order not supported.",
+            "Omitted outpatient surgery facility fee non-hospital/ASC variant: 20% coinsurance for services other than surgery because coinsurance-only variant requires no mixed copay/coinsurance ordering assumption but is not a simple flat copay.",
+            "Omitted emergency room professional services (no charge) as a separate benefit because it is part of the ER row but can be captured as a condition in a future enhancement.",
+            "Omitted mental health outpatient services other than office visit (no charge) and inpatient services due to per-day cap.",
+            "Omitted preventive care cost-sharing for non-preventive services as a condition because the source states 'You may have to pay for services that aren't preventive' but does not specify the cost.",
+            "Partial source review: sections were selected locally; omitted services require review and have no executable rules.",
+            "Network out omitted: deductible or OOP limit is not established. Claims in that network require separate review, including emergency exceptions.",
+            "Dropped rule benefits.B10 (Facility fee (e.g., ambulatory surgery center) - Hospital/ASC): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B15 (Outpatient services (mental health) - Office visit individual therapy session): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B16 (Outpatient services (mental health) - Group therapy session): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B25 (Children's eye exam): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B26 (Children's glasses): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B27 (Children's dental check-up): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B4 (Diagnostic test (x-ray, blood work) - Lab): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B5 (Diagnostic test (x-ray, blood work) - X-ray): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained."
+          ]
+        },
+        "backend": "deepseek",
+        "source_document_id": "ambetter_2026_ca_gold80_hmo_sbc",
+        "source_sha256": "ae7f38f5c2a252c74af0aa5df14bb1ab58849e2eaca53f1d49427b44c5bf5180",
+        "attempts": 1
+      },
+      "request_config": {
+        "response_format": "json_object",
+        "max_tokens_initial": 32768,
+        "max_tokens": 32768,
+        "max_tokens_ceiling": 65536,
+        "thinking": "disabled",
+        "timeout_seconds": 300,
+        "attempt_limit": 1,
+        "transport_attempt_limit": 1,
+        "evidence_spans": "selected original source lines with local offsets; legacy quotes use whitespace-normalized search"
+      },
+      "status": "validated",
+      "error": null,
+      "claim_ready": false,
+      "conditionally_executable": true,
+      "benefit_rules": 19,
+      "validated_quote_spans": 55,
+      "distinct_source_spans": 52,
+      "quote_validation": "Every retained quote equals the full source slice at its saved offsets; whitespace alone may be normalized during location. Numeric occurrence and selector support checked locally; table interpretation is not a semantic proof.",
+      "compiled_rows": [
+        {
+          "label": "Primary care visit to treat an injury or illness",
+          "service_category": "Primary care visit to treat an injury or illness",
+          "codes": [],
+          "network": "in",
+          "conditions": []
+        },
+        {
+          "label": "Specialist visit",
+          "service_category": "Specialist visit",
+          "codes": [],
+          "network": "in",
+          "conditions": [
+            "Prior authorization obtained"
+          ]
+        },
+        {
+          "label": "Preventive care/screening/immunization",
+          "service_category": "Preventive care/screening/immunization",
+          "codes": [],
+          "network": "in",
+          "conditions": []
+        },
+        {
+          "label": "Imaging (CT/PET scans, MRIs)",
+          "service_category": "Imaging (CT/PET scans, MRIs)",
+          "codes": [],
+          "network": "in",
+          "conditions": [
+            "Prior authorization obtained"
+          ]
+        },
+        {
+          "label": "Generic drugs (Tier 1) - Retail",
+          "service_category": "Generic drugs (Tier 1)",
+          "codes": [],
+          "network": "in",
+          "conditions": [
+            "Retail supply within 30 days"
+          ]
+        },
+        {
+          "label": "Preferred brand drugs (Tier 2) - Retail",
+          "service_category": "Preferred brand drugs (Tier 2)",
+          "codes": [],
+          "network": "in",
+          "conditions": [
+            "Retail supply within 30 days",
+            "Prior authorization if required for select drugs"
+          ]
+        },
+        {
+          "label": "Non-preferred brand drugs (Tier 3) - Retail",
+          "service_category": "Non-preferred brand drugs (Tier 3)",
+          "codes": [],
+          "network": "in",
+          "conditions": [
+            "Retail supply within 30 days",
+            "Prior authorization if required for select drugs"
+          ]
+        },
+        {
+          "label": "Physician/surgeon fees (outpatient surgery)",
+          "service_category": "Physician/surgeon fees",
+          "codes": [],
+          "network": "in",
+          "conditions": []
+        },
+        {
+          "label": "Emergency room care - Facility",
+          "service_category": "Emergency room care",
+          "codes": [],
+          "network": "in",
+          "conditions": [
+            "Not admitted as inpatient"
+          ]
+        },
+        {
+          "label": "Emergency medical transportation - Medical, mental health & substance use disorders",
+          "service_category": "Emergency medical transportation",
+          "codes": [],
+          "network": "in",
+          "conditions": []
+        },
+        {
+          "label": "Urgent care - Medical, mental health & substance use disorders",
+          "service_category": "Urgent care",
+          "codes": [],
+          "network": "in",
+          "conditions": []
+        },
+        {
+          "label": "Office visits (pregnancy) - Prenatal",
+          "service_category": "Office visits",
+          "codes": [],
+          "network": "in",
+          "conditions": [
+            "Prenatal"
+          ]
+        },
+        {
+          "label": "Office visits (pregnancy) - Postnatal",
+          "service_category": "Office visits",
+          "codes": [],
+          "network": "in",
+          "conditions": [
+            "Postnatal"
+          ]
+        },
+        {
+          "label": "Childbirth/delivery professional services",
+          "service_category": "Childbirth/delivery professional services",
+          "codes": [],
+          "network": "in",
+          "conditions": []
+        },
+        {
+          "label": "Home health care",
+          "service_category": "Home health care",
+          "codes": [],
+          "network": "in",
+          "conditions": [
+            "Prior authorization obtained",
+            "Visits within 100 per calendar year"
+          ]
+        },
+        {
+          "label": "Rehabilitation services",
+          "service_category": "Rehabilitation services",
+          "codes": [],
+          "network": "in",
+          "conditions": [
+            "Prior authorization obtained"
+          ]
+        },
+        {
+          "label": "Habilitation services",
+          "service_category": "Habilitation services",
+          "codes": [],
+          "network": "in",
+          "conditions": [
+            "Prior authorization obtained"
+          ]
+        },
+        {
+          "label": "Durable medical equipment",
+          "service_category": "Durable medical equipment",
+          "codes": [],
+          "network": "in",
+          "conditions": [
+            "Prior authorization obtained"
+          ]
+        },
+        {
+          "label": "Hospice services",
+          "service_category": "Hospice services",
+          "codes": [],
+          "network": "in",
+          "conditions": [
+            "Prior authorization obtained"
+          ]
+        }
+      ],
+      "not_compiled": [
+        "Out-of-network deductible and OOP maximum not specified; the plan uses in-network cost-sharing for emergencies but does not state a separate out-of-network deductible or OOP maximum.",
+        "In-network balance billing not explicitly stated; generic network language suggests out-of-network providers may balance bill, but in-network balance billing is not addressed.",
+        "Omitted benefit rows with per-day or multi-day caps: Hospital facility fee ($375 copay/day for max 5 days), Inpatient mental health services ($375 copay/day for max 5 days), Childbirth/delivery facility services ($375 copay/day for max 5 days), Skilled nursing center ($150 copay/day for max 5 days) because the engine cannot represent per-day caps.",
+        "Omitted prescription drug mail order variants and specialty drugs because retail is the common simple variant; mail order copays ($36 generic, $120 preferred brand, $170 non-preferred brand) and specialty drugs (20% coinsurance up to $250 per prescription) require calculation order not supported.",
+        "Omitted outpatient surgery facility fee non-hospital/ASC variant: 20% coinsurance for services other than surgery because coinsurance-only variant requires no mixed copay/coinsurance ordering assumption but is not a simple flat copay.",
+        "Omitted emergency room professional services (no charge) as a separate benefit because it is part of the ER row but can be captured as a condition in a future enhancement.",
+        "Omitted mental health outpatient services other than office visit (no charge) and inpatient services due to per-day cap.",
+        "Omitted preventive care cost-sharing for non-preventive services as a condition because the source states 'You may have to pay for services that aren't preventive' but does not specify the cost.",
+        "Partial source review: sections were selected locally; omitted services require review and have no executable rules.",
+        "Network out omitted: deductible or OOP limit is not established. Claims in that network require separate review, including emergency exceptions.",
+        "Dropped rule benefits.B10 (Facility fee (e.g., ambulatory surgery center) - Hospital/ASC): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+        "Dropped rule benefits.B15 (Outpatient services (mental health) - Office visit individual therapy session): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+        "Dropped rule benefits.B16 (Outpatient services (mental health) - Group therapy session): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+        "Dropped rule benefits.B25 (Children's eye exam): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+        "Dropped rule benefits.B26 (Children's glasses): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+        "Dropped rule benefits.B27 (Children's dental check-up): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+        "Dropped rule benefits.B4 (Diagnostic test (x-ray, blood work) - Lab): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+        "Dropped rule benefits.B5 (Diagnostic test (x-ray, blood work) - X-ray): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained."
+      ],
+      "row_inventory_note": "Compiled rows are measured retained rules. Omitted rows/reasons are the compiler's reported coverage gaps, not an independently exhaustive row-recall score.",
+      "validated_rules": 21,
+      "unresolved": [],
+      "evidence_pages": [
+        {
+          "rule_path": "networks.in.deductible_cents",
+          "pages": [
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "rule_path": "networks.in.oop_max_cents",
+          "pages": [
+            1,
+            1,
+            1,
+            1
+          ]
+        },
+        {
+          "rule_path": "benefits.B1",
+          "pages": [
+            2,
+            2
+          ]
+        },
+        {
+          "rule_path": "benefits.B2",
+          "pages": [
+            1,
+            1,
+            2
+          ]
+        },
+        {
+          "rule_path": "benefits.B3",
+          "pages": [
+            2,
+            2,
+            2
+          ]
+        },
+        {
+          "rule_path": "benefits.B6",
+          "pages": [
+            2,
+            2
+          ]
+        },
+        {
+          "rule_path": "benefits.B7",
+          "pages": [
+            2,
+            2,
+            2,
+            2
+          ]
+        },
+        {
+          "rule_path": "benefits.B8",
+          "pages": [
+            2,
+            2,
+            2,
+            2
+          ]
+        },
+        {
+          "rule_path": "benefits.B9",
+          "pages": [
+            2,
+            2,
+            2,
+            2
+          ]
+        },
+        {
+          "rule_path": "benefits.B11",
+          "pages": [
+            3
+          ]
+        },
+        {
+          "rule_path": "benefits.B12",
+          "pages": [
+            3
+          ]
+        },
+        {
+          "rule_path": "benefits.B13",
+          "pages": [
+            3,
+            3,
+            3
+          ]
+        },
+        {
+          "rule_path": "benefits.B14",
+          "pages": [
+            3,
+            3,
+            3
+          ]
+        },
+        {
+          "rule_path": "benefits.B17",
+          "pages": [
+            4,
+            4,
+            4
+          ]
+        },
+        {
+          "rule_path": "benefits.B18",
+          "pages": [
+            4,
+            4,
+            4
+          ]
+        },
+        {
+          "rule_path": "benefits.B19",
+          "pages": [
+            4,
+            4,
+            4
+          ]
+        },
+        {
+          "rule_path": "benefits.B20",
+          "pages": [
+            4,
+            4
+          ]
+        },
+        {
+          "rule_path": "benefits.B21",
+          "pages": [
+            4,
+            4
+          ]
+        },
+        {
+          "rule_path": "benefits.B22",
+          "pages": [
+            4,
+            4
+          ]
+        },
+        {
+          "rule_path": "benefits.B23",
+          "pages": [
+            4,
+            4
+          ]
+        },
+        {
+          "rule_path": "benefits.B24",
+          "pages": [
+            4
+          ]
+        }
+      ],
+      "elapsed_seconds": 38.263,
+      "input_selection": {
+        "method": "ranked source sections",
+        "source_characters": 29790,
+        "selected_characters": 15794,
+        "omitted": true,
+        "selected_ranges": [
+          {
+            "start": 0,
+            "end": 3907,
+            "page": 1
+          },
+          {
+            "start": 3908,
+            "end": 8103,
+            "page": 2
+          },
+          {
+            "start": 8104,
+            "end": 12005,
+            "page": 3
+          },
+          {
+            "start": 12006,
+            "end": 15797,
+            "page": 4
+          }
+        ],
+        "evidence_validation": "Full original source; whitespace normalization only"
+      },
+      "attempt_audit": [
+        {
+          "attempt": 1,
+          "proposed_rules": 30,
+          "validated_rules": 21,
+          "validated_quote_spans": 55
+        }
+      ]
+    }
+  ]
+}

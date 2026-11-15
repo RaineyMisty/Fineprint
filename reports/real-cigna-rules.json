@@ -1,14 +1,16 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "synthetic": false,
   "document_id": "cigna_2026_in_connect_gold_sbc",
+  "split": "held_out",
   "local_text_path": "data/real_private/docs/cigna_2026_in_connect_gold_sbc.txt",
   "source_sha256": "cdf6bdd874bd75974e2d877d3aa448701dc43dfef299c530e4a6373baa310169",
-  "generated_at": "2026-11-15T03:28:50.317343+00:00",
-  "revision": "f136700627ccc6410d3018eb7bfea842e6300d70",
-  "compiler_sha256": "bbaeedc3991d38c9a5bfcaeed6228c62b7f216b77b2ab6a55fd2a1ff3b4fed24",
-  "providers_sha256": "6f235df2cb86225b278ee749b3b6ecf3b254ef785ad9bf0ed62616ccf65f66cc",
-  "input": "Unmodified complete pdftotext -layout text; form feeds delimit physical PDF pages.",
+  "generated_at": "2026-11-15T09:50:27.811326+00:00",
+  "revision": "42efdc0a5dbb81ddaee084ae8cff63a2eaa29ab8",
+  "compiler_sha256": "2f65bc2166ce266421fd8832d47a8feca6a304a06ceaa042c1cb23115e8ffc97",
+  "providers_sha256": "9ca6052d38cc12d84d18582e92c1fc8f1af95f8855504ae2ad7a8faf3695b101",
+  "selection_sha256": "7c4e71bfd70d9bf67036089c7bd8f2684b15aa36a97f0c3faa2acb73b51b46e1",
+  "input": "Original pdftotext -layout text; provider input uses ranked source sections with evidence checked against the full source.",
   "input_excerpts": [
     {
       "quote": "pocket limit for this       $8,200 person/ $16,400 family       family members in this plan, they have to meet their own out-of-pocket limits until the overall",
@@ -30,18 +32,89 @@
       "model": null,
       "attempt_limit": 1,
       "compilation": null,
+      "request_config": null,
       "status": "failed",
       "error": "Fallback requires a '# Insurer — Plan' title and Policy/Member/Period/USD header; other formats need a provider or transcription",
-      "elapsed_seconds": 0.0
+      "elapsed_seconds": 0.0,
+      "validated_rules": 0,
+      "benefit_rules": 0,
+      "validated_quote_spans": 0,
+      "compiled_rows": [],
+      "not_compiled": [
+        "All service rows: no validated compilation was retained."
+      ],
+      "claim_ready": false,
+      "conditionally_executable": false
     },
     {
       "provider": "deepseek",
       "model": "deepseek-v4-pro",
-      "attempt_limit": 3,
+      "attempt_limit": 1,
       "compilation": null,
+      "request_config": {
+        "response_format": "json_object",
+        "max_tokens_initial": 32768,
+        "max_tokens": 32768,
+        "max_tokens_ceiling": 65536,
+        "thinking": "disabled",
+        "timeout_seconds": 300,
+        "attempt_limit": 1,
+        "transport_attempt_limit": 1,
+        "evidence_spans": "selected original source lines with local offsets; legacy quotes use whitespace-normalized search"
+      },
       "status": "failed",
-      "error": "deepseek compilation failed after 3 attempts: DeepSeek did not complete a JSON response. No fallback was substituted.",
-      "elapsed_seconds": 198.273
+      "error": "deepseek compilation failed after 1 attempts: Excluded service has covered cost sharing. No fallback was substituted.",
+      "elapsed_seconds": 38.821,
+      "input_selection": {
+        "method": "ranked source sections",
+        "source_characters": 37777,
+        "selected_characters": 25051,
+        "omitted": true,
+        "selected_ranges": [
+          {
+            "start": 0,
+            "end": 4080,
+            "page": 1
+          },
+          {
+            "start": 4081,
+            "end": 9610,
+            "page": 2
+          },
+          {
+            "start": 9611,
+            "end": 14872,
+            "page": 3
+          },
+          {
+            "start": 14873,
+            "end": 19054,
+            "page": 4
+          },
+          {
+            "start": 26803,
+            "end": 32803,
+            "page": 7
+          }
+        ],
+        "evidence_validation": "Full original source; whitespace normalization only"
+      },
+      "attempt_audit": [
+        {
+          "attempt": 1,
+          "proposed_rules": 32,
+          "error": "Excluded service has covered cost sharing"
+        }
+      ],
+      "validated_rules": 0,
+      "benefit_rules": 0,
+      "validated_quote_spans": 0,
+      "compiled_rows": [],
+      "not_compiled": [
+        "All service rows: no validated compilation was retained."
+      ],
+      "claim_ready": false,
+      "conditionally_executable": false
     }
   ]
 }

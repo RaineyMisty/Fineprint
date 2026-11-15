@@ -1,14 +1,16 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "synthetic": false,
   "document_id": "highmark_2026_pa_together_blue_gold_sbc",
+  "split": "dev",
   "local_text_path": "data/real_private/docs/highmark_2026_pa_together_blue_gold_sbc.txt",
   "source_sha256": "ef62c3deba0feaf22959c655a99b54a058a2330b18f93b17a8f017cbfd99af6a",
-  "generated_at": "2026-11-15T03:28:50.320596+00:00",
-  "revision": "f136700627ccc6410d3018eb7bfea842e6300d70",
-  "compiler_sha256": "bbaeedc3991d38c9a5bfcaeed6228c62b7f216b77b2ab6a55fd2a1ff3b4fed24",
-  "providers_sha256": "6f235df2cb86225b278ee749b3b6ecf3b254ef785ad9bf0ed62616ccf65f66cc",
-  "input": "Unmodified complete pdftotext -layout text; form feeds delimit physical PDF pages.",
+  "generated_at": "2026-11-15T09:41:46.979631+00:00",
+  "revision": "2e9e699e24b0b21cff8ac244e96c16e92e8d37d4",
+  "compiler_sha256": "2f65bc2166ce266421fd8832d47a8feca6a304a06ceaa042c1cb23115e8ffc97",
+  "providers_sha256": "9ca6052d38cc12d84d18582e92c1fc8f1af95f8855504ae2ad7a8faf3695b101",
+  "selection_sha256": "7c4e71bfd70d9bf67036089c7bd8f2684b15aa36a97f0c3faa2acb73b51b46e1",
+  "input": "Original pdftotext -layout text; provider input uses ranked source sections with evidence checked against the full source.",
   "input_excerpts": [
     {
       "quote": "What is the overall               $0 individual/$0 family network.                   See the Common Medical Events chart below for your costs for services this",
@@ -30,18 +32,889 @@
       "model": null,
       "attempt_limit": 1,
       "compilation": null,
+      "request_config": null,
       "status": "failed",
       "error": "Fallback requires a '# Insurer — Plan' title and Policy/Member/Period/USD header; other formats need a provider or transcription",
-      "elapsed_seconds": 0.0
+      "elapsed_seconds": 0.0,
+      "validated_rules": 0,
+      "benefit_rules": 0,
+      "validated_quote_spans": 0,
+      "compiled_rows": [],
+      "not_compiled": [
+        "All service rows: no validated compilation was retained."
+      ],
+      "claim_ready": false,
+      "conditionally_executable": false
     },
     {
       "provider": "deepseek",
       "model": "deepseek-v4-pro",
       "attempt_limit": 3,
-      "compilation": null,
-      "status": "failed",
-      "error": "deepseek compilation failed after 3 attempts: output.policy.member_id: expected string. No fallback was substituted.",
-      "elapsed_seconds": 155.108
+      "compilation": {
+        "output": {
+          "policy": {
+            "id": "I_79279PA0130005-01_20260101_SBC",
+            "insurer": "Highmark Coverage Advantage",
+            "name": "Together Blue EPO Gold 0 + Adult Dental and Vision",
+            "member_id": null,
+            "effective_from": "2026-01-01",
+            "effective_to": "2026-12-31",
+            "currency": "USD",
+            "networks": {
+              "in": {
+                "deductible_cents": 0,
+                "oop_max_cents": 750000,
+                "balance_billing": null,
+                "deductible_clause": "source-1",
+                "oop_clause": "source-2",
+                "network_clause": null
+              }
+            },
+            "benefits": [
+              {
+                "id": "B1",
+                "label": "Primary care visit to treat an injury or illness",
+                "codes": [],
+                "network": "in",
+                "covered": true,
+                "deductible_applies": false,
+                "copay_cents": 2000,
+                "coinsurance_bps": 0,
+                "clause_ids": [
+                  "source-3",
+                  "source-4",
+                  "source-5",
+                  "source-6"
+                ],
+                "ambiguity_group": "",
+                "service_category": "Primary care visit to treat an injury or illness"
+              },
+              {
+                "id": "B2",
+                "label": "Specialist visit",
+                "codes": [],
+                "network": "in",
+                "covered": true,
+                "deductible_applies": false,
+                "copay_cents": 2000,
+                "coinsurance_bps": 0,
+                "clause_ids": [
+                  "source-7",
+                  "source-8",
+                  "source-6"
+                ],
+                "ambiguity_group": "",
+                "service_category": "Specialist visit",
+                "conditions": [
+                  "No referral required"
+                ]
+              },
+              {
+                "id": "B3",
+                "label": "Preventive care/screening/immunization",
+                "codes": [],
+                "network": "in",
+                "covered": true,
+                "deductible_applies": false,
+                "copay_cents": 0,
+                "coinsurance_bps": 0,
+                "clause_ids": [
+                  "source-9",
+                  "source-10"
+                ],
+                "ambiguity_group": "",
+                "service_category": "Preventive care/screening/Immunization"
+              },
+              {
+                "id": "B4",
+                "label": "Diagnostic test (x-ray, blood work)",
+                "codes": [],
+                "network": "in",
+                "covered": true,
+                "deductible_applies": false,
+                "copay_cents": 3500,
+                "coinsurance_bps": 0,
+                "clause_ids": [
+                  "source-11",
+                  "source-12",
+                  "source-13"
+                ],
+                "ambiguity_group": "",
+                "service_category": "Diagnostic test (x-ray, blood work)",
+                "conditions": [
+                  "Not for treatment of mental illness or substance abuse"
+                ]
+              },
+              {
+                "id": "B5",
+                "label": "Imaging (CT/PET scans, MRIs)",
+                "codes": [],
+                "network": "in",
+                "covered": true,
+                "deductible_applies": false,
+                "copay_cents": 45000,
+                "coinsurance_bps": 0,
+                "clause_ids": [
+                  "source-12",
+                  "source-13"
+                ],
+                "ambiguity_group": "",
+                "service_category": "Imaging (CT/PET scans, MRIs)",
+                "conditions": [
+                  "Not for treatment of mental illness or substance abuse"
+                ]
+              },
+              {
+                "id": "B6",
+                "label": "Tier 1 prescription drug (retail)",
+                "codes": [],
+                "network": "in",
+                "covered": true,
+                "deductible_applies": false,
+                "copay_cents": 0,
+                "coinsurance_bps": 0,
+                "clause_ids": [
+                  "source-14",
+                  "source-15",
+                  "source-16",
+                  "source-17",
+                  "source-18",
+                  "source-19"
+                ],
+                "ambiguity_group": "",
+                "service_category": "Tier 1",
+                "conditions": [
+                  "Retail pharmacy",
+                  "Up to 31/60/90-day supply",
+                  "Medication is not a contraceptive"
+                ]
+              },
+              {
+                "id": "B7",
+                "label": "Emergency room care",
+                "codes": [],
+                "network": "in",
+                "covered": true,
+                "deductible_applies": true,
+                "copay_cents": 40000,
+                "coinsurance_bps": 0,
+                "clause_ids": [
+                  "source-3",
+                  "source-20",
+                  "source-21",
+                  "source-22"
+                ],
+                "ambiguity_group": "",
+                "service_category": "Emergency room care",
+                "conditions": [
+                  "Not admitted as inpatient"
+                ]
+              },
+              {
+                "id": "B8",
+                "label": "Urgent care",
+                "codes": [],
+                "network": "in",
+                "covered": true,
+                "deductible_applies": true,
+                "copay_cents": 4000,
+                "coinsurance_bps": 0,
+                "clause_ids": [
+                  "source-3",
+                  "source-23",
+                  "source-24",
+                  "source-25"
+                ],
+                "ambiguity_group": "",
+                "service_category": "Urgent care",
+                "conditions": [
+                  "Not for treatment of mental illness or substance abuse"
+                ]
+              }
+            ],
+            "clauses": [
+              {
+                "id": "source-1",
+                "text": "What is the overall               $0 individual/$0 family network.                   See the Common Medical Events chart below for your costs for services this",
+                "location": "Important Questions"
+              },
+              {
+                "id": "source-2",
+                "text": "What is the out-of-pocket limit $7,500 individual/$15,000 family network.            The out-of-pocket limit is the most you could pay in a year for covered",
+                "location": "Important Questions"
+              },
+              {
+                "id": "source-3",
+                "text": "All copayment and coinsurance costs shown in this chart are after your overall deductible has been met, if a deductible applies.",
+                "location": "Important Questions"
+              },
+              {
+                "id": "source-4",
+                "text": "If you visit a health    Primary care visit to treat an injury   $20 copay/visit       Not covered          You may have to pay for services that aren’t",
+                "location": "Common Medical Events"
+              },
+              {
+                "id": "source-5",
+                "text": "care provider’s office   or illness                                                                         preventive. Ask your provider if the services needed",
+                "location": "Common Medical Events"
+              },
+              {
+                "id": "source-6",
+                "text": "or clinic                Specialist visit                        $20 copay/visit       Not covered          are preventive. Then check what your plan will pay",
+                "location": "Common Medical Events"
+              },
+              {
+                "id": "source-7",
+                "text": "Do I need a referral to see a     No.                                                You can see the specialist you choose without a referral.",
+                "location": "Important Questions"
+              },
+              {
+                "id": "source-8",
+                "text": "specialist?",
+                "location": "Important Questions"
+              },
+              {
+                "id": "source-9",
+                "text": "Preventive                              No charge             Not covered          for.",
+                "location": "Common Medical Events"
+              },
+              {
+                "id": "source-10",
+                "text": "care/screening/Immunization",
+                "location": "Common Medical Events"
+              },
+              {
+                "id": "source-11",
+                "text": "If you have a test       Diagnostic test (x-ray, blood work)     $35 copay/visit       Not covered          Copayments, if any, do not apply to diagnostic",
+                "location": "Common Medical Events"
+              },
+              {
+                "id": "source-12",
+                "text": "Imaging (CT/PET scans, MRIs)            $450 copay/visit      Not covered          services prescribed for the treatment of mental",
+                "location": "Common Medical Events"
+              },
+              {
+                "id": "source-13",
+                "text": "illness or substance abuse.",
+                "location": "Common Medical Events"
+              },
+              {
+                "id": "source-14",
+                "text": "If you need drugs to     Tier 1                                  No charge             Not covered          Up to 31/60/90-day supply retail pharmacy.",
+                "location": "Common Medical Events"
+              },
+              {
+                "id": "source-15",
+                "text": "treat your illness or                                            per prescription",
+                "location": "Common Medical Events"
+              },
+              {
+                "id": "source-16",
+                "text": "condition                                                        (retail)                                   Up to 90-day supply maintenance prescription drugs",
+                "location": "Common Medical Events"
+              },
+              {
+                "id": "source-17",
+                "text": "No charge                                  through mail order.",
+                "location": "Common Medical Events"
+              },
+              {
+                "id": "source-18",
+                "text": "More information about                                           per prescription",
+                "location": "Common Medical Events"
+              },
+              {
+                "id": "source-19",
+                "text": "prescription drug                                                (mail order)                               This plan uses an Essential Formulary.",
+                "location": "Common Medical Events"
+              },
+              {
+                "id": "source-20",
+                "text": "If you need immediate    Emergency room care                  $400 copay/visit       $400 copay/visit      Copay waived if admitted as an inpatient.",
+                "location": "Common Medical Events"
+              },
+              {
+                "id": "source-21",
+                "text": "medical attention                                                                    Deductible does not",
+                "location": "Common Medical Events"
+              },
+              {
+                "id": "source-22",
+                "text": "apply.",
+                "location": "Common Medical Events"
+              },
+              {
+                "id": "source-23",
+                "text": "Urgent care                          $40 copay/visit        $40 copay/visit       The copayment, if any, does not apply to urgent",
+                "location": "Common Medical Events"
+              },
+              {
+                "id": "source-24",
+                "text": "Deductible does not   care services prescribed for the treatment of mental",
+                "location": "Common Medical Events"
+              },
+              {
+                "id": "source-25",
+                "text": "apply.                illness or substance abuse.",
+                "location": "Common Medical Events"
+              }
+            ]
+          },
+          "rule_evidence": [
+            {
+              "rule_path": "networks.in.deductible_cents",
+              "evidence": [
+                {
+                  "source_document_id": "highmark_2026_pa_together_blue_gold_sbc",
+                  "section": "Important Questions",
+                  "quote": "What is the overall               $0 individual/$0 family network.                   See the Common Medical Events chart below for your costs for services this",
+                  "start": 1168,
+                  "end": 1327
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "networks.in.oop_max_cents",
+              "evidence": [
+                {
+                  "source_document_id": "highmark_2026_pa_together_blue_gold_sbc",
+                  "section": "Important Questions",
+                  "quote": "What is the out-of-pocket limit $7,500 individual/$15,000 family network.            The out-of-pocket limit is the most you could pay in a year for covered",
+                  "start": 2384,
+                  "end": 2540
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "benefits.B1",
+              "evidence": [
+                {
+                  "source_document_id": "highmark_2026_pa_together_blue_gold_sbc",
+                  "section": "Important Questions",
+                  "quote": "All copayment and coinsurance costs shown in this chart are after your overall deductible has been met, if a deductible applies.",
+                  "start": 4444,
+                  "end": 4572
+                },
+                {
+                  "source_document_id": "highmark_2026_pa_together_blue_gold_sbc",
+                  "section": "Common Medical Events",
+                  "quote": "If you visit a health    Primary care visit to treat an injury   $20 copay/visit       Not covered          You may have to pay for services that aren’t",
+                  "start": 5747,
+                  "end": 5899
+                },
+                {
+                  "source_document_id": "highmark_2026_pa_together_blue_gold_sbc",
+                  "section": "Common Medical Events",
+                  "quote": "care provider’s office   or illness                                                                         preventive. Ask your provider if the services needed",
+                  "start": 5900,
+                  "end": 6060
+                },
+                {
+                  "source_document_id": "highmark_2026_pa_together_blue_gold_sbc",
+                  "section": "Common Medical Events",
+                  "quote": "or clinic                Specialist visit                        $20 copay/visit       Not covered          are preventive. Then check what your plan will pay",
+                  "start": 6061,
+                  "end": 6219
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "benefits.B2",
+              "evidence": [
+                {
+                  "source_document_id": "highmark_2026_pa_together_blue_gold_sbc",
+                  "section": "Important Questions",
+                  "quote": "Do I need a referral to see a     No.                                                You can see the specialist you choose without a referral.",
+                  "start": 4277,
+                  "end": 4419
+                },
+                {
+                  "source_document_id": "highmark_2026_pa_together_blue_gold_sbc",
+                  "section": "Important Questions",
+                  "quote": "specialist?",
+                  "start": 4421,
+                  "end": 4432
+                },
+                {
+                  "source_document_id": "highmark_2026_pa_together_blue_gold_sbc",
+                  "section": "Common Medical Events",
+                  "quote": "or clinic                Specialist visit                        $20 copay/visit       Not covered          are preventive. Then check what your plan will pay",
+                  "start": 6061,
+                  "end": 6219
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "benefits.B3",
+              "evidence": [
+                {
+                  "source_document_id": "highmark_2026_pa_together_blue_gold_sbc",
+                  "section": "Common Medical Events",
+                  "quote": "Preventive                              No charge             Not covered          for.",
+                  "start": 6245,
+                  "end": 6332
+                },
+                {
+                  "source_document_id": "highmark_2026_pa_together_blue_gold_sbc",
+                  "section": "Common Medical Events",
+                  "quote": "care/screening/Immunization",
+                  "start": 6358,
+                  "end": 6385
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "benefits.B4",
+              "evidence": [
+                {
+                  "source_document_id": "highmark_2026_pa_together_blue_gold_sbc",
+                  "section": "Common Medical Events",
+                  "quote": "If you have a test       Diagnostic test (x-ray, blood work)     $35 copay/visit       Not covered          Copayments, if any, do not apply to diagnostic",
+                  "start": 6671,
+                  "end": 6825
+                },
+                {
+                  "source_document_id": "highmark_2026_pa_together_blue_gold_sbc",
+                  "section": "Common Medical Events",
+                  "quote": "Imaging (CT/PET scans, MRIs)            $450 copay/visit      Not covered          services prescribed for the treatment of mental",
+                  "start": 6851,
+                  "end": 6981
+                },
+                {
+                  "source_document_id": "highmark_2026_pa_together_blue_gold_sbc",
+                  "section": "Common Medical Events",
+                  "quote": "illness or substance abuse.",
+                  "start": 7090,
+                  "end": 7117
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "benefits.B5",
+              "evidence": [
+                {
+                  "source_document_id": "highmark_2026_pa_together_blue_gold_sbc",
+                  "section": "Common Medical Events",
+                  "quote": "Imaging (CT/PET scans, MRIs)            $450 copay/visit      Not covered          services prescribed for the treatment of mental",
+                  "start": 6851,
+                  "end": 6981
+                },
+                {
+                  "source_document_id": "highmark_2026_pa_together_blue_gold_sbc",
+                  "section": "Common Medical Events",
+                  "quote": "illness or substance abuse.",
+                  "start": 7090,
+                  "end": 7117
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "benefits.B6",
+              "evidence": [
+                {
+                  "source_document_id": "highmark_2026_pa_together_blue_gold_sbc",
+                  "section": "Common Medical Events",
+                  "quote": "If you need drugs to     Tier 1                                  No charge             Not covered          Up to 31/60/90-day supply retail pharmacy.",
+                  "start": 7261,
+                  "end": 7411
+                },
+                {
+                  "source_document_id": "highmark_2026_pa_together_blue_gold_sbc",
+                  "section": "Common Medical Events",
+                  "quote": "treat your illness or                                            per prescription",
+                  "start": 7412,
+                  "end": 7493
+                },
+                {
+                  "source_document_id": "highmark_2026_pa_together_blue_gold_sbc",
+                  "section": "Common Medical Events",
+                  "quote": "condition                                                        (retail)                                   Up to 90-day supply maintenance prescription drugs",
+                  "start": 7494,
+                  "end": 7652
+                },
+                {
+                  "source_document_id": "highmark_2026_pa_together_blue_gold_sbc",
+                  "section": "Common Medical Events",
+                  "quote": "No charge                                  through mail order.",
+                  "start": 7718,
+                  "end": 7780
+                },
+                {
+                  "source_document_id": "highmark_2026_pa_together_blue_gold_sbc",
+                  "section": "Common Medical Events",
+                  "quote": "More information about                                           per prescription",
+                  "start": 7781,
+                  "end": 7862
+                },
+                {
+                  "source_document_id": "highmark_2026_pa_together_blue_gold_sbc",
+                  "section": "Common Medical Events",
+                  "quote": "prescription drug                                                (mail order)                               This plan uses an Essential Formulary.",
+                  "start": 7863,
+                  "end": 8009
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "benefits.B7",
+              "evidence": [
+                {
+                  "source_document_id": "highmark_2026_pa_together_blue_gold_sbc",
+                  "section": "Common Medical Events",
+                  "quote": "All copayment and coinsurance costs shown in this chart are after your overall deductible has been met, if a deductible applies.",
+                  "start": 4444,
+                  "end": 4572
+                },
+                {
+                  "source_document_id": "highmark_2026_pa_together_blue_gold_sbc",
+                  "section": "Common Medical Events",
+                  "quote": "If you need immediate    Emergency room care                  $400 copay/visit       $400 copay/visit      Copay waived if admitted as an inpatient.",
+                  "start": 10967,
+                  "end": 11115
+                },
+                {
+                  "source_document_id": "highmark_2026_pa_together_blue_gold_sbc",
+                  "section": "Common Medical Events",
+                  "quote": "medical attention                                                                    Deductible does not",
+                  "start": 11116,
+                  "end": 11220
+                },
+                {
+                  "source_document_id": "highmark_2026_pa_together_blue_gold_sbc",
+                  "section": "Common Medical Events",
+                  "quote": "apply.",
+                  "start": 11306,
+                  "end": 11312
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "benefits.B8",
+              "evidence": [
+                {
+                  "source_document_id": "highmark_2026_pa_together_blue_gold_sbc",
+                  "section": "Common Medical Events",
+                  "quote": "All copayment and coinsurance costs shown in this chart are after your overall deductible has been met, if a deductible applies.",
+                  "start": 4444,
+                  "end": 4572
+                },
+                {
+                  "source_document_id": "highmark_2026_pa_together_blue_gold_sbc",
+                  "section": "Common Medical Events",
+                  "quote": "Urgent care                          $40 copay/visit        $40 copay/visit       The copayment, if any, does not apply to urgent",
+                  "start": 11669,
+                  "end": 11798
+                },
+                {
+                  "source_document_id": "highmark_2026_pa_together_blue_gold_sbc",
+                  "section": "Common Medical Events",
+                  "quote": "Deductible does not   care services prescribed for the treatment of mental",
+                  "start": 11884,
+                  "end": 11958
+                },
+                {
+                  "source_document_id": "highmark_2026_pa_together_blue_gold_sbc",
+                  "section": "Common Medical Events",
+                  "quote": "apply.                illness or substance abuse.",
+                  "start": 12044,
+                  "end": 12093
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            }
+          ],
+          "warnings": [
+            "Out-of-network coverage is not established in this SBC; many services are listed as 'Not covered' and no out-of-network deductible or OOP maximum is provided.",
+            "Balance billing status is not explicitly stated; benefits using out-of-network providers may be subject to balance billing.",
+            "The policy document does not include an explicit policy identifier; the form number I_79279PA0130005-01_20260101_SBC is used as policy.id.",
+            "This is a synthetic data extraction exercise; the source document is used under fair use for validation."
+          ],
+          "unresolved": [],
+          "coverage_gaps": [
+            "Out-of-network benefits: all out-of-network services are listed as 'Not covered' in the SBC, except emergency room and urgent care which have copayments. However, no out-of-network deductible or OOP maximum is provided; therefore, an out-of-network network object is omitted.",
+            "Balance billing: The document mentions balance-billed charges are not included in the OOP limit, but does not explicitly state whether the plan protects against balance billing for in-network or out-of-network providers. Therefore, balance_billing is set to null for both networks.",
+            "Family-level deductible and OOP maximum: Only individual amounts are compiled; family amounts are not included in this extraction because the engine supports individual pools.",
+            "Omitted benefits with per-day or multi-day limits: Tier 2 and Tier 3 prescription drug copays vary by supply (e.g., $30/$60/$90) and are not compilable into a single numeric copay without an engine-supported supply condition. They are omitted.",
+            "Tier 4 prescription drugs use coinsurance with minimum and maximum dollar amounts, which the engine cannot represent.",
+            "Outpatient surgery, hospital stay, mental health services, pregnancy, home health care, rehabilitation, habilitation, skilled nursing, durable medical equipment, hospice, and children's dental/eye care are omitted due to copayments or coinsurance that are not simple fixed amounts or due to limitations/conditions that require additional claim context or exceed engine capabilities.",
+            "Some services have precertification requirements; these are not modeled as conditions because they are administrative requirements, not benefit-eligibility facts.",
+            "The emergency medical transportation benefit is a 30% coinsurance with no copay, but because it applies to both in- and out-of-network with no deductible and no OOP accumulation, it is omitted due to the lack of an out-of-network pool and potential balance billing issues.",
+            "Partial source review: sections were selected locally; omitted services require review and have no executable rules.",
+            "Network out omitted: deductible or OOP limit is not established. Claims in that network require separate review, including emergency exceptions."
+          ]
+        },
+        "backend": "deepseek",
+        "source_document_id": "highmark_2026_pa_together_blue_gold_sbc",
+        "source_sha256": "ef62c3deba0feaf22959c655a99b54a058a2330b18f93b17a8f017cbfd99af6a",
+        "attempts": 3
+      },
+      "request_config": {
+        "response_format": "json_object",
+        "max_tokens_initial": 32768,
+        "max_tokens": 32768,
+        "max_tokens_ceiling": 65536,
+        "thinking": "disabled",
+        "timeout_seconds": 300,
+        "attempt_limit": 3,
+        "transport_attempt_limit": 2,
+        "evidence_spans": "selected original source lines with local offsets; legacy quotes use whitespace-normalized search"
+      },
+      "status": "validated",
+      "error": null,
+      "claim_ready": false,
+      "conditionally_executable": true,
+      "benefit_rules": 8,
+      "validated_quote_spans": 30,
+      "distinct_source_spans": 25,
+      "quote_validation": "Every retained quote equals the full source slice at its saved offsets; whitespace alone may be normalized during location. Numeric occurrence and selector support checked locally; table interpretation is not a semantic proof.",
+      "compiled_rows": [
+        {
+          "label": "Primary care visit to treat an injury or illness",
+          "service_category": "Primary care visit to treat an injury or illness",
+          "codes": [],
+          "network": "in",
+          "conditions": []
+        },
+        {
+          "label": "Specialist visit",
+          "service_category": "Specialist visit",
+          "codes": [],
+          "network": "in",
+          "conditions": [
+            "No referral required"
+          ]
+        },
+        {
+          "label": "Preventive care/screening/immunization",
+          "service_category": "Preventive care/screening/Immunization",
+          "codes": [],
+          "network": "in",
+          "conditions": []
+        },
+        {
+          "label": "Diagnostic test (x-ray, blood work)",
+          "service_category": "Diagnostic test (x-ray, blood work)",
+          "codes": [],
+          "network": "in",
+          "conditions": [
+            "Not for treatment of mental illness or substance abuse"
+          ]
+        },
+        {
+          "label": "Imaging (CT/PET scans, MRIs)",
+          "service_category": "Imaging (CT/PET scans, MRIs)",
+          "codes": [],
+          "network": "in",
+          "conditions": [
+            "Not for treatment of mental illness or substance abuse"
+          ]
+        },
+        {
+          "label": "Tier 1 prescription drug (retail)",
+          "service_category": "Tier 1",
+          "codes": [],
+          "network": "in",
+          "conditions": [
+            "Retail pharmacy",
+            "Up to 31/60/90-day supply",
+            "Medication is not a contraceptive"
+          ]
+        },
+        {
+          "label": "Emergency room care",
+          "service_category": "Emergency room care",
+          "codes": [],
+          "network": "in",
+          "conditions": [
+            "Not admitted as inpatient"
+          ]
+        },
+        {
+          "label": "Urgent care",
+          "service_category": "Urgent care",
+          "codes": [],
+          "network": "in",
+          "conditions": [
+            "Not for treatment of mental illness or substance abuse"
+          ]
+        }
+      ],
+      "not_compiled": [
+        "Out-of-network benefits: all out-of-network services are listed as 'Not covered' in the SBC, except emergency room and urgent care which have copayments. However, no out-of-network deductible or OOP maximum is provided; therefore, an out-of-network network object is omitted.",
+        "Balance billing: The document mentions balance-billed charges are not included in the OOP limit, but does not explicitly state whether the plan protects against balance billing for in-network or out-of-network providers. Therefore, balance_billing is set to null for both networks.",
+        "Family-level deductible and OOP maximum: Only individual amounts are compiled; family amounts are not included in this extraction because the engine supports individual pools.",
+        "Omitted benefits with per-day or multi-day limits: Tier 2 and Tier 3 prescription drug copays vary by supply (e.g., $30/$60/$90) and are not compilable into a single numeric copay without an engine-supported supply condition. They are omitted.",
+        "Tier 4 prescription drugs use coinsurance with minimum and maximum dollar amounts, which the engine cannot represent.",
+        "Outpatient surgery, hospital stay, mental health services, pregnancy, home health care, rehabilitation, habilitation, skilled nursing, durable medical equipment, hospice, and children's dental/eye care are omitted due to copayments or coinsurance that are not simple fixed amounts or due to limitations/conditions that require additional claim context or exceed engine capabilities.",
+        "Some services have precertification requirements; these are not modeled as conditions because they are administrative requirements, not benefit-eligibility facts.",
+        "The emergency medical transportation benefit is a 30% coinsurance with no copay, but because it applies to both in- and out-of-network with no deductible and no OOP accumulation, it is omitted due to the lack of an out-of-network pool and potential balance billing issues.",
+        "Partial source review: sections were selected locally; omitted services require review and have no executable rules.",
+        "Network out omitted: deductible or OOP limit is not established. Claims in that network require separate review, including emergency exceptions."
+      ],
+      "row_inventory_note": "Compiled rows are measured retained rules. Omitted rows/reasons are the compiler's reported coverage gaps, not an independently exhaustive row-recall score.",
+      "validated_rules": 10,
+      "unresolved": [],
+      "evidence_pages": [
+        {
+          "rule_path": "networks.in.deductible_cents",
+          "pages": [
+            1
+          ]
+        },
+        {
+          "rule_path": "networks.in.oop_max_cents",
+          "pages": [
+            1
+          ]
+        },
+        {
+          "rule_path": "benefits.B1",
+          "pages": [
+            1,
+            2,
+            2,
+            2
+          ]
+        },
+        {
+          "rule_path": "benefits.B2",
+          "pages": [
+            1,
+            1,
+            2
+          ]
+        },
+        {
+          "rule_path": "benefits.B3",
+          "pages": [
+            2,
+            2
+          ]
+        },
+        {
+          "rule_path": "benefits.B4",
+          "pages": [
+            2,
+            2,
+            2
+          ]
+        },
+        {
+          "rule_path": "benefits.B5",
+          "pages": [
+            2,
+            2
+          ]
+        },
+        {
+          "rule_path": "benefits.B6",
+          "pages": [
+            2,
+            2,
+            2,
+            2,
+            2,
+            2
+          ]
+        },
+        {
+          "rule_path": "benefits.B7",
+          "pages": [
+            1,
+            3,
+            3,
+            3
+          ]
+        },
+        {
+          "rule_path": "benefits.B8",
+          "pages": [
+            1,
+            3,
+            3,
+            3
+          ]
+        }
+      ],
+      "elapsed_seconds": 359.086,
+      "input_selection": {
+        "method": "ranked source sections",
+        "source_characters": 30723,
+        "selected_characters": 21291,
+        "omitted": true,
+        "selected_ranges": [
+          {
+            "start": 0,
+            "end": 5046,
+            "page": 1
+          },
+          {
+            "start": 5047,
+            "end": 9225,
+            "page": 2
+          },
+          {
+            "start": 9226,
+            "end": 13802,
+            "page": 3
+          },
+          {
+            "start": 13803,
+            "end": 19376,
+            "page": 4
+          },
+          {
+            "start": 19377,
+            "end": 20782,
+            "page": 5
+          },
+          {
+            "start": 30207,
+            "end": 30720,
+            "page": 8
+          }
+        ],
+        "evidence_validation": "Full original source; whitespace normalization only"
+      },
+      "attempt_audit": [
+        {
+          "attempt": 1,
+          "proposed_rules": 12,
+          "validated_rules": 2,
+          "validated_quote_spans": 2
+        },
+        {
+          "attempt": 2,
+          "proposed_rules": 12,
+          "validated_rules": 9,
+          "validated_quote_spans": 16
+        },
+        {
+          "attempt": 3,
+          "proposed_rules": 10,
+          "validated_rules": 10,
+          "validated_quote_spans": 30
+        }
+      ]
     }
   ]
 }

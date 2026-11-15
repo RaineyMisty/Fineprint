@@ -75,6 +75,23 @@ def compilation_summary(reports_dir):
     return list(groups.values())
 
 
+def http_demo_measurements(reports_dir):
+    """Keep measured PDF uploads/synthetic claims separate from real episode accuracy."""
+    results = []
+    for path in sorted(reports_dir.glob("real-*-http-demo.json")):
+        run = json.loads(path.read_text())
+        if run.get("kind") != "real_policy_synthetic_claim_http_demo":
+            continue
+        compilation = run.get("compilation", {})
+        results.append(dict(report=path.name, status=run["status"], real_policy=run["real_policy"],
+                            synthetic_claim=run["synthetic_claim"], synthetic_bill=run["synthetic_bill"],
+                            provider=compilation.get("backend"), source_sha256=compilation.get("source_sha256"),
+                            validated_rules=run.get("validated_rules"), validated_quote_spans=run.get("validated_quote_spans"),
+                            patient_cents=run.get("check", {}).get("summary", {}).get("illustrated_min_patient_cents") if run.get("check", {}).get("summary") else None,
+                            independence_check=run.get("independence_check"), endpoints=run["endpoints"]))
+    return results
+
+
 def evaluate(labels_path=ROOT / "data/real_coverage_example_labels.csv", reports_dir=ROOT / "reports",
              audit_path=ROOT / "data/real_coverage_example_input_audit.json"):
     with labels_path.open(newline="", encoding="utf-8") as stream:
@@ -154,6 +171,7 @@ def evaluate(labels_path=ROOT / "data/real_coverage_example_labels.csv", reports
                 compilation_measurements=[dict(insurer=slug, provider=provider, status=status)
                                           for (slug, provider), status in sorted(compilation_counts.items())],
                 policy_compilation_summary=compilation_summary(reports_dir),
+                http_demo_measurements=http_demo_measurements(reports_dir),
                 examples=rows)
 
 
@@ -181,6 +199,11 @@ def render_markdown(report):
         for document in group["documents"]:
             lines += [f"  - [{document['document']}]({document['report'].replace('.json', '.md')}): "
                       f"{document['status']}, {document['validated_rules']} rules ({document['benefit_rules']} service rules), {document['validated_quote_spans']} validated quote spans; claim-ready {document['claim_ready']}."]
+    for demo in report["http_demo_measurements"]:
+        total = "unavailable" if demo["patient_cents"] is None else f"${demo['patient_cents'] / 100:.2f}"
+        lines += ["", f"Real PDF upload / **synthetic claim and bill**: **{demo['status']}**, {demo['validated_rules']} validated rules, "
+                  f"{demo['validated_quote_spans']} exact source-quote spans; recalculated patient total {total}. "
+                  f"[Measured HTTP record]({demo['report']}). This demo is excluded from real-episode accuracy and does not count as another independent policy."]
     lines += ["", "Numeric labels and official source links: [CSV](../data/real_coverage_example_labels.csv). "
               "[Manifest and redistribution limits](../data/README.md). No PDFs or full policy extracts included. "
               "Synthetic demo replay and synthetic benchmark cases remain separate."]

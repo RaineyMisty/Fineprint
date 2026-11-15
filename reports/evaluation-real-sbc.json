@@ -3,7 +3,7 @@
   "kind": "real_published_sbc_examples",
   "synthetic": false,
   "title": "real published SBC examples (rounded)",
-  "generated_at": "2026-11-15T09:36:21.998186+00:00",
+  "generated_at": "2026-11-15T09:52:15.718652+00:00",
   "labels_sha256": "ba60a9454f5e87da2b02e6d35ae0bf2e33372366572158fda9413481eb2db179",
   "input_audit_sha256": "a034a0e2e29ed18a62405c7528fecf8fea3d830e7e9f07645c844a243b09d666",
   "input_audit_method": "Source-page review of the nine coverage examples in the three locally supplied SBCs. Numeric episode costs transcribed from Total Example Cost; these are not service-level allowed prices.",
@@ -48,7 +48,7 @@
     {
       "insurer": "highmark",
       "provider": "deepseek",
-      "status": "failed"
+      "status": "validated"
     },
     {
       "insurer": "highmark",
@@ -58,7 +58,7 @@
     {
       "insurer": "kaiser",
       "provider": "deepseek",
-      "status": "failed"
+      "status": "validated"
     },
     {
       "insurer": "kaiser",
@@ -70,11 +70,11 @@
     {
       "provider": "fallback",
       "model": null,
-      "split": "historical",
-      "attempted": 4,
+      "split": "dev",
+      "attempted": 2,
       "validated": 0,
       "claim_ready": 0,
-      "failed": 4,
+      "failed": 2,
       "skipped": 0,
       "conditionally_executable": 0,
       "documents": [
@@ -85,7 +85,9 @@
           "benefit_rules": 0,
           "validated_quote_spans": 0,
           "conditionally_executable": false,
-          "not_compiled": [],
+          "not_compiled": [
+            "All service rows: no validated compilation was retained."
+          ],
           "claim_ready": false,
           "report": "real-kaiser-rules.json"
         },
@@ -96,10 +98,96 @@
           "benefit_rules": 0,
           "validated_quote_spans": 0,
           "conditionally_executable": false,
-          "not_compiled": [],
+          "not_compiled": [
+            "All service rows: no validated compilation was retained."
+          ],
           "claim_ready": false,
           "report": "real-highmark-rules.json"
+        }
+      ]
+    },
+    {
+      "provider": "deepseek",
+      "model": "deepseek-v4-pro",
+      "split": "dev",
+      "attempted": 2,
+      "validated": 2,
+      "claim_ready": 0,
+      "failed": 0,
+      "skipped": 0,
+      "conditionally_executable": 2,
+      "documents": [
+        {
+          "document": "kaiser",
+          "status": "validated",
+          "validated_rules": 16,
+          "benefit_rules": 14,
+          "validated_quote_spans": 31,
+          "conditionally_executable": true,
+          "not_compiled": [
+            "Out-of-network coverage is generally not provided; only emergency room, emergency medical transportation, and urgent care when temporarily outside service area are covered out-of-network. No out-of-network deductible or OOP max is defined.",
+            "Mail order pharmacy benefits are omitted because they are per-prescription charges not directly comparable to retail copays and have supply limits; the engine handles simple retail copays.",
+            "Specialty drugs (Tier 4) have 20% coinsurance up to $250 per prescription; the cap cannot be represented by the simple coinsurance model, so benefit is omitted.",
+            "Facility fee for hospital stay ($375/day up to 5 days) is per-day cap, which is not representable; omitted.",
+            "Inpatient mental health has $375/day up to 5 days; per-day cap omitted.",
+            "Rehabilitation services inpatient $375/day up to 5 days; per-day cap omitted.",
+            "Habilitation services inpatient $375/day up to 5 days; per-day cap omitted.",
+            "Skilled nursing care is $150/day up to 5 days; per-day cap omitted.",
+            "Outpatient services for mental health: other outpatient services no charge; group mental health $20, group substance abuse $5; these variants omitted as not simple individual visit.",
+            "Maternity office visits no charge and childbirth/delivery professional services not applicable; facility services $375/day up to 5 days; per-day cap omitted.",
+            "Children's eye exam, glasses, dental check-up no charge; but these are age-limited and require additional information; omitted.",
+            "No explicit balance billing statement for in-network providers; inferred as false from HMO plan type and network use but not directly quoted.",
+            "No explicit out-of-network balance billing language; set to null due to absence of clear statement.",
+            "No effective end date provided.",
+            "Partial source review: sections were selected locally; omitted services require review and have no executable rules.",
+            "Network out omitted: deductible or OOP limit is not established. Claims in that network require separate review, including emergency exceptions.",
+            "Dropped rule benefits.B1 (Primary care visit): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B10 (Facility fee (ambulatory surgery center)): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B12 (Emergency medical transportation): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B15 (Inpatient mental health): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B19 (Skilled nursing care): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B3 (Preventive care/screening/immunization): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B6 (Imaging (CT/PET scans, MRI)): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+            "Dropped rule networks.in.balance_billing: missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained."
+          ],
+          "claim_ready": false,
+          "report": "real-kaiser-rules.json"
         },
+        {
+          "document": "highmark",
+          "status": "validated",
+          "validated_rules": 10,
+          "benefit_rules": 8,
+          "validated_quote_spans": 30,
+          "conditionally_executable": true,
+          "not_compiled": [
+            "Out-of-network benefits: all out-of-network services are listed as 'Not covered' in the SBC, except emergency room and urgent care which have copayments. However, no out-of-network deductible or OOP maximum is provided; therefore, an out-of-network network object is omitted.",
+            "Balance billing: The document mentions balance-billed charges are not included in the OOP limit, but does not explicitly state whether the plan protects against balance billing for in-network or out-of-network providers. Therefore, balance_billing is set to null for both networks.",
+            "Family-level deductible and OOP maximum: Only individual amounts are compiled; family amounts are not included in this extraction because the engine supports individual pools.",
+            "Omitted benefits with per-day or multi-day limits: Tier 2 and Tier 3 prescription drug copays vary by supply (e.g., $30/$60/$90) and are not compilable into a single numeric copay without an engine-supported supply condition. They are omitted.",
+            "Tier 4 prescription drugs use coinsurance with minimum and maximum dollar amounts, which the engine cannot represent.",
+            "Outpatient surgery, hospital stay, mental health services, pregnancy, home health care, rehabilitation, habilitation, skilled nursing, durable medical equipment, hospice, and children's dental/eye care are omitted due to copayments or coinsurance that are not simple fixed amounts or due to limitations/conditions that require additional claim context or exceed engine capabilities.",
+            "Some services have precertification requirements; these are not modeled as conditions because they are administrative requirements, not benefit-eligibility facts.",
+            "The emergency medical transportation benefit is a 30% coinsurance with no copay, but because it applies to both in- and out-of-network with no deductible and no OOP accumulation, it is omitted due to the lack of an out-of-network pool and potential balance billing issues.",
+            "Partial source review: sections were selected locally; omitted services require review and have no executable rules.",
+            "Network out omitted: deductible or OOP limit is not established. Claims in that network require separate review, including emergency exceptions."
+          ],
+          "claim_ready": false,
+          "report": "real-highmark-rules.json"
+        }
+      ]
+    },
+    {
+      "provider": "fallback",
+      "model": null,
+      "split": "held_out",
+      "attempted": 2,
+      "validated": 0,
+      "claim_ready": 0,
+      "failed": 2,
+      "skipped": 0,
+      "conditionally_executable": 0,
+      "documents": [
         {
           "document": "cigna",
           "status": "failed",
@@ -107,10 +195,94 @@
           "benefit_rules": 0,
           "validated_quote_spans": 0,
           "conditionally_executable": false,
-          "not_compiled": [],
+          "not_compiled": [
+            "All service rows: no validated compilation was retained."
+          ],
           "claim_ready": false,
           "report": "real-cigna-rules.json"
         },
+        {
+          "document": "ambetter",
+          "status": "failed",
+          "validated_rules": 0,
+          "benefit_rules": 0,
+          "validated_quote_spans": 0,
+          "conditionally_executable": false,
+          "not_compiled": [
+            "All service rows: no validated compilation was retained."
+          ],
+          "claim_ready": false,
+          "report": "real-ambetter-rules.json"
+        }
+      ]
+    },
+    {
+      "provider": "deepseek",
+      "model": "deepseek-v4-pro",
+      "split": "held_out",
+      "attempted": 2,
+      "validated": 1,
+      "claim_ready": 0,
+      "failed": 1,
+      "skipped": 0,
+      "conditionally_executable": 1,
+      "documents": [
+        {
+          "document": "cigna",
+          "status": "failed",
+          "validated_rules": 0,
+          "benefit_rules": 0,
+          "validated_quote_spans": 0,
+          "conditionally_executable": false,
+          "not_compiled": [
+            "All service rows: no validated compilation was retained."
+          ],
+          "claim_ready": false,
+          "report": "real-cigna-rules.json"
+        },
+        {
+          "document": "ambetter",
+          "status": "validated",
+          "validated_rules": 21,
+          "benefit_rules": 19,
+          "validated_quote_spans": 55,
+          "conditionally_executable": true,
+          "not_compiled": [
+            "Out-of-network deductible and OOP maximum not specified; the plan uses in-network cost-sharing for emergencies but does not state a separate out-of-network deductible or OOP maximum.",
+            "In-network balance billing not explicitly stated; generic network language suggests out-of-network providers may balance bill, but in-network balance billing is not addressed.",
+            "Omitted benefit rows with per-day or multi-day caps: Hospital facility fee ($375 copay/day for max 5 days), Inpatient mental health services ($375 copay/day for max 5 days), Childbirth/delivery facility services ($375 copay/day for max 5 days), Skilled nursing center ($150 copay/day for max 5 days) because the engine cannot represent per-day caps.",
+            "Omitted prescription drug mail order variants and specialty drugs because retail is the common simple variant; mail order copays ($36 generic, $120 preferred brand, $170 non-preferred brand) and specialty drugs (20% coinsurance up to $250 per prescription) require calculation order not supported.",
+            "Omitted outpatient surgery facility fee non-hospital/ASC variant: 20% coinsurance for services other than surgery because coinsurance-only variant requires no mixed copay/coinsurance ordering assumption but is not a simple flat copay.",
+            "Omitted emergency room professional services (no charge) as a separate benefit because it is part of the ER row but can be captured as a condition in a future enhancement.",
+            "Omitted mental health outpatient services other than office visit (no charge) and inpatient services due to per-day cap.",
+            "Omitted preventive care cost-sharing for non-preventive services as a condition because the source states 'You may have to pay for services that aren't preventive' but does not specify the cost.",
+            "Partial source review: sections were selected locally; omitted services require review and have no executable rules.",
+            "Network out omitted: deductible or OOP limit is not established. Claims in that network require separate review, including emergency exceptions.",
+            "Dropped rule benefits.B10 (Facility fee (e.g., ambulatory surgery center) - Hospital/ASC): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B15 (Outpatient services (mental health) - Office visit individual therapy session): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B16 (Outpatient services (mental health) - Group therapy session): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B25 (Children's eye exam): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B26 (Children's glasses): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B27 (Children's dental check-up): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B4 (Diagnostic test (x-ray, blood work) - Lab): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B5 (Diagnostic test (x-ray, blood work) - X-ray): missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained."
+          ],
+          "claim_ready": false,
+          "report": "real-ambetter-rules.json"
+        }
+      ]
+    },
+    {
+      "provider": "fallback",
+      "model": null,
+      "split": "historical",
+      "attempted": 1,
+      "validated": 0,
+      "claim_ready": 0,
+      "failed": 1,
+      "skipped": 0,
+      "conditionally_executable": 0,
+      "documents": [
         {
           "document": "kaiser-eoc",
           "status": "failed",
@@ -128,56 +300,73 @@
       "provider": "deepseek",
       "model": "deepseek-v4-pro",
       "split": "historical",
-      "attempted": 4,
-      "validated": 0,
+      "attempted": 1,
+      "validated": 1,
       "claim_ready": 0,
-      "failed": 4,
+      "failed": 0,
       "skipped": 0,
       "conditionally_executable": 0,
       "documents": [
         {
-          "document": "kaiser",
-          "status": "failed",
-          "validated_rules": 0,
-          "benefit_rules": 0,
-          "validated_quote_spans": 0,
-          "conditionally_executable": false,
-          "not_compiled": [],
-          "claim_ready": false,
-          "report": "real-kaiser-rules.json"
-        },
-        {
-          "document": "highmark",
-          "status": "failed",
-          "validated_rules": 0,
-          "benefit_rules": 0,
-          "validated_quote_spans": 0,
-          "conditionally_executable": false,
-          "not_compiled": [],
-          "claim_ready": false,
-          "report": "real-highmark-rules.json"
-        },
-        {
-          "document": "cigna",
-          "status": "failed",
-          "validated_rules": 0,
-          "benefit_rules": 0,
-          "validated_quote_spans": 0,
-          "conditionally_executable": false,
-          "not_compiled": [],
-          "claim_ready": false,
-          "report": "real-cigna-rules.json"
-        },
-        {
           "document": "kaiser-eoc",
-          "status": "failed",
-          "validated_rules": 0,
+          "status": "validated",
+          "validated_rules": 2,
           "benefit_rules": 0,
           "validated_quote_spans": 0,
           "conditionally_executable": false,
           "not_compiled": [],
           "claim_ready": false,
           "report": "real-kaiser-eoc-rules.json"
+        }
+      ]
+    }
+  ],
+  "http_demo_measurements": [
+    {
+      "report": "real-kaiser-http-demo.json",
+      "status": "passed",
+      "real_policy": true,
+      "synthetic_claim": true,
+      "synthetic_bill": true,
+      "provider": "deepseek",
+      "source_sha256": "e0bcadefad9be83db174abe0afe8b387844d8d3b99664d690c13bee5e0e7fdfb",
+      "validated_rules": 15,
+      "validated_quote_spans": 42,
+      "patient_cents": 5000,
+      "independence_check": {
+        "eob_and_bill_patient_increase_cents": 100,
+        "original_totals": [
+          5000
+        ],
+        "perturbed_totals": [
+          5000
+        ],
+        "passed": true
+      },
+      "endpoints": [
+        {
+          "path": "/api/status",
+          "http_status": 200
+        },
+        {
+          "path": "/api/demos/kaiser-real-sbc",
+          "http_status": 200
+        },
+        {
+          "path": "/api/extract",
+          "http_status": 200
+        },
+        {
+          "path": "/api/compile",
+          "http_status": 200
+        },
+        {
+          "path": "/api/check",
+          "http_status": 200
+        },
+        {
+          "path": "/api/check",
+          "http_status": 200
         }
       ]
     }
@@ -201,7 +390,7 @@
       "label_components_sum_correctly": true,
       "status": "blocked",
       "reasons": [
-        "No validated executable policy from the measured compilers",
+        "Only partial financial rules validated; no claim-ready service policy",
         "SBC episode totals are not service-level allowed amounts or service counts",
         "Local CMS timelines exist, but no reviewed service/code-to-plan-benefit mapping or complete scenario replay is implemented; cached workbook outcomes are not insurer predictions",
         "Published patient cost-sharing components are outputs, not independent allowed-cost inputs; adding them would reuse the answer"
@@ -231,10 +420,10 @@
         {
           "provider": "deepseek",
           "model": "deepseek-v4-pro",
-          "status": "failed",
-          "error": "deepseek compilation failed after 3 attempts: DeepSeek did not complete a JSON response. No fallback was substituted.",
+          "status": "validated",
+          "error": null,
           "claim_ready": false,
-          "validated_rules": 0,
+          "validated_rules": 16,
           "report": "real-kaiser-rules.json"
         }
       ],
@@ -260,7 +449,7 @@
       "label_components_sum_correctly": true,
       "status": "blocked",
       "reasons": [
-        "No validated executable policy from the measured compilers",
+        "Only partial financial rules validated; no claim-ready service policy",
         "SBC episode totals are not service-level allowed amounts or service counts",
         "Local CMS timelines exist, but no reviewed service/code-to-plan-benefit mapping or complete scenario replay is implemented; cached workbook outcomes are not insurer predictions",
         "Published patient cost-sharing components are outputs, not independent allowed-cost inputs; adding them would reuse the answer"
@@ -290,10 +479,10 @@
         {
           "provider": "deepseek",
           "model": "deepseek-v4-pro",
-          "status": "failed",
-          "error": "deepseek compilation failed after 3 attempts: DeepSeek did not complete a JSON response. No fallback was substituted.",
+          "status": "validated",
+          "error": null,
           "claim_ready": false,
-          "validated_rules": 0,
+          "validated_rules": 16,
           "report": "real-kaiser-rules.json"
         }
       ],
@@ -319,7 +508,7 @@
       "label_components_sum_correctly": true,
       "status": "blocked",
       "reasons": [
-        "No validated executable policy from the measured compilers",
+        "Only partial financial rules validated; no claim-ready service policy",
         "SBC episode totals are not service-level allowed amounts or service counts",
         "Local CMS timelines exist, but no reviewed service/code-to-plan-benefit mapping or complete scenario replay is implemented; cached workbook outcomes are not insurer predictions",
         "Published patient cost-sharing components are outputs, not independent allowed-cost inputs; adding them would reuse the answer"
@@ -349,10 +538,10 @@
         {
           "provider": "deepseek",
           "model": "deepseek-v4-pro",
-          "status": "failed",
-          "error": "deepseek compilation failed after 3 attempts: DeepSeek did not complete a JSON response. No fallback was substituted.",
+          "status": "validated",
+          "error": null,
           "claim_ready": false,
-          "validated_rules": 0,
+          "validated_rules": 16,
           "report": "real-kaiser-rules.json"
         }
       ],
@@ -409,7 +598,7 @@
           "provider": "deepseek",
           "model": "deepseek-v4-pro",
           "status": "failed",
-          "error": "deepseek compilation failed after 3 attempts: DeepSeek did not complete a JSON response. No fallback was substituted.",
+          "error": "deepseek compilation failed after 1 attempts: Excluded service has covered cost sharing. No fallback was substituted.",
           "claim_ready": false,
           "validated_rules": 0,
           "report": "real-cigna-rules.json"
@@ -468,7 +657,7 @@
           "provider": "deepseek",
           "model": "deepseek-v4-pro",
           "status": "failed",
-          "error": "deepseek compilation failed after 3 attempts: DeepSeek did not complete a JSON response. No fallback was substituted.",
+          "error": "deepseek compilation failed after 1 attempts: Excluded service has covered cost sharing. No fallback was substituted.",
           "claim_ready": false,
           "validated_rules": 0,
           "report": "real-cigna-rules.json"
@@ -527,7 +716,7 @@
           "provider": "deepseek",
           "model": "deepseek-v4-pro",
           "status": "failed",
-          "error": "deepseek compilation failed after 3 attempts: DeepSeek did not complete a JSON response. No fallback was substituted.",
+          "error": "deepseek compilation failed after 1 attempts: Excluded service has covered cost sharing. No fallback was substituted.",
           "claim_ready": false,
           "validated_rules": 0,
           "report": "real-cigna-rules.json"
@@ -555,7 +744,7 @@
       "label_components_sum_correctly": true,
       "status": "blocked",
       "reasons": [
-        "No validated executable policy from the measured compilers",
+        "Only partial financial rules validated; no claim-ready service policy",
         "SBC episode totals are not service-level allowed amounts or service counts",
         "Local CMS timelines exist, but no reviewed service/code-to-plan-benefit mapping or complete scenario replay is implemented; cached workbook outcomes are not insurer predictions",
         "Published patient cost-sharing components are outputs, not independent allowed-cost inputs; adding them would reuse the answer"
@@ -585,10 +774,10 @@
         {
           "provider": "deepseek",
           "model": "deepseek-v4-pro",
-          "status": "failed",
-          "error": "deepseek compilation failed after 3 attempts: output.policy.member_id: expected string. No fallback was substituted.",
+          "status": "validated",
+          "error": null,
           "claim_ready": false,
-          "validated_rules": 0,
+          "validated_rules": 10,
           "report": "real-highmark-rules.json"
         }
       ],
@@ -614,7 +803,7 @@
       "label_components_sum_correctly": true,
       "status": "blocked",
       "reasons": [
-        "No validated executable policy from the measured compilers",
+        "Only partial financial rules validated; no claim-ready service policy",
         "SBC episode totals are not service-level allowed amounts or service counts",
         "Local CMS timelines exist, but no reviewed service/code-to-plan-benefit mapping or complete scenario replay is implemented; cached workbook outcomes are not insurer predictions",
         "Published patient cost-sharing components are outputs, not independent allowed-cost inputs; adding them would reuse the answer"
@@ -644,10 +833,10 @@
         {
           "provider": "deepseek",
           "model": "deepseek-v4-pro",
-          "status": "failed",
-          "error": "deepseek compilation failed after 3 attempts: output.policy.member_id: expected string. No fallback was substituted.",
+          "status": "validated",
+          "error": null,
           "claim_ready": false,
-          "validated_rules": 0,
+          "validated_rules": 10,
           "report": "real-highmark-rules.json"
         }
       ],
@@ -673,7 +862,7 @@
       "label_components_sum_correctly": true,
       "status": "blocked",
       "reasons": [
-        "No validated executable policy from the measured compilers",
+        "Only partial financial rules validated; no claim-ready service policy",
         "SBC episode totals are not service-level allowed amounts or service counts",
         "Local CMS timelines exist, but no reviewed service/code-to-plan-benefit mapping or complete scenario replay is implemented; cached workbook outcomes are not insurer predictions",
         "Published patient cost-sharing components are outputs, not independent allowed-cost inputs; adding them would reuse the answer"
@@ -703,10 +892,10 @@
         {
           "provider": "deepseek",
           "model": "deepseek-v4-pro",
-          "status": "failed",
-          "error": "deepseek compilation failed after 3 attempts: output.policy.member_id: expected string. No fallback was substituted.",
+          "status": "validated",
+          "error": null,
           "claim_ready": false,
-          "validated_rules": 0,
+          "validated_rules": 10,
           "report": "real-highmark-rules.json"
         }
       ],

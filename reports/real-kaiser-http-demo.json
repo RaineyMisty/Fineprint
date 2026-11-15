@@ -1,0 +1,1809 @@
+{
+  "generated_at": "2026-11-15T09:41:53.892015+00:00",
+  "kind": "real_policy_synthetic_claim_http_demo",
+  "real_policy": true,
+  "synthetic_claim": true,
+  "synthetic_bill": true,
+  "endpoints": [
+    {
+      "path": "/api/status",
+      "http_status": 200
+    },
+    {
+      "path": "/api/demos/kaiser-real-sbc",
+      "http_status": 200
+    },
+    {
+      "path": "/api/extract",
+      "http_status": 200
+    },
+    {
+      "path": "/api/compile",
+      "http_status": 200
+    },
+    {
+      "path": "/api/check",
+      "http_status": 200
+    },
+    {
+      "path": "/api/check",
+      "http_status": 200
+    }
+  ],
+  "status": "passed",
+  "server": {
+    "provider": "deepseek",
+    "offline": false
+  },
+  "pdf_sha256": "3160f1168d43885d6695bf99bea7c55c23d4cf9373697b8cf4896aa0154b04fa",
+  "extraction": {
+    "filename": "kaiser_2026_ca_gold80_sbc.pdf",
+    "pages": 14,
+    "chars": 48206,
+    "status": "text",
+    "warnings": []
+  },
+  "compilation": {
+    "output": {
+      "policy": {
+        "id": "Covered CA_Gold 80 HMO",
+        "insurer": "Kaiser Permanente",
+        "name": "Covered CA_Gold 80 HMO",
+        "member_id": null,
+        "effective_from": "2026-01-01",
+        "effective_to": null,
+        "currency": "USD",
+        "networks": {
+          "in": {
+            "deductible_cents": 0,
+            "oop_max_cents": 920000,
+            "balance_billing": null,
+            "deductible_clause": "source-1",
+            "oop_clause": "source-2",
+            "network_clause": null
+          }
+        },
+        "benefits": [
+          {
+            "id": "B1",
+            "label": "Primary care visit",
+            "codes": [],
+            "network": "in",
+            "covered": true,
+            "deductible_applies": false,
+            "copay_cents": 4000,
+            "coinsurance_bps": 0,
+            "clause_ids": [
+              "source-1",
+              "source-3",
+              "source-4",
+              "source-5"
+            ],
+            "ambiguity_group": "",
+            "service_category": "Primary care visit to treat an injury or illness"
+          },
+          {
+            "id": "B2",
+            "label": "Specialist visit",
+            "codes": [],
+            "network": "in",
+            "covered": true,
+            "deductible_applies": false,
+            "copay_cents": 7000,
+            "coinsurance_bps": 0,
+            "clause_ids": [
+              "source-1",
+              "source-6",
+              "source-7",
+              "source-8"
+            ],
+            "ambiguity_group": "",
+            "service_category": "Specialist visit",
+            "conditions": [
+              "Referral obtained before seeing specialist OR permitted self-referral"
+            ]
+          },
+          {
+            "id": "B3",
+            "label": "Preventive care/screening/immunization",
+            "codes": [],
+            "network": "in",
+            "covered": true,
+            "deductible_applies": false,
+            "copay_cents": 0,
+            "coinsurance_bps": 0,
+            "clause_ids": [
+              "source-1",
+              "source-9",
+              "source-10",
+              "source-11"
+            ],
+            "ambiguity_group": "",
+            "service_category": "Preventive care/screening/immunization"
+          },
+          {
+            "id": "B4",
+            "label": "Diagnostic test - X-ray",
+            "codes": [],
+            "network": "in",
+            "covered": true,
+            "deductible_applies": false,
+            "copay_cents": 7500,
+            "coinsurance_bps": 0,
+            "clause_ids": [
+              "source-1",
+              "source-12"
+            ],
+            "ambiguity_group": "",
+            "service_category": "X-ray"
+          },
+          {
+            "id": "B5",
+            "label": "Diagnostic test - Lab tests",
+            "codes": [],
+            "network": "in",
+            "covered": true,
+            "deductible_applies": false,
+            "copay_cents": 4000,
+            "coinsurance_bps": 0,
+            "clause_ids": [
+              "source-1",
+              "source-13"
+            ],
+            "ambiguity_group": "",
+            "service_category": "Lab tests"
+          },
+          {
+            "id": "B6",
+            "label": "Imaging (CT/PET scans, MRIs)",
+            "codes": [],
+            "network": "in",
+            "covered": true,
+            "deductible_applies": false,
+            "copay_cents": 7500,
+            "coinsurance_bps": 0,
+            "clause_ids": [
+              "source-1",
+              "source-14",
+              "source-15"
+            ],
+            "ambiguity_group": "",
+            "service_category": "Imaging (CT/PET scans, MRI's)"
+          },
+          {
+            "id": "B7",
+            "label": "Generic drugs (Tier 1) - Retail",
+            "codes": [],
+            "network": "in",
+            "covered": true,
+            "deductible_applies": false,
+            "copay_cents": 1800,
+            "coinsurance_bps": 0,
+            "clause_ids": [
+              "source-1",
+              "source-16",
+              "source-17",
+              "source-18"
+            ],
+            "ambiguity_group": "",
+            "service_category": "Generic drugs (Tier 1)",
+            "conditions": [
+              "Retail prescription",
+              "Up to 30-day supply",
+              "Medication is not a contraceptive"
+            ]
+          },
+          {
+            "id": "B8",
+            "label": "Preferred brand drugs (Tier 2) - Retail",
+            "codes": [],
+            "network": "in",
+            "covered": true,
+            "deductible_applies": false,
+            "copay_cents": 6000,
+            "coinsurance_bps": 0,
+            "clause_ids": [
+              "source-1",
+              "source-19",
+              "source-20",
+              "source-21"
+            ],
+            "ambiguity_group": "",
+            "service_category": "Preferred brand drugs (Tier 2)",
+            "conditions": [
+              "Retail prescription",
+              "Up to 30-day supply"
+            ]
+          },
+          {
+            "id": "B9",
+            "label": "Non-preferred brand drugs (Tier 2) - Retail",
+            "codes": [],
+            "network": "in",
+            "covered": true,
+            "deductible_applies": false,
+            "copay_cents": 6000,
+            "coinsurance_bps": 0,
+            "clause_ids": [
+              "source-1",
+              "source-22",
+              "source-23",
+              "source-24"
+            ],
+            "ambiguity_group": "",
+            "service_category": "Non-preferred brand drugs (Tier 2)",
+            "conditions": [
+              "Retail prescription",
+              "Up to 30-day supply",
+              "Approved through formulary exception process"
+            ]
+          },
+          {
+            "id": "B10",
+            "label": "Emergency room care",
+            "codes": [],
+            "network": "in",
+            "covered": true,
+            "deductible_applies": false,
+            "copay_cents": 35000,
+            "coinsurance_bps": 0,
+            "clause_ids": [
+              "source-1",
+              "source-25",
+              "source-26"
+            ],
+            "ambiguity_group": "",
+            "service_category": "Emergency room care",
+            "conditions": [
+              "Not admitted directly to the hospital as an inpatient"
+            ]
+          },
+          {
+            "id": "B11",
+            "label": "Urgent care",
+            "codes": [],
+            "network": "in",
+            "covered": true,
+            "deductible_applies": false,
+            "copay_cents": 4000,
+            "coinsurance_bps": 0,
+            "clause_ids": [
+              "source-1",
+              "source-27"
+            ],
+            "ambiguity_group": "",
+            "service_category": "Urgent care"
+          },
+          {
+            "id": "B12",
+            "label": "Outpatient mental/behavioral health - individual visit",
+            "codes": [],
+            "network": "in",
+            "covered": true,
+            "deductible_applies": false,
+            "copay_cents": 4000,
+            "coinsurance_bps": 0,
+            "clause_ids": [
+              "source-1",
+              "source-28"
+            ],
+            "ambiguity_group": "",
+            "service_category": "Outpatient services",
+            "conditions": [
+              "Mental/behavioral health",
+              "Individual visit"
+            ]
+          },
+          {
+            "id": "B13",
+            "label": "Office visits (prenatal)",
+            "codes": [],
+            "network": "in",
+            "covered": true,
+            "deductible_applies": false,
+            "copay_cents": 0,
+            "coinsurance_bps": 0,
+            "clause_ids": [
+              "source-1",
+              "source-29"
+            ],
+            "ambiguity_group": "",
+            "service_category": "Office visits",
+            "conditions": [
+              "Pregnancy"
+            ]
+          }
+        ],
+        "clauses": [
+          {
+            "id": "source-1",
+            "text": "What is the overall                     $0                                                                See the Common Medical Events chart below for your costs for services this plan",
+            "location": "Important Questions"
+          },
+          {
+            "id": "source-2",
+            "text": "limit for this plan?                    $9,200 Individual / $18,400 Family                                you have other family members in this plan, they have to meet their own out-of-",
+            "location": "Important Questions"
+          },
+          {
+            "id": "source-3",
+            "text": "Primary care visit to",
+            "location": "Common Medical Events"
+          },
+          {
+            "id": "source-4",
+            "text": "treat an injury or           $40 / visit                                Not covered                                None",
+            "location": "Common Medical Events"
+          },
+          {
+            "id": "source-5",
+            "text": "illness",
+            "location": "Common Medical Events"
+          },
+          {
+            "id": "source-6",
+            "text": "Do you need a referral to               Yes, but you may self-refer to certain                            This plan will pay some or all of the costs to see a specialist for covered services but",
+            "location": "Common Medical Events"
+          },
+          {
+            "id": "source-7",
+            "text": "see a specialist?                       specialists.                                                      only if you have a referral before you see the specialist.",
+            "location": "Common Medical Events"
+          },
+          {
+            "id": "source-8",
+            "text": "If you visit a health       Specialist visit             $70 / visit                                Not covered                                None",
+            "location": "Common Medical Events"
+          },
+          {
+            "id": "source-9",
+            "text": "office or clinic            Preventive care/                                                                                                   preventive. Ask your provider if the services",
+            "location": "Common Medical Events"
+          },
+          {
+            "id": "source-10",
+            "text": "screening/                   No charge                                  Not covered                                needed are preventive. Then check what your",
+            "location": "Common Medical Events"
+          },
+          {
+            "id": "source-11",
+            "text": "immunization                                                                                                       plan will pay for.",
+            "location": "Common Medical Events"
+          },
+          {
+            "id": "source-12",
+            "text": "Diagnostic test (x-          X-ray: $75 / encounter                     Not covered                                None",
+            "location": "Common Medical Events"
+          },
+          {
+            "id": "source-13",
+            "text": "If you have a test          ray, blood work)             Lab tests: $40 / encounter",
+            "location": "Common Medical Events"
+          },
+          {
+            "id": "source-14",
+            "text": "Imaging (CT/PET              $75 / procedure                            Not covered                                None",
+            "location": "Common Medical Events"
+          },
+          {
+            "id": "source-15",
+            "text": "scans, MRI's)",
+            "location": "Common Medical Events"
+          },
+          {
+            "id": "source-16",
+            "text": "Generic drugs (Tier          $18 / prescription (retail). $36 /                                                    Up to a 30-day supply (retail); up to a 100-day",
+            "location": "Common Medical Events"
+          },
+          {
+            "id": "source-17",
+            "text": "1)                           prescription (mail order).                 Not covered                                supply (mail order). Contraceptives are no",
+            "location": "Common Medical Events"
+          },
+          {
+            "id": "source-18",
+            "text": "If you need drugs to                                                                                                                           charge. Subject to formulary guidelines.",
+            "location": "Common Medical Events"
+          },
+          {
+            "id": "source-19",
+            "text": "treat your illness or       Preferred brand              $60 / prescription (retail). $120 /                                                   Up to a 30-day supply (retail); up to a 100-day",
+            "location": "Common Medical Events"
+          },
+          {
+            "id": "source-20",
+            "text": "condition                   drugs (Tier 2)               prescription (mail order).                 Not covered                                supply (mail order). Subject to formulary",
+            "location": "Common Medical Events"
+          },
+          {
+            "id": "source-21",
+            "text": "More information                                                                                                                               guidelines.",
+            "location": "Common Medical Events"
+          },
+          {
+            "id": "source-22",
+            "text": "drug coverage is            Non-preferred brand          $60 / prescription (retail). $120 /        Not covered                                under this plan aligns with the cost-sharing for",
+            "location": "Common Medical Events"
+          },
+          {
+            "id": "source-23",
+            "text": "available at                drugs (Tier 2)               prescription (mail order).                                                            preferred brand drugs (Tier 2), when approved",
+            "location": "Common Medical Events"
+          },
+          {
+            "id": "source-24",
+            "text": "www.kp.org/formulary                                                                                                                           through the formulary exception process.",
+            "location": "Common Medical Events"
+          },
+          {
+            "id": "source-25",
+            "text": "Emergency room              $350 / visit                              $350 / visit                               Copayment waived if admitted directly to the",
+            "location": "Common Medical Events"
+          },
+          {
+            "id": "source-26",
+            "text": "care                                                                                                             hospital as an inpatient.",
+            "location": "Common Medical Events"
+          },
+          {
+            "id": "source-27",
+            "text": "Urgent care                 $40 / visit                               Not covered                                Non-Plan providers covered when temporarily",
+            "location": "Common Medical Events"
+          },
+          {
+            "id": "source-28",
+            "text": "If you need mental          Outpatient services         $40 / individual visit. No charge         Not covered                                Mental / Behavioral health: $20 / group visit",
+            "location": "Common Medical Events"
+          },
+          {
+            "id": "source-29",
+            "text": "Office visits               No charge                                 Not covered                                apply. Maternity care may include tests and",
+            "location": "Common Medical Events"
+          }
+        ]
+      },
+      "rule_evidence": [
+        {
+          "rule_path": "networks.in.deductible_cents",
+          "evidence": [
+            {
+              "source_document_id": "uploaded-policy",
+              "section": "Important Questions",
+              "quote": "What is the overall                     $0                                                                See the Common Medical Events chart below for your costs for services this plan",
+              "start": 1580,
+              "end": 1765
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "networks.in.oop_max_cents",
+          "evidence": [
+            {
+              "source_document_id": "uploaded-policy",
+              "section": "Important Questions",
+              "quote": "limit for this plan?                    $9,200 Individual / $18,400 Family                                you have other family members in this plan, they have to meet their own out-of-",
+              "start": 3149,
+              "end": 3334
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "benefits.B1",
+          "evidence": [
+            {
+              "source_document_id": "uploaded-policy",
+              "section": "Common Medical Events",
+              "quote": "What is the overall                     $0                                                                See the Common Medical Events chart below for your costs for services this plan",
+              "start": 1580,
+              "end": 1765
+            },
+            {
+              "source_document_id": "uploaded-policy",
+              "section": "Common Medical Events",
+              "quote": "Primary care visit to",
+              "start": 6177,
+              "end": 6198
+            },
+            {
+              "source_document_id": "uploaded-policy",
+              "section": "Common Medical Events",
+              "quote": "treat an injury or           $40 / visit                                Not covered                                None",
+              "start": 6227,
+              "end": 6346
+            },
+            {
+              "source_document_id": "uploaded-policy",
+              "section": "Common Medical Events",
+              "quote": "illness",
+              "start": 6375,
+              "end": 6382
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "benefits.B2",
+          "evidence": [
+            {
+              "source_document_id": "uploaded-policy",
+              "section": "Common Medical Events",
+              "quote": "What is the overall                     $0                                                                See the Common Medical Events chart below for your costs for services this plan",
+              "start": 1580,
+              "end": 1765
+            },
+            {
+              "source_document_id": "uploaded-policy",
+              "section": "Common Medical Events",
+              "quote": "Do you need a referral to               Yes, but you may self-refer to certain                            This plan will pay some or all of the costs to see a specialist for covered services but",
+              "start": 4948,
+              "end": 5142
+            },
+            {
+              "source_document_id": "uploaded-policy",
+              "section": "Common Medical Events",
+              "quote": "see a specialist?                       specialists.                                                      only if you have a referral before you see the specialist.",
+              "start": 5143,
+              "end": 5307
+            },
+            {
+              "source_document_id": "uploaded-policy",
+              "section": "Common Medical Events",
+              "quote": "If you visit a health       Specialist visit             $70 / visit                                Not covered                                None",
+              "start": 6383,
+              "end": 6530
+            }
+          ],
+          "confidence_bps": 9500,
+          "ambiguity": "Self-referral exception not fully specified"
+        },
+        {
+          "rule_path": "benefits.B3",
+          "evidence": [
+            {
+              "source_document_id": "uploaded-policy",
+              "section": "Common Medical Events",
+              "quote": "What is the overall                     $0                                                                See the Common Medical Events chart below for your costs for services this plan",
+              "start": 1580,
+              "end": 1765
+            },
+            {
+              "source_document_id": "uploaded-policy",
+              "section": "Common Medical Events",
+              "quote": "office or clinic            Preventive care/                                                                                                   preventive. Ask your provider if the services",
+              "start": 6719,
+              "end": 6907
+            },
+            {
+              "source_document_id": "uploaded-policy",
+              "section": "Common Medical Events",
+              "quote": "screening/                   No charge                                  Not covered                                needed are preventive. Then check what your",
+              "start": 6936,
+              "end": 7094
+            },
+            {
+              "source_document_id": "uploaded-policy",
+              "section": "Common Medical Events",
+              "quote": "immunization                                                                                                       plan will pay for.",
+              "start": 7123,
+              "end": 7256
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "benefits.B4",
+          "evidence": [
+            {
+              "source_document_id": "uploaded-policy",
+              "section": "Common Medical Events",
+              "quote": "What is the overall                     $0                                                                See the Common Medical Events chart below for your costs for services this plan",
+              "start": 1580,
+              "end": 1765
+            },
+            {
+              "source_document_id": "uploaded-policy",
+              "section": "Common Medical Events",
+              "quote": "Diagnostic test (x-          X-ray: $75 / encounter                     Not covered                                None",
+              "start": 7286,
+              "end": 7405
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "benefits.B5",
+          "evidence": [
+            {
+              "source_document_id": "uploaded-policy",
+              "section": "Common Medical Events",
+              "quote": "What is the overall                     $0                                                                See the Common Medical Events chart below for your costs for services this plan",
+              "start": 1580,
+              "end": 1765
+            },
+            {
+              "source_document_id": "uploaded-policy",
+              "section": "Common Medical Events",
+              "quote": "If you have a test          ray, blood work)             Lab tests: $40 / encounter",
+              "start": 7406,
+              "end": 7489
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "benefits.B6",
+          "evidence": [
+            {
+              "source_document_id": "uploaded-policy",
+              "section": "Common Medical Events",
+              "quote": "What is the overall                     $0                                                                See the Common Medical Events chart below for your costs for services this plan",
+              "start": 1580,
+              "end": 1765
+            },
+            {
+              "source_document_id": "uploaded-policy",
+              "section": "Common Medical Events",
+              "quote": "Imaging (CT/PET              $75 / procedure                            Not covered                                None",
+              "start": 7518,
+              "end": 7637
+            },
+            {
+              "source_document_id": "uploaded-policy",
+              "section": "Common Medical Events",
+              "quote": "scans, MRI's)",
+              "start": 7666,
+              "end": 7679
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "benefits.B7",
+          "evidence": [
+            {
+              "source_document_id": "uploaded-policy",
+              "section": "Common Medical Events",
+              "quote": "What is the overall                     $0                                                                See the Common Medical Events chart below for your costs for services this plan",
+              "start": 1580,
+              "end": 1765
+            },
+            {
+              "source_document_id": "uploaded-policy",
+              "section": "Common Medical Events",
+              "quote": "Generic drugs (Tier          $18 / prescription (retail). $36 /                                                    Up to a 30-day supply (retail); up to a 100-day",
+              "start": 7708,
+              "end": 7870
+            },
+            {
+              "source_document_id": "uploaded-policy",
+              "section": "Common Medical Events",
+              "quote": "1)                           prescription (mail order).                 Not covered                                supply (mail order). Contraceptives are no",
+              "start": 7899,
+              "end": 8056
+            },
+            {
+              "source_document_id": "uploaded-policy",
+              "section": "Common Medical Events",
+              "quote": "If you need drugs to                                                                                                                           charge. Subject to formulary guidelines.",
+              "start": 8057,
+              "end": 8240
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "benefits.B8",
+          "evidence": [
+            {
+              "source_document_id": "uploaded-policy",
+              "section": "Common Medical Events",
+              "quote": "What is the overall                     $0                                                                See the Common Medical Events chart below for your costs for services this plan",
+              "start": 1580,
+              "end": 1765
+            },
+            {
+              "source_document_id": "uploaded-policy",
+              "section": "Common Medical Events",
+              "quote": "treat your illness or       Preferred brand              $60 / prescription (retail). $120 /                                                   Up to a 30-day supply (retail); up to a 100-day",
+              "start": 8241,
+              "end": 8431
+            },
+            {
+              "source_document_id": "uploaded-policy",
+              "section": "Common Medical Events",
+              "quote": "condition                   drugs (Tier 2)               prescription (mail order).                 Not covered                                supply (mail order). Subject to formulary",
+              "start": 8432,
+              "end": 8616
+            },
+            {
+              "source_document_id": "uploaded-policy",
+              "section": "Common Medical Events",
+              "quote": "More information                                                                                                                               guidelines.",
+              "start": 8617,
+              "end": 8771
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "benefits.B9",
+          "evidence": [
+            {
+              "source_document_id": "uploaded-policy",
+              "section": "Common Medical Events",
+              "quote": "What is the overall                     $0                                                                See the Common Medical Events chart below for your costs for services this plan",
+              "start": 1580,
+              "end": 1765
+            },
+            {
+              "source_document_id": "uploaded-policy",
+              "section": "Common Medical Events",
+              "quote": "drug coverage is            Non-preferred brand          $60 / prescription (retail). $120 /        Not covered                                under this plan aligns with the cost-sharing for",
+              "start": 8962,
+              "end": 9153
+            },
+            {
+              "source_document_id": "uploaded-policy",
+              "section": "Common Medical Events",
+              "quote": "available at                drugs (Tier 2)               prescription (mail order).                                                            preferred brand drugs (Tier 2), when approved",
+              "start": 9154,
+              "end": 9342
+            },
+            {
+              "source_document_id": "uploaded-policy",
+              "section": "Common Medical Events",
+              "quote": "www.kp.org/formulary                                                                                                                           through the formulary exception process.",
+              "start": 9343,
+              "end": 9526
+            }
+          ],
+          "confidence_bps": 9000,
+          "ambiguity": "Exception process details not in quote"
+        },
+        {
+          "rule_path": "benefits.B10",
+          "evidence": [
+            {
+              "source_document_id": "uploaded-policy",
+              "section": "Common Medical Events",
+              "quote": "What is the overall                     $0                                                                See the Common Medical Events chart below for your costs for services this plan",
+              "start": 1580,
+              "end": 1765
+            },
+            {
+              "source_document_id": "uploaded-policy",
+              "section": "Common Medical Events",
+              "quote": "Emergency room              $350 / visit                              $350 / visit                               Copayment waived if admitted directly to the",
+              "start": 11173,
+              "end": 11330
+            },
+            {
+              "source_document_id": "uploaded-policy",
+              "section": "Common Medical Events",
+              "quote": "care                                                                                                             hospital as an inpatient.",
+              "start": 11359,
+              "end": 11497
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "benefits.B11",
+          "evidence": [
+            {
+              "source_document_id": "uploaded-policy",
+              "section": "Common Medical Events",
+              "quote": "What is the overall                     $0                                                                See the Common Medical Events chart below for your costs for services this plan",
+              "start": 1580,
+              "end": 1765
+            },
+            {
+              "source_document_id": "uploaded-policy",
+              "section": "Common Medical Events",
+              "quote": "Urgent care                 $40 / visit                               Not covered                                Non-Plan providers covered when temporarily",
+              "start": 11728,
+              "end": 11884
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        },
+        {
+          "rule_path": "benefits.B12",
+          "evidence": [
+            {
+              "source_document_id": "uploaded-policy",
+              "section": "Common Medical Events",
+              "quote": "What is the overall                     $0                                                                See the Common Medical Events chart below for your costs for services this plan",
+              "start": 1580,
+              "end": 1765
+            },
+            {
+              "source_document_id": "uploaded-policy",
+              "section": "Common Medical Events",
+              "quote": "If you need mental          Outpatient services         $40 / individual visit. No charge         Not covered                                Mental / Behavioral health: $20 / group visit",
+              "start": 12592,
+              "end": 12778
+            }
+          ],
+          "confidence_bps": 9500,
+          "ambiguity": "Other mental/behavioral health services may have different cost sharing"
+        },
+        {
+          "rule_path": "benefits.B13",
+          "evidence": [
+            {
+              "source_document_id": "uploaded-policy",
+              "section": "Common Medical Events",
+              "quote": "What is the overall                     $0                                                                See the Common Medical Events chart below for your costs for services this plan",
+              "start": 1580,
+              "end": 1765
+            },
+            {
+              "source_document_id": "uploaded-policy",
+              "section": "Common Medical Events",
+              "quote": "Office visits               No charge                                 Not covered                                apply. Maternity care may include tests and",
+              "start": 13504,
+              "end": 13660
+            }
+          ],
+          "confidence_bps": 10000,
+          "ambiguity": "none"
+        }
+      ],
+      "warnings": [
+        "Rounding: Engine uses half-up cent rounding for coinsurance calculations; this is a convention, not an extracted policy fact.",
+        "Benefit B2: Referral requirement is based on plan-wide question; self-referral exception details are not fully specified and should be confirmed in plan documents.",
+        "Benefit B9: Non-preferred brand drugs cost-sharing aligns with preferred brand only when approved through formulary exception; condition included, but exception process details are not in SBC.",
+        "Benefit B12: Outpatient mental/behavioral health has additional group visit copays and substance abuse copays not compiled (see coverage gaps).",
+        "Out-of-network coverage is generally not covered; emergency services have out-of-network cost sharing but are omitted due to unsupported arithmetic and balance billing uncertainty."
+      ],
+      "unresolved": [],
+      "coverage_gaps": [
+        "Out-of-network deductible and OOP max: not specified in SBC, network omitted.",
+        "Out-of-network balance billing: generic warning about balance billing present, but no explicit protection; set to null. Claims require independent contract evidence.",
+        "Emergency medical transportation: per-trip copay $250 both in and out of network; omitted because per-trip rate not supported (engine supports per-day or per-service, not per-trip).",
+        "Out-of-network emergency room care: $350 copay same as in-network, but out-of-network network structure not compiled; potential balance billing.",
+        "Out-of-network urgent care: temporarily outside service area $40/visit; not compiled due to unsupported condition.",
+        "Facility fee (outpatient surgery): $190/procedure not compiled because per-procedure rate not supported.",
+        "Physician/surgeon fees (outpatient surgery): Not Applicable, included in facility fee; no separate benefit.",
+        "Facility fee (hospital stay): $375/day up to 5 days; per-day multi-day cap omitted.",
+        "Physician/surgeon fee (hospital stay): Not Applicable, included in facility fee; no separate benefit.",
+        "Inpatient mental/behavioral health: $375/day up to 5 days; per-day multi-day cap omitted.",
+        "Childbirth/delivery professional services: Not Applicable, included in facility fee; no separate benefit.",
+        "Childbirth/delivery facility services: $375/day up to 5 days; per-day multi-day cap omitted.",
+        "Home health care: $30/visit with per-visit, per-day, per-year limits; omitted due to per-visit rate and multiple caps.",
+        "Rehabilitation services: split outpatient $40/visit and inpatient $375/day up to 5 days; omitted due to split in/outpatient costs and per-day cap.",
+        "Habilitation services: split outpatient $40/visit and inpatient $375/day up to 5 days; omitted.",
+        "Skilled nursing care: $150/day up to 5 days with 100-day limit/year; per-day cap omitted.",
+        "Durable medical equipment: 20% coinsurance; included? not compiled because no other details; prior authorization required.",
+        "Hospice service: No charge; not compiled because no service category details in SBC.",
+        "Children's eye exam, glasses, dental check-up: No charge; omitted due to age-specific and limitations.",
+        "Specialty drugs (Tier 4): 20% coinsurance up to $250/prescription; omitted due to per-prescription cap unsupported.",
+        "Preferred brand drugs mail order: $120/prescription up to 100-day supply; omitted due to mail order variant.",
+        "Generic drugs mail order: $36/prescription up to 100-day supply; omitted.",
+        "Non-preferred brand drugs mail order: $120/prescription with exception; omitted.",
+        "Outpatient mental/behavioral health group visit: $20/group; omitted due to group visit variant.",
+        "Substance abuse group visit: $5/group; omitted.",
+        "Other outpatient mental/behavioral health services: No charge; omitted due to lack of service category details.",
+        "Maternity care: tests and services described elsewhere; no standalone benefit.",
+        "Preventive care: services without cost sharing, but full list not in SBC.",
+        "Acupuncture, bariatric surgery, abortion: listed as other covered services with limitations; no cost sharing details.",
+        "Excluded services: chiropractic, cosmetic surgery, adult dental, hearing aids, infertility, long-term care, non-emergency care when traveling outside U.S., routine eye care (adult), routine foot care, weight loss programs, private-duty nursing.",
+        "Partial source review: sections were selected locally; omitted services require review and have no executable rules.",
+        "Network out omitted: deductible or OOP limit is not established. Claims in that network require separate review, including emergency exceptions."
+      ]
+    },
+    "backend": "deepseek",
+    "source_document_id": "uploaded-policy",
+    "source_sha256": "e0bcadefad9be83db174abe0afe8b387844d8d3b99664d690c13bee5e0e7fdfb",
+    "attempts": 3
+  },
+  "validated_rules": 15,
+  "validated_quote_spans": 42,
+  "case": {
+    "schema_version": "1.0",
+    "id": "SYN-URGENT-CLAIM",
+    "title": "Your claim",
+    "synthetic": true,
+    "policy": {
+      "id": "Covered CA_Gold 80 HMO",
+      "insurer": "Kaiser Permanente",
+      "name": "Covered CA_Gold 80 HMO",
+      "member_id": null,
+      "effective_from": "2026-01-01",
+      "effective_to": null,
+      "currency": "USD",
+      "networks": {
+        "in": {
+          "deductible_cents": 0,
+          "oop_max_cents": 920000,
+          "balance_billing": null,
+          "deductible_clause": "source-1",
+          "oop_clause": "source-2",
+          "network_clause": null
+        }
+      },
+      "benefits": [
+        {
+          "id": "B1",
+          "label": "Primary care visit",
+          "codes": [],
+          "network": "in",
+          "covered": true,
+          "deductible_applies": false,
+          "copay_cents": 4000,
+          "coinsurance_bps": 0,
+          "clause_ids": [
+            "source-1",
+            "source-3",
+            "source-4",
+            "source-5"
+          ],
+          "ambiguity_group": "",
+          "service_category": "Primary care visit to treat an injury or illness"
+        },
+        {
+          "id": "B2",
+          "label": "Specialist visit",
+          "codes": [],
+          "network": "in",
+          "covered": true,
+          "deductible_applies": false,
+          "copay_cents": 7000,
+          "coinsurance_bps": 0,
+          "clause_ids": [
+            "source-1",
+            "source-6",
+            "source-7",
+            "source-8"
+          ],
+          "ambiguity_group": "",
+          "service_category": "Specialist visit",
+          "conditions": [
+            "Referral obtained before seeing specialist OR permitted self-referral"
+          ]
+        },
+        {
+          "id": "B3",
+          "label": "Preventive care/screening/immunization",
+          "codes": [],
+          "network": "in",
+          "covered": true,
+          "deductible_applies": false,
+          "copay_cents": 0,
+          "coinsurance_bps": 0,
+          "clause_ids": [
+            "source-1",
+            "source-9",
+            "source-10",
+            "source-11"
+          ],
+          "ambiguity_group": "",
+          "service_category": "Preventive care/screening/immunization"
+        },
+        {
+          "id": "B4",
+          "label": "Diagnostic test - X-ray",
+          "codes": [],
+          "network": "in",
+          "covered": true,
+          "deductible_applies": false,
+          "copay_cents": 7500,
+          "coinsurance_bps": 0,
+          "clause_ids": [
+            "source-1",
+            "source-12"
+          ],
+          "ambiguity_group": "",
+          "service_category": "X-ray"
+        },
+        {
+          "id": "B5",
+          "label": "Diagnostic test - Lab tests",
+          "codes": [],
+          "network": "in",
+          "covered": true,
+          "deductible_applies": false,
+          "copay_cents": 4000,
+          "coinsurance_bps": 0,
+          "clause_ids": [
+            "source-1",
+            "source-13"
+          ],
+          "ambiguity_group": "",
+          "service_category": "Lab tests"
+        },
+        {
+          "id": "B6",
+          "label": "Imaging (CT/PET scans, MRIs)",
+          "codes": [],
+          "network": "in",
+          "covered": true,
+          "deductible_applies": false,
+          "copay_cents": 7500,
+          "coinsurance_bps": 0,
+          "clause_ids": [
+            "source-1",
+            "source-14",
+            "source-15"
+          ],
+          "ambiguity_group": "",
+          "service_category": "Imaging (CT/PET scans, MRI's)"
+        },
+        {
+          "id": "B7",
+          "label": "Generic drugs (Tier 1) - Retail",
+          "codes": [],
+          "network": "in",
+          "covered": true,
+          "deductible_applies": false,
+          "copay_cents": 1800,
+          "coinsurance_bps": 0,
+          "clause_ids": [
+            "source-1",
+            "source-16",
+            "source-17",
+            "source-18"
+          ],
+          "ambiguity_group": "",
+          "service_category": "Generic drugs (Tier 1)",
+          "conditions": [
+            "Retail prescription",
+            "Up to 30-day supply",
+            "Medication is not a contraceptive"
+          ]
+        },
+        {
+          "id": "B8",
+          "label": "Preferred brand drugs (Tier 2) - Retail",
+          "codes": [],
+          "network": "in",
+          "covered": true,
+          "deductible_applies": false,
+          "copay_cents": 6000,
+          "coinsurance_bps": 0,
+          "clause_ids": [
+            "source-1",
+            "source-19",
+            "source-20",
+            "source-21"
+          ],
+          "ambiguity_group": "",
+          "service_category": "Preferred brand drugs (Tier 2)",
+          "conditions": [
+            "Retail prescription",
+            "Up to 30-day supply"
+          ]
+        },
+        {
+          "id": "B9",
+          "label": "Non-preferred brand drugs (Tier 2) - Retail",
+          "codes": [],
+          "network": "in",
+          "covered": true,
+          "deductible_applies": false,
+          "copay_cents": 6000,
+          "coinsurance_bps": 0,
+          "clause_ids": [
+            "source-1",
+            "source-22",
+            "source-23",
+            "source-24"
+          ],
+          "ambiguity_group": "",
+          "service_category": "Non-preferred brand drugs (Tier 2)",
+          "conditions": [
+            "Retail prescription",
+            "Up to 30-day supply",
+            "Approved through formulary exception process"
+          ]
+        },
+        {
+          "id": "B10",
+          "label": "Emergency room care",
+          "codes": [],
+          "network": "in",
+          "covered": true,
+          "deductible_applies": false,
+          "copay_cents": 35000,
+          "coinsurance_bps": 0,
+          "clause_ids": [
+            "source-1",
+            "source-25",
+            "source-26"
+          ],
+          "ambiguity_group": "",
+          "service_category": "Emergency room care",
+          "conditions": [
+            "Not admitted directly to the hospital as an inpatient"
+          ]
+        },
+        {
+          "id": "B11",
+          "label": "Urgent care",
+          "codes": [],
+          "network": "in",
+          "covered": true,
+          "deductible_applies": false,
+          "copay_cents": 4000,
+          "coinsurance_bps": 0,
+          "clause_ids": [
+            "source-1",
+            "source-27"
+          ],
+          "ambiguity_group": "",
+          "service_category": "Urgent care"
+        },
+        {
+          "id": "B12",
+          "label": "Outpatient mental/behavioral health - individual visit",
+          "codes": [],
+          "network": "in",
+          "covered": true,
+          "deductible_applies": false,
+          "copay_cents": 4000,
+          "coinsurance_bps": 0,
+          "clause_ids": [
+            "source-1",
+            "source-28"
+          ],
+          "ambiguity_group": "",
+          "service_category": "Outpatient services",
+          "conditions": [
+            "Mental/behavioral health",
+            "Individual visit"
+          ]
+        },
+        {
+          "id": "B13",
+          "label": "Office visits (prenatal)",
+          "codes": [],
+          "network": "in",
+          "covered": true,
+          "deductible_applies": false,
+          "copay_cents": 0,
+          "coinsurance_bps": 0,
+          "clause_ids": [
+            "source-1",
+            "source-29"
+          ],
+          "ambiguity_group": "",
+          "service_category": "Office visits",
+          "conditions": [
+            "Pregnancy"
+          ]
+        }
+      ],
+      "clauses": [
+        {
+          "id": "source-1",
+          "text": "What is the overall                     $0                                                                See the Common Medical Events chart below for your costs for services this plan",
+          "location": "Important Questions"
+        },
+        {
+          "id": "source-2",
+          "text": "limit for this plan?                    $9,200 Individual / $18,400 Family                                you have other family members in this plan, they have to meet their own out-of-",
+          "location": "Important Questions"
+        },
+        {
+          "id": "source-3",
+          "text": "Primary care visit to",
+          "location": "Common Medical Events"
+        },
+        {
+          "id": "source-4",
+          "text": "treat an injury or           $40 / visit                                Not covered                                None",
+          "location": "Common Medical Events"
+        },
+        {
+          "id": "source-5",
+          "text": "illness",
+          "location": "Common Medical Events"
+        },
+        {
+          "id": "source-6",
+          "text": "Do you need a referral to               Yes, but you may self-refer to certain                            This plan will pay some or all of the costs to see a specialist for covered services but",
+          "location": "Common Medical Events"
+        },
+        {
+          "id": "source-7",
+          "text": "see a specialist?                       specialists.                                                      only if you have a referral before you see the specialist.",
+          "location": "Common Medical Events"
+        },
+        {
+          "id": "source-8",
+          "text": "If you visit a health       Specialist visit             $70 / visit                                Not covered                                None",
+          "location": "Common Medical Events"
+        },
+        {
+          "id": "source-9",
+          "text": "office or clinic            Preventive care/                                                                                                   preventive. Ask your provider if the services",
+          "location": "Common Medical Events"
+        },
+        {
+          "id": "source-10",
+          "text": "screening/                   No charge                                  Not covered                                needed are preventive. Then check what your",
+          "location": "Common Medical Events"
+        },
+        {
+          "id": "source-11",
+          "text": "immunization                                                                                                       plan will pay for.",
+          "location": "Common Medical Events"
+        },
+        {
+          "id": "source-12",
+          "text": "Diagnostic test (x-          X-ray: $75 / encounter                     Not covered                                None",
+          "location": "Common Medical Events"
+        },
+        {
+          "id": "source-13",
+          "text": "If you have a test          ray, blood work)             Lab tests: $40 / encounter",
+          "location": "Common Medical Events"
+        },
+        {
+          "id": "source-14",
+          "text": "Imaging (CT/PET              $75 / procedure                            Not covered                                None",
+          "location": "Common Medical Events"
+        },
+        {
+          "id": "source-15",
+          "text": "scans, MRI's)",
+          "location": "Common Medical Events"
+        },
+        {
+          "id": "source-16",
+          "text": "Generic drugs (Tier          $18 / prescription (retail). $36 /                                                    Up to a 30-day supply (retail); up to a 100-day",
+          "location": "Common Medical Events"
+        },
+        {
+          "id": "source-17",
+          "text": "1)                           prescription (mail order).                 Not covered                                supply (mail order). Contraceptives are no",
+          "location": "Common Medical Events"
+        },
+        {
+          "id": "source-18",
+          "text": "If you need drugs to                                                                                                                           charge. Subject to formulary guidelines.",
+          "location": "Common Medical Events"
+        },
+        {
+          "id": "source-19",
+          "text": "treat your illness or       Preferred brand              $60 / prescription (retail). $120 /                                                   Up to a 30-day supply (retail); up to a 100-day",
+          "location": "Common Medical Events"
+        },
+        {
+          "id": "source-20",
+          "text": "condition                   drugs (Tier 2)               prescription (mail order).                 Not covered                                supply (mail order). Subject to formulary",
+          "location": "Common Medical Events"
+        },
+        {
+          "id": "source-21",
+          "text": "More information                                                                                                                               guidelines.",
+          "location": "Common Medical Events"
+        },
+        {
+          "id": "source-22",
+          "text": "drug coverage is            Non-preferred brand          $60 / prescription (retail). $120 /        Not covered                                under this plan aligns with the cost-sharing for",
+          "location": "Common Medical Events"
+        },
+        {
+          "id": "source-23",
+          "text": "available at                drugs (Tier 2)               prescription (mail order).                                                            preferred brand drugs (Tier 2), when approved",
+          "location": "Common Medical Events"
+        },
+        {
+          "id": "source-24",
+          "text": "www.kp.org/formulary                                                                                                                           through the formulary exception process.",
+          "location": "Common Medical Events"
+        },
+        {
+          "id": "source-25",
+          "text": "Emergency room              $350 / visit                              $350 / visit                               Copayment waived if admitted directly to the",
+          "location": "Common Medical Events"
+        },
+        {
+          "id": "source-26",
+          "text": "care                                                                                                             hospital as an inpatient.",
+          "location": "Common Medical Events"
+        },
+        {
+          "id": "source-27",
+          "text": "Urgent care                 $40 / visit                               Not covered                                Non-Plan providers covered when temporarily",
+          "location": "Common Medical Events"
+        },
+        {
+          "id": "source-28",
+          "text": "If you need mental          Outpatient services         $40 / individual visit. No charge         Not covered                                Mental / Behavioral health: $20 / group visit",
+          "location": "Common Medical Events"
+        },
+        {
+          "id": "source-29",
+          "text": "Office visits               No charge                                 Not covered                                apply. Maternity care may include tests and",
+          "location": "Common Medical Events"
+        }
+      ]
+    },
+    "claim": {
+      "id": "SYN-URGENT-CLAIM",
+      "policy_id": "Covered CA_Gold 80 HMO",
+      "member_id": "SYN-MEMBER",
+      "accumulators": {
+        "in": {
+          "deductible_paid_cents": 0,
+          "oop_paid_cents": 915000
+        }
+      },
+      "lines": [
+        {
+          "id": "SYN-U1",
+          "provider_id": "SYN-PROVIDER",
+          "service_date": "2026-06-01",
+          "code": "99213",
+          "description": "SYNTHETIC urgent care visit one",
+          "network": "in",
+          "billed_cents": 20000,
+          "insurer": {
+            "allowed_cents": 15000,
+            "deductible_cents": 0,
+            "copay_cents": 4000,
+            "coinsurance_cents": 0,
+            "noncovered_cents": 0,
+            "balance_cents": 0,
+            "insurer_paid_cents": 11000,
+            "adjustment_cents": 5000
+          },
+          "service_category": "Urgent care"
+        },
+        {
+          "id": "SYN-U2",
+          "provider_id": "SYN-PROVIDER",
+          "service_date": "2026-06-03",
+          "code": "99213",
+          "description": "SYNTHETIC urgent care visit two",
+          "network": "in",
+          "billed_cents": 30000,
+          "insurer": {
+            "allowed_cents": 20000,
+            "deductible_cents": 0,
+            "copay_cents": 4000,
+            "coinsurance_cents": 0,
+            "noncovered_cents": 0,
+            "balance_cents": 0,
+            "insurer_paid_cents": 16000,
+            "adjustment_cents": 10000
+          },
+          "service_category": "Urgent care"
+        }
+      ]
+    },
+    "bill": {
+      "id": "SYN-URGENT-BILL",
+      "claim_id": "SYN-URGENT-CLAIM",
+      "member_id": "SYN-MEMBER",
+      "lines": [
+        {
+          "id": "SYN-B1",
+          "claim_line_id": "SYN-U1",
+          "provider_id": "SYN-PROVIDER",
+          "service_date": "2026-06-01",
+          "code": "99213",
+          "charged_cents": 20000,
+          "insurance_paid_cents": 11000,
+          "adjustment_cents": 5000,
+          "patient_paid_cents": 0,
+          "balance_due_cents": 4000
+        },
+        {
+          "id": "SYN-B2",
+          "claim_line_id": "SYN-U2",
+          "provider_id": "SYN-PROVIDER",
+          "service_date": "2026-06-03",
+          "code": "99213",
+          "charged_cents": 30000,
+          "insurance_paid_cents": 16000,
+          "adjustment_cents": 8000,
+          "patient_paid_cents": 0,
+          "balance_due_cents": 6000
+        }
+      ]
+    },
+    "allowed_evidence": {
+      "SYN-U1": {
+        "allowed_cents": 15000,
+        "source": "contract",
+        "reference": "SYNTHETIC independent contract: invented allowance and no balance billing; not extracted from the SBC or EOB.",
+        "balance_billing": false
+      },
+      "SYN-U2": {
+        "allowed_cents": 20000,
+        "source": "contract",
+        "reference": "SYNTHETIC independent contract: invented allowance and no balance billing; not extracted from the SBC or EOB.",
+        "balance_billing": false
+      }
+    }
+  },
+  "check": {
+    "validation": [
+      {
+        "severity": "warning",
+        "code": "category_assignment",
+        "path": "claim.lines.SYN-U1",
+        "message": "Service category and conditions were supplied by the claim reviewer, not inferred from the procedure code."
+      },
+      {
+        "severity": "warning",
+        "code": "category_assignment",
+        "path": "claim.lines.SYN-U2",
+        "message": "Service category and conditions were supplied by the claim reviewer, not inferred from the procedure code."
+      },
+      {
+        "severity": "warning",
+        "code": "bill_eob_difference",
+        "path": "bill.lines.SYN-B2",
+        "message": "Bill total patient responsibility differs from EOB; review comparison."
+      }
+    ],
+    "links": [
+      {
+        "claim_line_id": "SYN-U1",
+        "member_id": "SYN-MEMBER",
+        "provider_id": "SYN-PROVIDER",
+        "service_date": "2026-06-01",
+        "code": "99213",
+        "claim_id": "SYN-URGENT-CLAIM",
+        "bill_line_ids": [
+          "SYN-B1"
+        ]
+      },
+      {
+        "claim_line_id": "SYN-U2",
+        "member_id": "SYN-MEMBER",
+        "provider_id": "SYN-PROVIDER",
+        "service_date": "2026-06-03",
+        "code": "99213",
+        "claim_id": "SYN-URGENT-CLAIM",
+        "bill_line_ids": [
+          "SYN-B2"
+        ]
+      }
+    ],
+    "status": "ready",
+    "scenarios": [
+      {
+        "id": "scenario-1",
+        "assumptions": [
+          "Line SYN-U1: balance-billing treatment comes from independent contract evidence (SYNTHETIC independent contract: invented allowance and no balance billing; not extracted from the SBC or EOB.), not the SBC.",
+          "Line SYN-U1: reviewer assigned category Urgent care; confirmed conditions: none.",
+          "Line SYN-U2: balance-billing treatment comes from independent contract evidence (SYNTHETIC independent contract: invented allowance and no balance billing; not extracted from the SBC or EOB.), not the SBC.",
+          "Line SYN-U2: reviewer assigned category Urgent care; confirmed conditions: none."
+        ],
+        "conditional": true,
+        "lines": [
+          {
+            "claim_line_id": "SYN-U1",
+            "network": "in",
+            "benefit_id": "B11",
+            "allowed_cents": 15000,
+            "deductible_cents": 0,
+            "copay_cents": 4000,
+            "coinsurance_cents": 0,
+            "noncovered_cents": 0,
+            "balance_cents": 0,
+            "patient_cents": 4000,
+            "insurer_paid_cents": 11000,
+            "adjustment_cents": 5000,
+            "opening_deductible_cents": 0,
+            "opening_oop_cents": 915000,
+            "closing_deductible_cents": 0,
+            "closing_oop_cents": 919000,
+            "trace": [
+              {
+                "explanation": "Allowance supplied as evidence; it is not derived from policy cost-sharing rules.",
+                "amount_cents": 15000,
+                "clause_ids": [
+                  "source-1",
+                  "source-27"
+                ]
+              },
+              {
+                "explanation": "Deductible: min(allowance, remaining deductible 0 cents), then OOP cap; applies=False.",
+                "amount_cents": 0,
+                "clause_ids": [
+                  "source-1",
+                  "source-2",
+                  "source-1",
+                  "source-27"
+                ]
+              },
+              {
+                "explanation": "Copay: up to 4000 cents after deductible, then OOP cap.",
+                "amount_cents": 4000,
+                "clause_ids": [
+                  "source-1",
+                  "source-27",
+                  "source-2"
+                ]
+              },
+              {
+                "explanation": "Coinsurance: 0/10000 × 11000 cents, half-up rounding, then OOP cap.",
+                "amount_cents": 0,
+                "clause_ids": [
+                  "source-1",
+                  "source-27",
+                  "source-2"
+                ]
+              },
+              {
+                "explanation": "Covered cost sharing capped by 5000 cents remaining OOP; exclusions and permitted balance bills do not count.",
+                "amount_cents": 4000,
+                "clause_ids": [
+                  "source-2"
+                ]
+              },
+              {
+                "explanation": "Network rule: excess charge is patient balance billing if permitted; otherwise a contractual write-off.",
+                "amount_cents": 0,
+                "clause_ids": []
+              }
+            ]
+          },
+          {
+            "claim_line_id": "SYN-U2",
+            "network": "in",
+            "benefit_id": "B11",
+            "allowed_cents": 20000,
+            "deductible_cents": 0,
+            "copay_cents": 1000,
+            "coinsurance_cents": 0,
+            "noncovered_cents": 0,
+            "balance_cents": 0,
+            "patient_cents": 1000,
+            "insurer_paid_cents": 19000,
+            "adjustment_cents": 10000,
+            "opening_deductible_cents": 0,
+            "opening_oop_cents": 919000,
+            "closing_deductible_cents": 0,
+            "closing_oop_cents": 920000,
+            "trace": [
+              {
+                "explanation": "Allowance supplied as evidence; it is not derived from policy cost-sharing rules.",
+                "amount_cents": 20000,
+                "clause_ids": [
+                  "source-1",
+                  "source-27"
+                ]
+              },
+              {
+                "explanation": "Deductible: min(allowance, remaining deductible 0 cents), then OOP cap; applies=False.",
+                "amount_cents": 0,
+                "clause_ids": [
+                  "source-1",
+                  "source-2",
+                  "source-1",
+                  "source-27"
+                ]
+              },
+              {
+                "explanation": "Copay: up to 4000 cents after deductible, then OOP cap.",
+                "amount_cents": 1000,
+                "clause_ids": [
+                  "source-1",
+                  "source-27",
+                  "source-2"
+                ]
+              },
+              {
+                "explanation": "Coinsurance: 0/10000 × 16000 cents, half-up rounding, then OOP cap.",
+                "amount_cents": 0,
+                "clause_ids": [
+                  "source-1",
+                  "source-27",
+                  "source-2"
+                ]
+              },
+              {
+                "explanation": "Covered cost sharing capped by 1000 cents remaining OOP; exclusions and permitted balance bills do not count.",
+                "amount_cents": 1000,
+                "clause_ids": [
+                  "source-2"
+                ]
+              },
+              {
+                "explanation": "Network rule: excess charge is patient balance billing if permitted; otherwise a contractual write-off.",
+                "amount_cents": 0,
+                "clause_ids": []
+              }
+            ]
+          }
+        ],
+        "patient_cents": 5000,
+        "insurer_paid_cents": 30000,
+        "closing_accumulators": {
+          "in": {
+            "deductible_paid_cents": 0,
+            "oop_paid_cents": 920000
+          }
+        }
+      }
+    ],
+    "comparisons": [
+      {
+        "scenario_id": "scenario-1",
+        "conditional": true,
+        "lines": [
+          {
+            "claim_line_id": "SYN-U1",
+            "code": "99213",
+            "description": "SYNTHETIC urgent care visit one",
+            "fineprint_patient_cents": 4000,
+            "eob_patient_cents": 4000,
+            "bill_patient_cents": 4000,
+            "already_paid_cents": 0,
+            "bill_balance_due_cents": 4000,
+            "fineprint_remaining_cents": 4000,
+            "potential_refund_cents": 0,
+            "potential_overpayment_cents": 0,
+            "eob_difference_cents": 0,
+            "bill_eob_difference_cents": 0,
+            "explanations": [
+              {
+                "kind": "match",
+                "component": "patient_cents",
+                "difference_cents": 0,
+                "message": "Independent cost-sharing calculation, EOB, and bill agree under the stated inputs.",
+                "clause_ids": [
+                  "source-1",
+                  "source-2",
+                  "source-27"
+                ]
+              }
+            ]
+          },
+          {
+            "claim_line_id": "SYN-U2",
+            "code": "99213",
+            "description": "SYNTHETIC urgent care visit two",
+            "fineprint_patient_cents": 1000,
+            "eob_patient_cents": 4000,
+            "bill_patient_cents": 6000,
+            "already_paid_cents": 0,
+            "bill_balance_due_cents": 6000,
+            "fineprint_remaining_cents": 1000,
+            "potential_refund_cents": 0,
+            "potential_overpayment_cents": 5000,
+            "eob_difference_cents": 3000,
+            "bill_eob_difference_cents": 2000,
+            "explanations": [
+              {
+                "kind": "eob_vs_fineprint",
+                "component": "copay_cents",
+                "difference_cents": 3000,
+                "message": "EOB copay is 4000 cents; policy evaluation gives 1000 cents under this scenario.",
+                "clause_ids": [
+                  "source-1",
+                  "source-27",
+                  "source-2"
+                ]
+              },
+              {
+                "kind": "eob_vs_fineprint",
+                "component": "insurer_paid_cents",
+                "difference_cents": -3000,
+                "message": "EOB insurer payment is 16000 cents; policy evaluation gives 19000 cents under this scenario.",
+                "clause_ids": [
+                  "source-1",
+                  "source-2",
+                  "source-27"
+                ]
+              },
+              {
+                "kind": "bill_vs_eob",
+                "component": "patient_cents",
+                "difference_cents": 2000,
+                "message": "Hospital patient payments plus balance due differ from EOB patient responsibility. Check credits and adjustments.",
+                "clause_ids": [
+                  "source-1",
+                  "source-2",
+                  "source-27"
+                ]
+              },
+              {
+                "kind": "bill_vs_fineprint",
+                "component": "patient_cents",
+                "difference_cents": 5000,
+                "message": "Hospital patient responsibility differs from policy evaluation. Request itemized adjudication and review the cited terms.",
+                "clause_ids": [
+                  "source-1",
+                  "source-2",
+                  "source-27"
+                ]
+              }
+            ]
+          }
+        ],
+        "fineprint_patient_cents": 5000,
+        "eob_patient_cents": 8000,
+        "bill_patient_cents": 10000,
+        "already_paid_cents": 0,
+        "bill_balance_due_cents": 10000,
+        "fineprint_remaining_cents": 5000,
+        "potential_refund_cents": 0,
+        "potential_overpayment_cents": 5000,
+        "eob_difference_cents": 3000,
+        "bill_eob_difference_cents": 2000
+      }
+    ],
+    "summary": {
+      "scenario_count": 1,
+      "conditional": true,
+      "illustrated_min_patient_cents": 5000,
+      "illustrated_max_patient_cents": 5000,
+      "eob_patient_cents": 8000,
+      "bill_patient_cents": 10000,
+      "potential_overpayment_min_cents": 5000,
+      "potential_overpayment_max_cents": 5000
+    },
+    "method": "Deterministic policy evaluation; no LLM is used for arithmetic. All figures are USD cents.",
+    "limitations": [
+      "Individual annual, separate network accumulators; one unit/visit per claim line.",
+      "Allowed amounts must be supplied; rates are not inferred from an SBC.",
+      "Missing-fact endpoints are illustrative, not exhaustive outcomes or guaranteed savings.",
+      "Legal billing protections, family coordination, prior authorization, coding and medical necessity are not evaluated.",
+      "Out-of-network deductible and OOP max: not specified in SBC, network omitted.",
+      "Out-of-network balance billing: generic warning about balance billing present, but no explicit protection; set to null. Claims require independent contract evidence.",
+      "Emergency medical transportation: per-trip copay $250 both in and out of network; omitted because per-trip rate not supported (engine supports per-day or per-service, not per-trip).",
+      "Out-of-network emergency room care: $350 copay same as in-network, but out-of-network network structure not compiled; potential balance billing.",
+      "Out-of-network urgent care: temporarily outside service area $40/visit; not compiled due to unsupported condition.",
+      "Facility fee (outpatient surgery): $190/procedure not compiled because per-procedure rate not supported.",
+      "Physician/surgeon fees (outpatient surgery): Not Applicable, included in facility fee; no separate benefit.",
+      "Facility fee (hospital stay): $375/day up to 5 days; per-day multi-day cap omitted.",
+      "Physician/surgeon fee (hospital stay): Not Applicable, included in facility fee; no separate benefit.",
+      "Inpatient mental/behavioral health: $375/day up to 5 days; per-day multi-day cap omitted.",
+      "Childbirth/delivery professional services: Not Applicable, included in facility fee; no separate benefit.",
+      "Childbirth/delivery facility services: $375/day up to 5 days; per-day multi-day cap omitted.",
+      "Home health care: $30/visit with per-visit, per-day, per-year limits; omitted due to per-visit rate and multiple caps.",
+      "Rehabilitation services: split outpatient $40/visit and inpatient $375/day up to 5 days; omitted due to split in/outpatient costs and per-day cap.",
+      "Habilitation services: split outpatient $40/visit and inpatient $375/day up to 5 days; omitted.",
+      "Skilled nursing care: $150/day up to 5 days with 100-day limit/year; per-day cap omitted.",
+      "Durable medical equipment: 20% coinsurance; included? not compiled because no other details; prior authorization required.",
+      "Hospice service: No charge; not compiled because no service category details in SBC.",
+      "Children's eye exam, glasses, dental check-up: No charge; omitted due to age-specific and limitations.",
+      "Specialty drugs (Tier 4): 20% coinsurance up to $250/prescription; omitted due to per-prescription cap unsupported.",
+      "Preferred brand drugs mail order: $120/prescription up to 100-day supply; omitted due to mail order variant.",
+      "Generic drugs mail order: $36/prescription up to 100-day supply; omitted.",
+      "Non-preferred brand drugs mail order: $120/prescription with exception; omitted.",
+      "Outpatient mental/behavioral health group visit: $20/group; omitted due to group visit variant.",
+      "Substance abuse group visit: $5/group; omitted.",
+      "Other outpatient mental/behavioral health services: No charge; omitted due to lack of service category details.",
+      "Maternity care: tests and services described elsewhere; no standalone benefit.",
+      "Preventive care: services without cost sharing, but full list not in SBC.",
+      "Acupuncture, bariatric surgery, abortion: listed as other covered services with limitations; no cost sharing details.",
+      "Excluded services: chiropractic, cosmetic surgery, adult dental, hearing aids, infertility, long-term care, non-emergency care when traveling outside U.S., routine eye care (adult), routine foot care, weight loss programs, private-duty nursing.",
+      "Partial source review: sections were selected locally; omitted services require review and have no executable rules.",
+      "Network out omitted: deductible or OOP limit is not established. Claims in that network require separate review, including emergency exceptions."
+    ]
+  },
+  "independence_check": {
+    "eob_and_bill_patient_increase_cents": 100,
+    "original_totals": [
+      5000
+    ],
+    "perturbed_totals": [
+      5000
+    ],
+    "passed": true
+  },
+  "elapsed_seconds": 374.314
+}

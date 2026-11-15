@@ -4,11 +4,12 @@
   "document_id": "kaiser_2026_ca_gold80_eoc",
   "local_text_path": "data/real_private/docs/kaiser_2026_ca_gold80_eoc.txt",
   "source_sha256": "052a607ec9f0ce6263c9a81c834f09ea4132b357ff19be0795cebbb37372c82d",
-  "generated_at": "2026-11-15T03:28:50.320776+00:00",
-  "revision": "f136700627ccc6410d3018eb7bfea842e6300d70",
-  "compiler_sha256": "bbaeedc3991d38c9a5bfcaeed6228c62b7f216b77b2ab6a55fd2a1ff3b4fed24",
-  "providers_sha256": "6f235df2cb86225b278ee749b3b6ecf3b254ef785ad9bf0ed62616ccf65f66cc",
-  "input": "Unmodified complete pdftotext -layout text; form feeds delimit physical PDF pages.",
+  "generated_at": "2026-11-15T07:53:12.099145+00:00",
+  "revision": "757412207f4e64ace93eb35bf9fc7ba9b1934358",
+  "compiler_sha256": "4e726f007a1eb1aecdec5c3bc3256810aa9e35b6d0c6f156e364513961d29afe",
+  "providers_sha256": "b5e4cf347f7f6daa96ed89adb029bb3bb9bbb3208ad303b09dcd748b23fcc318",
+  "selection_sha256": "a8bb1c61da602f77e95b5b79dc12be46cdeb70d2a85d4ae5fb73f7a01fcb6a53",
+  "input": "Original pdftotext -layout text; provider input uses ranked source sections with evidence checked against the full source.",
   "input_excerpts": [
     {
       "quote": "Plan Out-of-Pocket Maximum (“OOPM”)                   $9,200                    $9,200                      $18,400",
@@ -30,6 +31,7 @@
       "model": null,
       "attempt_limit": 1,
       "compilation": null,
+      "request_config": null,
       "status": "failed",
       "error": "Fallback requires a '# Insurer — Plan' title and Policy/Member/Period/USD header; other formats need a provider or transcription",
       "elapsed_seconds": 0.003
@@ -38,10 +40,326 @@
       "provider": "deepseek",
       "model": "deepseek-v4-pro",
       "attempt_limit": 3,
-      "compilation": null,
-      "status": "failed",
-      "error": "deepseek compilation failed after 3 attempts: output.policy.member_id: text must not be empty. No fallback was substituted.",
-      "elapsed_seconds": 189.628
+      "compilation": {
+        "output": {
+          "policy": {
+            "id": "kaiser_2026_ca_gold80_eoc",
+            "insurer": "Kaiser Foundation Health Plan, Inc.",
+            "name": "2026 Kaiser Permanente - Gold 80 HMO",
+            "member_id": null,
+            "effective_from": null,
+            "effective_to": null,
+            "currency": "USD",
+            "networks": {
+              "in": {
+                "deductible_cents": 0,
+                "oop_max_cents": 920000,
+                "balance_billing": null,
+                "deductible_clause": "source-1",
+                "oop_clause": "source-2",
+                "network_clause": null
+              }
+            },
+            "benefits": [],
+            "clauses": [
+              {
+                "id": "source-1",
+                "text": "Plan Deductible                                        None",
+                "location": "Cost Share Summary"
+              },
+              {
+                "id": "source-2",
+                "text": "Plan Out-of-Pocket Maximum (“OOPM”)                   $9,200",
+                "location": "Cost Share Summary"
+              }
+            ]
+          },
+          "rule_evidence": [
+            {
+              "rule_path": "networks.in.deductible_cents",
+              "evidence": [
+                {
+                  "source_document_id": "kaiser_2026_ca_gold80_eoc",
+                  "section": "Cost Share Summary",
+                  "quote": "Plan Deductible                                        None",
+                  "start": 26394,
+                  "end": 26453
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            },
+            {
+              "rule_path": "networks.in.oop_max_cents",
+              "evidence": [
+                {
+                  "source_document_id": "kaiser_2026_ca_gold80_eoc",
+                  "section": "Cost Share Summary",
+                  "quote": "Plan Out-of-Pocket Maximum (“OOPM”)                   $9,200",
+                  "start": 26622,
+                  "end": 26682
+                }
+              ],
+              "confidence_bps": 10000,
+              "ambiguity": "none"
+            }
+          ],
+          "warnings": [
+            "Selected input is a synthetic-data test document; no actual member data or claim should be inferred.",
+            "This compilation is based on the provided excerpts; omitted sections may contain additional relevant terms.",
+            "Dropped rule benefits.B1: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B10: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B11: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B12: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B13: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B14: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B15: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B16: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B17: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B18: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B19: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B2: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B20: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B21: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B22: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B23: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B24: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B25: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B26: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B27: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B28: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B29: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B3: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B30: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B31: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B32: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B33: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B34: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B35: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B4: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B5: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B6: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B7: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B8: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B9: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule networks.in.balance_billing: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule networks.out.balance_billing: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule networks.out.deductible_cents: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule networks.out.oop_max_cents: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Retained validated partial output from attempt 1 after 3 attempts; selection used supported-rule count only, never gold answers."
+          ],
+          "unresolved": [
+            "No explicit balance billing language found for in-network or out-of-network providers.",
+            "Out-of-network coverage details are limited; policies for non-participating providers are not fully specified in the provided excerpts.",
+            "No CPT/HCPCS codes were provided in the document excerpts; benefits are described by service category only.",
+            "The document does not establish an out-of-network OOP maximum distinct from the in-network OOP maximum; the same amount is applied to both networks due to lack of explicit differentiation.",
+            "Partial source review: sections were selected locally; omitted clauses require review before claim calculation.",
+            "Dropped rule benefits.B1: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B10: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B11: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B12: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B13: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B14: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B15: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B16: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B17: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B18: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B19: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B2: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B20: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B21: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B22: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B23: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B24: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B25: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B26: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B27: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B28: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B29: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B3: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B30: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B31: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B32: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B33: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B34: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B35: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B4: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B5: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B6: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B7: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B8: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule benefits.B9: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule networks.in.balance_billing: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule networks.out.balance_billing: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule networks.out.deductible_cents: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+            "Dropped rule networks.out.oop_max_cents: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained."
+          ]
+        },
+        "backend": "deepseek",
+        "source_document_id": "kaiser_2026_ca_gold80_eoc",
+        "source_sha256": "052a607ec9f0ce6263c9a81c834f09ea4132b357ff19be0795cebbb37372c82d",
+        "attempts": 3
+      },
+      "request_config": {
+        "response_format": "json_object",
+        "max_tokens_initial": 32768,
+        "max_tokens": 32768,
+        "max_tokens_ceiling": 65536,
+        "thinking": "disabled",
+        "timeout_seconds": 300,
+        "attempt_limit": 3,
+        "transport_attempt_limit": 2,
+        "evidence_spans": "local whitespace-normalized quote search"
+      },
+      "status": "validated",
+      "error": null,
+      "claim_ready": false,
+      "validated_rules": 2,
+      "unresolved": [
+        "No explicit balance billing language found for in-network or out-of-network providers.",
+        "Out-of-network coverage details are limited; policies for non-participating providers are not fully specified in the provided excerpts.",
+        "No CPT/HCPCS codes were provided in the document excerpts; benefits are described by service category only.",
+        "The document does not establish an out-of-network OOP maximum distinct from the in-network OOP maximum; the same amount is applied to both networks due to lack of explicit differentiation.",
+        "Partial source review: sections were selected locally; omitted clauses require review before claim calculation.",
+        "Dropped rule benefits.B1: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+        "Dropped rule benefits.B10: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+        "Dropped rule benefits.B11: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+        "Dropped rule benefits.B12: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+        "Dropped rule benefits.B13: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+        "Dropped rule benefits.B14: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+        "Dropped rule benefits.B15: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+        "Dropped rule benefits.B16: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+        "Dropped rule benefits.B17: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+        "Dropped rule benefits.B18: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+        "Dropped rule benefits.B19: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+        "Dropped rule benefits.B2: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+        "Dropped rule benefits.B20: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+        "Dropped rule benefits.B21: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+        "Dropped rule benefits.B22: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+        "Dropped rule benefits.B23: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+        "Dropped rule benefits.B24: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+        "Dropped rule benefits.B25: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+        "Dropped rule benefits.B26: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+        "Dropped rule benefits.B27: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+        "Dropped rule benefits.B28: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+        "Dropped rule benefits.B29: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+        "Dropped rule benefits.B3: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+        "Dropped rule benefits.B30: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+        "Dropped rule benefits.B31: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+        "Dropped rule benefits.B32: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+        "Dropped rule benefits.B33: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+        "Dropped rule benefits.B34: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+        "Dropped rule benefits.B35: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+        "Dropped rule benefits.B4: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+        "Dropped rule benefits.B5: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+        "Dropped rule benefits.B6: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+        "Dropped rule benefits.B7: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+        "Dropped rule benefits.B8: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+        "Dropped rule benefits.B9: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+        "Dropped rule networks.in.balance_billing: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+        "Dropped rule networks.out.balance_billing: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+        "Dropped rule networks.out.deductible_cents: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained.",
+        "Dropped rule networks.out.oop_max_cents: missing or unmatched source quote/clause/code, or unsupported network; no executable rule retained."
+      ],
+      "evidence_pages": [
+        {
+          "rule_path": "networks.in.deductible_cents",
+          "pages": [
+            6
+          ]
+        },
+        {
+          "rule_path": "networks.in.oop_max_cents",
+          "pages": [
+            6
+          ]
+        }
+      ],
+      "elapsed_seconds": 60.498,
+      "input_selection": {
+        "method": "ranked source sections",
+        "source_characters": 709473,
+        "selected_characters": 59953,
+        "omitted": true,
+        "selected_ranges": [
+          {
+            "start": 0,
+            "end": 752,
+            "page": 1
+          },
+          {
+            "start": 25201,
+            "end": 29145,
+            "page": 6
+          },
+          {
+            "start": 32038,
+            "end": 34895,
+            "page": 8
+          },
+          {
+            "start": 40177,
+            "end": 43172,
+            "page": 11
+          },
+          {
+            "start": 43173,
+            "end": 47093,
+            "page": 12
+          },
+          {
+            "start": 77222,
+            "end": 79775,
+            "page": 22
+          },
+          {
+            "start": 216029,
+            "end": 221884,
+            "page": 47
+          },
+          {
+            "start": 227843,
+            "end": 233843,
+            "page": 49
+          },
+          {
+            "start": 233843,
+            "end": 234087,
+            "page": 49
+          },
+          {
+            "start": 255237,
+            "end": 260926,
+            "page": 54
+          },
+          {
+            "start": 260927,
+            "end": 265879,
+            "page": 55
+          },
+          {
+            "start": 320676,
+            "end": 326475,
+            "page": 66
+          },
+          {
+            "start": 341860,
+            "end": 347259,
+            "page": 70
+          },
+          {
+            "start": 506526,
+            "end": 511895,
+            "page": 99
+          },
+          {
+            "start": 513496,
+            "end": 517121,
+            "page": 101
+          }
+        ],
+        "evidence_validation": "Full original source; whitespace normalization only"
+      }
     }
   ]
 }

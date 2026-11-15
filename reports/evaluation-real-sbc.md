@@ -1,6 +1,6 @@
 # Real published SBC examples (rounded)
 
-Measured 2026-11-15T09:36:21.998186+00:00.
+Measured 2026-11-15T09:52:15.718652+00:00.
 
 **18 labels / 6 insurers; 9 examples targeted; 0 independently recalculated, 9 blocked, 9 not attempted.**
 Confirmed matches: 0; numeric misses: 0. Accuracy and mean error: **unavailable** (no predictions).
@@ -40,15 +40,23 @@ Transcription-only check: 18/18 published component sums equal the published tot
 
 Source compilation measurements (dev and held-out SBCs separated; earlier EOC measurements are historical):
 
-- **historical · fallback / offline**: 0/4 documents retained validated rules; 0/4 have conditionally executable services; 0/4 need no additional billing evidence; 4 failed, 0 skipped.
+- **dev · fallback / offline**: 0/2 documents retained validated rules; 0/2 have conditionally executable services; 0/2 need no additional billing evidence; 2 failed, 0 skipped.
   - [kaiser](real-kaiser-rules.md): failed, 0 rules (0 service rules), 0 validated quote spans; claim-ready False.
   - [highmark](real-highmark-rules.md): failed, 0 rules (0 service rules), 0 validated quote spans; claim-ready False.
+- **dev · deepseek / deepseek-v4-pro**: 2/2 documents retained validated rules; 2/2 have conditionally executable services; 0/2 need no additional billing evidence; 0 failed, 0 skipped.
+  - [kaiser](real-kaiser-rules.md): validated, 16 rules (14 service rules), 31 validated quote spans; claim-ready False.
+  - [highmark](real-highmark-rules.md): validated, 10 rules (8 service rules), 30 validated quote spans; claim-ready False.
+- **held_out · fallback / offline**: 0/2 documents retained validated rules; 0/2 have conditionally executable services; 0/2 need no additional billing evidence; 2 failed, 0 skipped.
   - [cigna](real-cigna-rules.md): failed, 0 rules (0 service rules), 0 validated quote spans; claim-ready False.
-  - [kaiser-eoc](real-kaiser-eoc-rules.md): failed, 0 rules (0 service rules), 0 validated quote spans; claim-ready False.
-- **historical · deepseek / deepseek-v4-pro**: 0/4 documents retained validated rules; 0/4 have conditionally executable services; 0/4 need no additional billing evidence; 4 failed, 0 skipped.
-  - [kaiser](real-kaiser-rules.md): failed, 0 rules (0 service rules), 0 validated quote spans; claim-ready False.
-  - [highmark](real-highmark-rules.md): failed, 0 rules (0 service rules), 0 validated quote spans; claim-ready False.
+  - [ambetter](real-ambetter-rules.md): failed, 0 rules (0 service rules), 0 validated quote spans; claim-ready False.
+- **held_out · deepseek / deepseek-v4-pro**: 1/2 documents retained validated rules; 1/2 have conditionally executable services; 0/2 need no additional billing evidence; 1 failed, 0 skipped.
   - [cigna](real-cigna-rules.md): failed, 0 rules (0 service rules), 0 validated quote spans; claim-ready False.
+  - [ambetter](real-ambetter-rules.md): validated, 21 rules (19 service rules), 55 validated quote spans; claim-ready False.
+- **historical · fallback / offline**: 0/1 documents retained validated rules; 0/1 have conditionally executable services; 0/1 need no additional billing evidence; 1 failed, 0 skipped.
   - [kaiser-eoc](real-kaiser-eoc-rules.md): failed, 0 rules (0 service rules), 0 validated quote spans; claim-ready False.
+- **historical · deepseek / deepseek-v4-pro**: 1/1 documents retained validated rules; 0/1 have conditionally executable services; 0/1 need no additional billing evidence; 0 failed, 0 skipped.
+  - [kaiser-eoc](real-kaiser-eoc-rules.md): validated, 2 rules (0 service rules), 0 validated quote spans; claim-ready False.
+
+Real PDF upload / **synthetic claim and bill**: **passed**, 15 validated rules, 42 exact source-quote spans; recalculated patient total $50.00. [Measured HTTP record](real-kaiser-http-demo.json). This demo is excluded from real-episode accuracy and does not count as another independent policy.
 
 Numeric labels and official source links: [CSV](../data/real_coverage_example_labels.csv). [Manifest and redistribution limits](../data/README.md). No PDFs or full policy extracts included. Synthetic demo replay and synthetic benchmark cases remain separate.
