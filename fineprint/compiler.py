@@ -445,7 +445,7 @@ def main():
     from pathlib import Path
     parser = argparse.ArgumentParser(description="Compile English policy text with traceable rules")
     parser.add_argument("document", type=Path)
-    parser.add_argument("--provider", choices=["fallback", "openai", "anthropic", "bedrock"])
+    parser.add_argument("--provider", choices=["fallback", "openai", "anthropic", "bedrock", "deepseek"])
     args = parser.parse_args()
     result = get_compiler(args.provider).compile(args.document.read_text(encoding="utf-8"), args.document.name)
     print(json.dumps(result.as_dict(), indent=2, ensure_ascii=False))
