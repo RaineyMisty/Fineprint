@@ -128,6 +128,23 @@ class CompilerTests(unittest.TestCase):
         self.assertTrue(all(b.network == 'in' for b in result.policy.benefits))
         self.assertTrue(any('networks.out' in issue for issue in result.output.unresolved))
 
+    def test_llm_path_errors_give_exact_contract_on_retry(self):
+        good = to_dict(FallbackCompiler().compile(DOC).output)
+        invalid = deepcopy(good)
+        invalid['rule_evidence'][0]['rule_path'] = 'policy.networks.in.deductible_cents'
+        calls = []
+        def transport(prompt, schema):
+            calls.append(prompt)
+            return invalid if len(calls) == 1 else good
+        result = LLMCompiler('deepseek', transport=transport, sleep=lambda _:None).compile(DOC)
+        self.assertEqual(result.attempts, 2)
+        self.assertIn('Invalid rule_evidence.rule_path', calls[1])
+        self.assertIn('No \'policy.\' prefix or benefit field suffix', calls[1])
+        self.assertFalse(result.output.unresolved)
+        invalid['rule_evidence'][0]['rule_path'] = 'benefits.B1.copay_cents'
+        with self.assertRaisesRegex(ProviderError, 'Invalid rule_evidence.rule_path'):
+            LLMCompiler('deepseek', transport=lambda *_:invalid, retries=1).compile(DOC)
+
     def test_live_request_payload_contracts_with_test_http(self):
         good = to_dict(FallbackCompiler().compile(DOC).output)
         for provider in ('openai', 'anthropic'):

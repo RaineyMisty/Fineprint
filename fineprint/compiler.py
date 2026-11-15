@@ -92,6 +92,11 @@ _evidence_schema = PROVIDER_SCHEMA["properties"]["rule_evidence"]["items"]["prop
 for _key in ("start", "end"):
     del _evidence_schema["properties"][_key]
     _evidence_schema["required"].remove(_key)
+PROVIDER_SCHEMA["properties"]["rule_evidence"]["items"]["properties"]["rule_path"]["description"] = (
+    "Relative policy rule path, with NO policy. prefix: networks.in.deductible_cents, "
+    "networks.in.oop_max_cents, networks.in.balance_billing (or networks.out.*); "
+    "benefits.<actual benefit id> for the WHOLE benefit, without any field suffix."
+)
 
 
 def _normalized_text(text):
@@ -112,6 +117,13 @@ def recover_evidence(value, document, document_id):
         for evidence in rule.get("evidence", []):
             evidence["start"], evidence["end"] = 0, 0
     validate_schema(value)
+    expected_paths = {f"networks.{net}.{field}" for net in value["policy"]["networks"]
+                      for field in ("deductible_cents", "oop_max_cents", "balance_billing")}
+    expected_paths.update("benefits." + b["id"] for b in value["policy"]["benefits"])
+    if any(r["rule_path"] not in expected_paths for r in value["rule_evidence"]):
+        raise ModelError("Invalid rule_evidence.rule_path. Use only these exact paths: "
+                         + ", ".join(sorted(expected_paths))
+                         + ". No 'policy.' prefix or benefit field suffix; group a benefit's supporting quotes together.")
     tokens = list(re.finditer(r"\S+", document))
     normalized = " ".join(t.group() for t in tokens)
     # Map normalized character positions back to original source positions.
@@ -230,7 +242,8 @@ def validate_output(value, document, document_id):
         raise ModelError("Duplicate clause or benefit IDs")
     paths = rule_paths(p)
     if not paths:
-        raise ModelError("No supported executable rules found")
+        dropped = [w for w in output.warnings if w.startswith("Dropped rule ")]
+        raise ModelError("No supported executable rules found" + (". " + " ".join(dropped) if dropped else ""))
     if {r.rule_path for r in output.rule_evidence} != paths or len(output.rule_evidence) != len(paths):
         raise ModelError("Every executable rule must have exactly one evidence entry")
     for r in output.rule_evidence:
