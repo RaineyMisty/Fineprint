@@ -146,11 +146,13 @@ function compiledRules(c) {
 /* ---------- explorer: reconciliation ---------- */
 function renderVerdict(c, scenario) {
   const s = c.report.summary, max = Math.max(s.eob_patient_cents, s.bill_patient_cents, scenario.patient_cents, 1);
-  const delta = s.eob_patient_cents - scenario.patient_cents;
-  const cls = scenario.conditional ? 'cond' : delta ? 'flag' : 'ok';
-  const row = (name, cls2, v) => `<div class="vbar"><span>${name}</span>${bar(cls2, v, max)}<strong>${counted(v, 'money', money(v))}</strong></div>`;
-  $('#verdict').innerHTML = `<div class="vbars">${row('EOB', 'eob', s.eob_patient_cents)}${row('Bill', 'bill', s.bill_patient_cents)}${row('Fineprint', 'fp', scenario.patient_cents)}</div>
-    <div class="delta-box ${cls}"><small>${scenario.conditional ? 'Conditional' : 'EOB − Fineprint'}</small><strong>${scenario.conditional ? `${money(s.illustrated_min_patient_cents)}–${money(s.illustrated_max_patient_cents)}` : counted(delta, 'signed', signedMoney(delta))}</strong>${scenario.conditional ? `<small>${s.scenario_count} scenarios</small>` : ''}</div>`;
+  const delta = s.eob_patient_cents - scenario.patient_cents, billDelta = s.bill_patient_cents - scenario.patient_cents;
+  const cls = scenario.conditional ? 'cond' : delta || billDelta ? 'flag' : 'ok';
+  const row = (name, cls2, v) => `<div class="vbar ${cls2}"><span>${name}</span>${bar(cls2, v, max)}<strong>${counted(v, 'money', money(v))}</strong></div>`;
+  const box = (name, v) => `<div class="delta-box ${v ? 'flag' : 'ok'}"><small>${name}</small><strong>${counted(v, 'signed', signedMoney(v))}</strong></div>`;
+  $('#verdict').innerHTML = `<div class="vq"><small>What should the patient pay?</small><strong class="${cls}">${scenario.conditional ? `${money(s.illustrated_min_patient_cents)}–${money(s.illustrated_max_patient_cents)}` : money(scenario.patient_cents)}</strong><span>${scenario.conditional ? `Depends on facts the documents don’t give · ${s.scenario_count} scenarios` : cls === 'ok' ? 'Bill, insurer statement and recalculation agree' : 'Fineprint recalculation from the policy'}</span></div>
+    <div class="vbars">${row('Bill', 'bill', s.bill_patient_cents)}${row('Insurer (EOB)', 'eob', s.eob_patient_cents)}${row('Fineprint', 'fp', scenario.patient_cents)}</div>
+    <div class="deltas">${scenario.conditional ? `<div class="delta-box cond"><small>Conditional</small><strong>${s.scenario_count} scenarios</strong></div>` : box('Bill − Fineprint', billDelta) + box('EOB − Fineprint', delta)}</div>`;
   animateNumbers($('#verdict'));
 }
 function renderScenarios(c, scenario) {
@@ -163,25 +165,24 @@ function renderScenarios(c, scenario) {
 }
 function renderLines(c, scenario) {
   const comparison = c.report.comparisons.find(s => s.scenario_id === scenario.id);
-  const maxLine = Math.max(1, ...scenario.lines.map(l => l.patient_cents), ...comparison.lines.map(l => l.eob_patient_cents));
+  const maxLine = Math.max(1, ...scenario.lines.map(l => l.patient_cents), ...comparison.lines.map(l => Math.max(l.eob_patient_cents, l.bill_patient_cents || 0)));
   $('#lines').innerHTML = scenario.lines.map(line => {
     const original = c.case.claim.lines.find(l => l.id === line.claim_line_id);
     const cmp = comparison.lines.find(l => l.claim_line_id === line.claim_line_id);
     const issues = cmp.explanations.filter(e => e.kind !== 'match');
-    const differs = cmp.eob_difference_cents !== 0;
     const rows = Object.keys(fieldLabels).map(key => {
       const eob = key === 'patient_cents' ? cmp.eob_patient_cents : original.insurer[key];
       const diff = Number.isSafeInteger(eob) ? eob - line[key] : null;
       return `<tr class="${key === 'patient_cents' ? 'total ' : ''}${diff ? 'diff' : eob === 0 && line[key] === 0 ? 'zero' : ''}"><th scope="row">${fieldLabels[key]}</th><td>${money(eob)}</td><td>${money(line[key])}</td><td>${diff ? signedMoney(diff) : '—'}</td></tr>`;
     }).join('');
-    const cites = [...new Set(line.trace.flatMap(t => t.clause_ids))];
+    const lbar = (name, cls, v) => `<div class="cmp-row"><span>${name}</span>${bar(cls, v, maxLine)}<span>${money(v)}</span></div>`;
     return `<article class="line ${issues.length ? 'has' : ''}"><div class="line-head"><h3><small>${escapeHTML(line.claim_line_id)} · ${escapeHTML(original.code)}</small>${escapeHTML(original.description)}</h3><span class="chip">${escapeHTML(networkLabel(line.network))}</span></div>
-      <div class="line-bars"><div class="cmp-row"><span>EOB</span>${bar('eob', cmp.eob_patient_cents, maxLine)}<span>${money(cmp.eob_patient_cents)}</span></div><div class="cmp-row"><span>Fineprint</span>${bar('fp', line.patient_cents, maxLine)}<span>${money(line.patient_cents)}</span></div></div>
-      <div class="t-scroll" tabindex="0" role="region" aria-label="${escapeHTML(line.claim_line_id)} EOB vs Fineprint"><table class="tbl"><thead><tr><th scope="col">Component</th><th scope="col">EOB</th><th scope="col">Fineprint</th><th scope="col">Δ</th></tr></thead><tbody>${rows}</tbody></table></div>
-      ${issues.length ? `<div class="issues">${scenario.conditional ? '<span class="chip cond">Conditional differences</span>' : ''}${issues.map(e => { const k = kindLabels[e.kind] || [e.kind.replace(/_/g, ' '), e.kind]; return `<div class="issue"><span class="k"><b>${escapeHTML(k[1])}</b> · ${escapeHTML(label(e.component))}<br><span class="muted">${escapeHTML(k[0])}</span></span><strong>${signedMoney(e.difference_cents)}</strong><div class="cites">${citations(c, e.clause_ids)}</div></div>`; }).join('')}</div>` : `<div class="matchline"><span aria-hidden="true">✓</span>Matches to the cent</div>`}
-      <div class="accs"><span>Deductible ${money(line.opening_deductible_cents)} → ${money(line.closing_deductible_cents)}</span><span>OOP ${money(line.opening_oop_cents)} → ${money(line.closing_oop_cents)}</span></div>
-      <details><summary>Bill reconciliation</summary><div class="mini">${[['Bill patient', cmp.bill_patient_cents], ['Already paid', cmp.already_paid_cents], ['Balance due', cmp.bill_balance_due_cents], ['Fineprint remaining', cmp.fineprint_remaining_cents], ['Potential refund', cmp.potential_refund_cents], ['Potential overpayment', cmp.potential_overpayment_cents]].map(([t, v]) => `<div><small>${t}</small><strong>${money(v)}</strong></div>`).join('')}</div></details>
-      <details><summary>Calculation trace</summary><ol class="trace">${line.trace.map(t => `<li><b>${money(t.amount_cents)}</b><span>${escapeHTML(t.explanation)}</span><span class="cites">${citations(c, t.clause_ids)}</span></li>`).join('')}</ol></details></article>`;
+      <div class="line-bars">${Number.isSafeInteger(cmp.bill_patient_cents) ? lbar('Bill', 'bill', cmp.bill_patient_cents) : ''}${lbar('EOB', 'eob', cmp.eob_patient_cents)}${lbar('Fineprint', 'fp', line.patient_cents)}</div>
+      ${issues.length ? `<div class="issues">${scenario.conditional ? '<span class="chip cond">Conditional differences</span>' : ''}${issues.map(e => { const k = kindLabels[e.kind] || [e.kind.replace(/_/g, ' '), e.kind]; return `<div class="issue ${escapeHTML(e.kind)}"><span class="k"><b>${escapeHTML(k[1])}</b> · ${escapeHTML(label(e.component))}</span><strong>${signedMoney(e.difference_cents)}</strong><div class="cites"><span class="muted">Clauses</span>${citations(c, e.clause_ids)}</div></div>`; }).join('')}</div>` : `<div class="matchline"><span aria-hidden="true">✓</span>Matches to the cent</div>`}
+      <details class="steps" ${issues.length ? 'open' : ''}><summary>How Fineprint got ${money(line.patient_cents)} · ${line.trace.length} steps</summary><ol class="trace">${line.trace.map(t => `<li><b>${money(t.amount_cents)}</b><span>${escapeHTML(t.explanation)}</span><span class="cites">${citations(c, t.clause_ids)}</span></li>`).join('')}</ol></details>
+      <details><summary>Component table · EOB vs Fineprint</summary><div class="t-scroll" tabindex="0" role="region" aria-label="${escapeHTML(line.claim_line_id)} EOB vs Fineprint"><table class="tbl"><thead><tr><th scope="col">Component</th><th scope="col">EOB</th><th scope="col">Fineprint</th><th scope="col">Δ</th></tr></thead><tbody>${rows}</tbody></table></div>
+      <div class="accs"><span>Deductible ${money(line.opening_deductible_cents)} → ${money(line.closing_deductible_cents)}</span><span>OOP ${money(line.opening_oop_cents)} → ${money(line.closing_oop_cents)}</span></div></details>
+      <details><summary>Bill reconciliation</summary><div class="mini">${[['Bill patient', cmp.bill_patient_cents], ['Already paid', cmp.already_paid_cents], ['Balance due', cmp.bill_balance_due_cents], ['Fineprint remaining', cmp.fineprint_remaining_cents], ['Potential refund', cmp.potential_refund_cents], ['Potential overpayment', cmp.potential_overpayment_cents]].map(([t, v]) => `<div><small>${t}</small><strong>${money(v)}</strong></div>`).join('')}</div></details></article>`;
   }).join('');
 }
 function renderReconciliation(c, scenarioID) {
@@ -203,12 +204,12 @@ function buildExplorer(c) {
   const st = caseState(c), blocked = st === 'abstain';
   const nSpans = evidenceSpans(c).length, nRules = c.compilation?.output.rule_evidence.length || 0;
   $('#explorer-content').innerHTML = `<div class="picker" role="group" aria-label="Cases">${data.cases.map(item => `<a href="#explorer/${encodeURIComponent(item.id)}" ${item.id === c.id ? 'aria-current="true"' : ''}><span class="dot ${caseState(item)}"></span>${escapeHTML(item.title)}</a>`).join('')}</div>
-    <div class="case-head"><h2>${escapeHTML(c.title)}</h2><div class="tags"><span class="chip ${st}">${stateText[st]}</span><span class="chip ${c.split === 'held_out' ? 'held' : ''}">${splitLabel(c.split)}</span><span class="badge">Synthetic</span></div></div>
+    <div class="case-head"><h2>${escapeHTML(c.title)}</h2><div class="tags"><span class="chip ${st}">${stateText[st]}</span><span class="chip ${c.split === 'held_out' ? 'held' : ''}">${splitLabel(c.split)}</span><span class="badge">Synthetic</span><span class="badge">Offline fallback reader</span></div></div>
     ${blocked ? `<div class="abstained" role="status"><span class="stop" aria-hidden="true">∅</span><strong>Parser abstained</strong><span class="why">${escapeHTML(c.report.blocked_reason || '')}</span><div class="tags"><span class="chip abstain">0 rules compiled</span><span class="chip abstain">No recalculation</span></div></div>` : '<div id="verdict" class="verdict"></div><div id="scenarios"></div>'}
     <div class="split"><div class="left">
-      <section class="pane policy-pane" aria-label="Policy text"><div class="pane-head"><h3>Policy text</h3><span class="chip">${nSpans} evidence spans</span></div><div class="pane-body" id="policy-body" tabindex="0"><pre class="policy-text">${policyText(c)}</pre></div></section>
-      <section class="pane rules-pane" aria-label="Compiled rules"><div class="pane-head"><h3>Compiled rules</h3><span class="chip">${nRules} rules</span></div><div class="pane-body" id="rules-body">${nRules ? compiledRules(c) : '<div class="empty">No rules emitted</div>'}</div></section>
-    </div><div class="right">${blocked ? '' : '<div id="lines" class="lines"></div>'}</div></div>`;
+      <section class="pane policy-pane" aria-label="Policy text"><div class="pane-head"><h3>Policy</h3><span class="chip">${nSpans} highlighted clauses</span></div><div class="pane-body" id="policy-body" tabindex="0"><pre class="policy-text">${policyText(c)}</pre></div></section>
+      <section class="pane rules-pane" aria-label="Compiled rules"><div class="pane-head"><h3>Rules the program uses</h3><span class="chip">${nRules} rules</span></div><div class="pane-body" id="rules-body">${nRules ? compiledRules(c) : '<div class="empty">No rules emitted</div>'}</div></section>
+    </div><div class="right">${blocked ? '' : '<h3 class="lines-title">Line by line <span>number → steps → clause</span></h3><div id="lines" class="lines"></div>'}</div></div>`;
   const picker = $('.picker a[aria-current]');
   if (picker) picker.scrollIntoView({block:'nearest', inline:'center'});
   if (!blocked) {
