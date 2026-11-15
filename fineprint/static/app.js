@@ -2,7 +2,7 @@
 (() => {
   const $ = (id) => document.getElementById(id);
   const S = {step: 1, samples: [], sample: null, data: null, active: null, scenario: 0, lastRequest: null,
-             pdf: {}, pdfRun: [], reading: new Set(), token: {}, seq: 0};
+             pdf: {}, pdfRun: [], reading: new Set(), token: {}, seq: 0, running: false};
 
   /* ---------- helpers ---------- */
   function h(tag, attrs, ...kids) {
@@ -31,7 +31,7 @@
       try { body = await res.json(); } catch { /* gateway replies may not be JSON */ }
       if (!res.ok || !body) throw {
         message: res.status < 500 && body?.error ? body.error : "We had trouble connecting. Please try again in a moment.",
-        kind: res.status >= 500 || !body ? "network" : (body.kind || "input")
+        kind: res.status >= 500 || res.status === 429 || !body ? "network" : (body.kind || "input")
       };
       return body;
     } catch (e) {
@@ -48,17 +48,22 @@
     const id = btoa(String.fromCharCode(...bytes)).replaceAll("+", "-").replaceAll("/", "_");
     const body = JSON.stringify({operation: path, payload: JSON.parse(options.body)});
     const deadline = Date.now() + 20 * 60 * 1000;
-    let failures = 0;
+    let failures = 0, busyPolls = 0;
     while (Date.now() < deadline) {
+      let delay = 1500 + Math.random() * 500;
       try {
         const job = await requestApi("/api/jobs/" + id, {method: "POST", headers: {"Content-Type": "application/json"}, body});
         failures = 0;
+        if (job.status === "busy") {
+          delay = Math.min(30000, 5000 * 2 ** Math.min(busyPolls++, 3)) + Math.random() * 1000;
+        } else busyPolls = 0;
         if (job.status === "done") return job.result;
         if (job.status === "failed") throw {message: job.error, kind: job.kind};
       } catch (e) {
         if (e.kind !== "network" || ++failures >= 5) throw e;
+        delay = Math.min(30000, 5000 * 2 ** (failures - 1)) + Math.random() * 1000;
       }
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      await new Promise((resolve) => setTimeout(resolve, delay));
     }
     throw {message: "This check is taking longer than usual. Please try again in a moment.", kind: "retry"};
   }
@@ -259,6 +264,7 @@
     } catch (e) { show(1); banner(e.message, e.kind); }
   }
   async function run(text) {
+    if (S.running) return;
     unbanner();
     if (S.reading.size) { show(1); banner("Still reading your PDF — check again once it’s done.", "input"); return; }
     if (syncPolicyUpload()) { show(1); pointToPolicyUpload(); return; }
@@ -268,6 +274,7 @@
       show(1); banner("Add all three documents, or try a sample case.", "input"); return;
     }
     const fromPdf = KINDS.filter((k) => S.pdf[k]);
+    S.running = true;
     loading((text || "Reading your policy and checking its source passages.") + " This can take a few minutes; we’ll keep checking for you…");
     try {
       const compiled = await api("/api/compile", {method: "POST", headers: {"Content-Type": "application/json"},
@@ -280,6 +287,7 @@
       S.active = null; S.scenario = 0; S.pdfRun = fromPdf;
       renderRules(); renderResult(); show(2);
     } catch (e) { show(1); banner(e.message, e.kind, () => run()); }
+    finally { S.running = false; }
   }
 
   /* ---------- step 3: optional rules + source ---------- */

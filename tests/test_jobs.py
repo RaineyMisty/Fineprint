@@ -3,6 +3,7 @@ from concurrent.futures import ThreadPoolExecutor
 from http.client import HTTPConnection
 from http.server import ThreadingHTTPServer
 import json
+import io
 import threading
 import time
 import unittest
@@ -12,14 +13,14 @@ from fineprint.compiler import FallbackCompiler
 from fineprint.jobs import CompilationCache, JobStore, RETRY_MESSAGE
 from fineprint.providers import ProviderError
 from fineprint.repository import sample_inputs
-from fineprint.server import Handler
+from fineprint.server import Handler, Server
 
 
 class JobHttpTests(unittest.TestCase):
     def setUp(self):
         self.servers = []
         for _ in range(2):
-            server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+            server = Server(("127.0.0.1", 0), Handler)
             server.job_store = JobStore()
             thread = threading.Thread(target=server.serve_forever, daemon=True)
             thread.start()
@@ -32,12 +33,13 @@ class JobHttpTests(unittest.TestCase):
             thread.join()
             server.job_store.executor.shutdown(wait=True)
 
-    def post(self, replica, path, envelope, headers=None):
+    def post(self, replica, path, envelope, headers=None, *, raw=None, method="POST"):
         conn = HTTPConnection("127.0.0.1", self.servers[replica][0].server_port, timeout=3)
         started = time.monotonic()
-        conn.request("POST", path, json.dumps(envelope), headers or {"Content-Type": "application/json"})
+        conn.request(method, path, raw if raw is not None else (None if method in ("GET", "HEAD") else json.dumps(envelope)), headers or {"Content-Type": "application/json"})
         response = conn.getresponse()
-        result = json.loads(response.read())
+        data = response.read()
+        result = json.loads(data) if data and response.getheader("Content-Type", "").startswith("application/json") else None
         status = response.status
         conn.close()
         self.assertLess(time.monotonic() - started, 1)
@@ -117,9 +119,55 @@ class JobHttpTests(unittest.TestCase):
     def test_guards_apply_to_job_start_and_poll(self):
         for path in ("/api/jobs", "/api/jobs/" + "a" * 32):
             self.assertEqual(self.post(0, path, {})[0], 400)
-            self.assertEqual(self.post(0, path, {}, {"Content-Type": "text/plain"})[0], 415)
+            self.assertEqual(self.post(0, path, {}, {"Content-Type": "text/plain"})[0], 400)
             self.assertEqual(self.post(0, path, {}, {"Content-Type": "application/json", "Sec-Fetch-Site": "cross-site"})[0], 403)
         self.assertEqual(self.post(0, "/api/jobs/invalid", dict(operation="/api/check", payload={}))[0], 400)
+
+    def test_empty_malformed_and_wrong_task_get_have_no_server_errors(self):
+        for replica in (0, 1):
+            for path in ("/api/jobs", "/api/jobs/" + "a" * 32):
+                for raw in (b"", b"{", b"null", b"[]", b"{}", b'\xff',
+                            b'{"operation":[],"payload":{}}', b'{"operation":{},"payload":{}}',
+                            b'{"operation":"/api/check","payload":[]}'):
+                    self.assertEqual(self.post(replica, path, None, raw=raw)[0], 400)
+            status, body = self.post(replica, "/api/jobs/" + "a" * 32, None, method="GET")
+            self.assertEqual((status, body["status"]), (202, "resume_required"))
+
+    def test_full_store_does_not_block_health_or_emit_5xx(self):
+        gate = threading.Event()
+        envelope = dict(operation="/api/compile", payload={})
+        def slow(*args, **kwargs):
+            gate.wait(3)
+            return {}
+        self.servers[0][0].job_store.limit = 1
+        with patch("fineprint.server.execute", side_effect=slow):
+            try:
+                self.assertEqual(self.post(0, "/api/jobs", envelope)[0], 202)
+                for _ in range(6):
+                    status, body = self.post(0, "/api/jobs", envelope)
+                    self.assertEqual((status, body["status"]), (202, "busy"))
+                with ThreadPoolExecutor(max_workers=16) as pool:
+                    requests = [(method, path) for method in ("GET", "HEAD")
+                                for path in ("/", "/ping", "/health", "/healthz", "/ready", "/readyz", "/livez")]
+                    statuses = list(pool.map(lambda item: self.post(0, item[1], None, method=item[0])[0], requests))
+                self.assertEqual(statuses, [200] * len(requests))
+                self.assertEqual(len(self.servers[0][0].job_store.jobs), 1)
+                self.assertEqual(self.post(0, "/ping", None, method="OPTIONS")[0], 405)
+            finally:
+                gate.set()
+
+    def test_access_logs_include_status_and_timing_without_query_or_body(self):
+        output = io.StringIO()
+        with patch("sys.stdout", output):
+            self.assertEqual(self.post(0, "/ping?token=private-value", None, method="GET")[0], 200)
+            time.sleep(.02)  # Handler logs once after the response is written.
+        logs = [json.loads(line) for line in output.getvalue().splitlines() if line.startswith('{')]
+        self.assertEqual(len(logs), 1)
+        self.assertEqual(logs[0]["method"], "GET")
+        self.assertEqual(logs[0]["path"], "/ping")
+        self.assertEqual(logs[0]["status"], 200)
+        self.assertIn("ms", logs[0])
+        self.assertNotIn("private-value", output.getvalue())
 
 
 class JobStoreTests(unittest.TestCase):
@@ -129,7 +177,8 @@ class JobStoreTests(unittest.TestCase):
         envelope = dict(operation="/api/check", payload={})
         try:
             _, first = store.poll(envelope, lambda *_: gate.wait(2))
-            self.assertEqual(store.poll(envelope, lambda *_: None)[0], 503)
+            status, body = store.poll(envelope, lambda *_: None)
+            self.assertEqual((status, body["status"]), (202, "busy"))
             gate.set()
             store.executor.shutdown(wait=True)
             time.sleep(.02)
@@ -140,6 +189,17 @@ class JobStoreTests(unittest.TestCase):
             self.assertEqual(len(store.jobs), 1)
         finally:
             gate.set()
+            store.executor.shutdown(wait=True)
+
+    def test_completed_jobs_are_evicted_before_capacity_response(self):
+        store = JobStore(limit=2)
+        envelope = dict(operation="/api/check", payload={})
+        try:
+            for _ in range(40):
+                status, body = store.poll(envelope, lambda *_: {"ok": True}, wait_seconds=.1)
+                self.assertEqual((status, body["status"]), (200, "done"))
+                self.assertLessEqual(len(store.jobs), 2)
+        finally:
             store.executor.shutdown(wait=True)
 
     def test_compile_cache_singleflight_provenance_and_mutation_isolation(self):

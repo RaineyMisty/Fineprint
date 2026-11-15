@@ -2,6 +2,7 @@
 
 import argparse
 import json
+import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urlsplit
@@ -12,7 +13,15 @@ from .service import analyze, analyze_policy_text, check_documents
 
 STATIC = Path(__file__).parent / "static"
 MAX_BODY = 15 * 1024 * 1024  # base64 JSON of an ~11 MB PDF; text endpoints share the limit
-LEGACY_WAIT_SECONDS = 15
+LEGACY_WAIT_SECONDS = 0.1
+HEALTH_PATHS = {"/ping", "/health", "/healthz", "/ready", "/readyz", "/livez"}
+
+
+class Server(ThreadingHTTPServer):
+    # The stdlib default listen backlog is only five on deployed Python 3.12.
+    # Polls/uploads must not crowd a simultaneous load-balancer health probe out.
+    request_queue_size = 128
+    daemon_threads = True
 
 
 def execute(path, payload, *, cached=False):
@@ -64,6 +73,33 @@ def error_kind(exc):
 
 
 class Handler(BaseHTTPRequestHandler):
+    def setup(self):
+        super().setup()
+        self.connection.settimeout(5)
+
+    def handle_one_request(self):
+        started = time.monotonic()
+        self._response_status = None
+        try:
+            super().handle_one_request()
+        except (BrokenPipeError, ConnectionResetError, TimeoutError):
+            # A disconnected/slow client must not produce an HTTP 5xx traceback.
+            pass
+        finally:
+            if self._response_status is not None:
+                path = urlsplit(getattr(self, "path", "/")).path
+                for prefix in ("/api/jobs/", "/api/cases/", "/api/samples/", "/api/demos/"):
+                    if path.startswith(prefix):
+                        path = prefix + ":id"
+                        break
+                print(json.dumps({"method": getattr(self, "command", "?"), "path": path,
+                                  "status": self._response_status,
+                                  "ms": round((time.monotonic() - started) * 1000, 2)}), flush=True)
+
+    def send_response(self, code, message=None):
+        self._response_status = code
+        super().send_response(code, message)
+
     def log_message(self, format, *args):
         # Avoid putting case contents or identifiers into application logs.
         pass
@@ -78,10 +114,20 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("X-Content-Type-Options", "nosniff")
         self.send_header("Content-Security-Policy", "default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'")
         self.end_headers()
-        self.wfile.write(body)
+        if self.command != "HEAD":
+            self.wfile.write(body)
+
+    def do_HEAD(self):
+        return self.do_GET()
+
+    def __getattr__(self, name):
+        # BaseHTTPRequestHandler otherwise emits 501 for unsupported methods.
+        if name.startswith("do_"):
+            return lambda: self.reply(405, {"error": "Use GET or POST for this endpoint"})
+        raise AttributeError(name)
 
     def legacy_analysis(self, operation, payload):
-        """Preserve fast API responses; hand slow callers a job within 15s."""
+        """Preserve fast API responses; hand slow callers a job within 100ms."""
         from .jobs import JOBS
         store = getattr(self.server, "job_store", JOBS)
         status, body = store.poll({"operation": operation, "payload": payload}, execute, wait_seconds=LEGACY_WAIT_SECONDS)
@@ -96,8 +142,16 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         path = urlsplit(self.path).path
         try:
-            if path == "/ping":
+            if path in HEALTH_PATHS:
                 return self.reply(200, {"ok": True})
+            if path.startswith("/api/jobs/"):
+                from .jobs import JOBS
+                status, body = getattr(self.server, "job_store", JOBS).status(path.removeprefix("/api/jobs/"))
+                return self.reply(status, body)
+            if path == "/api/jobs":
+                return self.reply(200, {"ok": True, "message": "POST an operation and payload to start a check"})
+            if path == "/favicon.ico":
+                return self.reply(204, b"", "image/x-icon")
             if path == "/api/demos":
                 return self.reply(200, list_demos())
             if path.startswith("/api/demos/"):
@@ -140,12 +194,18 @@ class Handler(BaseHTTPRequestHandler):
         # Reject cross-origin browser requests; this endpoint has no CORS opt-in.
         if self.headers.get("Sec-Fetch-Site") == "cross-site":
             return self.reply(403, {"error": "Cross-site requests are not supported"})
-        if self.headers.get("Content-Type", "").split(";")[0].strip() != "application/json":
-            return self.reply(415, {"error": "Send application/json"})
         try:
+            if len(self.headers.get_all("Content-Length", [])) != 1:
+                return self.reply(400, {"error": "Send one Content-Length header", "kind": "input"})
             length = int(self.headers.get("Content-Length", "0"))
-            if not 0 < length <= MAX_BODY:
+            if length <= 0:
+                return self.reply(400, {"error": "Send a nonempty JSON object", "kind": "input"})
+            if length > MAX_BODY:
                 return self.reply(413, {"error": "Request body must be between 1 byte and 15 MiB"})
+            if self.headers.get("Content-Type", "").split(";")[0].strip().lower() != "application/json":
+                return self.reply(400 if is_job else 415, {"error": "Send application/json", "kind": "input"})
+            if self.headers.get("Transfer-Encoding"):
+                return self.reply(400, {"error": "Send JSON with a Content-Length", "kind": "input"})
             payload = json.loads(self.rfile.read(length))
             if is_job:
                 from .jobs import JOBS
@@ -156,6 +216,8 @@ class Handler(BaseHTTPRequestHandler):
             return self.legacy_analysis(path, payload)
         except (ModelError, ValueError, TypeError, RecursionError) as exc:
             return self.reply(400, {"error": str(exc), "kind": error_kind(exc)})
+        except (TimeoutError, OSError):
+            return self.reply(400, {"error": "The upload was interrupted. Please try again.", "kind": "input"})
 
 
 def main():
@@ -163,7 +225,7 @@ def main():
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", default=8765, type=int)
     args = parser.parse_args()
-    server = ThreadingHTTPServer((args.host, args.port), Handler)
+    server = Server((args.host, args.port), Handler)
     print(f"Fineprint: http://{args.host}:{server.server_port} (Ctrl+C to stop)", flush=True)
     try:
         server.serve_forever()

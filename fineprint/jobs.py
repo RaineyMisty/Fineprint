@@ -44,9 +44,11 @@ class JobStore:
 
     def poll(self, envelope, execute, job_id=None, *, wait_seconds=0):
         if (not isinstance(envelope, dict) or set(envelope) != {"operation", "payload"}
-                or envelope.get("operation") not in OPERATIONS):
+                or not isinstance(envelope.get("operation"), str)
+                or envelope["operation"] not in OPERATIONS
+                or not isinstance(envelope.get("payload"), dict)):
             raise ModelError("Choose a supported document check")
-        if job_id is not None and not re.fullmatch(r"[A-Za-z0-9_-]{32}", job_id):
+        if job_id is not None and (not isinstance(job_id, str) or not re.fullmatch(r"[A-Za-z0-9_-]{32}", job_id)):
             raise ModelError("Please start this check again")
         fingerprint = hashlib.sha256(json.dumps(envelope, sort_keys=True, separators=(",", ":"),
                                                ensure_ascii=False).encode()).hexdigest()
@@ -58,10 +60,22 @@ class JobStore:
             job_id = job_id or secrets.token_urlsafe(24)
             job = self.jobs.get(job_id)
             if job is None:
+                # Finished work must not fill the store for the entire TTL.
+                # An evicted job can be resumed from its client-carried envelope.
                 if len(self.jobs) >= self.limit:
-                    return 503, {"error": "We’re helping several people right now. Please try again in a moment.", "kind": "retry"}
+                    completed = next((key for key, value in self.jobs.items() if value.status != "running"), None)
+                    if completed is not None:
+                        del self.jobs[completed]
+                if len(self.jobs) >= self.limit:
+                    # This is admission backpressure, not a target failure. Do
+                    # not queue work or create a retained job until space opens.
+                    return 202, {"job_id": job_id, "status": "busy", "retry_after_seconds": 5}
                 job = self.jobs[job_id] = Job(fingerprint)
-                self.executor.submit(self._run, job, envelope, execute)
+                try:
+                    self.executor.submit(self._run, job, envelope, execute)
+                except RuntimeError:
+                    job.status, job.error, job.kind = "failed", RETRY_MESSAGE, "retry"
+                    job.finished.set()
             elif job.fingerprint != fingerprint:
                 raise ModelError("The documents changed. Please start this check again")
         # Only the legacy API waits briefly for fast results. The browser's start
@@ -69,6 +83,22 @@ class JobStore:
         if wait_seconds:
             job.finished.wait(wait_seconds)
         with self.lock:
+            body = {"job_id": job_id, "status": job.status}
+            if job.status == "done":
+                body["result"] = job.result
+            elif job.status == "failed":
+                body.update(error=job.error, kind=job.kind)
+            return (202 if job.status == "running" else 200), body
+
+    def status(self, job_id):
+        """A GET on the other task asks for resumption, never a missing-job 404."""
+        if not re.fullmatch(r"[A-Za-z0-9_-]{32}", job_id):
+            raise ModelError("Please start this check again")
+        with self.lock:
+            job = self.jobs.get(job_id)
+            if job is None:
+                return 202, {"job_id": job_id, "status": "resume_required", "retry_after_seconds": 2,
+                             "message": "Continue by posting the original operation and payload to this URL."}
             body = {"job_id": job_id, "status": job.status}
             if job.status == "done":
                 body["result"] = job.result

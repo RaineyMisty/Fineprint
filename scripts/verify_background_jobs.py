@@ -5,6 +5,7 @@ Reports contain timings and hashes, never uploaded PDFs, text, or credentials.
 """
 import argparse
 import base64
+from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 import hashlib
 import json
@@ -13,6 +14,7 @@ import secrets
 import threading
 import time
 from urllib.request import Request, urlopen
+from urllib.error import HTTPError
 
 
 def main():
@@ -24,18 +26,49 @@ def main():
     requests, stages, runs = [], [], []
     lock = threading.Lock()
 
-    def call(base, path, body=None):
+    def call(base, path, body=None, *, raw=None, expected=None, method=None):
         started = time.monotonic()
-        req = Request(base + path, data=None if body is None else json.dumps(body).encode(),
-                      headers={"Content-Type": "application/json"})
-        with urlopen(req, timeout=18) as response:
-            result = json.load(response)
+        req = Request(base + path, data=raw if raw is not None else (None if body is None else json.dumps(body).encode()),
+                      headers={"Content-Type": "application/json"}, method=method)
+        try:
+            response = urlopen(req, timeout=5)
+        except HTTPError as exc:
+            response = exc
+        with response:
+            data = response.read()
             status = response.status
+            result = json.loads(data) if data and response.headers.get_content_type() == "application/json" else None
         elapsed = time.monotonic() - started
         with lock:
-            requests.append(dict(server=base, path=path, status=status, seconds=round(elapsed, 4)))
-        assert elapsed < 20, (path, elapsed)
+            requests.append(dict(server=base, path=path, method=req.get_method(), status=status, seconds=round(elapsed, 4),
+                                 intentional_invalid=expected == 400))
+        assert elapsed < 3, (path, elapsed)
+        assert status < 500, (path, status)
+        assert status == expected if expected is not None else status in (200, 202, 204), (path, status)
         return result
+
+    # Invalid probes must be predictable 400s, never unhandled exceptions/5xx.
+    for base in args.base_url:
+        for path in ("/api/jobs", "/api/jobs/" + "a" * 32):
+            for raw in (b"", b"{", b"null", b"[]", b"{}", b'{"operation":[],"payload":{}}',
+                        b'{"operation":"/api/check","payload":[]}', b'\xff'):
+                call(base, path, raw=raw, expected=400, method="POST")
+        call(base, "/api/jobs/" + "b" * 32)  # Unknown-task GET is 202, never 404.
+
+    stop_health, health_errors = threading.Event(), []
+    def health_checks():
+        while not stop_health.is_set():
+            try:
+                for base in args.base_url:
+                    for path in ("/", "/ping", "/healthz"):
+                        call(base, path, expected=200)
+                    call(base, "/ping", expected=200, method="HEAD")
+            except Exception as exc:
+                health_errors.append(type(exc).__name__)
+                return
+            stop_health.wait(2)
+    health_thread = threading.Thread(target=health_checks, daemon=True)
+    health_thread.start()
 
     def job(operation, payload):
         started = time.monotonic()
@@ -100,11 +133,16 @@ def main():
                    (("aurora-imaging", 38500), ("mosaic-oop", 100000), ("mosaic-therapy", 4000))]
         for future in futures:
             future.result()
+    stop_health.set()
+    health_thread.join()
+    assert not health_errors, health_errors
+    tally = dict(Counter(str(r["status"]) for r in requests))
     report = dict(passed=True, provider="deepseek", pdf_sha256=hashlib.sha256(pdf).hexdigest(),
                   replicas=len(args.base_url), runs=runs, stages=stages, requests=requests,
+                  status_codes=tally, health_errors=health_errors, zero_5xx=True,
                   max_request_seconds=max(r["seconds"] for r in requests))
     args.output.write_text(json.dumps(report, indent=2) + "\n")
-    print(json.dumps(dict(passed=True, requests=len(requests), max_request_seconds=report["max_request_seconds"])), flush=True)
+    print(json.dumps(dict(passed=True, requests=len(requests), max_request_seconds=report["max_request_seconds"], status_codes=tally)), flush=True)
 
 
 if __name__ == "__main__":
