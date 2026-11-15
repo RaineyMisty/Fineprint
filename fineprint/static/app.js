@@ -91,7 +91,7 @@
       try { facts = JSON.parse(raw); } catch { throw {message: "The claim facts are not valid JSON. Open “Claim facts & format” to fix them.", kind: "input"}; }
     }
     return {policy: $("in-policy").value, eob, bill: $("in-bill").value, claim_format: $("in-format").value, ...facts,
-            synthetic: !!S.sample};
+            sample_id: S.sample?.id};
   }
   /* ---------- file upload & drop (PDFs are extracted by /api/extract) ---------- */
   const KINDS = ["policy", "eob", "bill"];
@@ -222,7 +222,7 @@
     loading(text || "Reading your policy…");
     try {
       const compiled = await api("/api/compile", {method: "POST", headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({document: payload.policy, document_id: "uploaded-policy"})});
+        body: JSON.stringify({document: payload.policy, document_id: payload.sample_id ? payload.sample_id + "/policy.md" : "uploaded-policy"})});
       if (S.sample?.requires_policy_upload && payload.claim_context) {
         payload.claim_context.policy_id = compiled.compilation.output.policy.id;
       }

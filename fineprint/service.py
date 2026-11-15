@@ -52,11 +52,13 @@ def check_documents(inputs: dict, *, compiler=None, compilation=None):
     """Pasted policy + EOB + bill -> compile policy, then independent recalculation."""
     from .compiler import get_compiler
     from .models import case_from_dict, to_dict
-    from .repository import parse_inputs
+    from .repository import input_metadata, parse_inputs
     claim, bill, allowed = parse_inputs(inputs)
-    document_id = "uploaded-policy"
+    metadata = input_metadata(inputs)
+    document_id = metadata["id"] + "/policy.md" if metadata else "uploaded-policy"
     compilation = compilation or (compiler or get_compiler(inputs.get("provider"))).compile(inputs["policy"], document_id)
-    case = case_from_dict({"schema_version": "1.0", "id": claim.id, "title": "Your claim", "synthetic": bool(inputs.get("synthetic", False)),
+    case = case_from_dict({"schema_version": "1.0", "id": metadata["id"] if metadata else claim.id,
+                           "title": metadata["title"] if metadata else "Your claim", "synthetic": metadata["synthetic"] if metadata else False,
                            "policy": to_dict(compilation.policy), "claim": to_dict(claim), "bill": bill, "allowed_evidence": allowed})
     report = analyze(case, unresolved=compilation.output.unresolved)
     report["limitations"].extend(compilation.output.coverage_gaps)

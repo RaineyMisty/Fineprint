@@ -113,3 +113,35 @@ def demo_inputs(demo_id):
     if not re.fullmatch(r"[a-z0-9-]{1,80}", demo_id):
         raise FileNotFoundError("Unknown demo")
     return json.loads((DEMOS / (demo_id + ".json")).read_text())
+
+
+def input_metadata(inputs):
+    """Derive sample provenance from bundled documents, never a client boolean.
+
+    A demo's policy is uploaded and its policy ID is assigned by the compiler;
+    its claim, bill and all other invented facts must still match the manifest.
+    Edited documents without a sample selection remain ordinary uploads.
+    """
+    selected = inputs.get("sample_id")
+    if selected is None:
+        return None
+    if not isinstance(selected, str):
+        raise ModelError("sample_id must identify a bundled sample or demo")
+    if selected in {s["id"] for s in list_cases()}:
+        sample = sample_inputs(selected)
+    elif selected in {s["id"] for s in list_demos()}:
+        sample = demo_inputs(selected)
+    else:
+        raise ModelError("Unknown sample or demo")
+    expected = sample["inputs"]
+    fields = ["eob", "bill", "claim_format", "claim_context", "bill_context", "allowed_evidence", "category_assignments"]
+    if not sample.get("requires_policy_upload"):
+        fields.append("policy")
+    for field in fields:
+        actual, original = inputs.get(field, {}), expected.get(field, {})
+        if field == "claim_context" and sample.get("requires_policy_upload"):
+            actual = {k: v for k, v in actual.items() if k != "policy_id"}
+            original = {k: v for k, v in original.items() if k != "policy_id"}
+        if actual != original:
+            raise ModelError("Selected sample documents or facts changed; clear the sample selection before checking edited uploads")
+    return {key: sample[key] for key in ("id", "title", "synthetic")}
