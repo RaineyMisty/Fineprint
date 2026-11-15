@@ -119,8 +119,10 @@ class SbcContractTests(unittest.TestCase):
         self.assertEqual(len(result.policy.benefits), 3)
         self.assertTrue(all(doc[e.start:e.end] == e.quote for r in result.output.rule_evidence for e in r.evidence))
         value['rule_evidence'][0]['evidence'][0]['source_lines'] = [999999]
-        with self.assertRaisesRegex(ValueError, 'nonexistent or blank source line'):
-            LLMCompiler('deepseek', transport=lambda *_: value, retries=1).compile(doc)
+        partial = LLMCompiler('deepseek', transport=lambda *_: value, retries=1).compile(doc)
+        self.assertNotIn('in', partial.policy.networks)
+        self.assertTrue(all(b.network == 'out' for b in partial.policy.benefits))
+        self.assertTrue(partial.output.coverage_gaps)
 
     def test_wrapped_heading_support_preserves_exact_quote_text(self):
         from fineprint.compiler import _selector_supported
@@ -155,3 +157,36 @@ class SbcContractTests(unittest.TestCase):
         self.assertTrue(_amount_supported(0, ['No deductible'], allow_waiver=True))
         self.assertFalse(_costs_supported(dict(copay_cents=0, coinsurance_bps=0),
                                          ['Overall deductible $0', 'Surgery 20% coinsurance']))
+
+    def test_reversed_provider_evidence_is_checked_in_source_order(self):
+        from pathlib import Path
+        from fineprint.providers import LLMCompiler
+        doc = Path('fineprint/samples/aurora-imaging/policy.md').read_text()
+        value = to_dict(FallbackCompiler().compile(doc).output)
+        doc += '\nPrimary care visit to      $25 / visit\ntreat an injury or illness\n'
+        line_count = len(doc.splitlines())
+        benefit = value['policy']['benefits'][0]
+        benefit.update(codes=[], service_category='Primary care visit to treat an injury or illness')
+        rule = next(r for r in value['rule_evidence'] if r['rule_path'] == 'benefits.' + benefit['id'])
+        rule['evidence'] = [dict(source_document_id='uploaded-policy', section='Synthetic table', source_lines=[line_count, line_count - 1])]
+        del value['policy']['clauses']
+        for terms in value['policy']['networks'].values():
+            for key in ('deductible_clause', 'oop_clause', 'network_clause'):
+                del terms[key]
+        for b in value['policy']['benefits']:
+            del b['clause_ids']
+        for r in value['rule_evidence']:
+            for e in r['evidence']:
+                e.pop('start', None); e.pop('end', None)
+        result = LLMCompiler('deepseek', transport=lambda *_: value, retries=1).compile(doc)
+        self.assertIn(benefit['id'], {b.id for b in result.policy.benefits})
+        evidence = next(r.evidence for r in result.output.rule_evidence if r.rule_path == rule['rule_path'])
+        self.assertEqual([e.start for e in evidence], sorted(e.start for e in evidence))
+        self.assertTrue(all(doc[e.start:e.end] == e.quote for e in evidence))
+
+    def test_tiered_price_does_not_become_the_cheapest_flat_copay(self):
+        from fineprint.compiler import _costs_supported
+        self.assertFalse(_costs_supported(dict(copay_cents=3000, coinsurance_bps=0),
+                                         ['Tier 2 $30/$60/$90 copay per prescription']))
+        self.assertTrue(_costs_supported(dict(copay_cents=3000, coinsurance_bps=0),
+                                        ['Office $30 copay per visit']))

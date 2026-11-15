@@ -85,7 +85,7 @@ class LLMCompiler:
             "Include both the service clause and any applicable calculation-order clause as evidence. "
             "Do not list a supported calculation-order clause as unresolved. Retain conflicting benefits with a shared "
             "ambiguity_group and unique labels; never choose a favorable interpretation. Use confidence_bps 0..10000 and ambiguity 'none' or an explanation. "
-            "Put unsupported/missing terms in unresolved; never fabricate rates, codes, waiver terms, network limits or coverage. "
+            "Put omitted services, networks and unknown balance billing ONLY in coverage_gaps; never fabricate rates, codes, waiver terms, network limits or coverage. "
             "unresolved MUST be [] when nothing is unresolved; never put 'no unresolved issues', confirmations, or status messages in that array. "
             "Preserve actual uncertainties. Synthetic-data notices belong in warnings, not unresolved. "
             "For a plan-level SBC/EOC, set member_id to null; set absent effective dates to null, never invent member identifiers or dates. "
@@ -106,7 +106,9 @@ class LLMCompiler:
             "For split rows, use a verbatim subheading (for example a lab or x-ray label) as the category and select enough surrounding lines to establish its meaning. "
             "service_category uses the exact words of the source service heading, with whitespace normalized; select all lines of a wrapped heading in source order. "
             "Do not combine a copied heading with invented qualifiers in service_category. Put qualifiers in label and conditions. "
-            "conditions is a list of claim facts that MUST be confirmed before applying this benefit: e.g. no inpatient admission for an ER copay waived on admission, "
+            "conditions is a list of declarative facts about THIS CLAIM that MUST be confirmed before applying this benefit. "
+            "For example, use 'Not admitted as inpatient', NEVER 'Copay waived if admitted' (that is a policy formula, not a fact about this claim). "
+            "Include no inpatient admission for an ER copay waived on admission, "
             "retail supply within the stated days and non-exempt medication for a drug copay, referral where required, non-mental-health treatment where a copay exemption applies. "
             "Select the exact source row and limitations as evidence for each condition. Conditions must describe eligibility facts, NEVER assumed rates or calculation semantics. "
             "Read the plan-wide referral question: if referrals are required, specialist benefits must include a referral-or-permitted-self-referral condition and cite that question/answer. "
@@ -152,10 +154,14 @@ class LLMCompiler:
                     raise ModelError("unresolved must contain actual missing/unsupported terms only. Put affirmative status messages in warnings and use [] when nothing is unresolved.")
                 audit.update(validated_rules=len(output.rule_evidence), validated_quote_spans=sum(len(r.evidence) for r in output.rule_evidence))
                 dropped = [message for message in output.warnings if message.startswith("Dropped rule ")]
-                if dropped:
-                    if best_partial is None or len(output.rule_evidence) > len(best_partial.rule_evidence):
+                if dropped or output.unresolved:
+                    if best_partial is None or (not output.unresolved, len(output.rule_evidence)) > (not best_partial.unresolved, len(best_partial.rule_evidence)):
                         best_partial, partial_attempt = output, attempt
-                    last = "Local source validation rejected these rules; correct their evidence or omit unsupported rules: " + " ".join(dropped)
+                    last = ("Local source validation rejected these rules; correct their evidence or omit unsupported rules: " + " ".join(dropped)
+                            + " Unresolved: " + "; ".join(output.unresolved)
+                            + " Keep only supported numeric rules. Missing billing terms and omitted rows belong in coverage_gaps, not unresolved. "
+                            + "For split diagnostic rows use the literal subheadings for distinct categories; never apply the lab price to x-rays. "
+                            + "Separate repeated service headings by claim context in conditions, or omit conflicting rules.")
                     if attempt < self.attempt_limit:
                         self.sleep(min(2 ** (attempt - 1), 4))
                     continue

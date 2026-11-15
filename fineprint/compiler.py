@@ -169,7 +169,16 @@ def _costs_supported(benefit, quotes):
     amounts = {int(Decimal(m.replace(",", "")) * 100) for m in re.findall(r"\$\s*([\d,]+(?:\.\d{1,2})?)", text)}
     rates = {int(Decimal(m) * 100) for m in re.findall(r"(\d+(?:\.\d+)?)\s*%", text)}
     copay, coin = benefit["copay_cents"], benefit["coinsurance_bps"]
+    if any(re.match(r"\s*(?:copay|copayment|coinsurance|deductible).{0,40}(?:waiv|appl)", condition, re.I)
+           for condition in benefit.get("conditions", [])):
+        return False  # a policy formula is not an eligibility fact about this claim
+    if coin and re.search(r"%\s*(?:member\s+)?coinsurance.{0,120}?(?:up to|maximum of|minimum of)\s*\$", _normalized_text(text), re.I):
+        return False
     for quote in quotes:
+        # A price schedule is not a flat copay; do not choose its cheapest tier.
+        for schedule in re.findall(r"\$[\d,]+(?:\.\d{1,2})?(?:\s*/\s*\$[\d,]+(?:\.\d{1,2})?)+", quote):
+            if copay in {int(Decimal(x.replace(",", "")) * 100) for x in re.findall(r"\$([\d,]+(?:\.\d{1,2})?)", schedule)}:
+                return False
         # Per-day episode limits cannot be converted to a single visit copay.
         for match in re.finditer(r"\$\s*([\d,]+(?:\.\d{1,2})?)\s*(?:copay\s*)?(?:/|per)\s*day", quote, re.I):
             if copay and copay == int(Decimal(match[1].replace(",", "")) * 100):
@@ -199,6 +208,10 @@ def recover_evidence(value, document, document_id):
     # Preserve strict schema checking (including unknown fields), but offsets
     # supplied by old clients are deliberately discarded before checking types.
     if compact:
+        # Internal plan identity is metadata, never a financial inference.
+        if value["policy"].get("id") is None:
+            header = re.search(r"(?m)^\s*Policy:\s*([A-Za-z0-9][A-Za-z0-9_.:/-]*)(?=\s*\||\s*$)", document)
+            value["policy"]["id"] = header[1] if header else document_id
         validate_schema(value, PROVIDER_SCHEMA)
         source_lines = document.splitlines(keepends=True)
         line_offsets, offset = [], 0
@@ -206,20 +219,23 @@ def recover_evidence(value, document, document_id):
             line_offsets.append(offset)
             offset += len(line)
         for rule in value["rule_evidence"]:
-            expanded = []
+            expanded, invalid_line = [], False
             for evidence in rule["evidence"]:
                 if "source_lines" not in evidence:
                     expanded.append(evidence)
                     continue
                 for number in evidence["source_lines"]:
-                    if not 1 <= number <= len(source_lines) or not source_lines[number - 1].strip():
-                        raise ModelError("Evidence selected a nonexistent or blank source line")
+                    if not 1 <= number <= len(source_lines):
+                        invalid_line = True
+                        continue
+                    if not source_lines[number - 1].strip():
+                        continue
                     line = source_lines[number - 1]
                     quote = line.strip()
                     start = line_offsets[number - 1] + len(line) - len(line.lstrip())
                     expanded.append(dict(source_document_id=evidence["source_document_id"], section=evidence["section"],
                                          quote=quote, start=start, end=start + len(quote)))
-            rule["evidence"] = expanded
+            rule["evidence"] = [] if invalid_line else expanded
     else:
         if isinstance(value.get("rule_evidence"), list):
             for rule in value["rule_evidence"]:
@@ -287,6 +303,8 @@ def recover_evidence(value, document, document_id):
         for evidence in found:
             if evidence not in merged[path]["evidence"]:
                 merged[path]["evidence"].append(evidence)
+    for rule in merged.values():
+        rule["evidence"].sort(key=lambda e: (e["start"], e["end"]))
     if compact:
         clauses_by_span, references = {}, {}
         for path, rule in merged.items():
@@ -333,7 +351,7 @@ def recover_evidence(value, document, document_id):
         else:
             path = f"networks.{net}.balance_billing"
             rule = merged.get(path)
-            quotes = {e["quote"] for e in rule["evidence"]} if rule else set()
+            quotes = [e["quote"] for e in rule["evidence"]] if rule else []
             ref = terms["network_clause"]
             if terms["balance_billing"] is None:
                 terms["network_clause"] = None
@@ -347,7 +365,7 @@ def recover_evidence(value, document, document_id):
     for benefit in value["policy"]["benefits"]:
         path = "benefits." + benefit["id"]
         rule = merged.get(path)
-        quotes = {e["quote"] for e in rule["evidence"]} if rule else set()
+        quotes = [e["quote"] for e in rule["evidence"]] if rule else []
         if (not _selector_supported(benefit, quotes)
                 or benefit["network"] not in value["policy"]["networks"]
                 or not rule or not benefit["clause_ids"] or any(
@@ -356,6 +374,20 @@ def recover_evidence(value, document, document_id):
             dropped.append(path)
         else:
             retained.append(benefit)
+    selectors = {}
+    for benefit in retained:
+        for selector in benefit["codes"] or [benefit.get("service_category")]:
+            selectors.setdefault((selector, benefit["network"], tuple(benefit.get("conditions", []))), []).append(benefit)
+    conflicting = set()
+    for candidates in selectors.values():
+        if len(candidates) > 1 and (not candidates[0]["ambiguity_group"] or len({b["ambiguity_group"] for b in candidates}) != 1):
+            conflicting.update(b["id"] for b in candidates)
+    for benefit_id in conflicting:
+        path = "benefits." + benefit_id
+        merged.pop(path, None)
+        dropped.append(path)
+        value.setdefault("coverage_gaps", []).append(f"{path}: overlapping service selectors cannot distinguish contexts; use distinct source subheadings or explicit claim conditions. All conflicting rules were omitted.")
+    retained = [b for b in retained if b["id"] not in conflicting]
     value["policy"]["benefits"] = retained
     value["rule_evidence"] = list(merged.values())
     referenced = {terms[key] for terms in value["policy"]["networks"].values()
@@ -363,7 +395,7 @@ def recover_evidence(value, document, document_id):
     referenced.update(ref for benefit in retained for ref in benefit["clause_ids"])
     value["policy"]["clauses"] = [clause for clause in value["policy"]["clauses"] if clause["id"] in referenced]
     for path in sorted(set(dropped) - set(merged)):
-        message = f"Dropped rule {path}: missing or unmatched source quote/clause/code/category/amount, or unsupported network; no executable rule retained."
+        message = f"Dropped rule {path}: missing or unmatched source quote/clause/code/category/amount/conditions, or unsupported network; no executable rule retained."
         value["warnings"].append(message)
         value.setdefault("coverage_gaps", []).append(message)
     return value
@@ -447,7 +479,7 @@ def validate_output(value, document, document_id):
     for b in p.benefits:
         if not b.covered and (b.deductible_applies or b.copay_cents or b.coinsurance_bps):
             raise ModelError("Excluded service has covered cost sharing")
-        quotes = [e.quote for e in evidence_by_path[f"benefits.{b.id}"].evidence]
+        quotes = [e.quote for e in sorted(evidence_by_path[f"benefits.{b.id}"].evidence, key=lambda e: e.start)]
         if not _selector_supported(to_dict(b), quotes):
             raise ModelError("Benefit code/category is not present in its source evidence")
         if not _costs_supported(to_dict(b), quotes):

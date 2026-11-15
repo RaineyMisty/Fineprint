@@ -221,6 +221,9 @@
     try {
       const compiled = await api("/api/compile", {method: "POST", headers: {"Content-Type": "application/json"},
         body: JSON.stringify({document: payload.policy, document_id: "uploaded-policy"})});
+      if (S.sample?.requires_policy_upload && payload.claim_context) {
+        payload.claim_context.policy_id = compiled.compilation.output.policy.id;
+      }
       loading("Policy quotes validated. Recalculating the claim…");
       S.data = await api("/api/check", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({...payload, ...compiled})});
       S.active = null; S.scenario = 0; S.pdfRun = fromPdf;
