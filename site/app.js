@@ -38,6 +38,7 @@ function animateNumbers(root) {
       if (p < 1) requestAnimationFrame(tick);
     };
     requestAnimationFrame(tick);
+    setTimeout(() => { el.textContent = final; }, dur + 150);
   });
 }
 const counted = (value, kind, text) => `<span class="n" data-count="${value}" data-kind="${kind}">${escapeHTML(text)}</span>`;
