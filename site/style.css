@@ -216,6 +216,11 @@ mark.flash{animation:flash 1.6s ease}
 .blocked-note{margin-top:22px}
 
 /* evaluation */
+.provider-comparison{margin-bottom:22px}
+.provider-comparison .tbl thead th{min-width:190px}
+.provider-comparison .tbl thead th span{font-weight:700;color:var(--ink)}
+.provider-comparison .tbl small,.provider-comparison time{color:var(--ink-3);font-weight:400}
+.fallback-detail{font:700 12px var(--mono);letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px}
 .eval-head{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:22px}
 .eval-head h2{font-size:clamp(28px,4vw,46px);letter-spacing:-.025em}
 .seg{display:inline-flex;padding:4px;background:var(--paper-2);border-radius:99px;border:0;margin:0}

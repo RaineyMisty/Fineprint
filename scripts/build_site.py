@@ -1,7 +1,8 @@
 """Build public demo data from source policies and the real offline evaluator.
 
 Run from any directory: python3 /path/to/Fineprint/scripts/build_site.py
-No keys, dependencies, model calls or precomputed result files are used.
+No keys, dependencies or model calls are used. Offline results are rebuilt;
+live LLM measurements are read only from committed reports.
 """
 
 import argparse
@@ -58,14 +59,30 @@ def collect_cases():
     return cases
 
 
+def load_llm_evaluations(reports: Path, corpus_sha256: str):
+    """Load saved measurements; never instantiate a live compiler during builds."""
+    results = []
+    for path in sorted(reports.glob("evaluation-deepseek-*.json")):
+        report = json.loads(path.read_text(encoding="utf-8"))
+        if (report.get("backend") != "deepseek" or report.get("synthetic") is not True
+                or not report.get("model") or not report.get("generated_at")
+                or report.get("corpus_sha256") != corpus_sha256):
+            raise ValueError(f"Invalid or incompatible saved DeepSeek evaluation: {path.name}")
+        results.append((path.name, report))
+    return results
+
+
 def build(output: Path):
     output.mkdir(parents=True, exist_ok=True)
     # Invoke the same documented CLI judges can run; explicitly ignore live-provider env settings.
     subprocess.run([sys.executable, "-m", "fineprint.eval", "--provider", "fallback",
                     "--output-dir", str(output.resolve())], cwd=ROOT, check=True, capture_output=True, text=True)
     evaluation = json.loads((output / "evaluation.json").read_text(encoding="utf-8"))
+    saved = load_llm_evaluations(ROOT / "reports", evaluation["corpus_sha256"])
+    for filename, report in saved:
+        (output / filename).write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     payload = dict(schema_version=1, synthetic=True, backend="fallback", cases=collect_cases(),
-                   evaluation=evaluation)
+                   evaluation=evaluation, llm_evaluations=[report for _, report in saved])
     (output / "data.json").write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     (output / ".nojekyll").touch()
     return payload

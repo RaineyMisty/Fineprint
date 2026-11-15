@@ -293,6 +293,12 @@ function ringHTML(name, rate, counts) {
 }
 function renderGroup() {
   const g = evaluation.groups[evalGroup], d = g.discrepancy;
+  const reports = [evaluation, ...(data?.llm_evaluations || [])];
+  $('#eval-comparison').innerHTML = `<div class="t-scroll"><table class="tbl"><caption class="sr-only">Synthetic data · ${escapeHTML(evalGroup)} · provider comparison</caption><thead><tr><th scope="col">${evalGroup === 'all' ? 'All' : splitLabel(evalGroup)} · synthetic data</th>${reports.map(r => `<th scope="col">${r.backend === 'fallback' ? 'Offline fallback' : 'DeepSeek'}<br><span>${escapeHTML(r.model || 'No LLM')}</span><br><time datetime="${escapeHTML(r.generated_at)}">${escapeHTML(r.generated_at.slice(0, 10))}</time></th>`).join('')}</tr></thead><tbody>
+    ${metricDefs.map(([name, val, count]) => `<tr><th scope="row">${name}</th>${reports.map(r => `<td>${percent(val(r.groups[evalGroup]))} <small>(${escapeHTML(count(r.groups[evalGroup]))})</small></td>`).join('')}</tr>`).join('')}
+    <tr><th scope="row">Failed compilations</th>${reports.map(r => { const rows = r.policies.filter(p => evalGroup === 'all' || p.split === evalGroup); return `<td>${rows.filter(p => p.error).length}/${rows.length}</td>`; }).join('')}</tr>
+    <tr><th scope="row">Abstentions</th>${reports.map(r => `<td>${r.groups[evalGroup].discrepancy.abstentions}/${r.groups[evalGroup].cases}</td>`).join('')}</tr>
+    </tbody></table></div>`;
   $('#eval-group').innerHTML = `<div class="rings">${[['End-to-end', g => g.end_to_end.rate, g => `${g.end_to_end.success}/${g.end_to_end.total} cases`], ['Calculation exact', g => g.calculation.accuracy, g => `${g.calculation.exact}/${g.calculation.total} cases`], ['Discrepancy recall', g => g.discrepancy.recall, g => `${g.discrepancy.tp}/${g.discrepancy.tp + g.discrepancy.fn} flagged`], ['Rules traceable', g => g.evidence.traceability_rate, g => `${g.evidence.valid_rules}/${g.evidence.emitted_rules} rules`]].map(([n, v, t]) => ringHTML(n, v(g), t(g))).join('')}</div>`;
   $('#eval-conf').innerHTML = `<div class="conf"><div class="hd"></div><div class="hd">Flagged</div><div class="hd">Not flagged</div>
     <div class="hd">Has issue</div><div class="good"><small>TP</small><strong>${d.tp}</strong></div><div class="bad"><small>FN</small><strong>${d.fn}</strong></div>
@@ -305,6 +311,8 @@ function renderEvaluation() {
   const outcome = c => c.end_to_end_success ? ['pass', 'Pass'] : c.error ? ['block', 'Parser abstained'] : ['miss', 'Miss'];
   $('#evaluation-content').innerHTML = `<div class="eval-head"><h2>Evaluation</h2><fieldset class="seg" aria-label="Group"><legend class="sr-only">Group</legend>${[['seen', 'Seen'], ['held_out', 'Held-out'], ['all', 'All']].map(([k, t]) => `<label><input type="radio" name="grp" value="${k}" ${k === evalGroup ? 'checked' : ''}><span>${t}</span></label>`).join('')}</fieldset></div>
     <p class="caveat"><span aria-hidden="true">⚠</span>${escapeHTML(evaluation.methodology[0] || '')}</p>
+    <section class="panel provider-comparison" aria-label="Offline fallback vs DeepSeek"><h3>Offline fallback vs DeepSeek</h3><div id="eval-comparison"></div></section>
+    <h3 class="fallback-detail">Offline fallback</h3>
     <div id="eval-group"></div>
     <div class="eval-grid"><section class="panel"><h3>Seen vs held-out</h3><div class="legend"><span class="key">Seen</span><span class="key held">Held-out</span><span class="key all">All</span></div>
       ${metricDefs.map(([name, val, count]) => `<div class="mrow"><b>${name}</b><div class="mbars" role="group" aria-label="${name}">${[['seen', 'Seen', ''], ['held_out', 'Held-out', 'hel']].map(([k, t, cls]) => { const r = val(g[k]); return `<div class="mb" role="meter" aria-label="${name} · ${t}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Number.isFinite(r) ? (r * 100).toFixed(1) : 0}" aria-valuetext="${percent(r)}">${bar(cls, r, 1)}<em><b>${percent(r)}</b><small>${escapeHTML(count(g[k]))}</small></em></div>`; }).join('')}</div><span class="mall" title="All">${percent(val(g.all))}</span></div>`).join('')}</section>
