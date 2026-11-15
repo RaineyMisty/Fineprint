@@ -173,7 +173,7 @@ def _costs_supported(benefit, quotes):
         for match in re.finditer(r"\$\s*([\d,]+(?:\.\d{1,2})?)\s*(?:copay\s*)?(?:/|per)\s*day", quote, re.I):
             if copay and copay == int(Decimal(match[1].replace(",", "")) * 100):
                 return False
-        if coin and (re.search(r"%\s*coinsurance.{0,80}(?:up to|minimum|maximum)", quote, re.I)
+        if coin and (re.search(r"%\s*(?:member\s+)?coinsurance\s*(?:up to|maximum of|minimum of)\s*\$", quote, re.I)
                      or re.search(r"\$[\d,/. $]+\s*(?:min|max)\b", quote, re.I)):
             return False
     if benefit.get("covered", True) and not copay and not coin and not benefit.get("deductible_applies", False):
