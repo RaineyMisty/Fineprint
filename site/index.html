@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#f3eee2">
-  <meta name="description" content="Fineprint — synthetic policy, claim and bill reconciliation demo.">
-  <title>Fineprint · Every cent. Every clause.</title>
+  <meta name="description" content="Fineprint — how much should you pay, and why? Policy → insurer statement (EOB) → bill, recalculated with clause sources. Synthetic demo.">
+  <title>Fineprint · How much should you pay — and why?</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2314161a'/%3E%3Crect x='6' y='19' width='20' height='6' fill='%23ffd23f'/%3E%3Ctext x='16' y='21' font-family='Georgia,serif' font-size='21' font-weight='700' fill='%23f3eee2' text-anchor='middle'%3Ef%3C/text%3E%3C/svg%3E">
   <link rel="preload" href="data.json" as="fetch" crossorigin>
   <link rel="stylesheet" href="style.css">
@@ -15,7 +15,7 @@
   <a class="skip" href="#main">Skip to content</a>
   <header class="topbar">
     <a class="wordmark" href="#overview" aria-label="Fineprint home">fine<span>print</span></a>
-    <nav aria-label="Main"><a href="#overview">Overview</a><a href="#explorer">Case explorer</a><a href="#evaluation">Evaluation</a></nav>
+    <nav aria-label="Main"><a href="#overview">Overview</a><a href="#explorer">Cases</a><a href="#evaluation">Evaluation</a></nav>
     <span class="badge synth"><i aria-hidden="true"></i>Synthetic data · offline fallback</span>
 <a class="live-link" href="https://fi-9a2f7a7357674be89e7cf09a86c2c5a7.ecs.us-east-1.on.aws" target="_blank" rel="noopener">Live app <span aria-hidden="true">↗</span></a>
     <button class="qr-btn" type="button" data-qr-open aria-haspopup="dialog" aria-label="Show QR code for the live app"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h7v7H3zm2 2v3h3V5zm9-2h7v7h-7zm2 2v3h3V5zM3 14h7v7H3zm2 2v3h3v-3zm9-2h2v2h-2zm2 2h2v2h-2zm2-2h3v2h-3zm-4 4h2v3h-2zm4 0h3v3h-2v-1h-1zm-2 2h2v1h-2z"/></svg>QR</button>
@@ -23,19 +23,40 @@
   <main id="main" tabindex="-1">
     <section id="overview" class="screen" aria-label="Overview">
       <div class="hero">
-        <div class="hero-copy">
-          <p class="flow" aria-label="Policy to rules to recalculation to discrepancy"><span>Policy</span><b aria-hidden="true">→</b><span>Rules</span><b aria-hidden="true">→</b><span>Recalc</span><b aria-hidden="true">→</b><span>Discrepancy</span></p>
-          <h1><span class="l1">Every <em class="hl">cent.</em></span><span class="l2">Every <em class="ul">clause.</em></span></h1>
-          <a class="button" href="#explorer">Open the case explorer <span aria-hidden="true">→</span></a>
-        </div>
+        <p class="kicker">Health insurance, checked line by line</p>
+        <h1>How much should you pay&nbsp;&mdash; <span class="hl">and why?</span></h1>
+        <p class="lede">Fineprint connects your policy, your insurer&rsquo;s statement and your bill, then recalculates what you owe &mdash; with the clause behind every number.</p>
+      </div>
+      <ol class="chain" aria-label="Policy, then insurer statement, then bill, feed into the Fineprint recalculation">
+        <li class="doc policy"><span class="doc-ico" aria-hidden="true"></span><b>Policy</b><span>sets the rules</span></li>
+        <li class="doc eob"><span class="doc-ico" aria-hidden="true"></span><b>Insurer statement <small>(EOB)</small></b><span>how the insurer calculated</span></li>
+        <li class="doc bill"><span class="doc-ico" aria-hidden="true"></span><b>Bill</b><span>what you&rsquo;re asked to pay</span></li>
+        <li class="doc fp"><span class="doc-ico" aria-hidden="true"></span><b>Fineprint</b><span>what you should pay &mdash; and why</span></li>
+      </ol>
+      <div class="proof-row">
+        <div id="proof" class="proof" aria-live="polite"></div>
         <div class="video-slot" role="img" aria-label="Demo video placeholder — coming soon">
           <span class="play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z"/></svg></span>
           <span class="vlabel">Demo video</span>
           <span class="vsoon">Coming soon</span>
         </div>
       </div>
-      <div id="proof" class="proof" aria-live="polite"></div>
-      <div id="headlines" class="stats"></div>
+      <div class="pillars">
+        <article class="pillar simp">
+          <div class="pv" aria-hidden="true"><div class="mess"><i></i><i></i><i></i><i></i><i></i><i></i></div><b>→</b><div class="clean"><i class="p"></i><i class="e"></i><i class="b"></i></div></div>
+          <h2>Simplification</h2><p>Only what you need, in the same clear form every time.</p>
+        </article>
+        <article class="pillar calc">
+          <div class="pv" aria-hidden="true"><div class="mtrace"><span>Allowed</span><span>− Deductible</span><span>× 20%</span><span class="eq">= You owe</span></div><mark class="mchip">Clause B2</mark></div>
+          <h2>Calculation</h2><p>Recalculated from the policy. Every number shows its source clause.</p>
+        </article>
+      </div>
+      <ol class="process" aria-label="Fixed three-step process">
+        <li><em>1</em><b>Add documents</b><span>Policy · EOB · Bill</span></li>
+        <li><em>2</em><b>Read the policy</b><span>AI or the offline reader <strong>only reads</strong> the text into rules</span></li>
+        <li><em>3</em><b>Recalculate &amp; compare</b><span>The program does the math &mdash; same input, same answer</span></li>
+      </ol>
+      <p class="tagline">AI reads. The program calculates. You can check every step.</p>
       <div class="section-heading"><h2>Case files</h2><span class="badge">Synthetic</span></div>
       <div id="case-list" class="case-list"></div>
     </section>

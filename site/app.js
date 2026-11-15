@@ -58,37 +58,31 @@ function route() {
 }
 
 /* ---------- overview ---------- */
+function clauseText(c, id) { return c.compilation?.output.policy.clauses.find(item => item.id === id)?.text || ''; }
 function renderOverview() {
-  const cases = data.cases, all = data.evaluation.groups.all;
+  const cases = data.cases;
   const states = cases.map(caseState);
   const featured = cases.find((c, i) => states[i] === 'flag') || cases.find(c => c.report.status === 'ready');
   if (featured) {
-    const s = featured.report.scenarios[0], cmp = featured.report.comparisons[0];
-    const eob = featured.report.summary.eob_patient_cents, fp = s.patient_cents;
-    const found = cmp.lines.reduce((n, l) => n + l.explanations.filter(e => e.kind === 'eob_vs_fineprint').length, 0);
-    const steps = [[featured.compilation.output.policy.clauses.length, 'Clauses'], [featured.compilation.output.rule_evidence.length, 'Rules compiled'], [cmp.lines.length, 'Lines recalculated'], [found, 'Discrepancies']];
-    $('#proof').innerHTML = `<div class="proof-top"><div class="proof-title">${escapeHTML(featured.title)}<a href="#explorer/${encodeURIComponent(featured.id)}">Open case →</a></div>
-      <div class="proof-eq"><div class="big eob"><small>EOB</small><strong>${counted(eob, 'money', money(eob))}</strong></div><span class="op" aria-hidden="true">→</span>
-      <div class="big fp"><small>Fineprint</small><strong>${counted(fp, 'money', money(fp))}</strong></div><span class="op" aria-hidden="true">=</span>
-      <div class="big delta"><small>Difference</small><strong>${counted(eob - fp, 'signed', signedMoney(eob - fp))}</strong></div></div></div>
-      <ol class="pipe">${steps.map(([n, t]) => `<li><strong>${counted(n, 'int', n)}</strong><span>${t}</span></li>`).join('')}</ol>`;
+    const s = featured.report.summary, fp = featured.report.scenarios[0].patient_cents, cmp = featured.report.comparisons[0];
+    const bill = s.bill_patient_cents, eob = s.eob_patient_cents, max = Math.max(bill, eob, fp, 1);
+    const issue = cmp.lines.flatMap(l => l.explanations).find(e => e.kind === 'eob_vs_fineprint');
+    const clauseID = issue?.clause_ids[0];
+    const row = (cls, name, verb, v) => `<div class="pbar ${cls}"><span class="pl"><b>${name}</b> ${verb}</span>${bar(cls, v, max)}<strong>${counted(v, 'money', money(v))}</strong></div>`;
+    $('#proof').innerHTML = `<div class="proof-head"><span class="badge">Synthetic case</span><h2>${escapeHTML(featured.title)}</h2></div>
+      <div class="pbars">${row('bill', 'Bill', 'asks', bill)}${row('eob', 'Insurer', 'says', eob)}${row('fp', 'Fineprint', 'recalculates', fp)}</div>
+      <div class="proof-foot"><div class="pdelta"><small>Bill − Fineprint</small><strong>${counted(bill - fp, 'signed', signedMoney(bill - fp))}</strong></div>
+      ${clauseID ? `<div class="pclause"><small>Because of</small>${citations(featured, [clauseID])}<span>${escapeHTML(clauseText(featured, clauseID))}</span></div>` : ''}</div>
+      <a class="plink" href="#explorer/${encodeURIComponent(featured.id)}">See every step <span aria-hidden="true">→</span></a>`;
   }
-  const blocked = states.filter(s => s === 'abstain').length, flagged = states.filter(s => s === 'flag').length;
-  $('#headlines').innerHTML = [
-    ['', cases.length, 'int', cases.length, 'Cases'],
-    ['red', flagged, 'int', flagged, 'Discrepancies flagged'],
-    ['ink', blocked, 'int', blocked, 'Parser abstentions'],
-    ['green', all.evidence.traceability_rate, 'pct', percent(all.evidence.traceability_rate), 'Rules traceable'],
-    ['green', all.end_to_end.rate, 'pct', percent(all.end_to_end.rate), 'End-to-end success']
-  ].map(([cls, v, kind, text, name]) => `<div class="stat ${cls}"><strong>${counted(v, kind, text)}</strong><span>${name}</span></div>`).join('');
-  const maxAll = Math.max(1, ...cases.flatMap(c => c.report.summary ? [c.report.summary.eob_patient_cents, c.report.scenarios[0].patient_cents] : []));
+  const maxAll = Math.max(1, ...cases.flatMap(c => c.report.summary ? [c.report.summary.bill_patient_cents, c.report.summary.eob_patient_cents, c.report.scenarios[0].patient_cents] : []));
   $('#case-list').innerHTML = cases.map((c, i) => {
-    const st = states[i];
+    const st = states[i], s = c.report.summary;
     const body = st === 'abstain'
-      ? `<div class="abstain-box"><span class="dot abstain"></span>Parser abstained</div>`
-      : `<div class="cmp"><div class="cmp-row"><span>EOB</span>${bar('eob', c.report.summary.eob_patient_cents, maxAll)}<span>${money(c.report.summary.eob_patient_cents)}</span></div>
-         <div class="cmp-row"><span>Fineprint</span>${bar('fp', c.report.scenarios[0].patient_cents, maxAll)}<span>${st === 'cond' ? `${money(c.report.summary.illustrated_min_patient_cents)}–${money(c.report.summary.illustrated_max_patient_cents)}` : money(c.report.scenarios[0].patient_cents)}</span></div></div>`;
-    return `<a class="case-card" href="#explorer/${encodeURIComponent(c.id)}"><div class="card-top"><span class="chip ${st}">${stateText[st]}</span><span class="chip ${c.split === 'held_out' ? 'held' : ''}">${splitLabel(c.split)}</span></div><h3>${escapeHTML(c.title)}</h3>${body}</a>`;
+      ? `<div class="abstain-box"><span class="dot abstain"></span>Parser abstained · no guess</div>`
+      : `<div class="cmp"><div class="cmp-row"><span>Bill</span>${bar('bill', s.bill_patient_cents, maxAll)}<span>${money(s.bill_patient_cents)}</span></div><div class="cmp-row"><span>EOB</span>${bar('eob', s.eob_patient_cents, maxAll)}<span>${money(s.eob_patient_cents)}</span></div>
+         <div class="cmp-row"><span>Fineprint</span>${bar('fp', c.report.scenarios[0].patient_cents, maxAll)}<span>${st === 'cond' ? `${money(s.illustrated_min_patient_cents)}–${money(s.illustrated_max_patient_cents)}` : money(c.report.scenarios[0].patient_cents)}</span></div></div>`;
+    return `<a class="case-card" href="#explorer/${encodeURIComponent(c.id)}"><div class="card-top"><span class="chip ${st}">${stateText[st]}</span><span class="chip ${c.split === 'held_out' ? 'held' : ''}">${splitLabel(c.split)}</span><span class="chip">Synthetic</span></div><h3>${escapeHTML(c.title)}</h3>${body}</a>`;
   }).join('');
   animateNumbers($('#overview'));
 }
