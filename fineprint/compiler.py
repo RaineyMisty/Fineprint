@@ -156,10 +156,11 @@ def _selector_supported(benefit, quotes):
         re.search(r"(?<!\w)" + re.escape(code) + r"(?!\w)", q) for q in quotes) for code in codes)
 
 
-def _amount_supported(cents, quotes):
+def _amount_supported(cents, quotes, *, allow_waiver=False):
     text = " ".join(quotes)
     amounts = {int(Decimal(m.replace(",", "")) * 100) for m in re.findall(r"\$\s*([\d,]+(?:\.\d{1,2})?)", text)}
-    return cents in amounts or (cents == 0 and bool(re.search(r"\b(?:no deductible|deductible does not apply|none)\b", text, re.I)))
+    return cents in amounts or (allow_waiver and cents == 0 and bool(re.search(
+        r"\b(?:no deductible|deductible does not apply|deductible.{0,40}\bnone)\b", _normalized_text(text), re.I)))
 
 
 def _costs_supported(benefit, quotes):
@@ -177,7 +178,7 @@ def _costs_supported(benefit, quotes):
                      or re.search(r"\$[\d,/. $]+\s*(?:min|max)\b", quote, re.I)):
             return False
     if benefit.get("covered", True) and not copay and not coin and not benefit.get("deductible_applies", False):
-        if not re.search(r"no charge|\$\s*0(?:[\s/.,]|$)|0\s*%", text, re.I):
+        if not re.search(r"no charge|\$\s*0(?:\.00)?\s*(?:copay|/|per)|(?<![\d.])0\s*%", text, re.I):
             return False
     if benefit.get("covered") is False and not re.search(r"not covered|exclu(?:ded|sion)", text, re.I):
         return False
@@ -188,7 +189,7 @@ def recover_evidence(value, document, document_id):
     """Locate supplied quotes; never correct words, numbers or punctuation.
 
     Whitespace alone may differ after PDF extraction. Saved quotes always equal
-    the exact source slice. Unsupported benefits are removed and made unresolved;
+    the exact source slice. Unsupported benefits are removed and listed as coverage gaps;
     an incomplete network is removed together with its dependent benefits.
     """
     value = deepcopy(value)
@@ -200,6 +201,10 @@ def recover_evidence(value, document, document_id):
     if compact:
         validate_schema(value, PROVIDER_SCHEMA)
         source_lines = document.splitlines(keepends=True)
+        line_offsets, offset = [], 0
+        for line in source_lines:
+            line_offsets.append(offset)
+            offset += len(line)
         for rule in value["rule_evidence"]:
             expanded = []
             for evidence in rule["evidence"]:
@@ -209,8 +214,11 @@ def recover_evidence(value, document, document_id):
                 for number in evidence["source_lines"]:
                     if not 1 <= number <= len(source_lines) or not source_lines[number - 1].strip():
                         raise ModelError("Evidence selected a nonexistent or blank source line")
+                    line = source_lines[number - 1]
+                    quote = line.strip()
+                    start = line_offsets[number - 1] + len(line) - len(line.lstrip())
                     expanded.append(dict(source_document_id=evidence["source_document_id"], section=evidence["section"],
-                                         quote=source_lines[number - 1].strip()))
+                                         quote=quote, start=start, end=start + len(quote)))
             rule["evidence"] = expanded
     else:
         if isinstance(value.get("rule_evidence"), list):
@@ -255,6 +263,12 @@ def recover_evidence(value, document, document_id):
     for rule in value["rule_evidence"]:
         found = []
         for evidence in rule["evidence"]:
+            # These offsets were computed above, never accepted from a provider.
+            if compact and "start" in evidence:
+                if (evidence["source_document_id"] == document_id
+                        and document[evidence["start"]:evidence["end"]] == evidence["quote"]):
+                    found.append(evidence)
+                continue
             quote = _normalized_text(evidence["quote"])
             index = normalized.find(quote) if quote else -1
             if evidence["source_document_id"] != document_id or index < 0:
@@ -304,7 +318,7 @@ def recover_evidence(value, document, document_id):
             rule = merged.get(f"networks.{net}.{field}")
             ref = terms[ref_field]
             if (not rule or ref not in clauses or clauses[ref]["text"] not in {e["quote"] for e in rule["evidence"]}
-                    or not _amount_supported(terms[field], [e["quote"] for e in rule["evidence"]])):
+                    or not _amount_supported(terms[field], [e["quote"] for e in rule["evidence"]], allow_waiver=field == "deductible_cents")):
                 supported = False
             if net == "out" and rule and not any(re.search(
                     r"out[\s-]*(?:of[\s-]*)?network|non[\s-]*participating", e["quote"], re.I)
@@ -424,7 +438,7 @@ def validate_output(value, document, document_id):
             if ref not in clauses or clauses[ref].text not in [e.quote for e in evidence_by_path[f"networks.{net}.{field}"].evidence]:
                 raise ModelError("Network clause must match its rule evidence")
             if field in ("deductible_cents", "oop_max_cents") and not _amount_supported(getattr(terms, field),
-                    [e.quote for e in evidence_by_path[f"networks.{net}.{field}"].evidence]):
+                    [e.quote for e in evidence_by_path[f"networks.{net}.{field}"].evidence], allow_waiver=field == "deductible_cents"):
                 raise ModelError("Network amount is not present in its source evidence")
             if field == "balance_billing" and not _balance_supported(terms.balance_billing,
                     [e.quote for e in evidence_by_path[f"networks.{net}.{field}"].evidence]):

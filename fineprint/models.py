@@ -238,8 +238,9 @@ def to_dict(value):
 
 
 def benefit_matches(benefit, line):
+    if not set(benefit.conditions) <= set(line.confirmed_conditions):
+        return False
     if benefit.service_category is not None:
-        return (line.service_category == benefit.service_category
-                and set(benefit.conditions) <= set(line.confirmed_conditions))
+        return line.service_category == benefit.service_category
     return line.code in benefit.codes
 

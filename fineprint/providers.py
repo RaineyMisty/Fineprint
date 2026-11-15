@@ -63,7 +63,7 @@ class LLMCompiler:
                     max_tokens=self.max_tokens, max_tokens_ceiling=65536, thinking="disabled",
                     timeout_seconds=self.timeout_seconds, attempt_limit=self.attempt_limit,
                     transport_attempt_limit=self.transport_attempt_limit,
-                    evidence_spans="local whitespace-normalized quote search")
+                    evidence_spans="selected original source lines with local offsets; legacy quotes use whitespace-normalized search")
 
     def compile(self, document, document_id="uploaded-policy"):
         self.attempt_audit = []

@@ -140,3 +140,18 @@ class SbcContractTests(unittest.TestCase):
         ):
             self.assertFalse(_costs_supported(benefit, quotes))
         self.assertTrue(_costs_supported(dict(copay_cents=0, coinsurance_bps=0), ['Hospice No charge']))
+
+    def test_code_based_benefits_also_require_their_conditions(self):
+        p = payload()
+        p['policy']['benefits'][0]['conditions'] = ['Authorization obtained']
+        with self.assertRaises(CalculationError):
+            calculate(case_from_dict(p))
+        p['claim']['lines'][0]['confirmed_conditions'] = ['Authorization obtained']
+        self.assertEqual(calculate(case_from_dict(p))[0].patient_cents, 12000)
+
+    def test_absent_limit_and_zero_deductible_do_not_prove_zero_cost_sharing(self):
+        from fineprint.compiler import _amount_supported, _costs_supported
+        self.assertFalse(_amount_supported(0, ['Out-of-pocket limit: None']))
+        self.assertTrue(_amount_supported(0, ['No deductible'], allow_waiver=True))
+        self.assertFalse(_costs_supported(dict(copay_cents=0, coinsurance_bps=0),
+                                         ['Overall deductible $0', 'Surgery 20% coinsurance']))

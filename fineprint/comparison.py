@@ -31,7 +31,7 @@ def compare(case: Case, scenario: Scenario) -> dict:
                 explanations.append({"kind": "eob_vs_fineprint", "component": field,
                                      "difference_cents": actual - expected,
                                      "message": f"EOB {label} is {actual} cents; policy evaluation gives {expected} cents under this scenario.",
-                                     "clause_ids": list(dict.fromkeys(component_refs.get(field, refs)))})
+                                     "clause_ids": list(dict.fromkeys(ref for ref in component_refs.get(field, refs) if ref is not None))})
         if bill.patient_total_cents != eob.patient_cents:
             explanations.append({"kind": "bill_vs_eob", "component": "patient_cents",
                                  "difference_cents": bill.patient_total_cents - eob.patient_cents,
