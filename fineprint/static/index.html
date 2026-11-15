@@ -37,6 +37,11 @@
           <li class="doc" data-kind="policy">
             <div class="doc-role"><span class="doc-ico" aria-hidden="true">§</span><div><label for="in-policy" class="doc-name">Insurance policy</label><span class="doc-what">Sets the rules</span></div></div>
             <div class="doc-head"><span class="hint" id="hint-policy">PDF, text or Markdown <span class="count" data-count="in-policy"></span></span><label class="file" for="file-policy">Upload<input id="file-policy" type="file" accept=".pdf,.txt,.md,application/pdf,text/plain,text/markdown" data-target="in-policy"></label></div>
+            <div id="policy-upload-prompt" class="policy-upload-prompt" role="note" hidden>
+              <strong>Upload the real Kaiser SBC PDF to continue</strong>
+              <a href="https://healthy.kaiserpermanente.org/content/dam/kporg/final/documents/health-plan-documents/summary-of-benefits/ca/individual-family/2026/40513CA0380002-01-en-2026.pdf" target="_blank" rel="noopener noreferrer">Download it from Kaiser (official PDF)</a>
+              <p>We don’t preload this PDF because it has no redistribution license. Download it from Kaiser, then use Upload or drop it here.</p>
+            </div>
             <textarea id="in-policy" spellcheck="false" placeholder="Drop your plan’s benefits document here, or paste its text…" aria-describedby="hint-policy status-policy"></textarea>
             <p id="status-policy" class="file-status" role="status" aria-live="polite"></p>
           </li>
@@ -64,6 +69,7 @@
         <div class="actions">
           <button class="btn primary big" type="submit" id="check-btn">Check my bill</button>
           <button class="btn ghost" type="button" id="clear-btn">Clear</button>
+          <p id="policy-missing" class="policy-missing" role="status" hidden>The demo claim and bill are loaded. Only the policy PDF is missing.</p>
           <p class="privacy" id="privacy-note">Documents are processed in memory and not stored.</p>
         </div>
       </form>

@@ -78,6 +78,13 @@ main{max-width:1180px;margin:0 auto;padding:clamp(22px,4vw,44px) clamp(16px,4vw,
 .doc[data-kind=policy]{--c:var(--policy);--ct:var(--policy-t)}
 .doc[data-kind=eob]{--c:var(--eob);--ct:var(--eob-t)}
 .doc[data-kind=bill]{--c:var(--bill);--ct:var(--bill-t)}
+.doc.needs-policy{border-color:var(--policy);box-shadow:0 0 0 3px var(--policy-t)}
+.doc.needs-policy textarea{border-color:var(--policy);border-style:dashed}
+.policy-upload-prompt{padding:14px;border-radius:10px;background:var(--policy-t);color:var(--policy);margin-bottom:10px;overflow-wrap:anywhere}
+.policy-upload-prompt strong{display:block;font:700 1.12rem/1.25 var(--serif)}
+.policy-upload-prompt a{display:block;margin:10px 0;font-size:.9rem;font-weight:700;text-underline-offset:3px}
+.policy-upload-prompt p{font-size:.84rem;line-height:1.45}
+.policy-missing{flex-basis:100%;font-size:.9rem;font-weight:600;color:var(--policy)}
 .chain .doc:not(:last-child)::after{content:"→";position:absolute;right:-29px;top:26px;font:700 1.4rem var(--sans);color:var(--muted)}
 .doc-role{display:flex;gap:12px;align-items:center}
 .doc-ico{display:grid;place-items:center;width:40px;height:40px;border-radius:10px;background:var(--ct);color:var(--c);font:700 1.3rem var(--serif);flex:none}

@@ -71,11 +71,29 @@
   const unbanner = () => { $("banner").hidden = true; };
 
   /* ---------- step 1 ---------- */
+  function syncPolicyUpload() {
+    const missing = S.sample?.id === "kaiser-real-sbc" && !$("in-policy").value.trim();
+    $("policy-upload-prompt").hidden = !missing;
+    $("policy-missing").hidden = !missing;
+    $("in-policy").closest(".doc").classList.toggle("needs-policy", missing);
+    $("in-policy").setAttribute("aria-describedby", "hint-policy status-policy" + (missing ? " policy-upload-prompt" : ""));
+    $("in-policy").placeholder = missing ? "Upload or drop the real Kaiser SBC PDF here…" : "Drop your plan’s benefits document here, or paste its text…";
+    $("check-btn").textContent = missing ? "Upload the policy PDF to continue" : "Check my bill";
+    if (missing) $("check-btn").setAttribute("aria-describedby", "policy-missing");
+    else $("check-btn").removeAttribute("aria-describedby");
+    return missing;
+  }
+  function pointToPolicyUpload() {
+    const slot = $("in-policy").closest(".doc");
+    window.scrollTo({top: Math.max(0, slot.getBoundingClientRect().top + scrollY - document.querySelector(".top").offsetHeight - 16), behavior: "smooth"});
+    $("file-policy").focus({preventScroll: true});
+  }
   function updateCounts() {
     document.querySelectorAll("[data-count]").forEach((el) => {
       const n = $(el.dataset.count).value.length;
       el.textContent = n ? n.toLocaleString("en-US") + " characters" : "";
     });
+    syncPolicyUpload();
   }
   function fillInputs(inputs) {
     $("in-policy").value = inputs.policy; $("in-eob").value = inputs.eob; $("in-bill").value = inputs.bill;
@@ -116,7 +134,7 @@
       h("span", {class: "file-check"}, notice.charAt(0).toUpperCase() + notice.slice(1)),
       (res.warnings || []).map((w) => h("span", {class: "file-warn"}, String(w))));
   }
-  const syncBusy = () => { $("check-btn").disabled = S.reading.size > 0; };
+  const syncBusy = () => { $("check-btn").disabled = S.reading.size > 0; syncPolicyUpload(); };
   function resetFiles() { // Clear / sample: forget PDF provenance and ignore any extraction still in flight
     for (const k of KINDS) { S.token[k] = ++S.seq; setPdf(k, null); }
     S.reading.clear(); syncBusy();
@@ -199,6 +217,7 @@
         if (existingPdf) setPdf("policy", existingPdf);
         updateCounts(); show(1);
         setStatus("policy", "", existingPolicy ? "Real-policy demo loaded. Check the policy, then Check my bill." : "Upload the real SBC PDF, then Check my bill. Claim and bill below are synthetic.");
+        if (syncPolicyUpload()) pointToPolicyUpload();
         return;
       }
       $("doc-form").scrollIntoView({block: "start", behavior: "smooth"});
@@ -213,6 +232,7 @@
   async function run(text) {
     unbanner();
     if (S.reading.size) { show(1); banner("Still reading your PDF — check again once it’s done.", "input"); return; }
+    if (syncPolicyUpload()) { show(1); pointToPolicyUpload(); return; }
     let payload;
     try { payload = collect(); } catch (e) { show(1); banner(e.message, e.kind); return; }
     if (!payload.policy.trim() || !payload.eob.trim() || !payload.bill.trim()) {
@@ -549,12 +569,12 @@
     document.querySelectorAll("#steps button").forEach((b) => b.addEventListener("click", () => show(+b.dataset.step)));
     document.querySelectorAll("[data-go]").forEach((b) => b.addEventListener("click", () => show(+b.dataset.go)));
     $("doc-form").addEventListener("submit", (e) => { e.preventDefault(); run(); });
-    $("in-format").addEventListener("change", () => { S.sample = null; });
+    $("in-format").addEventListener("change", () => { S.sample = null; syncPolicyUpload(); });
     $("clear-btn").addEventListener("click", () => { for (const id of ["in-policy", "in-eob", "in-bill", "in-facts"]) $(id).value = ""; S.sample = null; resetFiles(); updateCounts(); unbanner(); });
     document.querySelectorAll("textarea").forEach((t) => t.addEventListener("input", () => {
-      updateCounts();
       const kind = t.closest(".doc")?.dataset.kind;
       if (!(kind === "policy" && S.sample?.requires_policy_upload)) S.sample = null;
+      updateCounts();
       if (!kind) return;
       if (S.reading.has(kind)) {
         // A user's edit wins over any upload response still in flight.
