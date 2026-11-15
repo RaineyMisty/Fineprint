@@ -290,7 +290,7 @@ function renderGroup() {
   const g = evaluation.groups[evalGroup], d = g.discrepancy;
   const reports = [evaluation, ...(data?.llm_evaluations || [])];
   $('#eval-comparison').innerHTML = `<div class="t-scroll"><table class="tbl"><caption class="sr-only">Synthetic data · ${escapeHTML(evalGroup)} · provider comparison</caption><thead><tr><th scope="col">${evalGroup === 'all' ? 'All' : splitLabel(evalGroup)} · synthetic data</th>${reports.map(r => `<th scope="col">${r.backend === 'fallback' ? 'Offline fallback' : 'DeepSeek'}<br><span>${escapeHTML(r.model || 'No LLM')}</span><br><time datetime="${escapeHTML(r.generated_at)}">${escapeHTML(r.generated_at.slice(0, 10))}</time></th>`).join('')}</tr></thead><tbody>
-    ${metricDefs.map(([name, val, count]) => `<tr><th scope="row">${name}</th>${reports.map(r => `<td>${percent(val(r.groups[evalGroup]))} <small>(${escapeHTML(count(r.groups[evalGroup]))})</small></td>`).join('')}</tr>`).join('')}
+    ${metricDefs.map(([name, val, count]) => `<tr><th scope="row">${name}</th>${reports.map((r, i) => `<td><span class="cbar">${bar(i ? 'ds' : 'off', val(r.groups[evalGroup]), 1)}</span>${percent(val(r.groups[evalGroup]))} <small>(${escapeHTML(count(r.groups[evalGroup]))})</small></td>`).join('')}</tr>`).join('')}
     <tr><th scope="row">Failed compilations</th>${reports.map(r => { const rows = r.policies.filter(p => evalGroup === 'all' || p.split === evalGroup); return `<td>${rows.filter(p => p.error).length}/${rows.length}</td>`; }).join('')}</tr>
     <tr><th scope="row">Abstentions</th>${reports.map(r => `<td>${r.groups[evalGroup].discrepancy.abstentions}/${r.groups[evalGroup].cases}</td>`).join('')}</tr>
     </tbody></table></div>`;
@@ -301,20 +301,32 @@ function renderGroup() {
     <div class="conf-foot"><span class="chip abstain">${d.abstentions} abstentions</span><span class="chip">${d.resolved_labeled_cases}/${d.labeled_cases} resolved</span><span class="chip">${g.policies} policies · ${g.cases} cases</span></div>`;
   animateNumbers($('#eval-group'));
 }
+function realSBCHTML(r) {
+  const m = r.summary, n = m.published_labels || 1;
+  const seg = (cls, v, t) => v ? `<span class="seg-${cls}" style="--w:${(v / n * 100).toFixed(2)}%" title="${t}: ${v}"></span>` : '';
+  return `<section class="panel real" aria-label="Real published SBC examples"><div class="real-head"><h3>Real published SBC examples</h3><span class="badge real-badge">Real documents · rounded official illustrations</span></div>
+    <div class="real-grid"><div class="real-big"><strong>${m.recalculated}</strong><span>independently recalculated</span><small>of ${m.published_labels} published labels · ${m.insurers} insurers</small></div>
+      <div><div class="stack" role="img" aria-label="${m.blocked} blocked, ${m.not_attempted} not attempted, ${m.recalculated} recalculated">${seg('blocked', m.blocked, 'Blocked')}${seg('na', m.not_attempted, 'Not attempted')}${seg('ok', m.recalculated, 'Recalculated')}</div>
+      <div class="legend"><span class="key k-blocked">${m.blocked} blocked</span><span class="key k-na">${m.not_attempted} not attempted</span><span class="key k-ok">${m.recalculated} recalculated</span></div>
+      <p class="real-acc">Accuracy: <b>${m.accuracy == null ? 'unavailable' : percent(m.accuracy)}</b> · Mean abs. error: <b>${m.mean_absolute_error_cents == null ? 'unavailable' : money(m.mean_absolute_error_cents)}</b></p></div></div>
+    <ul class="real-notes">${(r.methodology || []).slice(0, 3).map(t => `<li>${escapeHTML(t)}</li>`).join('')}</ul>
+    <p class="real-links"><a href="evaluation-real-sbc.md">Report ↗</a> <a href="evaluation-real-sbc.json">Data ↗</a></p></section>`;
+}
 function renderEvaluation() {
   const g = evaluation.groups, titles = new Map((data?.cases || []).map(c => [c.id, c.title]));
   const outcome = c => c.end_to_end_success ? ['pass', 'Pass'] : c.error ? ['block', 'Parser abstained'] : ['miss', 'Miss'];
-  $('#evaluation-content').innerHTML = `<div class="eval-head"><h2>Evaluation</h2><fieldset class="seg" aria-label="Group"><legend class="sr-only">Group</legend>${[['seen', 'Seen'], ['held_out', 'Held-out'], ['all', 'All']].map(([k, t]) => `<label><input type="radio" name="grp" value="${k}" ${k === evalGroup ? 'checked' : ''}><span>${t}</span></label>`).join('')}</fieldset></div>
-    <p class="caveat"><span aria-hidden="true">⚠</span>${escapeHTML(evaluation.methodology[0] || '')}</p>
-    <section class="panel provider-comparison" aria-label="Offline fallback vs DeepSeek"><h3>Offline fallback vs DeepSeek</h3><div id="eval-comparison"></div></section>
-    <h3 class="fallback-detail">Offline fallback</h3>
+  $('#evaluation-content').innerHTML = `<div class="eval-head"><h2>Measured evaluation</h2><fieldset class="seg" aria-label="Group"><legend class="sr-only">Group</legend>${[['seen', 'Seen'], ['held_out', 'Held-out'], ['all', 'All']].map(([k, t]) => `<label><input type="radio" name="grp" value="${k}" ${k === evalGroup ? 'checked' : ''}><span>${t}</span></label>`).join('')}</fieldset></div>
+    <div class="honesty" role="note"><span class="hi-ico" aria-hidden="true">!</span><div><strong>Author-created synthetic test set &mdash; not blinded, not real-world performance.</strong><span>Numbers below are from the offline fallback reader unless labeled DeepSeek. No LLM is used for arithmetic.</span></div></div>
+    <h3 class="fallback-detail">Offline fallback reader · synthetic cases</h3>
     <div id="eval-group"></div>
+    <section class="panel provider-comparison" aria-label="Offline fallback vs DeepSeek"><h3>Offline fallback vs DeepSeek (as policy reader) · synthetic</h3><div id="eval-comparison"></div></section>
+    ${data?.real_evaluation ? realSBCHTML(data.real_evaluation) : ''}
+    <details class="more"><summary>More detail: seen vs held-out, discrepancy matrix, per-case results</summary>
     <div class="eval-grid"><section class="panel"><h3>Seen vs held-out</h3><div class="legend"><span class="key">Seen</span><span class="key held">Held-out</span><span class="key all">All</span></div>
       ${metricDefs.map(([name, val, count]) => `<div class="mrow"><b>${name}</b><div class="mbars" role="group" aria-label="${name}">${[['seen', 'Seen', ''], ['held_out', 'Held-out', 'hel']].map(([k, t, cls]) => { const r = val(g[k]); return `<div class="mb" role="meter" aria-label="${name} · ${t}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Number.isFinite(r) ? (r * 100).toFixed(1) : 0}" aria-valuetext="${percent(r)}">${bar(cls, r, 1)}<em><b>${percent(r)}</b><small>${escapeHTML(count(g[k]))}</small></em></div>`; }).join('')}</div><span class="mall" title="All">${percent(val(g.all))}</span></div>`).join('')}</section>
       <div style="display:grid;gap:22px"><section class="panel"><h3>Discrepancy detection</h3><div id="eval-conf"></div></section>
-      <section class="panel"><h3>Cases</h3><div class="tiles">${evaluation.cases.map(c => { const [cls, text] = outcome(c); return `<a class="tile ${cls}" href="#explorer/${encodeURIComponent(c.id)}"><b>${escapeHTML(titles.get(c.id) || c.id)}</b><span class="chip ${cls === 'pass' ? 'ok' : cls === 'miss' ? 'flag' : 'abstain'}">${text}</span><span class="muted">${splitLabel(c.split)}</span></a>`; }).join('')}</div></section></div></div>
+      <section class="panel"><h3>Cases <span class="badge">Synthetic</span></h3><div class="tiles">${evaluation.cases.map(c => { const [cls, text] = outcome(c); return `<a class="tile ${cls}" href="#explorer/${encodeURIComponent(c.id)}"><b>${escapeHTML(titles.get(c.id) || c.id)}</b><span class="chip ${cls === 'pass' ? 'ok' : cls === 'miss' ? 'flag' : 'abstain'}">${text}</span><span class="muted">${splitLabel(c.split)}</span></a>`; }).join('')}</div></section></div></div></details>
     <div class="prov"><span>Backend <b>${escapeHTML(evaluation.backend)}</b></span><span>Revision <b>${escapeHTML(String(evaluation.revision || '').slice(0, 7))}</b></span><span>Corpus <b>${escapeHTML(String(evaluation.corpus_sha256 || '').slice(0, 10))}</b></span><span>Generated <b>${escapeHTML(String(evaluation.generated_at || '').slice(0, 10))}</b></span><span>Synthetic data · offline fallback</span></div>`;
-  if (data?.real_evaluation) $('#evaluation-content').insertAdjacentHTML('afterbegin', '<p class="caveat"><a href="evaluation-real-sbc.json">real published SBC examples (rounded)</a> · Saved results and calculation blockers</p>');
   $('.seg').addEventListener('change', event => { if (event.target.name === 'grp') { evalGroup = event.target.value; renderGroup(); } });
   renderGroup();
 }
