@@ -17,6 +17,8 @@
     <a class="wordmark" href="#overview" aria-label="Fineprint home">fine<span>print</span></a>
     <nav aria-label="Main"><a href="#overview">Overview</a><a href="#explorer">Case explorer</a><a href="#evaluation">Evaluation</a></nav>
     <span class="badge synth"><i aria-hidden="true"></i>Synthetic data · offline fallback</span>
+<a class="live-link" href="https://fi-9a2f7a7357674be89e7cf09a86c2c5a7.ecs.us-east-1.on.aws" target="_blank" rel="noopener">Live app <span aria-hidden="true">↗</span></a>
+    <button class="qr-btn" type="button" data-qr-open aria-haspopup="dialog" aria-label="Show QR code for the live app"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h7v7H3zm2 2v3h3V5zm9-2h7v7h-7zm2 2v3h3V5zM3 14h7v7H3zm2 2v3h3v-3zm9-2h2v2h-2zm2 2h2v2h-2zm2-2h3v2h-3zm-4 4h2v3h-2zm4 0h3v3h-2v-1h-1zm-2 2h2v1h-2z"/></svg>QR</button>
   </header>
   <main id="main" tabindex="-1">
     <section id="overview" class="screen" aria-label="Overview">
@@ -43,5 +45,14 @@
     <noscript>Enable JavaScript to explore the synthetic cases.</noscript>
   </main>
   <footer><span class="wordmark small">fine<span>print</span></span><span>Synthetic data · offline fallback</span><a href="data.json">Case data ↗</a><a href="evaluation.json">Evaluation data ↗</a></footer>
+  <button class="qr-float" type="button" data-qr-open aria-haspopup="dialog" aria-label="Scan to open the live app — click to enlarge"><img src="qr-live.svg" alt="" width="84" height="84"><span>Scan · live app</span></button>
+  <dialog id="qr-dialog" class="qr-dialog" aria-labelledby="qr-title">
+    <form method="dialog"><button class="qr-close" aria-label="Close">×</button></form>
+    <h2 id="qr-title">Try Fineprint live</h2>
+    <img src="qr-live.svg" alt="QR code linking to the live Fineprint app on AWS" width="320" height="320">
+    <a class="button" href="https://fi-9a2f7a7357674be89e7cf09a86c2c5a7.ecs.us-east-1.on.aws" target="_blank" rel="noopener">Open live app <span aria-hidden="true">↗</span></a>
+    <p class="qr-url mono">fi-9a2f7a7357674be89e7cf09a86c2c5a7.ecs.us-east-1.on.aws</p>
+  </dialog>
+  <script>(()=>{const d=document.getElementById('qr-dialog');document.querySelectorAll('[data-qr-open]').forEach(b=>b.addEventListener('click',()=>d.showModal()));d.addEventListener('click',e=>{if(e.target===d)d.close()});})();</script>
 </body>
 </html>

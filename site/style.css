@@ -316,3 +316,22 @@ footer span:nth-child(2){margin-right:auto}
   *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
   .hl{background-size:100% 100%}
 }
+
+/* live app + QR */
+.live-link{font-weight:700;font-size:14px;text-decoration:none;padding:7px 14px;border-radius:999px;background:var(--hl);box-shadow:2px 2px 0 var(--ink)}
+.live-link:hover{transform:translate(-1px,-1px);box-shadow:3px 3px 0 var(--ink)}
+.qr-btn{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid var(--ink);border-radius:999px;background:var(--card);font:700 12px/1 var(--mono);cursor:pointer}
+.qr-btn svg{width:18px;height:18px;fill:var(--ink)}
+.qr-btn:hover{background:var(--ink);color:var(--paper)}.qr-btn:hover svg{fill:var(--paper)}
+.qr-float{position:fixed;right:18px;bottom:18px;z-index:30;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 8px 6px;background:var(--card);border:1px solid var(--ink);border-radius:12px;box-shadow:4px 4px 0 var(--hl);cursor:zoom-in;transition:transform .2s}
+.qr-float:hover{transform:translate(-2px,-2px) scale(1.04)}
+.qr-float img{display:block;width:84px;height:84px}
+.qr-float span{font:700 10px/1 var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2)}
+.qr-dialog{border:1px solid var(--ink);border-radius:20px;padding:28px 32px 22px;background:var(--card);color:var(--ink);text-align:center;box-shadow:8px 8px 0 var(--hl);max-width:min(92vw,440px)}
+.qr-dialog::backdrop{background:rgba(20,22,26,.55);backdrop-filter:blur(3px)}
+.qr-dialog h2{margin:0 0 16px;font:700 28px/1.1 var(--serif)}
+.qr-dialog img{display:block;width:min(320px,76vw);height:auto;margin:0 auto;border-radius:8px}
+.qr-dialog .button{margin-top:18px}
+.qr-url{margin:14px 0 0;font-size:11px;color:var(--ink-3);word-break:break-all}
+.qr-close{position:absolute;top:10px;right:14px;border:0;background:none;font-size:28px;line-height:1;cursor:pointer;color:var(--ink-2)}
+@media (max-width:720px){.qr-float{display:none}.live-link{display:none}}
